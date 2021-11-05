@@ -1,0 +1,194 @@
+TipTacItemRef Changes | 2020 Oct 31
+-----------------------------------
+- Updated the TOC version to 90001 for the Shadowlands 9.0.1 pre-patch.
+
+TipTacItemRef Changes | 2019 Mar 31
+-----------------------------------
+- Updated the TOC version to 80100 for the Tides of Vengeance 8.1 patch.
+
+TipTacItemRef Changes | 2018 Aug 12
+-----------------------------------
+- Seperated the "Show Item Level & ID" option. So if the default item level text is prefered, that's now possible.
+
+TipTacItemRef Changes | 2018 Jul 25
+-----------------------------------
+- Fixed issues with the "Smart Icon Appearance" option, where it failed to parse hyperlinks for type and id.
+
+TipTacItemRef Changes | 2018 Jul 22
+-----------------------------------
+- ItemIDs will now be shown, even for items that has no valid itemLevel. Thanks Kiber_.
+- Fixed an issue that could reference the Icon before it was created, if ApplySettings was called from TipTac.
+
+TipTacItemRef Changes | 2018 Jul 19
+-----------------------------------
+- Updated the TOC version to 80000 for the Battle for Azeroth 8.0 pre-patch.
+- Fixed code related to API changes in BfA (UnitAura, GetSpell, GetSpellInfo).
+
+TipTacItemRef Changes | 2017 Oct 10
+-----------------------------------
+- Updated the TOC version to 70300 for the 7.3 patch.
+
+TipTacItemRef Changes | 2016 Oct 27
+-----------------------------------
+- Updated the TOC version to 70100 for the 7.1 patch.
+
+TipTacItemRef Changes | 2016 Aug 30
+-----------------------------------
+- GetUpgradedItemLevel: This library has been renamed into LibItemString. It has a few more features as well as using tooltip scanning to get the true itemLevel.
+- Auras, that is buffs and debuffs, now also displays the SpellID in addition to the Caster who applied it.
+
+TipTacItemRef Changes | 2016 Aug 24
+-----------------------------------
+- GetUpgradedItemLevel: Fixed upgradeID pattern not having a capture group.
+
+TipTacItemRef Changes | 2016 Jul 23
+-----------------------------------
+- Small update of the "GetUpgradedItemLevel" library to support itemStrings with omitted zeros.
+
+TipTacItemRef Changes | 2016 Jul 21
+-----------------------------------
+- TOC version updated to 70000 for the Legion 7.0.3 pre-patch.
+
+TipTacItemRef Changes | 2015 Dec 07
+-----------------------------------
+- Due to the issues with showing the correct itemLevel for upgraded and warforged items, the default setting for "Show Item Level & ID" has been changed to FALSE.
+- Updated the "GetUpgradedItemLevel" library. Should fix itemLevel issues with Timewarped items. If you encounter issues with itemLevels, disable the "Show Item Level & ID" setting under the TipTacOptions.
+
+TipTacItemRef Changes | 2015 Jul 02
+-----------------------------------
+- TOC version changed to 60200 for the 6.2 patch.
+
+TipTacItemRef Changes | 2015 Mar 04
+-----------------------------------
+- TOC version updated to 60100 for the 6.1 patch.
+
+TipTacItemRef Changes | 2015 Jan 14
+-----------------------------------
+- Tried to fix a Lua error happening due to GetAchievementCriteriaInfo() being called for non existing criteria indexes.
+
+TipTacItemRef Changes | 2014 Oct 16
+-----------------------------------
+- Updated the "GetUpgradedItemLevel" library. This update will again properly find the correct itemLevel of upgraded items.
+
+TipTacItemRef Changes | 2014 Oct 15
+-----------------------------------
+- TOC version has been changed to 60000 for the Warlords of Draenor 6.0.2 patch.
+
+TipTacItemRef Changes | 2014 May 24
+-----------------------------------
+- Updated the "GetUpgradedItemLevel.lua" library, to include the new upgrade IDs.
+
+TipTacItemRef Changes | 2013 Sep 21
+-----------------------------------
+- Changed the TOC version to 50400 for the 5.4 patch.
+- GetUpgradedItemLevel: Patch 5.4: Added IDs 491 to 498 to the table.
+
+TipTacItemRef Changes | 2013 May 22
+-----------------------------------
+- Changed the TOC version to 50300 for the 5.3 patch.
+- Moved the GetUpgradedItemLevelFromItemLink() function into its own Lua file.
+- GetUpgradedItemLevel: Patch 5.3: Added the 465/466/467 IDs (0/4/8 lvls) to the table.
+- GetUpgradedItemLevel: Patch 5.2: Added the 470 ID (8 lvls) to the table.
+
+TipTacItemRef Changes | 2013 Mar 15
+-----------------------------------
+- Changed the TOC version to 50200 for the 5.2 patch.
+- Now shows currency icons again. This was broken due to a change in returned texture path from an API function.
+
+TipTacItemRef Changes | 2013 Feb 19
+-----------------------------------
+- Changed the TOC version to 50100 for the 5.1 patch.
+- Items should now show the proper item level when it has been upgraded.
+
+TipTacItemRef Changes | 2012 Aug 30
+-----------------------------------
+- Changed the TOC version to 50001 for the 5.0 Mists of Pandaria patch.
+- Fixed an error for currency tooltips, when icons were disabled.
+- Removed an error that occurred when an achievement tooltip with an uneven number of critieria was shown.
+
+TipTacItemRef Changes | 2012 May 20
+-----------------------------------
+- Changed the TOC version to 40300 for the 4.3 patch.
+- Now handles "currency" tooltips. Thanks to "Vladinator" for adding this.
+
+TipTacItemRef Changes | 2011 Sep 29
+-----------------------------------
+- Changed the TOC version to 40200 for the 4.2 patch.
+
+TipTacItemRef Changes | 2010 Dec 06
+-----------------------------------
+- Fixed table error if used alone, i.e. TipTac core not enabled.
+
+TipTacItemRef Changes | 2010 Dec 05
+-----------------------------------
+- Option to display Achievement ID and Category added.
+- It's no longer possible to hook the same tooltip more than once.
+
+TipTacItemRef Changes | 2010 Nov 17
+-----------------------------------
+- Added an option, which you can use to disable the Achievement tooltip modification.
+- Improved the Smart Icon feature even more, it should no longer show icons in places such as the quest log, trade skill frame and talent frame as well as the inspect talent frame tooltips.
+- The "count" text on the icon, showing stack size or achievement points, will now "scale" with the size you set the icon to be.
+
+TipTacItemRef Changes | 2010 Nov 12
+-----------------------------------
+- The default item level text, is now hidden to avoid two lines showing the item level.
+- Fixed a nil error with the local "owner", which could happen on occasions.
+- The "Quality Colored Border" option, which colors the tooltip border based on the item rarity, has been moved from the core TipTac addon, into TipTacItemRef.
+- With "Smart Icons" enabled, it will no longer display an icon for guild bank items, auction house items, as well as mail attachment tooltips.
+- Improved the "Smart Icons" option, it should now show the icon on even less frames.
+- Added a new option, to show who the caster of a specific aura is. So when showing a buff or debuff tooltip, an extra line will be shown, as to who who applied this aura.
+
+TipTacItemRef Changes | 2010 Nov 10
+-----------------------------------
+- Fixed a nil error if "Borderless Icons" were enabled.
+- Fixed two nil errors that could happen when showing item and quest level.
+
+TipTacItemRef Changes | 2010 Nov 09
+-----------------------------------
+- You can now configure TipTacItemRef from ingame, if you have TipTac and TipTacOptions installed.
+- Now supports quest tooltips. Which will show the quest level and quest id.
+- Added a "Smart Icon Appearance" feature. This will determine if an icon should be shown depending on where the tooltip is being shown from. So for example, when shown from a bag item, or action bar slot, there is no need to show an icon, as they already have one.
+- The "count" text on the icon, now uses the default font, rather than the number font.
+- Icons now shown on the GameTooltip, and not only ItemRefTooltip.
+
+TipTacItemRef Changes | 2010 Oct 19
+-----------------------------------
+- Fixed a bug that could generate an error if an achievement were linked cross server over realID, and the line stating when it was complete, were missing.
+- Minor code optimisations.
+
+TipTacItemRef Changes | 2010 Oct 12
+-----------------------------------
+- Changed the TOC version to 40000 for the 4.0.1 pre Cataclysm patch.
+
+TipTacItemRef Changes | 2010 Feb 27
+-----------------------------------
+- Changed the TOC version to 30300 for the 3.3 patch.
+
+TipTacItemRef Changes | 2009 Aug 13
+-----------------------------------
+- Changed the TOC version to 30200 for the 3.2 patch.
+- Added a Lua option to toggle item level and id for item tooltips.
+- Added a Lua option to toggle spell id and rank for spell tooltips.
+
+TipTacItemRef Changes | 2009 May 25
+-----------------------------------
+- No longer creates a table for each time you view an achievement link.
+
+TipTacItemRef Changes | 2009 Apr 17
+-----------------------------------
+- Changed the TOC version to 30100 for the 3.1 patch.
+
+TipTacItemRef Changes | 2009 Mar 19
+-----------------------------------
+- Achivements now show how many points they give in the icon.
+
+TipTacItemRef Changes | 2008 Dec 13
+-----------------------------------
+- When showing your achievements, the statistic will be shown as well. This could for example be "157 / 250" for the "250 Emblems of Heroism" achievement.
+- If the GameTooltip is showing a hyperlink, while the ItemRefTooltip is shown, it will no longer hide the icon.
+- Fixed a problem that could make it skip the first two criteria of a shown achievement.
+
+TipTacItemRef Changes | 2008 Dec 03
+-----------------------------------
+- First Release.

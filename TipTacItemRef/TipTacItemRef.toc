@@ -1,0 +1,8 @@
+## Interface: 90105
+## Version: 20.11.05
+## Title: TipTacItemRef
+## Author: Aezay (Earthen Ring EU)
+## Notes: Improved ItemRefTooltip
+## OptionalDeps: TipTac
+LibItemString.lua
+ttItemRef.lua

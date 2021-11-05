@@ -1,0 +1,7 @@
+## Interface: 20502
+## Version: 20.11.05
+## Title: TipTacTalents
+## Author: Aezay (Earthen Ring EU)
+## Notes: Adds Talent Spec to Player Tooltips
+## OptionalDeps: TipTac
+ttTalents.lua
