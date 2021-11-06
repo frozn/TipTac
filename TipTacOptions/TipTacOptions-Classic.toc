@@ -1,5 +1,5 @@
 ## Interface: 11400
-## Version: 21.11.06
+## Version: 21.11.07
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Option Dialog for TipTac

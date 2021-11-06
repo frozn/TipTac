@@ -735,7 +735,9 @@ function gttScriptHooks:OnShow()
 		self:SetBackdropColor(unpack(cfg.tipColor));
 	end
 	
+	-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
 	if (self.tiptacBackdropBorderColor) then
+		self:SetBackdropColor(unpack(cfg.tipColor));
 		self:SetBackdropBorderColor(self.tiptacBackdropBorderColor:GetRGBA());
 	end
 end
@@ -758,7 +760,9 @@ function gttScriptHooks:OnUpdate(elapsed)
 		self:SetBackdropColor(unpack(cfg.tipColor));
 	end
 
+	-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
 	if (self.tiptacBackdropBorderColor) then
+		self:SetBackdropColor(unpack(cfg.tipColor));
 		self:SetBackdropBorderColor(self.tiptacBackdropBorderColor:GetRGBA());
 	end
 
