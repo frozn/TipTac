@@ -940,14 +940,18 @@ end
 
 -- Function to loop through tips to modify and hook
 function tt:HookTips()
-	-- Hooks needs to be applied as late as possible during load, as we want to try and be the
-	-- last addon to hook "OnTooltipSetUnit" so we always have a "completed" tip to work on
-	for scriptName, hookFunc in next, gttScriptHooks do
-		gtt:HookScript(scriptName,hookFunc);
-	end
-
 	-- Resolve the TipsToModify strings into actual objects
 	ResolveGlobalNamedObjects(TT_TipsToModify);
+
+	-- Hooks needs to be applied as late as possible during load, as we want to try and be the
+	-- last addon to hook "OnTooltipSetUnit" so we always have a "completed" tip to work on
+	for index, tip in ipairs(TT_TipsToModify) do
+		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") and (tip:GetObjectType() == "GameTooltip") then
+			for scriptName, hookFunc in next, gttScriptHooks do
+				tip:HookScript(scriptName,hookFunc);
+			end
+		end
+	end
 
 	-- hook their OnHide script -- Az: OnHide hook disabled for now
 --	for index, tipName in ipairs(TT_TipsToModify) do
