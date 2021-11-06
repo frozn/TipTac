@@ -721,13 +721,13 @@ end
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
 	-- Anchor GTT to Mouse -- Az: Initial mouse anchoring is now being done in GTT_SetDefaultAnchor (remove if there are no issues)
---	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition();
---	if (gtt_anchorType == "mouse") and (self.default) then
---		local gttAnchor = self:GetAnchorType();
---		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
---			tt:AnchorFrameToMouse(self);
---		end
---	end
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition();
+	if (gtt_anchorType == "mouse") and (self.default) then
+		local gttAnchor = self:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
+			tt:AnchorFrameToMouse(self);
+		end
+	end
 
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)

@@ -1,5 +1,5 @@
 ## Interface: 90105
-## Version: 20.11.05
+## Version: 20.11.06
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Option Dialog for TipTac
