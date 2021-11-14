@@ -9,7 +9,7 @@ local tconcat = table.concat;
 
 -- Addon
 local modName = ...;
-local tt = CreateFrame("Frame",modName,UIParent,"TooltipBackdropTemplate");	-- 9.0.1: Using BackdropTemplate
+local tt = CreateFrame("Frame",modName,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
 -- Global Chat Message Function
 function AzMsg(msg) DEFAULT_CHAT_FRAME:AddMessage(tostring(msg):gsub("|1","|cffffff80"):gsub("|2","|cffffffff"),0.5,0.75,1.0); end
@@ -749,6 +749,11 @@ function gttScriptHooks:OnUpdate(elapsed)
 	if (gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT") then
 		self:SetBackdropColor(unpack(cfg.tipColor));
 		self:SetBackdropBorderColor(unpack(cfg.tipBorderColor));
+		-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
+		if (self.tiptacBackdropBorderColor) then
+			self:SetBackdropColor(unpack(cfg.tipColor));
+			self:SetBackdropBorderColor(self.tiptacBackdropBorderColor:GetRGBA());
+		end
 		return;
 	-- Anchor GTT to Mouse
 	elseif (gtt_anchorType == "mouse") and (self.default) then
@@ -977,12 +982,21 @@ function tt:AddModifiedTip(tip,noHooks)
 		if (tIndexOf(TT_TipsToModify,tip)) then
 			return;
 		end
+		if (type(tip.SetBackdrop) ~= "function" and TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") then
+			Mixin(tip, TooltipBackdropTemplateMixin);
+		end
 		TT_TipsToModify[#TT_TipsToModify + 1] = tip;
 
 		-- Az: Disabled the OnHide hook, unsure if it needs to be re-enabled,
 --		if (not noHooks) then
 --			tip:HookScript("OnHide",gttScriptHooks.OnHide);
 --		end
+		
+		tip:HookScript("OnShow", function()
+			tip.tiptacBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
+			gttScriptHooks.OnShow(tip);
+		end);
+		tip:HookScript("OnUpdate", gttScriptHooks.OnUpdate);
 
 		-- Only apply settings if "cfg" has been initialised, meaning after VARIABLES_LOADED.
 		-- If AddModifiedTip() is called earlier, settings will be applied for all tips once VARIABLES_LOADED is fired anyway.

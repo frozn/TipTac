@@ -1,11 +1,10 @@
 ## Interface: 90105
-## Version: 21.11.08
+## Version: 21.11.14
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Option Dialog for TipTac
 ## Dependencies: TipTac
 ## LoadOnDemand: 1
-Libs\AzDropDown.lua
-Libs\AzOptionsFactory.lua
+embeds.xml
 ttLayouts.lua
 ttOptions.lua

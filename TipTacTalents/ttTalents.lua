@@ -2,7 +2,7 @@ local gtt = GameTooltip;
 
 -- Addon
 local modName = ...;
-local ttt = CreateFrame("Frame",modName,nil,"TooltipBackdropTemplate");	-- 9.0.1: Using BackdropTemplate
+local ttt = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 ttt:Hide();
 
 -- String Constants

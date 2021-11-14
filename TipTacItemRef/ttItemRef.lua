@@ -3,7 +3,7 @@ local unpack = unpack;
 
 -- Addon
 local modName = ...;
-local ttif = CreateFrame("Frame",modName,nil,"TooltipBackdropTemplate");	-- 9.0.1: Using BackdropTemplate
+local ttif = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
 -- Register with TipTac core addon if available
 if (TipTac) then
@@ -98,7 +98,7 @@ local function ResolveGlobalNamedObjects(tipTable)
 		if (resolved[tip]) then
 			tip = false;
 		elseif (tip) then
-			if (type(tip.SetBackdrop) ~= "function" and TooltipBackdropTemplateMixin and "BackdropTemplate") then
+			if (type(tip.SetBackdrop) ~= "function" and TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") then
 				Mixin(tip, TooltipBackdropTemplateMixin);
 			end
 			resolved[tip] = index;
