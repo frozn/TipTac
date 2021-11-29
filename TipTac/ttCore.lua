@@ -992,11 +992,13 @@ function tt:AddModifiedTip(tip,noHooks)
 --			tip:HookScript("OnHide",gttScriptHooks.OnHide);
 --		end
 		
-		tip:HookScript("OnShow", function()
-			tip.tiptacBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
-			gttScriptHooks.OnShow(tip);
-		end);
-		tip:HookScript("OnUpdate", gttScriptHooks.OnUpdate);
+		if (not noHooks) then
+			tip:HookScript("OnShow", function()
+				tip.tiptacBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
+				gttScriptHooks.OnShow(tip);
+			end);
+			tip:HookScript("OnUpdate", gttScriptHooks.OnUpdate);
+		end
 
 		-- Only apply settings if "cfg" has been initialised, meaning after VARIABLES_LOADED.
 		-- If AddModifiedTip() is called earlier, settings will be applied for all tips once VARIABLES_LOADED is fired anyway.
