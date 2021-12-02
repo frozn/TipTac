@@ -2,11 +2,21 @@ local _G = getfenv(0);
 local unpack = unpack;
 local UnitName = UnitName;
 local UnitQuestTrivialLevelRange = UnitQuestTrivialLevelRange;
+local GetQuestGreenRange = GetQuestGreenRange;
 local gtt = GameTooltip;
 
 -- classic support
 local UnitIsWildBattlePet = UnitIsWildBattlePet or function() return false end;
 local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion or function() return false end;
+
+local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false
+if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
+	isWoWClassic = true
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
+	isWoWBcc = true
+else
+	isWoWRetail = true
+end
 
 -- TipTac refs
 local tt = TipTac;
@@ -52,7 +62,7 @@ local function GetDifficultyLevelColor(level)
 		return "|cffff8040"; -- orange
 	elseif (level >= -2) then
 		return "|cffffff00"; -- yellow
-	elseif (level >= -UnitQuestTrivialLevelRange("player")) then
+	elseif (isWoWRetail and level >= -UnitQuestTrivialLevelRange("player") or (not isWoWRetail) and level >= -GetQuestGreenRange("player")) then
 		return "|cff40c040"; -- green
 	else
 		return "|cff808080"; -- gray
