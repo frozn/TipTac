@@ -78,9 +78,9 @@ function ttt:UpdateTooltip(record)
 	end
 
 	-- If GTT is visible and not fading out, call Show() to force the tooltip to resize.
-	-- We can only detect a fading out tooltip with TipTac, as that sets the .fadeOut field.
+	-- We can only detect a fading out tooltip with TipTac, as that sets the .ttFadeOut field.
 	-- This means, when TipTacTalents is used on its own, it may bug out the size of the tooltip here.
-	if (gtt:IsVisible()) and (not gtt.fadeOut) then
+	if (gtt:IsVisible()) and (not gtt.ttFadeOut) then
 		gtt:Show();
 	end
 end

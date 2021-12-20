@@ -75,8 +75,8 @@ local TT_DefaultConfig = {
 
 	modifyFonts = false,
 	fontFace = "",	-- Set during VARIABLES_LOADED
-	fontSize = 12,
-	fontFlags = "",
+	fontSize = 13,	-- Set during VARIABLES_LOADED
+	fontFlags = "",	-- Set during VARIABLES_LOADED
 	fontSizeDeltaHeader = 2,
 	fontSizeDeltaSmall = -2,
 
@@ -93,9 +93,9 @@ local TT_DefaultConfig = {
 	fadeTime = 0.1,
 	hideWorldTips = true,
 
-	barFontFace = "",	-- Set during VARIABLES_LOADED
-	barFontSize = 12,
-	barFontFlags = "OUTLINE",
+	barFontFace = "",	      -- Set during VARIABLES_LOADED
+	barFontSize = 13,	      -- Set during VARIABLES_LOADED
+	barFontFlags = "OUTLINE", -- Set during VARIABLES_LOADED
 	barHeight = 6,
 	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
 
@@ -228,6 +228,16 @@ local targetedByList;
 
 tt.u = u;
 
+orgGTTFontFace = "";          -- Set during VARIABLES_LOADED
+orgGTTFontSize = 13;          -- Set during VARIABLES_LOADED
+orgGTTFontFlags = "";         -- Set during VARIABLES_LOADED
+orgGTHTFontFace = "";         -- Set during VARIABLES_LOADED
+orgGTHTFontSize = 15;         -- Set during VARIABLES_LOADED
+orgGTHTFontFlags = "OUTLINE"; -- Set during VARIABLES_LOADED
+orgGTTSFontFace = "";         -- Set during VARIABLES_LOADED
+orgGTTSFontSize = 12;         -- Set during VARIABLES_LOADED
+orgGTTSFontFlags = "";        -- Set during VARIABLES_LOADED
+
 -- Tooltip Backdrop -- Az: use this instead: TOOLTIP_BACKDROP_STYLE_DEFAULT;
 --local tipBackdrop = TOOLTIP_BACKDROP_STYLE_DEFAULT;
 local tipBackdrop = { bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 } };
@@ -350,8 +360,17 @@ function tt:VARIABLES_LOADED(event)
 	self.isColorBlind = (GetCVar("colorblindMode") == "1");
 
 	-- Default Fonts
-	TT_DefaultConfig.fontFace = GameFontNormal:GetFont();
-	TT_DefaultConfig.barFontFace = NumberFontNormal:GetFont();
+	orgGTTFontFace, orgGTTFontSize, orgGTTFontFlags = GameTooltipText:GetFont();
+	orgGTTFontSize = math.floor(orgGTTFontSize + 0.5);
+	orgGTHTFontFace, orgGTHTFontSize, orgGTHTFontFlags = GameTooltipHeaderText:GetFont();
+	orgGTHTFontSize = math.floor(orgGTHTFontSize + 0.5);
+	orgGTTSFontFace, orgGTTSFontSize, orgGTTSFontFlags = GameTooltipTextSmall:GetFont();
+	orgGTTSFontSize = math.floor(orgGTTSFontSize + 0.5);
+
+	TT_DefaultConfig.fontFace, TT_DefaultConfig.fontSize, TT_DefaultConfig.fontFlags = GameFontNormal:GetFont();
+	TT_DefaultConfig.fontSize = math.floor(TT_DefaultConfig.fontSize + 0.5);
+	TT_DefaultConfig.barFontFace, TT_DefaultConfig.barFontSize, TT_DefaultConfig.barFontFlags = NumberFontNormal:GetFont();
+	TT_DefaultConfig.barFontSize = math.floor(TT_DefaultConfig.barFontSize + 0.5);
 
 	-- Init Config
 	if (not TipTac_Config) then
@@ -506,9 +525,18 @@ function tt:ApplySettings()
 
 	-- GameTooltip Font Templates
 	if (cfg.modifyFonts) then
-		GameTooltipText:SetFont(cfg.fontFace,cfg.fontSize,cfg.fontFlags);
-		GameTooltipHeaderText:SetFont(cfg.fontFace,cfg.fontSize + cfg.fontSizeDeltaHeader,cfg.fontFlags);
-		GameTooltipTextSmall:SetFont(cfg.fontFace,cfg.fontSize + cfg.fontSizeDeltaSmall,cfg.fontFlags);
+		GameTooltipText:SetFont(cfg.fontFace, cfg.fontSize, cfg.fontFlags);
+		GameTooltipHeaderText:SetFont(cfg.fontFace, cfg.fontSize + cfg.fontSizeDeltaHeader, cfg.fontFlags);
+		GameTooltipTextSmall:SetFont(cfg.fontFace, cfg.fontSize + cfg.fontSizeDeltaSmall, cfg.fontFlags);
+	else
+		GameTooltipText:SetFont(orgGTTFontFace, orgGTTFontSize, orgGTTFontFlags);
+		GameTooltipHeaderText:SetFont(orgGTHTFontFace, orgGTHTFontSize, orgGTHTFontFlags);
+		GameTooltipTextSmall:SetFont(orgGTTSFontFace, orgGTTSFontSize, orgGTTSFontFlags);
+	end
+
+	-- Calling tip:Show() here ensures that the tooltip has the correct dimensions f.e. if enabling/disabling "Font->Modify the GameTooltip Font Templates".
+	if (gtt:IsShown()) then
+		gtt:Show();
 	end
 
 	-- inform elements that settings has been applied
@@ -520,8 +548,8 @@ function tt:ApplyTipBackdrop(tip)
 	SharedTooltip_SetBackdropStyle(tip,tipBackdrop);
 	tip:SetBackdropColor(tipBackdrop.backdropColor:GetRGBA());
 	tip:SetBackdropBorderColor(tipBackdrop.backdropBorderColor:GetRGBA());
-	if (tip.tiptacBackdropBorderColor) then
-		tip.tiptacBackdropBorderColor = nil;
+	if (tip.ttBackdropBorderColor) then
+		tip.ttBackdropBorderColor = nil;
 	end
 end
 
@@ -694,10 +722,10 @@ end
 	GameTooltip Construction Call Order -- Tested for BfA (18.07.24)
 	This is apparently the order in which the GTT construsts unit tips
 	------------------------------------------------------------------
-	- GameTooltip_SetDefaultAnchor()
+	- GameTooltip_SetDefaultAnchor()    -- called e.g. for units and mailboxes. won't initially be called for buffs or vendor signs.
 	- GTT.OnTooltipSetUnit()			-- GetUnit() becomes valid here
 	- GTT:Show()						-- Will Resize the tip
-	- GTT.OnShow()						-- Event triggered in response to the Show() function
+	- GTT.OnShow()						-- Event triggered in response to the Show() function. won't be called if tooltip of world unit isn't faded yet and moving mouse over it again or someone else.
 	- GTT.OnTooltipCleared()			-- Tooltip has been cleared and is ready to show new information, doesn't mean it's hidden
 --]]
 
@@ -711,9 +739,9 @@ local FADE_BLOCK = 2;
 -- Get The Anchor Position Depending on the Tip Content and Parent Frame
 -- Do not depend on "u.token" here, as it might not have been cleared yet!
 -- Checking "mouseover" here isn't ideal due to actionbars, it will sometimes return true because of selfcast.
-local function GetAnchorPosition()
+local function GetAnchorPosition(tooltip)
 	local mouseFocus = GetMouseFocus();
-	local isUnit = UnitExists("mouseover") or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit"));	-- Az: GetAttribute("unit") here is bad, as that will find things like buff frames too
+	local isUnit = (not tooltip.ttDisplayingAura) and (UnitExists("mouseover") or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")));	-- Az: GetAttribute("unit") here is bad, as that will find things like buff frames too
 	local var = "anchor"..(mouseFocus == WorldFrame and "World" or "Frame")..(isUnit and "Unit" or "Tip");
 	return cfg[var.."Type"], cfg[var.."Point"];
 end
@@ -721,13 +749,13 @@ end
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
 	-- Anchor GTT to Mouse -- Az: Initial mouse anchoring is now being done in GTT_SetDefaultAnchor (remove if there are no issues)
-	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition();
-	if (gtt_anchorType == "mouse") and (self.default) then
-		local gttAnchor = self:GetAnchorType();
-		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
-			tt:AnchorFrameToMouse(self);
-		end
-	end
+	-- gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
+	-- if (gtt_anchorType == "mouse") then
+		-- local gttAnchor = self:GetAnchorType();
+		-- if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
+			-- tt:AnchorFrameToMouse(self);
+		-- end
+	-- end
 
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)
@@ -736,9 +764,9 @@ function gttScriptHooks:OnShow()
 	end
 	
 	-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
-	if (self.tiptacBackdropBorderColor) then
+	if (self.ttBackdropBorderColor) then
 		self:SetBackdropColor(unpack(cfg.tipColor));
-		self:SetBackdropBorderColor(self.tiptacBackdropBorderColor:GetRGBA());
+		self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
 	end
 end
 
@@ -750,13 +778,13 @@ function gttScriptHooks:OnUpdate(elapsed)
 		self:SetBackdropColor(unpack(cfg.tipColor));
 		self:SetBackdropBorderColor(unpack(cfg.tipBorderColor));
 		-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
-		if (self.tiptacBackdropBorderColor) then
+		if (self.ttBackdropBorderColor) then
 			self:SetBackdropColor(unpack(cfg.tipColor));
-			self:SetBackdropBorderColor(self.tiptacBackdropBorderColor:GetRGBA());
+			self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
 		end
 		return;
 	-- Anchor GTT to Mouse
-	elseif (gtt_anchorType == "mouse") and (self.default) then
+	elseif (gtt_anchorType == "mouse") then
 		tt:AnchorFrameToMouse(self);
 	end
 
@@ -766,19 +794,19 @@ function gttScriptHooks:OnUpdate(elapsed)
 	end
 
 	-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
-	if (self.tiptacBackdropBorderColor) then
+	if (self.ttBackdropBorderColor) then
 		self:SetBackdropColor(unpack(cfg.tipColor));
-		self:SetBackdropBorderColor(self.tiptacBackdropBorderColor:GetRGBA());
+		self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
 	end
 
 	-- Fadeout / Update Tip if Showing a Unit
-	-- Do not allow (fadeOut == FADE_BLOCK), as that is only for non overridden fadeouts
-	if (u.token) and (self.fadeOut ~= FADE_BLOCK) then
+	-- Do not allow (ttFadeOut == FADE_BLOCK), as that is only for non overridden fadeouts
+	if (u.token) and (self.ttFadeOut ~= FADE_BLOCK) then
 		gtt_lastUpdate = (gtt_lastUpdate + elapsed);
-		if (self.fadeOut) then
+		if (self.ttFadeOut) then
 			self:Show(); -- Overrides self:FadeOut()
 			if (gtt_lastUpdate > cfg.fadeTime + cfg.preFadeTime) then
-				self.fadeOut = nil;
+				self.ttFadeOut = nil;
 				self:Hide();
 			elseif (gtt_lastUpdate > cfg.preFadeTime) then
 				self:SetAlpha(1 - (gtt_lastUpdate - cfg.preFadeTime) / cfg.fadeTime);
@@ -834,7 +862,7 @@ function gttScriptHooks:OnTooltipSetUnit()
 	end
 
 	-- Workaround for OnTooltipCleared not having fired
-	self.fadeOut = nil; -- Az: Sometimes this wasn't getting reset, the fact a cleanup isn't performed at this point, now that it was moved to "OnTooltipCleared" is bad, so this is a fix [8.0/BfA/18.08.12 - Still not cleared 100% of the time]
+	self.ttFadeOut = nil; -- Az: Sometimes this wasn't getting reset, the fact a cleanup isn't performed at this point, now that it was moved to "OnTooltipCleared" is bad, so this is a fix [8.0/BfA/18.08.12 - Still not cleared 100% of the time]
 
 	-- We're done, apply appearance
 	u.token = unit;
@@ -856,7 +884,9 @@ function gttScriptHooks:OnTooltipCleared()
 	wipe(u);
 	gtt_lastUpdate = 0;
 	gtt_numLines = 0;
-	self.fadeOut = nil;
+	self.ttFadeOut = nil;
+	self.ttDefaultAnchored = false;
+	self.ttDisplayingAura = false;
 
 	-- post cleared event to elements
 	tt:SendElementEvent("OnCleared",self);
@@ -876,12 +906,12 @@ end
 local gttFadeOut = gtt.FadeOut;
 gtt.FadeOut = function(self,...)
 	if (not u.token) or (not cfg.overrideFade) then
-		self.fadeOut = FADE_BLOCK; -- Don't allow the OnUpdate handler to run the fadeout/update code
+		self.ttFadeOut = FADE_BLOCK; -- Don't allow the OnUpdate handler to run the fadeout/update code
 		gttFadeOut(self,...);
 	elseif (cfg.preFadeTime == 0 and cfg.fadeTime == 0) then
 		self:Hide();
 	else
-		self.fadeOut = FADE_ENABLE;
+		self.ttFadeOut = FADE_ENABLE;
 		gtt_lastUpdate = 0;
 	end
 end
@@ -916,7 +946,7 @@ local function GTT_SetDefaultAnchor(tooltip,parent)
 	end
 
 	-- Get the current anchoring type and point based on the frame under the mouse and anchor settings
-	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition();
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(tooltip);
 
 	-- We only hook the GameTooltip, so if any other tips use the default anchor with mouse anchoring,
 	-- we have to just set it here statically, as we wont have the OnUpdate hooked for that tooltip
@@ -939,8 +969,25 @@ local function GTT_SetDefaultAnchor(tooltip,parent)
 		end
 	end
 
-	-- "default" will flag the tooltip as having been anchored using the default anchor
-	tooltip.default = 1;
+	-- "ttDefaultAnchored" will flag the tooltip as having been anchored using the default anchor
+	tooltip.ttDefaultAnchored = true;
+end
+
+-- HOOK: GameTooltip:SetUnitAura()
+local function GTT_SetUnitAura(self)
+	-- "ttDisplayingAura" will flag the tooltip is currently showing an aura
+	self.ttDisplayingAura = true;
+	
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
+
+	if (gtt_anchorType == "mouse") then
+		local gttAnchor = self:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_NONE") then
+			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
+			self:SetAnchorType("ANCHOR_NONE");
+		end
+		tt:AnchorFrameToMouse(self);
+	end
 end
 
 -- Function to loop through tips to modify and hook
@@ -966,7 +1013,10 @@ function tt:HookTips()
 --	end
 
 	-- Replace GameTooltip_SetDefaultAnchor (For Re-Anchoring) -- Patch 3.2 made this function secure
-	hooksecurefunc("GameTooltip_SetDefaultAnchor",GTT_SetDefaultAnchor);
+	hooksecurefunc("GameTooltip_SetDefaultAnchor", GTT_SetDefaultAnchor);
+	
+	-- Post-Hook GameTooltip:SetUnitAura() to prevent flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
+	hooksecurefunc(GameTooltip, "SetUnitAura", GTT_SetUnitAura);
 
 	-- Clear this function as it's not needed anymore
 	self.HookTips = nil;
@@ -994,7 +1044,7 @@ function tt:AddModifiedTip(tip,noHooks)
 		
 		if (not noHooks) then
 			tip:HookScript("OnShow", function()
-				tip.tiptacBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
+				tip.ttBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
 				gttScriptHooks.OnShow(tip);
 			end);
 			tip:HookScript("OnUpdate", gttScriptHooks.OnUpdate);
@@ -1006,4 +1056,22 @@ function tt:AddModifiedTip(tip,noHooks)
 			self:ApplySettings();
 		end
 	end
+end
+
+--------------------------------------------------------------------------------------------------------
+--                                    Bugfixes for SetPoint errors                                    --
+--------------------------------------------------------------------------------------------------------
+
+-- HOOK: GameTooltip_SetDefaultAnchor -- fix for: FrameXML\GameTooltip.lua:161: Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint
+local GameTooltip_SetDefaultAnchor_org = GameTooltip_SetDefaultAnchor;
+GameTooltip_SetDefaultAnchor = function(self, ...)
+	self:ClearAllPoints();
+	GameTooltip_SetDefaultAnchor_org(self, ...);
+end
+
+-- HOOK: GarrisonLandingPageReportMission_OnEnter -- fix for: Blizzard_GarrisonUI\Blizzard_GarrisonLandingPage.lua:870: Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint
+local GarrisonLandingPageReportMission_OnEnter_org = GarrisonLandingPageReportMission_OnEnter;
+GarrisonLandingPageReportMission_OnEnter = function(self, ...)
+	self:ClearAllPoints();
+	GarrisonLandingPageReportMission_OnEnter_org(self, ...);
 end

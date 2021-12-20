@@ -312,7 +312,7 @@ function LinkTypeFuncs:item(link,linkType,id)
 	if (cfg.if_itemQualityBorder) then
 		local itemQualityColor = CreateColor(GetItemQualityColor(itemRarity or 0));
 		self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
-		self.tiptacBackdropBorderColor = itemQualityColor;
+		self.ttBackdropBorderColor = itemQualityColor;
 	end
 
 	-- level + id -- Only alter the tip if we got either a valid "itemLevel" or "id"
