@@ -98,8 +98,8 @@ local function ResolveGlobalNamedObjects(tipTable)
 		if (resolved[tip]) then
 			tip = false;
 		elseif (tip) then
-			if (type(tip.SetBackdrop) ~= "function" and TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") then
-				Mixin(tip, TooltipBackdropTemplateMixin);
+			if (type(tip) == "table" and type(tip.SetBackdrop) ~= "function" and BackdropTemplateMixin and "BackdropTemplate") then
+				Mixin(tip, BackdropTemplateMixin);
 			end
 			resolved[tip] = index;
 		end
@@ -197,6 +197,9 @@ end
 -- OnTooltipSetItem
 local function OnTooltipSetItem(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		if (TipTac) then
+			TipTac:ApplyTipBackdrop(self);
+		end
 		local _, link = self:GetItem();
 		if (link) then
 			local linkType, id = link:match("H?(%a+):(%d+)");

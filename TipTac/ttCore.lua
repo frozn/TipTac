@@ -495,8 +495,16 @@ function tt:ApplySettings()
 	end
 
 	-- Set Backdrop -- not setting "tileSize" as we dont tile
-	tipBackdrop.bgFile = cfg.tipBackdropBG;
-	tipBackdrop.edgeFile = cfg.tipBackdropEdge;
+	if (cfg.tipBackdropBG == "nil") then
+		tipBackdrop.bgFile = nil;
+	else
+		tipBackdrop.bgFile = cfg.tipBackdropBG;
+	end
+	if (cfg.tipBackdropEdge == "nil") then
+		tipBackdrop.edgeFile = nil;
+	else
+		tipBackdrop.edgeFile = cfg.tipBackdropEdge;
+	end
 	tipBackdrop.tile = false;
 	tipBackdrop.tileEdge = false;
 	tipBackdrop.edgeSize = cfg.backdropEdgeSize;
@@ -545,12 +553,45 @@ end
 
 -- Applies the backdrop, color and border color. The GTT will often reset these internally.
 function tt:ApplyTipBackdrop(tip)
-	SharedTooltip_SetBackdropStyle(tip,tipBackdrop);
-	tip:SetBackdropColor(tipBackdrop.backdropColor:GetRGBA());
-	tip:SetBackdropBorderColor(tipBackdrop.backdropBorderColor:GetRGBA());
-	if (tip.ttBackdropBorderColor) then
-		tip.ttBackdropBorderColor = nil;
+	-- remove default tip backdrop
+	if (tip.NineSlice) then
+		local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table
+			"TopLeftCorner",
+			"TopRightCorner",
+			"BottomLeftCorner",
+			"BottomRightCorner",
+			"TopEdge",
+			"BottomEdge",
+			"LeftEdge",
+			"RightEdge",
+			"Center"
+		};
+
+		for index, pieceName in ipairs(nineSlicePieces) do
+			local region = tip[pieceName];
+			region = tip.NineSlice[pieceName];
+			if region then
+				region:SetTexture(nil);
+			end
+		end
 	end
+	
+	tip.backdropInfo = nil;
+	tip.layoutType = nil;
+	tip.layoutTextureKit = nil;
+	
+	-- apply tip backdrop
+	--SharedTooltip_SetBackdropStyle(tip, tipBackdrop);
+	tip:SetBackdrop(tipBackdrop);
+
+	tip:SetBackdropColor(tipBackdrop.backdropColor:GetRGBA());
+	if (tip.ttBackdropBorderColor) then
+		tip:SetBackdropBorderColor(tip.ttBackdropBorderColor:GetRGBA());
+	else
+		tip:SetBackdropBorderColor(tipBackdrop.backdropBorderColor:GetRGBA());
+	end
+
+	tip:SetPadding(tipBackdrop.insets.right, tipBackdrop.insets.bottom, tipBackdrop.insets.left, tipBackdrop.insets.top);
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -749,7 +790,7 @@ end
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
 	-- Anchor GTT to Mouse -- Az: Initial mouse anchoring is now being done in GTT_SetDefaultAnchor (remove if there are no issues)
-	-- gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
 	-- if (gtt_anchorType == "mouse") then
 		-- local gttAnchor = self:GetAnchorType();
 		-- if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
@@ -759,13 +800,12 @@ function gttScriptHooks:OnShow()
 
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)
-	if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
-		self:SetBackdropColor(unpack(cfg.tipColor));
-	end
+	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
+		-- self:SetBackdropColor(unpack(cfg.tipColor));
+	-- end
 	
-	-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
+	-- backdropBorderColor from TipTacItemRef needs to be reapplied
 	if (self.ttBackdropBorderColor) then
-		self:SetBackdropColor(unpack(cfg.tipColor));
 		self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
 	end
 end
@@ -773,29 +813,32 @@ end
 -- EventHook: OnUpdate
 function gttScriptHooks:OnUpdate(elapsed)
 	-- This ensures that mouse anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
-	local gttAnchor = self:GetAnchorType();
-	if (gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT") then
-		self:SetBackdropColor(unpack(cfg.tipColor));
-		self:SetBackdropBorderColor(unpack(cfg.tipBorderColor));
+	-- local gttAnchor = self:GetAnchorType();
+	-- if (gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT") then
+		-- self:SetBackdropColor(unpack(cfg.tipColor));
+		-- self:SetBackdropBorderColor(unpack(cfg.tipBorderColor));
 		-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
-		if (self.ttBackdropBorderColor) then
-			self:SetBackdropColor(unpack(cfg.tipColor));
-			self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
+		-- if (self.ttBackdropBorderColor) then
+			-- self:SetBackdropColor(unpack(cfg.tipColor));
+			-- self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
+		-- end
+		-- return;
+	-- else
+	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
+	if (self == gtt and gtt_anchorType == "mouse") then
+		local gttAnchor = self:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
+			tt:AnchorFrameToMouse(self);
 		end
-		return;
-	-- Anchor GTT to Mouse
-	elseif (gtt_anchorType == "mouse") then
-		tt:AnchorFrameToMouse(self);
 	end
 
 	-- WoD: This background color reset, from OnShow(), has been copied down here. It seems resetting the color in OnShow() wasn't enough, as the color changes after the tip is being shown
-	if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
-		self:SetBackdropColor(unpack(cfg.tipColor));
-	end
+	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
+		-- self:SetBackdropColor(unpack(cfg.tipColor));
+	-- end
 
-	-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
+	-- backdropBorderColor from TipTacItemRef needs to be reapplied
 	if (self.ttBackdropBorderColor) then
-		self:SetBackdropColor(unpack(cfg.tipColor));
 		self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
 	end
 
@@ -873,6 +916,9 @@ end
 function gttScriptHooks:OnTooltipCleared()
 	-- WoD: resetting the back/border color seems to be a necessary action, otherwise colors may stick when showing the next tooltip thing (world object tips)
 	-- BfA: The tooltip now also clears the backdrop in adition to color and bordercolor, so set it again here
+	if (self.ttBackdropBorderColor) then
+		self.ttBackdropBorderColor = nil;
+	end
 	tt:ApplyTipBackdrop(self);
 
 	-- remove the padding that might have been set to fit health/power bars
@@ -927,8 +973,8 @@ local function ResolveGlobalNamedObjects(tipTable)
 		if (resolved[tip]) then
 			tip = false;
 		elseif (tip) then
-			if (type(tip.SetBackdrop) ~= "function" and TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") then
-				Mixin(tip, TooltipBackdropTemplateMixin);
+			if (type(tip) == "table" and type(tip.SetBackdrop) ~= "function" and BackdropTemplateMixin and "BackdropTemplate") then
+				Mixin(tip, BackdropTemplateMixin);
 			end
 			resolved[tip] = index;
 		end
@@ -1032,8 +1078,8 @@ function tt:AddModifiedTip(tip,noHooks)
 		if (tIndexOf(TT_TipsToModify,tip)) then
 			return;
 		end
-		if (type(tip.SetBackdrop) ~= "function" and TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") then
-			Mixin(tip, TooltipBackdropTemplateMixin);
+		if (type(tip) == "table" and type(tip.SetBackdrop) ~= "function" and BackdropTemplateMixin and "BackdropTemplate") then
+			Mixin(tip, BackdropTemplateMixin);
 		end
 		TT_TipsToModify[#TT_TipsToModify + 1] = tip;
 
@@ -1045,6 +1091,7 @@ function tt:AddModifiedTip(tip,noHooks)
 		if (not noHooks) then
 			tip:HookScript("OnShow", function()
 				tip.ttBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
+				tt:ApplyTipBackdrop(tip);
 				gttScriptHooks.OnShow(tip);
 			end);
 			tip:HookScript("OnUpdate", gttScriptHooks.OnUpdate);

@@ -498,15 +498,23 @@ local function SharedMediaLib_Init(dropDown,list)
 		for _, name in next, LSM:List(query) do
 			local tbl = list[#list + 1];
 			tbl.text = name;
-			tbl.value = LSM:Fetch(query,name);
+			local preparedValue = LSM:Fetch(query,name);
+			if ((query == "background" or query == "border") and preparedValue == nil) then
+				preparedValue = "nil";
+			end
+			tbl.value = preparedValue;
 			tbl.tip = tbl.value;
 		end
 	else
 		for name, value in next, azof.LibSharedMediaSubstitute[query] do
 			local tbl = list[#list + 1];
 			tbl.text = name;
-			tbl.value = value;
-			tbl.tip = value;
+			local preparedValue = value;
+			if ((query == "background" or query == "border") and preparedValue == nil) then
+				preparedValue = "nil";
+			end
+			tbl.value = preparedValue;
+			tbl.tip = tbl.value;
 		end
 	end
 	table.sort(list,function(a,b) return a.text < b.text end);
