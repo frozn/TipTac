@@ -306,12 +306,27 @@ local function OnTooltipSetSpell(self,...)
 	end
 end
 
--- AddColoredLine for Legendary Items
+-- Add Quality Border for Legendary Items
 local function AddLine_Hook(self,text,color,wrap,leftOffset)
-	if (cfg.if_enable) and (not tipDataAdded[self]) and (text == RUNEFORGE_LEGENDARY_POWER_LABEL) then
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		-- Quality Border
-		if (cfg.if_itemQualityBorder) then
+		if (cfg.if_itemQualityBorder) and (text == RUNEFORGE_LEGENDARY_POWER_LABEL) then
+			tipDataAdded[self] = "spell";
 			local itemQualityColor = CreateColor(GetItemQualityColor(5));
+			self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
+			self.ttBackdropBorderColor = itemQualityColor;
+		end
+	end
+end
+
+-- AddC Quality Border for WorldQuests
+local function AddQuestTimeToTooltip(self,id)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local tagInfo = C_QuestLog.GetQuestTagInfo(id);
+		-- Quality Border
+		if (cfg.if_itemQualityBorder) and (tagInfo and tagInfo.quality) then
+			tipDataAdded[self] = "quest";
+			local itemQualityColor = CreateColor(GetItemQualityColor((tagInfo.quality == 1 and 3) or (tagInfo.quality == 2 and 4) or 1));
 			self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
 			self.ttBackdropBorderColor = itemQualityColor;
 		end
@@ -347,6 +362,7 @@ function ttif:DoHooks()
 			hooksecurefunc(tip,"SetQuestCurrency",SetQuestCurrency_Hook);
 			hooksecurefunc(tip,"SetQuestLogCurrency",SetQuestCurrency_Hook);
 			hooksecurefunc(tip,"AddLine",AddLine_Hook);
+			hooksecurefunc("GameTooltip_AddQuestTimeToTooltip", AddQuestTimeToTooltip);	
 			tip:HookScript("OnTooltipSetItem",OnTooltipSetItem);
 			tip:HookScript("OnTooltipSetSpell",OnTooltipSetSpell);
 			tip:HookScript("OnTooltipCleared",OnTooltipCleared);
