@@ -246,7 +246,27 @@ local function SetCurrencyByID_Hook(self,id,...)
 	end
 end
 
--- HOOK: SetCurrencyByID_Hook
+-- HOOK: SetQuestCurrency_Hook
+local function SetQuestCurrency_Hook(self,type,id)
+	local Owner = self:GetOwner()
+	local questId = Owner.questID
+	
+	if (cfg.if_enable) and (not tipDataAdded[self]) and questId then
+		local currencyId
+		if (QuestInfoFrame.questLog) then
+			currencyId = select(4,GetQuestLogRewardCurrencyInfo(id, questId, type=="choice"));
+		else
+			currencyId = GetQuestCurrencyID(type, id);
+		end
+		
+		if (currencyId) then
+			tipDataAdded[self] = "currency";
+			LinkTypeFuncs.currency(self,nil,"currency",currencyId);
+		end
+	end
+end		
+	
+-- HOOK: SetCurrencyToken_Hook
 local function SetCurrencyToken_Hook(self,id)
 	local link = C_CurrencyInfo.GetCurrencyListLink(id)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
@@ -324,6 +344,8 @@ function ttif:DoHooks()
 			hooksecurefunc(tip,"SetAction",SetAction_Hook);
 			hooksecurefunc(tip,"SetCurrencyByID",SetCurrencyByID_Hook);
 			hooksecurefunc(tip,"SetCurrencyToken",SetCurrencyToken_Hook);
+			hooksecurefunc(tip,"SetQuestCurrency",SetQuestCurrency_Hook);
+			hooksecurefunc(tip,"SetQuestLogCurrency",SetQuestCurrency_Hook);
 			hooksecurefunc(tip,"AddLine",AddLine_Hook);
 			tip:HookScript("OnTooltipSetItem",OnTooltipSetItem);
 			tip:HookScript("OnTooltipSetSpell",OnTooltipSetSpell);
