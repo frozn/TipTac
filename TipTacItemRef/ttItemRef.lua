@@ -194,6 +194,70 @@ local function SetUnitAura_Hook(self,unit,index,filter)
 	end
 end
 
+-- HOOK: SetAction
+local function SetAction_Hook(self,slot)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local kind, id = GetActionInfo(slot)
+		if (kind == "item" and id) then
+			tipDataAdded[self] = "toy";
+			LinkTypeFuncs.toy(self,nil,"toy",id);
+		end
+	end
+end
+
+-- HOOK: SetToyByItemID_Hook
+local function SetToyByItemID_Hook(self,id)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		if (id) then
+			tipDataAdded[self] = "toy";
+			LinkTypeFuncs.toy(self,nil,"toy",id);
+		end
+	end
+end
+
+-- HOOK: SetSpellByID_Hook
+local function SetSpellByID_Hook(self,...)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local id = self.spell and self.spell:GetSpellID()
+		if (id) then
+			tipDataAdded[self] = "spell";
+			LinkTypeFuncs.spell(self,nil,"spell",id);
+		end
+	end
+end
+
+-- HOOK: SetCouduitByID_Hook
+local function SetCouduitByID_Hook(self,id,rank)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		if (id and rank) then
+			tipDataAdded[self] = "conduit";
+			LinkTypeFuncs.conduit(self,nil,"conduit",id,rank);
+		end
+	end
+end
+
+-- HOOK: SetCurrencyByID_Hook
+local function SetCurrencyByID_Hook(self,id,...)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		if (id) then
+			tipDataAdded[self] = "currency";
+			LinkTypeFuncs.currency(self,nil,"currency",id);
+		end
+	end
+end
+
+-- HOOK: SetCurrencyByID_Hook
+local function SetCurrencyToken_Hook(self,id)
+	local link = C_CurrencyInfo.GetCurrencyListLink(id)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local currencyId = tonumber(string.match(link,"currency:(%d+)"))
+		if (currencyId) then
+			tipDataAdded[self] = "currency";
+			LinkTypeFuncs.currency(self,link,"currency",currencyId);
+		end
+	end
+end
+
 -- OnTooltipSetItem
 local function OnTooltipSetItem(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
@@ -222,6 +286,18 @@ local function OnTooltipSetSpell(self,...)
 	end
 end
 
+-- AddColoredLine for Legendary Items
+local function AddLine_Hook(self,text,color,wrap,leftOffset)
+	if (cfg.if_enable) and (not tipDataAdded[self]) and (text == RUNEFORGE_LEGENDARY_POWER_LABEL) then
+		-- Quality Border
+		if (cfg.if_itemQualityBorder) then
+			local itemQualityColor = CreateColor(GetItemQualityColor(5));
+			self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
+			self.ttBackdropBorderColor = itemQualityColor;
+		end
+	end
+end
+
 -- OnTooltipCleared
 local function OnTooltipCleared(self)
 	tipDataAdded[self] = nil;
@@ -241,6 +317,14 @@ function ttif:DoHooks()
 			hooksecurefunc(tip,"SetUnitAura",SetUnitAura_Hook);
 			hooksecurefunc(tip,"SetUnitBuff",SetUnitAura_Hook);
 			hooksecurefunc(tip,"SetUnitDebuff",SetUnitAura_Hook);
+			hooksecurefunc(tip,"SetConduit",SetCouduitByID_Hook);
+			hooksecurefunc(tip,"SetEnhancedConduit",SetCouduitByID_Hook);
+			hooksecurefunc(tip,"SetSpellByID",SetSpellByID_Hook);
+			hooksecurefunc(tip,"SetToyByItemID",SetToyByItemID_Hook);
+			hooksecurefunc(tip,"SetAction",SetAction_Hook);
+			hooksecurefunc(tip,"SetCurrencyByID",SetCurrencyByID_Hook);
+			hooksecurefunc(tip,"SetCurrencyToken",SetCurrencyToken_Hook);
+			hooksecurefunc(tip,"AddLine",AddLine_Hook);
 			tip:HookScript("OnTooltipSetItem",OnTooltipSetItem);
 			tip:HookScript("OnTooltipSetSpell",OnTooltipSetSpell);
 			tip:HookScript("OnTooltipCleared",OnTooltipCleared);
@@ -268,6 +352,11 @@ local function SmartIconEvaluation(tip,linkType)
 		if (owner.action or owner.icon) then
 			return false;
 		end
+	-- Conduit, Toy, Currency
+	elseif (linkType == "conduit") or (linkType == "toy") or (linkType == "currency") then
+		if (owner.icon) then
+			return false;
+		end		
 	-- Achievement
 --	elseif (linkType == "achievement") then
 --		if (owner.icon) then
@@ -305,6 +394,15 @@ function LinkTypeFuncs:item(link,linkType,id)
 	local _, _, itemRarity, itemLevel, _, _, _, itemStackCount, _, itemTexture = GetItemInfo(link);
 	itemLevel = LibItemString:GetTrueItemLevel(link);
 
+	if linkType == "keystone" then
+		itemRarity = 4;
+		if id == "187786" then
+			itemTexture = 531324;
+		else
+			itemTexture = 525134;
+		end
+	end
+	
 	-- Icon
 	if (self.SetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
@@ -362,6 +460,45 @@ function LinkTypeFuncs:spell(link,linkType,id)
 --	end
 end
 
+-- toy
+function LinkTypeFuncs:toy(link,linkType,id)
+	local _, _, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfo(id);
+	-- Icon
+	if (self.SetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+		self:SetIconTextureAndText(icon);
+	end
+	-- Quality Border
+	if (cfg.if_itemQualityBorder) then
+		local itemQualityColor = CreateColor(GetItemQualityColor(itemRarity or 0));
+		self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
+		self.ttBackdropBorderColor = itemQualityColor;
+	end
+	self:Show();
+end
+
+-- conduit
+function LinkTypeFuncs:conduit(link,linkType,id,rank)
+	local spellId = C_Soulbinds.GetConduitSpellID(id, rank);
+	local name, _, icon = GetSpellInfo(spellId);
+	local quality = C_Soulbinds.GetConduitQuality(id, rank);
+	-- Icon
+	if (self.SetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+		self:SetIconTextureAndText(icon);
+	end
+	-- Quality Border
+	if (cfg.if_itemQualityBorder) then
+		local itemQualityColor = CreateColor(GetItemQualityColor(quality or 0));
+		self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
+		self.ttBackdropBorderColor = itemQualityColor;
+	end
+	-- Id + Rank
+	if (cfg.if_showSpellIdAndRank) then
+		rank = (rank and rank ~= "" and ", "..rank or "");
+		self:AddLine("SpellID: "..id..rank,unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines
+	end	
+end
+
 -- quest
 function LinkTypeFuncs:quest(link,linkType,id,level)
 	if (cfg.if_showQuestLevelAndId) then
@@ -376,23 +513,23 @@ end
 
 -- currency -- Thanks to Vladinator for adding this!
 function LinkTypeFuncs:currency(link,linkType,id)
+	local info = C_CurrencyInfo.GetCurrencyInfo(id);
+	if not (info) then return end
+	
 	if (self.SetIconTextureAndText) then
-		local info = C_CurrencyInfo.GetCurrencyInfo(id);
-		if (info) then 
-			self:SetIconTextureAndText(info.iconFileID,info.quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
-		end
+		self:SetIconTextureAndText(info.iconFileID,info.quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
 	end
-
+	-- Quality Border
+	if (cfg.if_itemQualityBorder) then
+		local itemQualityColor = CreateColor(GetItemQualityColor(info.quality or 0));
+		self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
+		self.ttBackdropBorderColor = itemQualityColor;
+	end
 	-- ID
 	if (cfg.if_showCurrencyId) then
 		self:AddLine(format("CurrencyID: %d",id),unpack(cfg.if_infoColor));
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
-
-  	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
---	if (cfg.if_itemQualityBorder) then
---		self:SetBackdropBorderColor(0, .67, 0, 1);
---	end
 end
 
 -- achievement
