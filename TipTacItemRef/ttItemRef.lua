@@ -542,8 +542,9 @@ function LinkTypeFuncs:currency(link,linkType,id)
 		self:SetIconTextureAndText(info.iconFileID,info.quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
 	end
 	-- Quality Border
-	if (cfg.if_itemQualityBorder) then
-		local itemQualityColor = CreateColor(GetItemQualityColor(info.quality or 0));
+	if (cfg.if_itemQualityBorder) then	
+		local quality = ((id == 1822) and 4) or info.quality
+		local itemQualityColor = CreateColor(GetItemQualityColor(quality or 0));
 		self:SetBackdropBorderColor(itemQualityColor:GetRGBA());
 		self.ttBackdropBorderColor = itemQualityColor;
 	end
