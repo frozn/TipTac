@@ -782,7 +782,7 @@ local FADE_BLOCK = 2;
 -- Checking "mouseover" here isn't ideal due to actionbars, it will sometimes return true because of selfcast.
 local function GetAnchorPosition(tooltip)
 	local mouseFocus = GetMouseFocus();
-	local isUnit = (not tooltip.ttDisplayingAura) and (UnitExists("mouseover") or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")));	-- Az: GetAttribute("unit") here is bad, as that will find things like buff frames too
+	local isUnit = (not tooltip.ttDisplayingAura) and (not tooltip.ttDisplayingQuest) and (UnitExists("mouseover") or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")));	-- Az: GetAttribute("unit") here is bad, as that will find things like buff frames too
 	local var = "anchor"..(mouseFocus == WorldFrame and "World" or "Frame")..(isUnit and "Unit" or "Tip");
 	return cfg[var.."Type"], cfg[var.."Point"];
 end
@@ -933,6 +933,7 @@ function gttScriptHooks:OnTooltipCleared()
 	self.ttFadeOut = nil;
 	self.ttDefaultAnchored = false;
 	self.ttDisplayingAura = false;
+	self.ttDisplayingQuest = false;
 
 	-- post cleared event to elements
 	tt:SendElementEvent("OnCleared",self);
@@ -1036,6 +1037,37 @@ local function GTT_SetUnitAura(self)
 	end
 end
 
+local function GTT_AddQuestRewardsToTooltip(self,id,style)
+	-- "ttDisplayingQuest" will flag the tooltip is currently showing an quest
+	self.ttDisplayingQuest = true;	
+			
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
+
+	if (gtt_anchorType == "mouse") then
+		local gttAnchor = self:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_NONE") then
+			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
+			self:SetAnchorType("ANCHOR_NONE");
+		end
+		tt:AnchorFrameToMouse(self);
+	end
+end
+
+-- remove duplicated recipe's backdrop
+local function STT_SetBackdropStyle(self, style, embedded)
+	local _, link = self:GetItem();
+	if (link) then
+		local _, id = link:match("H?(%a+):(%d+)");
+		if (id) then
+			local itemType = select(12,GetItemInfo(link));
+			if itemType == 9 then
+				self.NineSlice:SetCenterColor(0, 0, 0);
+				self.NineSlice:Hide();
+			end
+		end
+	end
+end
+
 -- Function to loop through tips to modify and hook
 function tt:HookTips()
 	-- Resolve the TipsToModify strings into actual objects
@@ -1063,7 +1095,9 @@ function tt:HookTips()
 	
 	-- Post-Hook GameTooltip:SetUnitAura() to prevent flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
 	hooksecurefunc(GameTooltip, "SetUnitAura", GTT_SetUnitAura);
-
+	hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip);
+	hooksecurefunc("SharedTooltip_SetBackdropStyle", STT_SetBackdropStyle);
+	
 	-- Clear this function as it's not needed anymore
 	self.HookTips = nil;
 end
