@@ -21,11 +21,17 @@ The following problems are fixed:
 - prevented flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
+- added styling of battle pet and battle pet ability tooltips
+- changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
+  - fixed hooking/unhooking of chatframe if toggling option
+  - added mouseover for guild/community->chat, battle pets, battle pet abilities and illusions (from Wardrobe)
+- added class border color for member list in guild/community->chat and guild/community->guild roster if config option "Colors->Color Tip Border by Class Color" is checked
+- changes regarding (added) config options under "ItemRef":
+  - added border color for spells, tradeskills, currencies (in chatframe), achievements, guild challenges (in guild/community->info) and pvp enlistment bonus (in pvp->quick match)
+  - added border color and infos for battle pet, battle pet abilities, (world) quests in worldmap/questlog/questtracker, trade skill reagents (in TradeSkillUI), toys (in ToyBox), items and illusions (in Wardrobe), currencies, achievements in guild/community->info->news, rewards in quest(log)/LFG-browser, runeforge power (in adventure journal), conduits
+  - fixed "Smart Icon Appearance" for mounts and mount equipment (in mount journal), items (in adventure journal), spells and items (in guild/community->perks)
+- added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
 
-What isn't fixed:
-
-- Sometimes flickering of border colors for item comparison tooltips.
-
-But for me 98% is working now...
+But for me 99,9% is working now...
 
 If there are additional fixes in the future, I update this note accordingly.
