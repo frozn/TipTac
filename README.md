@@ -10,7 +10,7 @@ shadowlands: "World of Warcraft\_retail_\Interface\AddOns"
 burning crusade classic: "World of Warcraft\_classic_\Interface\AddOns"  
 classic: "World of Warcraft\_classic_era_\Interface\AddOns"  
 
-The following problems are fixed:
+The following problems are fixed respectively enhancements were added:
 
 - lua errors regarding setBackdropColor(), setBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
 - background colors
