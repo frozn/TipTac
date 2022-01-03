@@ -79,8 +79,8 @@ local function AddTarget(lineList,target,targetName)
 		lineList.next = targetReaction;
 		lineList.next = "[";
 		if (UnitIsPlayer(target)) then
-			local _, targetClassID = UnitClass(target);
-			lineList.next = (tt.ClassColorMarkup[targetClassID] or COL_LIGHTGRAY);
+			local _, targetClassFile = UnitClass(target);
+			lineList.next = (tt.ClassColorMarkup[targetClassFile] or COL_LIGHTGRAY);
 			lineList.next = targetName;
 			lineList.next = targetReaction;
 		else
@@ -128,10 +128,10 @@ function ttStyle:GeneratePlayerLines(u,first,unit)
 	lineInfo.next = UnitRace(unit);
 	-- class
 	lineInfo.next = " ";
-	lineInfo.next = (tt.ClassColorMarkup[u.classID] or COL_WHITE);
+	lineInfo.next = (tt.ClassColorMarkup[u.classFile] or COL_WHITE);
 	lineInfo.next = u.class;
 	-- name
-	lineName.next = (cfg.colorNameByClass and (tt.ClassColorMarkup[u.classID] or COL_WHITE) or u.reactionColor);
+	lineName.next = (cfg.colorNameByClass and (tt.ClassColorMarkup[u.classFile] or COL_WHITE) or u.reactionColor);
 	lineName.next = (cfg.nameType == "marysueprot" and u.rpName) or (cfg.nameType == "original" and u.originalName) or (cfg.nameType == "title" and UnitPVPName(unit)) or u.name;
 	if (u.realm) and (u.realm ~= "") and (cfg.showRealm ~= "none") then
 		if (cfg.showRealm == "show") then

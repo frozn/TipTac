@@ -4,8 +4,24 @@ local UnitName = UnitName;
 local UnitExists = UnitExists;
 local GetMouseFocus = GetMouseFocus;
 local gtt = GameTooltip;
+local bptt = BattlePetTooltip;
+local fbptt = FloatingBattlePetTooltip;
+local pjpatt = PetJournalPrimaryAbilityTooltip;
+local pjsatt = PetJournalSecondaryAbilityTooltip;
+local fpbatt = FloatingPetBattleAbilityTooltip;
+local ejtt = EncounterJournalTooltip;
 local wipe = wipe;
 local tconcat = table.concat;
+
+-- classic support
+local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false
+if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
+	isWoWClassic = true
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
+	isWoWBcc = true
+else
+	isWoWRetail = true
+end
 
 -- Addon
 local modName = ...;
@@ -30,7 +46,7 @@ local TT_DefaultConfig = {
 	showBattlePetTip = true,
 	gttScale = 1,
 	updateFreq = 0.5,
-	enableChatHoverTips = false,
+	enableChatHoverTips = true,
 	hidePvpText = true,
 	hideFactionText = false,
 	hideRealmText = false,
@@ -41,7 +57,7 @@ local TT_DefaultConfig = {
 	colRace = "|cffffffff",
 	colLevel = "|cffc0c0c0",
 	colorNameByClass = false,
-	classColoredBorder = false,
+	classColoredBorder = true,
 
 	reactText = false,
 	colReactText1 = "|cffc0c0c0",
@@ -154,14 +170,36 @@ local TT_DefaultConfig = {
 	-- ItemRef
 	if_enable = true,
 	if_infoColor = { 0.2, 0.6, 1 },
+
 	if_itemQualityBorder = true,
-	if_showAuraCaster = true,
-	if_showItemLevelAndId = false,				-- Used to be true, but changed due to the itemLevel issues
-	if_showQuestLevelAndId = true,
+	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
+	if_showItemId = false,
+	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
-	if_showCurrencyId = true,					-- Az: no option for this added to TipTac/options yet!
-	if_showAchievementIdAndCategory = false,	-- Az: no option for this added to TipTac/options yet!
+	if_showAuraCaster = true,
+	if_questDifficultyBorder = true,
+	if_showQuestLevel = false,
+	if_showQuestId = false,
+	if_currencyQualityBorder = true,
+	if_showCurrencyId = false,
+	if_achievmentColoredBorder = true,
+	if_showAchievementIdAndCategoryId = false,
 	if_modifyAchievementTips = true,
+	if_battlePetQualityBorder = true,
+	if_showBattlePetLevel = false,
+	if_showBattlePetId = false,
+	if_battlePetAbilityColoredBorder = true,
+	if_showBattlePetAbilityId = false,
+	if_transmogIllusionColoredBorder = true,
+	if_showTransmogIllusionId = false,
+	if_conduitQualityBorder = true,
+	if_showConduitItemLevel = false,
+	if_showConduitId = false,
+	if_runeforgePowerColoredBorder = true,
+	if_showRuneforgePowerId = false,
+	if_guildChallengeColoredBorder = true,
+	if_pvpEnlistmentBonusColoredBorder = true,
+
 	if_showIcon = true,
 	if_smartIcons = true,
 	if_borderlessIcons = false,
@@ -177,6 +215,12 @@ local TT_TipsToModify = {
 	"ItemRefTooltip",
 	"ItemRefShoppingTooltip1",
 	"ItemRefShoppingTooltip2",
+	"BattlePetTooltip",
+	"FloatingBattlePetTooltip",
+	"PetJournalPrimaryAbilityTooltip",
+	"PetJournalSecondaryAbilityTooltip",
+	"FloatingPetBattleAbilityTooltip",
+	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
 	"AtlasLootTooltip",
 	"QuestHelperTooltip",
@@ -184,11 +228,17 @@ local TT_TipsToModify = {
 };
 tt.tipsToModify = TT_TipsToModify;
 
+local TT_AddOnsLoaded = {
+	["Blizzard_Collections"] = false,
+	["Blizzard_Communities"] = false,
+	["Blizzard_EncounterJournal"] = false
+};
+
 -- Colors
 local CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS;
 local TT_ClassColorMarkup = {};
-for classID, color in next, CLASS_COLORS do
-	TT_ClassColorMarkup[classID] = ("|cff%.2x%.2x%.2x"):format(color.r*255,color.g*255,color.b*255);
+for classFile, color in next, CLASS_COLORS do
+	TT_ClassColorMarkup[classFile] = ("|cff%.2x%.2x%.2x"):format(color.r*255,color.g*255,color.b*255);
 end
 tt.ClassColorMarkup = TT_ClassColorMarkup;
 
@@ -219,8 +269,11 @@ local gtt_lastUpdate = 0;		-- time since last update
 local gtt_numLines = 0;			-- number of lines at last check, if this differs from gtt:NumLines() an update should be performed. Only used for unit tips with extra padding.
 local gtt_anchorType;			-- valid types: normal/mouse/parent
 local gtt_anchorPoint;          -- standard UI anchor point
-tt.xPadding = 0;				-- x/y variables used to set the padding (+width, +height) for the GTT, reset to zero in OnTooltipCleared
-tt.yPadding = 0;
+tt.paddingRight = 0;			-- padding variables used to set the padding for the GTT
+tt.paddingBottom = 0;
+tt.paddingLeft = 0;
+tt.paddingTop = 0;
+tt.paddingOffset = -2.5;
 
 -- Data Variables
 local u = {};
@@ -346,6 +399,8 @@ end
 -- Login [One-Time-Event] -- Initialize Level for difficulty coloring
 function tt:PLAYER_LOGIN(event)
 	self.playerLevel = UnitLevel("player");
+	
+	-- Cleanup
 	self:UnregisterEvent(event);
 	self[event] = nil;
 end
@@ -424,6 +479,7 @@ tt:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end
 tt:RegisterEvent("PLAYER_LOGIN");
 tt:RegisterEvent("PLAYER_LEVEL_UP");
 tt:RegisterEvent("VARIABLES_LOADED");
+tt:RegisterEvent("ADDON_LOADED");
 tt:RegisterEvent("CVAR_UPDATE");
 
 --------------------------------------------------------------------------------------------------------
@@ -466,6 +522,28 @@ end
 --                                              Settings                                              --
 --------------------------------------------------------------------------------------------------------
 
+-- Resolves the given table array of string names into their global objects
+local function ResolveGlobalNamedObjects(tipTable)
+	local resolved = {};
+	for index, tipName in ipairs(tipTable) do
+		-- lookup the global object from this name, assign false if nonexistent, to preserve the table entry
+		local tip = (_G[tipName] or false);
+		-- Check if this object has already been resolved. This can happen for thing like AtlasLoot, which sets AtlasLootTooltip = GameTooltip
+		if (resolved[tip]) then
+			tip = false;
+		elseif (tip) then
+			if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
+				Mixin(tip, BackdropTemplateMixin);
+			end
+			
+			resolved[tip] = index;
+		end
+
+		-- Assign the resolved object or false back into the table array
+		tipTable[index] = tip;
+	end
+end
+
 -- Setup Gradient Tip
 local function SetupGradientTip(tip)
 	local g = tip.ttGradient;
@@ -483,6 +561,11 @@ local function SetupGradientTip(tip)
 	g:SetPoint("TOPLEFT",cfg.backdropInsets,cfg.backdropInsets * -1);
 	g:SetPoint("BOTTOMRIGHT",tip,"TOPRIGHT",cfg.backdropInsets * -1,-cfg.gradientHeight);
 	g:Show();
+end
+
+-- Set padding variables
+function tt:SetPaddingVariables()
+	tt.paddingRight, tt.paddingBottom, tt.paddingLeft, tt.paddingTop = tipBackdrop.insets.right + tt.paddingOffset, tipBackdrop.insets.bottom + tt.paddingOffset, tipBackdrop.insets.left + tt.paddingOffset, tipBackdrop.insets.top + tt.paddingOffset;
 end
 
 -- Apply Settings
@@ -515,6 +598,8 @@ function tt:ApplySettings()
 
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
+
+	tt:SetPaddingVariables();
 
 	-- Set Scale, Backdrop, Gradient
 	for _, tip in ipairs(TT_TipsToModify) do
@@ -551,8 +636,79 @@ function tt:ApplySettings()
 	self:SendElementEvent("OnApplyConfig",cfg);
 end
 
+--------------------------------------------------------------------------------------------------------
+--                                          TipTac Functions                                          --
+--------------------------------------------------------------------------------------------------------
+
+-- Resets backdrop border color
+function tt:ResetBackdropBorderColor(tip)
+	tip.ttSetBackdropBorderColorLocked = false;
+	tip:SetBackdropBorderColor(tipBackdrop.backdropBorderColor:GetRGBA());
+	tip.ttSetBackdropBorderColorLocked = true;
+end
+
+-- Sets backdrop border color
+function tt:SetBackdropBorderColor(tip, r, g, b, a)
+	tip.ttSetBackdropBorderColorLocked = false;
+	tip:SetBackdropBorderColor(r, g, b, a);
+	tip.ttSetBackdropBorderColorLocked = true;
+	tip.ttBackdropBorderColorApplied = true;
+end
+
+-- Sets padding, so that the tooltip text is still in the center piece.
+function tt:SetPadding(tip, calledFromEvent)
+	if (tip:GetObjectType() ~= "GameTooltip") then -- SetPadding() not available for BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip and EncounterJournalTooltip
+		return;
+	end
+	local oldPaddingWidth, oldPaddingHeight = tip:GetPadding();
+	
+	local itemTooltip = tip.ItemTooltip;
+	local isItemTooltipShown = itemTooltip and itemTooltip:IsShown();
+	local isBottomFontStringShown = tip.BottomFontString and tip.BottomFontString:IsShown();
+	
+	if (not isItemTooltipShown) and (not isBottomFontStringShown) and (calledFromEvent ~= "GameTooltip_AddQuestRewardsToTooltip") and (calledFromEvent ~= "GameTooltip_CalculatePadding") then
+		if (math.abs(tt.paddingRight - oldPaddingWidth) > 0.5) or (math.abs(tt.paddingBottom - oldPaddingHeight) > 0.5) then
+			tip:SetPadding(tt.paddingRight, tt.paddingBottom, tt.paddingLeft, tt.paddingTop);
+		end
+		return;
+	end
+	
+	-- consider GameTooltip_AddQuestRewardsToTooltip() + GameTooltip_CalculatePadding()
+	-- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
+	
+	-- if (calledFromEvent == "OnTooltipCleared") then -- no SetPadding() here for embedded tooltips during event OnTooltipCleared
+		-- return;
+	-- end
+	
+	-- if (itemTooltip) then
+		-- if (isBottomFontStringShown) then
+			-- itemTooltip:SetPoint("BOTTOMLEFT", tip.BottomFontString, "TOPLEFT", 0, 10);
+		-- else
+			-- itemTooltip:SetPoint("BOTTOMLEFT", 10 + tt.paddingLeft, 13 + tt.paddingBottom);
+		-- end
+	-- end
+	
+	-- if (not tip:IsShown()) and (calledFromEvent ~= "GameTooltip_AddQuestRewardsToTooltip") then
+		-- return;
+	-- end
+
+	-- local newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = tt.paddingRight, tt.paddingBottom, tt.paddingLeft, tt.paddingTop;
+	
+	-- newPaddingRight = oldPaddingWidth + tt.paddingRight;print(newPaddingRight, tip:IsShown(), calledFromEvent);
+	
+	-- if (calledFromEvent == "GameTooltip_AddQuestRewardsToTooltip") then
+		-- newPaddingBottom = oldPaddingHeight + tt.paddingBottom;
+	-- else
+		-- newPaddingBottom = oldPaddingHeight;
+	-- end
+	
+	-- if (math.abs(newPaddingRight - oldPaddingWidth) > 0.5) or (math.abs(newPaddingBottom - oldPaddingHeight) > 0.5) then
+		-- tip:SetPadding(newPaddingRight, newPaddingBottom, tt.paddingLeft, tt.paddingTop);
+	-- end
+end
+
 -- Applies the backdrop, color and border color. The GTT will often reset these internally.
-function tt:ApplyTipBackdrop(tip)
+function tt:ApplyTipBackdrop(tip, calledFromEvent)
 	-- remove default tip backdrop
 	if (tip.NineSlice) then
 		local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table
@@ -568,8 +724,7 @@ function tt:ApplyTipBackdrop(tip)
 		};
 
 		for index, pieceName in ipairs(nineSlicePieces) do
-			local region = tip[pieceName];
-			region = tip.NineSlice[pieceName];
+			local region = tip.NineSlice[pieceName];
 			if region then
 				region:SetTexture(nil);
 			end
@@ -583,20 +738,15 @@ function tt:ApplyTipBackdrop(tip)
 	-- apply tip backdrop
 	--SharedTooltip_SetBackdropStyle(tip, tipBackdrop);
 	tip:SetBackdrop(tipBackdrop);
-
+	
 	tip:SetBackdropColor(tipBackdrop.backdropColor:GetRGBA());
-	if (tip.ttBackdropBorderColor) then
-		tip:SetBackdropBorderColor(tip.ttBackdropBorderColor:GetRGBA());
-	else
-		tip:SetBackdropBorderColor(tipBackdrop.backdropBorderColor:GetRGBA());
+
+	if (not tip.ttBackdropBorderColorApplied) then
+		tt:ResetBackdropBorderColor(tip);
 	end
-
-	tip:SetPadding(tipBackdrop.insets.right, tipBackdrop.insets.bottom, tipBackdrop.insets.left, tipBackdrop.insets.top);
+	
+	tt:SetPadding(tip, calledFromEvent);
 end
-
---------------------------------------------------------------------------------------------------------
---                                          TipTac Functions                                          --
---------------------------------------------------------------------------------------------------------
 
 -- Anchor any given frame to mouse position
 function tt:AnchorFrameToMouse(frame)
@@ -674,8 +824,8 @@ function tt:AddTargetedBy(u)
 	for i = 1, numGroup do
 		local unit = (inRaid and "raid"..i or "party"..i);
 		if (UnitIsUnit(unit.."target",u.token)) and (not UnitIsUnit(unit,"player")) then
-			local _, classID = UnitClass(unit);
-			targetedByList.next = TT_ClassColorMarkup[classID];
+			local _, classFile = UnitClass(unit);
+			targetedByList.next = TT_ClassColorMarkup[classFile];
 			targetedByList.next = UnitName(unit);
 			targetedByList.next = "|r, ";
 		end
@@ -696,7 +846,7 @@ function tt:ApplyUnitAppearance(tip,u,first)
 	-- obtain unit properties
 	if (first) then
 		u.isPlayer = UnitIsPlayer(u.token);
-		u.class, u.classID = UnitClass(u.token);
+		u.class, u.classFile = UnitClass(u.token);
 	end
 	u.reactionIndex = self:GetUnitReactionIndex(u.token);
 
@@ -713,11 +863,11 @@ function tt:ApplyUnitAppearance(tip,u,first)
 	-- Backdrop Border Color: By Class or by Reaction
 	if (cfg.classColoredBorder) and (u.isPlayer) then
 		if (first) then
-			local color = CLASS_COLORS[u.classID] or CLASS_COLORS["PRIEST"];
-			tip:SetBackdropBorderColor(color.r,color.g,color.b);
+			local classColor = CLASS_COLORS[u.classFile] or CLASS_COLORS["PRIEST"];
+			tt:SetBackdropBorderColor(tip, classColor.r, classColor.g, classColor.b);
 		end
 	elseif (cfg.reactColoredBorder) then	-- Az: this will override the classColoredBorder config, perhaps have that option take priority instead?
-		tip:SetBackdropBorderColor(unpack(cfg["colReactBack"..u.reactionIndex]));
+		tt:SetBackdropBorderColor(tip, unpack(cfg["colReactBack"..u.reactionIndex]));
 	end
 
 	-- Remove Unwanted Lines
@@ -747,11 +897,26 @@ function tt:ApplyUnitAppearance(tip,u,first)
 	-- [3] Send style event AFTER tip has been styled
 	self:SendElementEvent("OnPostStyleTip",tip,u,first);
 	--------------------------------------------------
+	
+	-- reapply tooltip padding. padding might have been modified to fit health/power bars.
+	tt:SetPadding(tip);
+end
 
-	-- Apply tooltip padding, if any
-	if (tt.xPadding ~= 0) or (tt.yPadding ~= 0) then
-		tip:SetPadding(tt.xPadding,tt.yPadding);
-		gtt_numLines = gtt:NumLines();
+-- HOOK: CommunitiesFrame.MemberList.ListScrollFrame.buttons:OnEnter
+local function CFMLLSFB_OnEnter_Hook(self)
+	if (cfg.classColoredBorder) and (gtt:IsShown()) then
+		local classColor = CLASS_COLORS["PRIEST"];
+		local memberInfo = self.memberInfo;
+		if (memberInfo) then
+			local classID = memberInfo.classID;
+			if (classID) then
+				local classInfo = C_CreatureInfo.GetClassInfo(classID);
+				if (classInfo) then
+					classColor = CLASS_COLORS[classInfo.classFile] or CLASS_COLORS["PRIEST"];
+				end
+			end
+		end
+		tt:SetBackdropBorderColor(gtt, classColor.r, classColor.g, classColor.b);
 	end
 end
 
@@ -803,11 +968,6 @@ function gttScriptHooks:OnShow()
 	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
 		-- self:SetBackdropColor(unpack(cfg.tipColor));
 	-- end
-	
-	-- backdropBorderColor from TipTacItemRef needs to be reapplied
-	if (self.ttBackdropBorderColor) then
-		self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
-	end
 end
 
 -- EventHook: OnUpdate
@@ -816,31 +976,21 @@ function gttScriptHooks:OnUpdate(elapsed)
 	-- local gttAnchor = self:GetAnchorType();
 	-- if (gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT") then
 		-- self:SetBackdropColor(unpack(cfg.tipColor));
-		-- self:SetBackdropBorderColor(unpack(cfg.tipBorderColor));
-		-- backdropBorderColor from TipTacItemRef needs to be reapplied including the backdropColor from config
-		-- if (self.ttBackdropBorderColor) then
-			-- self:SetBackdropColor(unpack(cfg.tipColor));
-			-- self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
-		-- end
+		-- tt:SetBackdropBorderColor(self, unpack(cfg.tipBorderColor));
 		-- return;
 	-- else
 	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
-	if (self == gtt and gtt_anchorType == "mouse") then
+	if (gtt_anchorType == "mouse" and self == gtt) then
 		local gttAnchor = self:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
 			tt:AnchorFrameToMouse(self);
 		end
 	end
-
+	
 	-- WoD: This background color reset, from OnShow(), has been copied down here. It seems resetting the color in OnShow() wasn't enough, as the color changes after the tip is being shown
 	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
 		-- self:SetBackdropColor(unpack(cfg.tipColor));
 	-- end
-
-	-- backdropBorderColor from TipTacItemRef needs to be reapplied
-	if (self.ttBackdropBorderColor) then
-		self:SetBackdropBorderColor(self.ttBackdropBorderColor:GetRGBA());
-	end
 
 	-- Fadeout / Update Tip if Showing a Unit
 	-- Do not allow (ttFadeOut == FADE_BLOCK), as that is only for non overridden fadeouts
@@ -914,17 +1064,13 @@ end
 
 -- EventHook: OnTooltipCleared -- This will clean up auras, bars, raid icon and vars for the gtt when we aren't showing a unit
 function gttScriptHooks:OnTooltipCleared()
+	-- reset the padding that might have been modified to fit health/power bars
+	tt:SetPaddingVariables();
+
 	-- WoD: resetting the back/border color seems to be a necessary action, otherwise colors may stick when showing the next tooltip thing (world object tips)
 	-- BfA: The tooltip now also clears the backdrop in adition to color and bordercolor, so set it again here
-	if (self.ttBackdropBorderColor) then
-		self.ttBackdropBorderColor = nil;
-	end
-	tt:ApplyTipBackdrop(self);
-
-	-- remove the padding that might have been set to fit health/power bars
-	tt.xPadding = 0;
-	tt.yPadding = 0;
-	--self:SetPadding(tt.xPadding,tt.yPadding);		-- [8.1.5] disabled, as it causes issues  -- Look into GTT.recalculatePadding & GameTooltip_CalculatePadding()
+	self.ttBackdropBorderColorApplied = false;
+	tt:ApplyTipBackdrop(self, "OnTooltipCleared");
 
 	-- wipe the vars
 	wipe(u);
@@ -938,8 +1084,27 @@ function gttScriptHooks:OnTooltipCleared()
 	tt:SendElementEvent("OnCleared",self);
 end
 
+-- EventHook: OnTooltipSetItem
+function gttScriptHooks:OnTooltipSetItem()
+	tt:ApplyTipBackdrop(self);
+
+	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
+	-- This prevents wrong initial positioning of item tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor" e.g. on opening character frame and mouse is already over the position of an appearing item.
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
+
+	if (gtt_anchorType == "mouse" and self == gtt) then
+		local gttAnchor = self:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_NONE") then
+			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
+			self:SetAnchorType("ANCHOR_NONE");
+		end
+		tt:AnchorFrameToMouse(self);
+	end
+end
+
 -- OnHide Script -- Used to default the background and border color -- Az: May cause issues with embedded tooltips, see GameTooltip.lua:396
 function gttScriptHooks:OnHide()
+	self.ttBackdropBorderColorApplied = false;
 	tt:ApplyTipBackdrop(self);
 end
 
@@ -959,28 +1124,6 @@ gtt.FadeOut = function(self,...)
 	else
 		self.ttFadeOut = FADE_ENABLE;
 		gtt_lastUpdate = 0;
-	end
-end
-
--- Resolves the given table array of string names into their global objects
-local function ResolveGlobalNamedObjects(tipTable)
-	local resolved = {};
-	for index, tipName in ipairs(tipTable) do
-		-- lookup the global object from this name, assign false if nonexistent, to preserve the table entry
-		local tip = (_G[tipName] or false);
-
-		-- Check if this object has already been resolved. This can happen for thing like AtlasLoot, which sets AtlasLootTooltip = GameTooltip
-		if (resolved[tip]) then
-			tip = false;
-		elseif (tip) then
-			if (type(tip) == "table" and type(tip.SetBackdrop) ~= "function" and BackdropTemplateMixin and "BackdropTemplate") then
-				Mixin(tip, BackdropTemplateMixin);
-			end
-			resolved[tip] = index;
-		end
-
-		-- Assign the resolved object or false back into the table array
-		tipTable[index] = tip;
 	end
 end
 
@@ -1019,6 +1162,32 @@ local function GTT_SetDefaultAnchor(tooltip,parent)
 	tooltip.ttDefaultAnchored = true;
 end
 
+-- HOOK: GameTooltip_AddQuestRewardsToTooltip
+-- commented out for embedded tooltips, see description in tt:SetPadding()
+-- local function GTT_AddQuestRewardsToTooltip(tooltip)
+	-- -- reapply padding if modified
+	-- if (tooltip:GetObjectType() == "GameTooltip") then
+		-- --tt:SetPadding(tooltip);
+	-- end
+-- end
+
+-- HOOK: GameTooltip_CalculatePadding
+-- commented out for embedded tooltips, see description in tt:SetPadding()
+-- local function GTT_CalculatePadding(tooltip)
+	-- -- reapply padding if modified
+	-- if (tooltip:GetObjectType() == "GameTooltip") then
+		-- tt:SetPadding(tooltip, "GameTooltip_CalculatePadding");
+	-- end
+-- end
+
+-- HOOK: QuestUtils_AddQuestRewardsToTooltip
+-- added helper function for embedded tooltips, see description in tt:SetPadding()
+local function QU_AddQuestRewardsToTooltip(tooltip, questID, style)
+	if (not tooltip:IsShown()) and (tooltip.ItemTooltip and tooltip.ItemTooltip:IsShown()) then
+		tooltip:SetPadding(0, 0, 0, 0);
+	end
+end
+
 -- HOOK: GameTooltip:SetUnitAura()
 local function GTT_SetUnitAura(self)
 	-- "ttDisplayingAura" will flag the tooltip is currently showing an aura
@@ -1036,21 +1205,228 @@ local function GTT_SetUnitAura(self)
 	end
 end
 
--- Function to loop through tips to modify and hook
-function tt:HookTips()
-	-- Resolve the TipsToModify strings into actual objects
-	ResolveGlobalNamedObjects(TT_TipsToModify);
+-- HOOK: QuestPinMixin:OnMouseEnter()
+local function QPM_OnMouseEnter_Hook(self)
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(gtt);
 
-	-- Hooks needs to be applied as late as possible during load, as we want to try and be the
-	-- last addon to hook "OnTooltipSetUnit" so we always have a "completed" tip to work on
-	for index, tip in ipairs(TT_TipsToModify) do
-		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") and (tip:GetObjectType() == "GameTooltip") then
-			for scriptName, hookFunc in next, gttScriptHooks do
-				tip:HookScript(scriptName,hookFunc);
+	if (gtt_anchorType == "mouse") then
+		local gttAnchor = gtt:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_NONE") then
+			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
+			gtt:SetAnchorType("ANCHOR_NONE");
+		end
+		tt:AnchorFrameToMouse(gtt);
+	end
+end
+
+-- HOOK: AreaPOIPinMixin:OnMouseEnter()
+local function APOIPM_OnMouseEnter(self)
+	if (gtt:IsShown()) then
+		tt:ApplyTipBackdrop(gtt);
+	end
+end
+
+--------------------------------------------------------------------------------------------------------
+--                      BattlePetTooltip / EncounterJournalTooltip Script Hooks                       --
+--------------------------------------------------------------------------------------------------------
+
+--[[
+	BattlePetTooltip / EncounterJournalTooltip Construction Call Order
+	------------------------------------------------------------------
+	- GameTooltip_SetDefaultAnchor()        -- 
+	- BPTT/EJTT:Show()					    -- Will Resize the tip
+	- BPTT/EJTT.OnShow()					-- Event triggered in response to the Show() function
+	- BPTT/EJTT.OnHide()		           	-- Tooltip has been hidden
+--]]
+
+-- table with BattlePetTooltip / EncounterJournalTooltip scripts to hook into (k = scriptName, v = hookFunction)
+local bpttEjttScriptHooks = {};
+
+-- EventHook: OnUpdate
+function bpttEjttScriptHooks:OnUpdate(elapsed)
+	-- Anchor BPTT / EJTT to Mouse
+	if (gtt_anchorType == "mouse") then
+		tt:AnchorFrameToMouse(self);
+	end
+end
+
+-- EventHook: OnHide
+function bpttEjttScriptHooks:OnHide()
+	self.ttBackdropBorderColorApplied = false;
+	tt:ApplyTipBackdrop(self);
+end
+
+--------------------------------------------------------------------------------------------------------
+--          PetJournalPrimaryAbilityTooltip / PetJournalSecondaryAbilityTooltip Script Hooks          --
+--------------------------------------------------------------------------------------------------------
+
+--[[
+	PetJournalPrimaryAbilityTooltip / PetJournalSecondaryAbilityTooltip Construction Call Order
+	------------------------------------------------------------------
+	- PJATT:Show()					    -- Will Resize the tip
+	- PJATT.OnShow()					-- Event triggered in response to the Show() function
+	- PJATT.OnHide()		           	-- Tooltip has been hidden
+--]]
+
+-- table with PetJournalPrimaryAbilityTooltip / PetJournalSecondaryAbilityTooltip scripts to hook into (k = scriptName, v = hookFunction)
+local pjattScriptHooks = {};
+
+-- EventHook: OnShow
+function pjattScriptHooks:OnShow()
+	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(self);
+
+	-- Anchor PJATT to Mouse
+	if (gtt_anchorType == "mouse") then
+		tt:AnchorFrameToMouse(self);
+	end
+end
+
+-- EventHook: OnUpdate
+function pjattScriptHooks:OnUpdate(elapsed)
+	-- Anchor PJATT to Mouse
+	if (gtt_anchorType == "mouse") then
+		tt:AnchorFrameToMouse(self);
+	end
+end
+
+-- HOOK: SharedPetBattleAbilityTooltip_UpdateSize()
+local function SPBATT_UpdateSize(self)
+	-- re-hook OnUpdate for PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip
+	if (self == pjpatt) or (self == pjsatt) then
+		self:HookScript("OnUpdate", pjattScriptHooks.OnUpdate);
+	end
+end
+
+-- EventHook: OnHide
+function pjattScriptHooks:OnHide()
+	self.ttBackdropBorderColorApplied = false;
+	tt:ApplyTipBackdrop(self);
+end
+
+--------------------------------------------------------------------------------------------------------
+--                                             Hook Tips                                              --
+--------------------------------------------------------------------------------------------------------
+
+-- Function to add a locking feature for SetBackdropBorderColor
+function tt:AddLockingFeature(tip)
+	-- add locking feature for SetBackdropBorderColor
+	local tip_SetBackdropBorderColor_org = tip.SetBackdropBorderColor;
+	
+	tip.SetBackdropBorderColor = function(self, ...)
+		if (self.ttSetBackdropBorderColorLocked) then
+			return;
+		end
+		
+		tip_SetBackdropBorderColor_org(self, ...);
+	end
+end
+
+-- Function to apply necessary hooks to tips
+function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
+	-- Resolve the TipsToModify strings into actual objects
+	if (resolveGlobalNamedObjects) then
+		ResolveGlobalNamedObjects(tips);
+	end
+
+	-- apply necessary hooks to tips
+	for index, tip in ipairs(tips) do
+		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") then
+			local tipName = tip:GetName();
+			local tipHooked = false;
+			
+			if (lateHook) then
+				TT_TipsToModify[#TT_TipsToModify + 1] = tip;
+			end
+			
+			if (tip:GetObjectType() == "GameTooltip") then
+				for scriptName, hookFunc in next, gttScriptHooks do
+					tip:HookScript(scriptName, hookFunc);
+				end
+				if (tipName == "GameTooltip") then
+					-- Replace GameTooltip_SetDefaultAnchor() (For Re-Anchoring) -- Patch 3.2 made this function secure
+					hooksecurefunc("GameTooltip_SetDefaultAnchor", GTT_SetDefaultAnchor);
+					
+					-- Post-Hook GameTooltip:SetUnitAura() to prevent flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
+					hooksecurefunc(gtt, "SetUnitAura", GTT_SetUnitAura);
+					
+					-- Post-Hook QuestPinMixin:OnMouseEnter() to re-anchor tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor"
+					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
+
+					-- Post-Hook AreaPOIPinMixin:OnMouseEnter() to reapply backdrop for AreaPOIPin on world map (e.g. Torghast)
+					hooksecurefunc(AreaPOIPinMixin, "OnMouseEnter", APOIPM_OnMouseEnter);
+					
+					-- Post-Hook TaskPOI_OnEnter() to reapply padding if modified
+					-- commented out for embedded tooltips, see description in tt:SetPadding()
+					-- hooksecurefunc("TaskPOI_OnEnter", function(self)
+					  -- tt:SetPadding(gtt, "GameTooltip_AddQuestRewardsToTooltip");
+					-- end);
+					
+					-- Post-Hook GameTooltip_AddQuestRewardsToTooltip() to reapply padding if modified
+					-- commented out for embedded tooltips, see description in tt:SetPadding()
+					-- hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip);
+					
+					-- Post-Hook GameTooltip_CalculatePadding() to reapply padding if modified
+					-- commented out for embedded tooltips, see description in tt:SetPadding()
+					-- hooksecurefunc("GameTooltip_CalculatePadding", GTT_CalculatePadding);
+					
+					-- Post-Hook QuestUtils_AddQuestRewardsToTooltip() to reset padding to fix displaying of embedded tooltips
+					-- added helper function for embedded tooltips, see description in tt:SetPadding()
+					if (isWoWRetail) then
+						hooksecurefunc("QuestUtils_AddQuestRewardsToTooltip", QU_AddQuestRewardsToTooltip);
+					end
+				end
+				tipHooked = true;
+			else
+				if (tip:GetObjectType() == "Frame") then
+					if (tipName == "BattlePetTooltip") then
+						for scriptName, hookFunc in next, bpttEjttScriptHooks do
+							tip:HookScript(scriptName, hookFunc);
+						end
+						tipHooked = true;
+					elseif (IsAddOnLoaded("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
+						for scriptName, hookFunc in next, pjattScriptHooks do
+							tip:HookScript(scriptName, hookFunc);
+						end
+						if (tipName == "PetJournalPrimaryAbilityTooltip") then
+							-- Post-Hook SharedPetBattleAbilityTooltip_UpdateSize() to re-hook OnUpdate for PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip
+							hooksecurefunc("SharedPetBattleAbilityTooltip_UpdateSize", SPBATT_UpdateSize);
+						end
+						tipHooked = true;
+					elseif (IsAddOnLoaded("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
+						-- commented out for embedded tooltips, see description in tt:SetPadding()
+						for scriptName, hookFunc in next, bpttEjttScriptHooks do
+							tip:HookScript(scriptName, hookFunc);
+						end
+						tipHooked = true;
+					end
+				end
+			end
+			
+			if (tipHooked) then
+				tt:AddLockingFeature(tip);
 			end
 		end
 	end
+end
 
+-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame
+local CFMLLSFBhooked = {};
+
+function tt:ApplyHooksToCFMLLSF()
+	for index, button in pairs(CommunitiesFrame.MemberList.ListScrollFrame.buttons) do -- see CommunitiesMemberListMixin:RefreshListDisplay() in "Blizzard_Communities/CommunitiesMemberList.lua"
+		if (not CFMLLSFBhooked[button]) then
+			button:HookScript("OnEnter", CFMLLSFB_OnEnter_Hook);
+			CFMLLSFBhooked[button] = true;
+		end
+	end
+end
+
+-- Function to loop through tips to modify and hook during VARIABLES_LOADED
+function tt:HookTips()
+	-- Hooks needs to be applied as late as possible during load, as we want to try and be the
+	-- last addon to hook "OnTooltipSetUnit" so we always have a "completed" tip to work on
+	self:ApplyHooksToTips(TT_TipsToModify, true);
+	
 	-- hook their OnHide script -- Az: OnHide hook disabled for now
 --	for index, tipName in ipairs(TT_TipsToModify) do
 --		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") then
@@ -1058,14 +1434,66 @@ function tt:HookTips()
 --		end
 --	end
 
-	-- Replace GameTooltip_SetDefaultAnchor (For Re-Anchoring) -- Patch 3.2 made this function secure
-	hooksecurefunc("GameTooltip_SetDefaultAnchor", GTT_SetDefaultAnchor);
-	
-	-- Post-Hook GameTooltip:SetUnitAura() to prevent flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
-	hooksecurefunc(GameTooltip, "SetUnitAura", GTT_SetUnitAura);
-
 	-- Clear this function as it's not needed anymore
 	self.HookTips = nil;
+end
+
+-- AddOn Loaded
+function tt:ADDON_LOADED(event, addOnName)
+	-- check if addon is already loaded
+	if (TT_AddOnsLoaded[addOnName] == nil) or (TT_AddOnsLoaded[addOnName]) then
+		return;
+	end
+	
+	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
+	if (addOnName == "Blizzard_Collections") then
+		pjpatt = PetJournalPrimaryAbilityTooltip;
+		pjsatt = PetJournalSecondaryAbilityTooltip;
+		
+		-- Hook Tips & Apply Settings
+		self:ApplyHooksToTips({
+			"PetJournalPrimaryAbilityTooltip",
+			"PetJournalSecondaryAbilityTooltip"
+		}, true, true);
+
+		self:ApplySettings();
+	-- now CommunitiesGuildNewsFrame exists
+	elseif (addOnName == "Blizzard_Communities") then
+		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame
+		tt:ApplyHooksToCFMLLSF();
+		
+		hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
+			tt:ApplyHooksToCFMLLSF();
+		end);
+	-- now EncounterJournalTooltip exists
+	elseif (addOnName == "Blizzard_EncounterJournal") then
+		ejtt = EncounterJournalTooltip;
+		
+		-- Hook Tips & Apply Settings
+		-- commented out for embedded tooltips, see description in tt:SetPadding()
+		-- self:ApplyHooksToTips({
+			-- "EncounterJournalTooltip"
+		-- }, true, true);
+
+		-- self:ApplySettings();
+	end
+	
+	TT_AddOnsLoaded[addOnName] = true;
+	
+	-- Cleanup if all addons are loaded
+	local allAddOnsLoaded = true;
+	
+	for addOn, isLoaded in pairs(TT_AddOnsLoaded) do
+		if (not isLoaded) then
+			allAddOnsLoaded = false;
+			break;
+		end
+	end
+	
+	if (allAddOnsLoaded) then
+		self:UnregisterEvent(event);
+		self[event] = nil;
+	end
 end
 
 -- Allows other mods to "register" tooltips or frames to be modified by TipTac
@@ -1078,7 +1506,7 @@ function tt:AddModifiedTip(tip,noHooks)
 		if (tIndexOf(TT_TipsToModify,tip)) then
 			return;
 		end
-		if (type(tip) == "table" and type(tip.SetBackdrop) ~= "function" and BackdropTemplateMixin and "BackdropTemplate") then
+		if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
 			Mixin(tip, BackdropTemplateMixin);
 		end
 		TT_TipsToModify[#TT_TipsToModify + 1] = tip;
@@ -1090,12 +1518,11 @@ function tt:AddModifiedTip(tip,noHooks)
 		
 		if (not noHooks) then
 			tip:HookScript("OnShow", function()
-				tip.ttBackdropBorderColor = CreateColor(unpack(cfg.tipBorderColor));
 				tt:ApplyTipBackdrop(tip);
-				gttScriptHooks.OnShow(tip);
 			end);
-			tip:HookScript("OnUpdate", gttScriptHooks.OnUpdate);
 		end
+
+		tt:AddLockingFeature(tip);
 
 		-- Only apply settings if "cfg" has been initialised, meaning after VARIABLES_LOADED.
 		-- If AddModifiedTip() is called earlier, settings will be applied for all tips once VARIABLES_LOADED is fired anyway.

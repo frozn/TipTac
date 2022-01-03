@@ -30,6 +30,8 @@
 	- QueryItems() now returns the table of the queried items
 	——— 20.10.31 ——— Rev 14 ——— 9.0.1/Shadowlands ———
 	- CreateFrame() now uses the "BackdropTemplate"
+	——— 22.01.03 ——— Rev 15 ——— 9.1.5/Shadowlands ——— #frozn45
+	- parent of menu set to UIParent and comment out corresponding SetParent() to fix cut off dropdown menus by scroll frames. "menu.parent" stays at dropdown frame.
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -49,7 +51,7 @@
 	tip			Tooltip will be shown when mouse is over item
 --]]
 
-local REVISION = 14;
+local REVISION = 15;
 if (type(AzDropDown) == "table") and (AzDropDown.vers >= REVISION) then
 	return;
 end
@@ -181,7 +183,7 @@ function DropDownMenuMixin:Initialize(parent,point,parentPoint)
 
 	-- Set DropDown Parent
 	self.parent = parent;
-	self:SetParent(parent);
+	-- self:SetParent(parent);
 
 	-- Anchor to Parent
 	self:ClearAllPoints();
@@ -307,7 +309,7 @@ end
 
 -- Creates the DropDown menu with item buttons and scrollbar
 local function CreateDropDownMenu()
-	menu = CreateFrame("Frame",nil,nil,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
+	menu = CreateFrame("Frame",nil,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
 	menu:SetToplevel(true);
 	menu:SetClampedToScreen(true);

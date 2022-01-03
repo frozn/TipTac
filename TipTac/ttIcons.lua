@@ -33,7 +33,7 @@ function ttIcons:SetIcon(icon,u)
 		icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
 		icon:SetTexCoord(0.5,1,0,0.5);
 	elseif (u.isPlayer) and (cfg.iconClass) then
-		local texCoord = CLASS_ICON_TCOORDS[u.classID];
+		local texCoord = CLASS_ICON_TCOORDS[u.classFile];
 		icon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
 		icon:SetTexCoord(unpack(texCoord));
 	else

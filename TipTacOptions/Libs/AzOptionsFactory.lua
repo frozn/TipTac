@@ -1,17 +1,21 @@
 --[[
-	———————————————— Rev 09 ———
-	- Fixed GetChecked() now returning a boolean instead of nil/1
-	——— 16.07.23 ——— Rev 10 ——— 7.0.3/Legion ———
+	———————————————— Rev 09 ——E	- Fixed GetChecked() now returning a boolean instead of nil/1
+	——E16.07.23 ——ERev 10 ——E7.0.3/Legion ——E
 	- Changed SetTexture(r,g,b,a) -> SetColorTexture(r,g,b,a)
-	——— 18.08.12 ——— Rev 11 ——— 8.0/BfA ———
+	——E18.08.12 ——ERev 11 ——E8.0/BfA ——E
 	- Added native LSM support to the dropdown
 	- The building of the options page is now done internally, instead of in the client addon.
 	- Some code restructure.
-	——— 20.10.31 ——— Rev 12 ——— 9.0.1/Shadowlands ———
+	——E20.10.31 ——ERev 12 ——E9.0.1/Shadowlands ——E
 	- CreateFrame() now uses the "BackdropTemplate"
+	21.12.22 Rev 13 9.1.5/Shadowlands #frozn45
+	- fixed selecting of "None" for backdrop/border texture and saving this settings.
+	22.01.03 Rev 14 9.1.5/Shadowlands #frozn45
+	- added a scroll frame to show a scroll bar if needed
+	- minor adjustments of some elements
 --]]
 
-local REVISION = 12;
+local REVISION = 13;
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -262,7 +266,7 @@ azof.objects.Check = {
 		f:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 
 		f.text = f:CreateFontString("ARTWORK",nil,"GameFontNormalSmall");
-		f.text:SetPoint("LEFT",f,"RIGHT",0,1);
+		f.text:SetPoint("LEFT",f,"RIGHT",0,0);
 
 		return f;
 	end,
@@ -367,7 +371,7 @@ end
 -- New ColorButton
 azof.objects.Color = {
 	xOffset = 14,
-	yOffset = 6,
+	yOffset = 5,
 	Init = function(self,option,cfgValue)
 		self:SetHitRectInsets(0,self.text:GetWidth() * -1,0,0);
 		if (option.subType == 2) then
@@ -396,7 +400,7 @@ azof.objects.Color = {
 		f.border:SetColorTexture(1,1,1,1);
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-		f.text:SetPoint("LEFT",f,"RIGHT",4,1);
+		f.text:SetPoint("LEFT",f,"RIGHT",4,-1);
 
 		f.color = CreateColor();
 		f.color.SetFromHexColorMarkup = SetFromHexColorMarkup;	-- extended the color object
@@ -498,23 +502,26 @@ local function SharedMediaLib_Init(dropDown,list)
 		for _, name in next, LSM:List(query) do
 			local tbl = list[#list + 1];
 			tbl.text = name;
-			local preparedValue = LSM:Fetch(query,name);
-			if ((query == "background" or query == "border") and preparedValue == nil) then
-				preparedValue = "nil";
+			local value = LSM:Fetch(query,name);
+			local tip = value;
+			if ((query == "background" or query == "border") and value == nil) then
+				value = "nil";
+				tip = "";
 			end
-			tbl.value = preparedValue;
-			tbl.tip = tbl.value;
+			tbl.value = value;
+			tbl.tip = tip;
 		end
 	else
 		for name, value in next, azof.LibSharedMediaSubstitute[query] do
 			local tbl = list[#list + 1];
 			tbl.text = name;
-			local preparedValue = value;
-			if ((query == "background" or query == "border") and preparedValue == nil) then
-				preparedValue = "nil";
+			local tip = value;
+			if ((query == "background" or query == "border") and value == nil) then
+				value = "nil";
+				tip = "";
 			end
-			tbl.value = preparedValue;
-			tbl.tip = tbl.value;
+			tbl.value = value;
+			tbl.tip = tip;
 		end
 	end
 	table.sort(list,function(a,b) return a.text < b.text end);
@@ -531,7 +538,7 @@ azof.objects.DropDown = {
 	CreateNew = function(self)
 		local f = AzDropDown:CreateDropDown(self.owner,180,nil,nil,true);
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-		f.text:SetPoint("LEFT",-302 + f:GetWidth(),0);
+		f.text:SetPoint("LEFT",-302 + f:GetWidth(),-1);
 		return f;
 	end,
 };
@@ -573,7 +580,7 @@ azof.objects.Text = {
 		f:SetTextInsets(6,0,0,0);
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-		f.text:SetPoint("LEFT",-120,1);
+		f.text:SetPoint("LEFT",-120,-1);
 
 		return f;
 	end,

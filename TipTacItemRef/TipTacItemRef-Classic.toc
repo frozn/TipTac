@@ -1,8 +1,9 @@
 ## Interface: 11401
-## Version: 21.12.22
+## Version: 22.01.03
 ## Title: TipTacItemRef
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Improved ItemRefTooltip
 ## OptionalDeps: TipTac
+embeds.xml
 LibItemString.lua
 ttItemRef.lua

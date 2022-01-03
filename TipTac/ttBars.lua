@@ -25,7 +25,7 @@ end
 
 function HealthBarMixin:GetColor(u)
 	if (u.isPlayer) and (cfg.healthBarClassColor) then
-		local color = CLASS_COLORS[u.classID] or CLASS_COLORS["PRIEST"];
+		local color = CLASS_COLORS[u.classFile] or CLASS_COLORS["PRIEST"];
 		return color.r, color.g, color.b;
 	else
 		return unpack(cfg.healthBarColor);
@@ -191,12 +191,12 @@ function ttBars:SetupBars(u)
 		bar:ClearAllPoints();
 
 		if (bar:GetVisibility(u)) then
-			bar:SetPoint("BOTTOMLEFT",BAR_MARGIN_X,tt.yPadding + BAR_MARGIN_Y);
-			bar:SetPoint("BOTTOMRIGHT",-BAR_MARGIN_X,tt.yPadding + BAR_MARGIN_Y);
+			bar:SetPoint("BOTTOMLEFT", tt.paddingRight + BAR_MARGIN_X, tt.paddingBottom + BAR_MARGIN_Y);
+			bar:SetPoint("BOTTOMRIGHT", -tt.paddingLeft - BAR_MARGIN_X, tt.paddingBottom + BAR_MARGIN_Y);
 
 			bar:SetStatusBarColor(bar:GetColor(u));
 
-			tt.yPadding = (tt.yPadding + cfg.barHeight + BAR_SPACING);
+			tt.paddingBottom = (tt.paddingBottom + cfg.barHeight + BAR_SPACING);
 
 			bar:Show();
 		else

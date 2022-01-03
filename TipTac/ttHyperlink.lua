@@ -1,11 +1,17 @@
+local AceHook = LibStub("AceHook-3.0");
 local gtt = GameTooltip;
+local bptt = BattlePetTooltip;
+
+-- Addon
+local modName = ...;
+local ttHyperlink = CreateFrame("Frame", modName);
 
 -- TipTac refs
 local tt = TipTac;
 local cfg;
 
 -- element registration
-local ttHyperlink = tt:RegisterElement({},"Hyperlink");
+tt:RegisterElement(ttHyperlink, "Hyperlink");
 
 -- Hyperlinks which are supported
 local supportedHyperLinks = {
@@ -18,24 +24,114 @@ local supportedHyperLinks = {
 	instancelock = true,
 	talent = true,
 	glyph = true,
+	battlepet = true,
+	battlePetAbil = true,
+	transmogillusion = true,
+	conduit = true,
+	currency = true,
 };
+
+local addOnsLoaded = {
+	["Blizzard_Communities"] = false
+};
+
+local itemsCollectionFrame = nil;
+
+--------------------------------------------------------------------------------------------------------
+--                                       TipTac Hyperlink Frame                                       --
+--------------------------------------------------------------------------------------------------------
+
+ttHyperlink:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end);
+
+ttHyperlink:RegisterEvent("ADDON_LOADED");
+
+-- AddOn Loaded
+function ttHyperlink:ADDON_LOADED(event, addOnName)
+	-- check if addon is already loaded
+	if (addOnsLoaded[addOnName] == nil) or (addOnsLoaded[addOnName]) then
+		return;
+	end
+	
+	-- now CommunitiesGuildNewsFrame exists
+	if (addOnName == "Blizzard_Communities") then
+		self:OnApplyConfig(cfg);
+	end
+	
+	addOnsLoaded[addOnName] = true;
+	
+	-- Cleanup if all addons are loaded
+	local allAddOnsLoaded = true;
+	
+	for addOn, isLoaded in pairs(addOnsLoaded) do
+		if (not isLoaded) then
+			allAddOnsLoaded = false;
+			break;
+		end
+	end
+	
+	if (allAddOnsLoaded) then
+		self:UnregisterEvent(event);
+		self[event] = nil;
+
+		-- we no longer need to receive any events
+		self:UnregisterAllEvents();
+		self:SetScript("OnEvent", nil);
+	end
+end
 
 --------------------------------------------------------------------------------------------------------
 --                                              Scripts                                               --
 --------------------------------------------------------------------------------------------------------
 
--- OnHyperlinkEnter
-local function OnHyperlinkEnter(self,refString)
+-- ChatFrame:OnHyperlinkEnter
+local showingTooltip = false;
+
+local function OnHyperlinkEnter(self, refString, text)
 	local linkToken = refString:match("^([^:]+)");
 	if (supportedHyperLinks[linkToken]) then
-		GameTooltip_SetDefaultAnchor(gtt,self);
-		gtt:SetHyperlink(refString);
+		GameTooltip_SetDefaultAnchor(gtt, self);
+		
+		if (linkToken == "battlepet") then
+			showingTooltip = bptt;
+			BattlePetToolTip_ShowLink(text);
+		elseif (linkToken == "battlePetAbil") then
+			-- makes shure that PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
+			if (not IsAddOnLoaded("Blizzard_Collections")) then
+				LoadAddOn("Blizzard_Collections");
+			end
+			
+			-- show tooltip
+			showingTooltip = PetJournalPrimaryAbilityTooltip;
+			local link, abilityID, maxHealth, power, speed = (":"):split(refString);
+			PetJournal_ShowAbilityTooltip(gtt, tonumber(abilityID));
+			PetJournalPrimaryAbilityTooltip:ClearAllPoints();
+			PetJournalPrimaryAbilityTooltip:SetPoint(gtt:GetPoint());
+		elseif (linkToken == "transmogillusion") then -- see WardrobeItemsModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+			showingTooltip = gtt;
+			local link, illusionID = (":"):split(refString);
+			local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
+			gtt:SetOwner(self, "ANCHOR_RIGHT");
+			gtt:SetText(name);
+			if (sourceText) then
+				gtt:AddLine(sourceText, 1, 1, 1, 1);
+			end
+			if (TipTacItemRef) then
+				TipTacItemRef:SetHyperlink_Hook(gtt, hyperlink);
+			end
+			gtt:Show();
+		else
+			showingTooltip = gtt;
+			gtt:SetHyperlink(refString);
+			gtt:Show();
+		end
 	end
 end
 
--- OnHyperlinkLeave
+-- ChatFrame:OnHyperlinkLeave
 local function OnHyperlinkLeave(self)
-	gtt:Hide();
+	if (showingTooltip) then
+		showingTooltip:Hide();
+	end
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -47,21 +143,34 @@ function ttHyperlink:OnLoad()
 end
 
 function ttHyperlink:OnApplyConfig(cfg)
-	-- ChatFrame Hyperlink Hover -- Az: this may need some more testing, code seems wrong
-	if (cfg.enableChatHoverTips or self.hookedHoverHyperlinks) then
-		for i = 1, NUM_CHAT_WINDOWS do
-			local chat = _G["ChatFrame"..i];
-			if (i == 1) and (cfg.enableChatHoverTips) and (not self.hookedHoverHyperlinks) then		-- Az: why only on first window?
-				self["oldOnHyperlinkEnter"..i] = chat:GetScript("OnHyperlinkEnter");
-				self["oldOnHyperlinkLeave"..i] = chat:GetScript("OnHyperlinkLeave");
-				self.hookedHoverHyperlinks = true;
+	-- ChatFrame Hyperlink Hover -- Az: this may need some more testing, code seems wrong. e.g. why only on first window? Frozn45: completely rewritten.
+	if (cfg.enableChatHoverTips) then
+		if (not self.hookedHoverHyperlinks) then
+			for i = 1, NUM_CHAT_WINDOWS do
+				local chat = _G["ChatFrame"..i];
+				AceHook:HookScript(chat, "OnHyperlinkEnter", OnHyperlinkEnter);
+				AceHook:HookScript(chat, "OnHyperlinkLeave", OnHyperlinkLeave);
 			end
-			chat:SetScript("OnHyperlinkEnter",cfg.enableChatHoverTips and OnHyperlinkEnter or self["oldOnHyperlinkEnter"..i]);
-			chat:SetScript("OnHyperlinkLeave",cfg.enableChatHoverTips and OnHyperlinkLeave or self["oldOnHyperlinkLeave"..i]);
+			self.hookedHoverHyperlinks = true;
 		end
---		if (GuildBankMessageFrame) then
---			GuildBankMessageFrame:SetScript("OnHyperlinkEnter",cfg.enableChatHoverTips and OnHyperlinkEnter or nil);
---			GuildBankMessageFrame:SetScript("OnHyperlinkLeave",cfg.enableChatHoverTips and OnHyperlinkLeave or nil);
---		end
+		if (not self.hookedHoverHyperlinks) or (not self.hookedHoverHyperlinksOnCFCMF) then
+			if (IsAddOnLoaded("Blizzard_Communities")) then
+				AceHook:HookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter", OnHyperlinkEnter);
+				AceHook:HookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave", OnHyperlinkLeave);
+				self.hookedHoverHyperlinksOnCFCMF = true;
+			end
+		end
+	else
+		if (self.hookedHoverHyperlinks) then
+			for i = 1, NUM_CHAT_WINDOWS do
+				local chat = _G["ChatFrame"..i];
+				AceHook:Unhook(chat, "OnHyperlinkEnter");
+				AceHook:Unhook(chat, "OnHyperlinkLeave");
+			end
+			self.hookedHoverHyperlinks = false;
+			AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter");
+			AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave");
+			self.hookedHoverHyperlinksOnCFCMF = false;
+		end
 	end
 end
