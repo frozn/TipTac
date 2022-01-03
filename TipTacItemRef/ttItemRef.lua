@@ -1175,6 +1175,9 @@ local function SmartIconEvaluation(tip,linkType)
 		end
 	-- Conduit
 	elseif (linkType == "conduit") then
+		if (owner.Icon) then
+			return false;
+		end
 		local ownerParent = owner:GetParent();
 		if (ownerParent and ownerParent.Icon) then
 			return false;
