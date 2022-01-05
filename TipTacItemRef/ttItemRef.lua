@@ -886,6 +886,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 				hooksecurefunc(tip, "SetAction", SetAction_Hook);
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
+					hooksecurefunc(tip, "SetEnhancedConduit",SetConduit_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
