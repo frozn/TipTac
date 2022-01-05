@@ -1222,7 +1222,17 @@ end
 function LinkTypeFuncs:item(link,linkType,id)
 	local _, _, itemRarity, itemLevel, _, _, _, itemStackCount, _, itemTexture = GetItemInfo(link);
 	itemLevel = LibItemString:GetTrueItemLevel(link);
-
+	
+	-- Add Keystone Icon / Quality
+	if linkType == "keystone" then
+		itemRarity = 4;
+		if id == "187786" then
+			itemTexture = 531324;
+		else
+			itemTexture = 525134;
+		end
+	end
+	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
