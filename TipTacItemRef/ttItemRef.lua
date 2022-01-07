@@ -1491,13 +1491,26 @@ end
 
 -- currency -- Thanks to Vladinator for adding this!
 function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
+	local icon, quality;
+	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyID, quantity);
+	
+	if (isCurrencyContainer) then
+		local currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, quantity);
+		icon = currencyInfo.icon;
+		quality = currencyInfo.quality;
+	else
+		local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID);
+		icon = currencyInfo.iconFileID;
+		quality = currencyInfo.quality;
+	end
+	
 	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID);
 	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		if (currencyInfo) then
 			local displayQuantity = nil;
-			self:ttSetIconTextureAndText(currencyInfo.iconFileID, quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
+			self:ttSetIconTextureAndText(icon, quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
 		end
 	end
 
@@ -1510,10 +1523,6 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
   	-- Quality Border
 	if (cfg.if_currencyQualityBorder) then
 		if (currencyInfo) then
-			local quality = currencyInfo.quality;
-			if (tonumber(currencyID) == 1822) then -- switch "Renown" from artifact (6) to legendary (5)
-				quality = 5;
-			end
 			local currencyQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(quality)));
 			ttif:SetBackdropBorderColor(self, currencyQualityColor:GetRGBA());
 		end
