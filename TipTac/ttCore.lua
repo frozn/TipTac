@@ -197,6 +197,10 @@ local TT_DefaultConfig = {
 	if_showConduitId = false,
 	if_runeforgePowerColoredBorder = true,
 	if_showRuneforgePowerId = false,
+	if_flyoutColoredBorder = true,
+	if_showFlyoutId = false,
+	if_petActionColoredBorder = true,
+	if_showPetActionId = false,
 	if_guildChallengeColoredBorder = true,
 	if_pvpEnlistmentBonusColoredBorder = true,
 

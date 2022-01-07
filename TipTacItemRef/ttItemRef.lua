@@ -67,6 +67,10 @@ local cfg = {
 	if_showConduitId = false,
 	if_runeforgePowerColoredBorder = true,
 	if_showRuneforgePowerId = false,
+	if_flyoutColoredBorder = true,
+	if_showFlyoutId = false,
+	if_petActionColoredBorder = true,
+	if_showPetActionId = false,
 	if_guildChallengeColoredBorder = true,
 	if_pvpEnlistmentBonusColoredBorder = true,
 
@@ -347,7 +351,32 @@ end
 local function SetAction_Hook(self, slot)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local actionType, id, subType = GetActionInfo(slot);
-		if (actionType == "item") then
+		if (actionType == "spell" and subType == "pet") then
+			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
+			local name = line and (line:GetText() or "");
+			if (name ~= "" and PetHasSpellbook()) then
+				local numPetSpells, petToken = HasPetSpells();
+				
+				for i = 1, numPetSpells do
+					local spellType, _id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+					if (spellType == "PETACTION") then
+						local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
+						if (spellName == name) then
+							local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET);
+							tipDataAdded[self] = "petAction";
+							CustomTypeFuncs.petAction(self, nil, "petAction", _id, icon);
+							break;
+						end
+					end
+				end
+			end
+			
+			if (not tipDataAdded[self]) then -- fallback if pet action was not found in pet spell book by name.
+				local icon = GetActionTexture(slot);
+				tipDataAdded[self] = "petAction";
+				CustomTypeFuncs.petAction(self, nil, "petAction", nil, icon);
+			end
+		elseif (actionType == "item") then
 			local _, link = self:GetItem();
 			if (link) then
 				local linkType, itemID = link:match("H?(%a+):(%d+)");
@@ -361,6 +390,85 @@ local function SetAction_Hook(self, slot)
 			local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(id);
 			tipDataAdded[self] = "battlepet";
 			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality - 1, maxHealth, power, speed, nil, displayID);
+		elseif (actionType == "flyout") then
+			local icon = GetActionTexture(slot);
+			tipDataAdded[self] = "flyout";
+			CustomTypeFuncs.flyout(self, nil, "flyout", id, icon);
+		elseif (actionType == "macro") then
+			local spellID = GetMacroSpell(id);
+			if (spellID) then
+				local link = GetSpellLink(spellID);
+				if (link) then
+					local linkType, _spellID = link:match("H?(%a+):(%d+)");
+					if (_spellID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.spell(self, link, linkType, _spellID);
+					end
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetSpellBookItem
+local function SetSpellBookItem_Hook(self, slot, bookType)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local spellType, id = GetSpellBookItemInfo(slot, bookType); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+		if (spellType == "FLYOUT") then
+			local icon = GetSpellBookItemTexture(slot, bookType);
+			tipDataAdded[self] = "flyout";
+			CustomTypeFuncs.flyout(self, nil, "flyout", id, icon);
+		elseif (spellType == "PETACTION") then
+			local icon = GetSpellBookItemTexture(slot, bookType);
+			tipDataAdded[self] = "petAction";
+			CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetPetAction
+local function SetPetAction_Hook(self, slot)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local name, texture, isToken, isActive, autoCastAllowed, autoCastEnabled, spellID = GetPetActionInfo(slot); -- see PetActionBar_Update() in "PetActionBarFrame.lua"
+		if (spellID) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (spellID) then
+					tipDataAdded[self] = linkType;
+					LinkTypeFuncs.spell(self, link, linkType, _spellID);
+				end
+			end
+		else
+			local _name, icon;
+			if (isToken) then
+				_name = _G[name];
+				icon = _G[texture];
+			else
+				_name = name;
+				icon = texture;
+			end
+			
+			if (_name ~= "" and PetHasSpellbook()) then -- id is missing. as a workaround find pet action in pet spell book by name.
+				local numPetSpells, petToken = HasPetSpells();
+				
+				for i = 1, numPetSpells do
+					local spellType, id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+					if (spellType == "PETACTION") then
+						local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
+						if (spellName == _name) then
+							tipDataAdded[self] = "petAction";
+							CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
+							break;
+						end
+					end
+				end
+			end
+			
+			if (not tipDataAdded[self]) then -- fallback if pet action was not found in pet spell book by name.
+				tipDataAdded[self] = "petAction";
+				CustomTypeFuncs.petAction(self, nil, "petAction", nil, icon);
+			end
 		end
 	end
 end
@@ -581,8 +689,14 @@ local function OnTooltipSetSpell(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local _, id = self:GetSpell();	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
 		if (id) then
-			tipDataAdded[self] = "spell";
-			LinkTypeFuncs.spell(self,nil,"spell",id);
+			local link = GetSpellLink(id);
+			if (link) then
+				local linkType, spellID = link:match("H?(%a+):(%d+)");
+				if (spellID) then
+					tipDataAdded[self] = linkType;
+					LinkTypeFuncs.spell(self, link, linkType, spellID);
+				end
+			end
 		end
 	end
 end
@@ -884,6 +998,8 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 				hooksecurefunc(tip, "SetUnitBuff", SetUnitAura_Hook);
 				hooksecurefunc(tip, "SetUnitDebuff", SetUnitAura_Hook);
 				hooksecurefunc(tip, "SetAction", SetAction_Hook);
+				hooksecurefunc(tip, "SetSpellBookItem", SetSpellBookItem_Hook);
+				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
@@ -1180,6 +1296,16 @@ local function SmartIconEvaluation(tip,linkType)
 		end
 		local ownerParent = owner:GetParent();
 		if (ownerParent and ownerParent.Icon) then
+			return false;
+		end
+	-- Flyout
+	elseif (linkType == "flyout") then
+		if (owner.icon) then
+			return false;
+		end
+	-- Pet action
+	elseif (linkType == "petAction") then
+		if (owner.icon) then
 			return false;
 		end
 	end
@@ -1747,5 +1873,45 @@ function CustomTypeFuncs:pvpEnlistmentBonus(link, linkType)
 	if (cfg.if_pvpEnlistmentBonusColoredBorder) then
 		local pvpEnlistmentBonusColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see PVPRewardEnlistmentBonus_OnEnter() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
 		ttif:SetBackdropBorderColor(self, pvpEnlistmentBonusColor:GetRGBA());
+	end
+end
+
+-- flyout
+function CustomTypeFuncs:flyout(link, linkType, flyoutID, icon)
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
+		self:ttSetIconTextureAndText(icon);
+	end
+
+	-- FlyoutID
+	if (cfg.if_showFlyoutId) then
+		self:AddLine(format("FlyoutID: %d", flyoutID), unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+  	-- Colored Border
+	if (cfg.if_flyoutColoredBorder) then
+		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
+	end
+end
+
+-- pet action
+function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
+		self:ttSetIconTextureAndText(icon);
+	end
+
+	-- PetActionID
+	if (cfg.if_showPetActionId and petActionID) then
+		self:AddLine(format("PetActionID: %d", petActionID), unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines. only necessary for pet tooltip in action bar.
+	end
+
+  	-- Colored Border
+	if (cfg.if_petActionColoredBorder) then
+		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
 	end
 end

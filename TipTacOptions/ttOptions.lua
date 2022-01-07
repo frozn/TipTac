@@ -273,6 +273,12 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_runeforgePowerColoredBorder", label = "Show Runeforge Power Tips with Colored Border", tip = "When enabled and the tip is showing a runeforge power, the tip border will have the the standard runeforge power color", y = 12 },
 		{ type = "Check", var = "if_showRuneforgePowerId", label = "Show Runeforge Power ID", tip = "For runeforge power tooltips, show their runeforgePowerID" },
 
+		{ type = "Check", var = "if_flyoutColoredBorder", label = "Show Flyout Tips with Colored Border", tip = "When enabled and the tip is showing a flyout, the tip border will have the the standard spell color", y = 12 },
+		{ type = "Check", var = "if_showFlyoutId", label = "Show Flyout ID", tip = "For flyout tooltips, show their flyoutID" },
+
+		{ type = "Check", var = "if_petActionColoredBorder", label = "Show Pet Action Tips with Colored Border", tip = "When enabled and the tip is showing a pet action, the tip border will have the the standard spell color", y = 12 },
+		{ type = "Check", var = "if_showPetActionId", label = "Show Pet Action ID", tip = "For flyout tooltips, show their petActionID" },
+
 		{ type = "Check", var = "if_guildChallengeColoredBorder", label = "Show Guild Challenge Tips with Colored Border", tip = "When enabled and the tip is showing a guild challenge, the tip border will have the the standard guild challenge color", y = 12 },
 		{ type = "Check", var = "if_pvpEnlistmentBonusColoredBorder", label = "Show PvP Enlistment Bonus Tips with Colored Border", tip = "When enabled and the tip is showing a pvp enlistment bonus, the tip border will have the the standard pvp enlistment bonus color" },
 
