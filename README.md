@@ -2,15 +2,10 @@
 WoW AddOn TipTac
 
 * based on latest version v20.11.04 from Nov 4, 2020
-* added fixes for wow patch 9.1.5
+* added fixes for wow patch 9.1.5 (Shadowlands - Chains of Domination)
+* added several enhancements
 
-Replace the folders "TipTac", "TipTacItemRef", "TipTacOptions" and "TipTacTalents" with those from the zip file:
-
-shadowlands: "World of Warcraft\_retail_\Interface\AddOns"  
-burning crusade classic: "World of Warcraft\_classic_\Interface\AddOns"  
-classic: "World of Warcraft\_classic_era_\Interface\AddOns"  
-
-The following problems are fixed respectively enhancements were added:
+## The following problems are fixed respectively enhancements were added
 
 - lua errors regarding setBackdropColor(), setBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
 - background colors
@@ -32,6 +27,16 @@ The following problems are fixed respectively enhancements were added:
   - fixed "Smart Icon Appearance" for mounts and mount equipment (in mount journal), items (in adventure journal), spells and items (in guild/community->perks)
 - added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
 
-But for me 99,9% is working now...
-
 If there are additional fixes in the future, I update this note accordingly.
+
+## Manual Installation
+
+Get [latest release](https://github.com/frozn/TipTac/releases) and replace the folders `TipTac`, `TipTacItemRef`, `TipTacOptions` and `TipTacTalents` with those from the zip file.
+
+Shadowlands: `\World of Warcraft\_retail_\Interface\AddOns`  
+Burning Crusade Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
+Classic: `\World of Warcraft\_classic_era_\Interface\AddOns`  
+
+## Install with WowUp.io
+
+In WowUp, go to `Get Addons->Install From URL` and enter `https://github.com/frozn/TipTac`
