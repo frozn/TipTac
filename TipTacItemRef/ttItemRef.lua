@@ -93,6 +93,7 @@ local tipsToModify = {
 };
 
 local addOnsLoaded = {
+	["TipTacItemRef"] = false,
 	["Blizzard_Collections"] = false,
 	["Blizzard_Communities"] = false,
 	["Blizzard_EncounterJournal"] = false,
@@ -473,6 +474,79 @@ local function SetPetAction_Hook(self, slot)
 	end
 end
 
+-- HOOK: GameTooltip:SetQuestItem
+local function SetQuestItem_Hook(self, _type, index)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index);
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
+		if (itemLink) then
+			local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
+			if (_itemID) then
+				tipDataAdded[gtt] = linkType;
+				LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
+			end
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetQuestLogItem
+local function SetQuestLogItem_Hook(self, _type, index)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local isChoice = (_type == "choice");
+		local itemID, numItems;
+		if (isChoice) then
+			local name, texture, _numItems, quality, isUsable, _itemID = GetQuestLogChoiceInfo(index);
+			itemID = _itemID;
+			numItems = _numItems;
+		else
+			local name, texture, _numItems, quality, isUsable, _itemID, itemLevel = GetQuestLogRewardInfo(index);
+			itemID = _itemID;
+			numItems = _numItems;
+		end
+		local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
+		if (itemLink) then
+			local linkType, __itemID = itemLink:match("H?(%a+):(%d+)");
+			if (__itemID) then
+				tipDataAdded[gtt] = linkType;
+				LinkTypeFuncs.item(gtt, itemLink, linkType, __itemID);
+			end
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetQuestCurrency
+local function SetQuestCurrency_Hook(self, _type, index)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local currencyID = GetQuestCurrencyID(_type, index);
+		local name, texture, quantity, quality = GetQuestCurrencyInfo(_type, index);
+		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		if (link) then
+			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
+			if (_currencyID) then
+				tipDataAdded[gtt] = linkType;
+				LinkTypeFuncs.currency(gtt, link, linkType, _currencyID, _quantity);
+			end
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetQuestLogCurrency
+local function SetQuestLogCurrency_Hook(self, _type, index)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local questID = C_QuestLog.GetSelectedQuest();
+		local isChoice = (_type == "choice");
+		local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(index, questID, isChoice);
+		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		if (link) then
+			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
+			if (_currencyID) then
+				tipDataAdded[gtt] = linkType;
+				LinkTypeFuncs.currency(gtt, link, linkType, _currencyID, _quantity);
+			end
+		end
+	end
+end
+
 -- HOOK: GameTooltip:SetRecipeReagentItem
 local function SetRecipeReagentItem_Hook(self, recipeID, reagentIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
@@ -743,67 +817,6 @@ local function QPM_OnMouseEnter_Hook(self)
 	end
 end
 
--- HOOK: QuestInfoRewardsFrame.RewardButtons:OnEnter + MapQuestInfoRewardsFrame.RewardButtons:OnEnter, see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
-local function QIRFRB_OnEnter_Hook(self)
-	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
-		if (self.objectType == "questSessionBonusReward") then -- bonus reward for quest sessions
-			local itemID = self:GetID();
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
-			if (itemLink) then
-				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
-				if (_itemID) then
-					tipDataAdded[gtt] = linkType;
-					LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
-				end
-			end
-		else
-			local questID = self.questID;
-			local index = self:GetID();
-			local isChoice = (self.type == "choice");
-			
-			if (self.objectType == "item") then -- item
-				local itemID;
-				local numItems;
-				if (QuestInfoFrame.questLog) then
-					if (isChoice) then
-						_, _, numItems, _, _, itemID = GetQuestLogChoiceInfo(index);
-					else
-						_, _, numItems, _, _, itemID = GetQuestLogRewardInfo(index);
-					end
-				else
-					_, _, numItems, _, _, itemID = GetQuestItemInfo(self.type, index);
-				end
-				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
-				if (itemLink) then
-					local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
-					if (_itemID) then
-						tipDataAdded[gtt] = linkType;
-						LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
-					end
-				end
-			elseif (self.objectType == "currency") then -- currency
-				local currencyID;
-				local quantity;
-				if (QuestInfoFrame.questLog) then
-					_, _, quantity, currencyID = GetQuestLogRewardCurrencyInfo(index, questID, isChoice);
-				else
-					currencyID = GetQuestCurrencyID(self.type, index);
-					_, _, quantity = GetQuestCurrencyInfo(self.type, index);
-				end
-				
-				local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
-				if (link) then
-					local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
-					if (_currencyID) then
-						tipDataAdded[gtt] = linkType;
-						LinkTypeFuncs.currency(gtt, link, linkType, _currencyID, _quantity);
-					end
-				end
-			end
-		end
-	end
-end
-
 -- HOOK: RuneforgePowerBaseMixin:OnEnter
 local function RPBM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -974,7 +987,7 @@ local function EJTT_OnHide_Hook(self)
 end
 
 -- Function to apply necessary hooks to tips
-function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
+function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 	-- Resolve the TipsToModify strings into actual objects
 	if (resolveGlobalNamedObjects) then
 		ResolveGlobalNamedObjects(tips);
@@ -986,7 +999,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 			local tipName = tip:GetName();
 			local tipHooked = false;
 			
-			if (lateHook) then
+			if (addToTipsToModify) then
 				tipsToModify[#tipsToModify + 1] = tip;
 			end
 			
@@ -1000,6 +1013,10 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 				hooksecurefunc(tip, "SetAction", SetAction_Hook);
 				hooksecurefunc(tip, "SetSpellBookItem", SetSpellBookItem_Hook);
 				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
+				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
+				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
+				hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
+				hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
@@ -1016,11 +1033,6 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					hooksecurefunc(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip);
-					-- quest (log) rewards
-					hooksecurefunc("QuestInfo_GetRewardButton", function(rewardsFrame, index)
-						ttif:ApplyHooksToQIRFRB(rewardsFrame, index);
-					end);
-					hooksecurefunc("QuestInfoRewardItemCodeTemplate_OnEnter", QIRFRB_OnEnter_Hook);
 					-- classic support
 					if (isWoWRetail) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
@@ -1114,21 +1126,6 @@ function ttif:ApplyHooksToGIFIC()
 	end
 end
 
--- Function to apply necessary hooks to QuestInfoRewardsFrame.RewardButtons + MapQuestInfoRewardsFrame.RewardButtons
-local QIRFRBhooked = {};
-
-function ttif:ApplyHooksToQIRFRB(rewardsFrame, index)
-	local rewardButtons = rewardsFrame.RewardButtons; -- see QuestInfo_ShowRewards() + QuestInfo_GetRewardButton() in "QuestInfo.lua"
-	
-	for i = 1, #rewardButtons do
-		local rewardButton = rewardButtons[i];
-		if (not QIRFRBhooked[rewardButton]) then
-			rewardButton:HookScript("OnEnter", QIRFRB_OnEnter_Hook);
-			QIRFRBhooked[rewardButton] = true;
-		end
-	end
-end
-
 -- Apply hooks for all the tooltips to modify during VARIABLES_LOADED -- Only hook GameTooltip objects
 function ttif:HookTips(resolveGlobalNamedObjects)
 	self:ApplyHooksToTips(tipsToModify, resolveGlobalNamedObjects);
@@ -1142,7 +1139,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	end
 	
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	if (addOnName == "Blizzard_Collections") then
+	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections"))) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
@@ -1161,7 +1158,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 			model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
 		end
 	-- now CommunitiesGuildNewsFrame exists
-	elseif (addOnName == "Blizzard_Communities") then
+	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities"))) then
 		hooksecurefunc("CommunitiesGuildNewsButton_OnEnter", GNB_OnEnter_Hook);
 
 		-- Function to apply necessary hooks to CommunitiesFrameGuildDetailsFrameInfo
@@ -1171,7 +1168,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 			ttif:ApplyHooksToCFGDFI();
 		end);
 	-- now EncounterJournalTooltip exists
-	elseif (addOnName == "Blizzard_EncounterJournal") then
+	elseif (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_EncounterJournal"))) then
 		ejtt = EncounterJournalTooltip;
 		
 		-- Hook Tips & Apply Settings
@@ -1182,7 +1179,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 
 		-- self:OnApplyConfig();
 	-- now GuildNewsButton exists
-	elseif (addOnName == "Blizzard_GuildUI") then
+	elseif (addOnName == "Blizzard_GuildUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_GuildUI"))) then
 		hooksecurefunc("GuildNewsButton_OnEnter", GNB_OnEnter_Hook);
 		
 		-- Function to apply necessary hooks to GuildInfoFrameInfoChallenge
@@ -1192,7 +1189,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 			ttif:ApplyHooksToGIFIC();
 		end);
 	-- now PVPRewardTemplate exists
-	elseif (addOnName == "Blizzard_PVPUI") then
+	elseif (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI"))) then
 		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
 		local buttons = {
 			HonorFrame.BonusFrame.RandomBGButton,

@@ -233,6 +233,7 @@ local TT_TipsToModify = {
 tt.tipsToModify = TT_TipsToModify;
 
 local TT_AddOnsLoaded = {
+	["TipTac"] = false,
 	["Blizzard_Collections"] = false,
 	["Blizzard_Communities"] = false,
 	["Blizzard_EncounterJournal"] = false
@@ -1210,7 +1211,7 @@ local function GTT_SetUnitAura(self)
 end
 
 -- HOOK: QuestPinMixin:OnMouseEnter()
-local function QPM_OnMouseEnter_Hook(self)
+local function QPM_OnMouseEnter(self)
 	gtt_anchorType, gtt_anchorPoint = GetAnchorPosition(gtt);
 
 	if (gtt_anchorType == "mouse") then
@@ -1326,7 +1327,7 @@ function tt:AddLockingFeature(tip)
 end
 
 -- Function to apply necessary hooks to tips
-function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
+function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 	-- Resolve the TipsToModify strings into actual objects
 	if (resolveGlobalNamedObjects) then
 		ResolveGlobalNamedObjects(tips);
@@ -1338,7 +1339,7 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 			local tipName = tip:GetName();
 			local tipHooked = false;
 			
-			if (lateHook) then
+			if (addToTipsToModify) then
 				TT_TipsToModify[#TT_TipsToModify + 1] = tip;
 			end
 			
@@ -1354,7 +1355,7 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, lateHook)
 					hooksecurefunc(gtt, "SetUnitAura", GTT_SetUnitAura);
 					
 					-- Post-Hook QuestPinMixin:OnMouseEnter() to re-anchor tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor"
-					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
+					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter);
 
 					-- Post-Hook AreaPOIPinMixin:OnMouseEnter() to reapply backdrop for AreaPOIPin on world map (e.g. Torghast)
 					hooksecurefunc(AreaPOIPinMixin, "OnMouseEnter", APOIPM_OnMouseEnter);
@@ -1450,7 +1451,7 @@ function tt:ADDON_LOADED(event, addOnName)
 	end
 	
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	if (addOnName == "Blizzard_Collections") then
+	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections"))) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
@@ -1462,7 +1463,7 @@ function tt:ADDON_LOADED(event, addOnName)
 
 		self:ApplySettings();
 	-- now CommunitiesGuildNewsFrame exists
-	elseif (addOnName == "Blizzard_Communities") then
+	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities"))) then
 		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame
 		tt:ApplyHooksToCFMLLSF();
 		
@@ -1470,7 +1471,7 @@ function tt:ADDON_LOADED(event, addOnName)
 			tt:ApplyHooksToCFMLLSF();
 		end);
 	-- now EncounterJournalTooltip exists
-	elseif (addOnName == "Blizzard_EncounterJournal") then
+	elseif (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_EncounterJournal"))) then
 		ejtt = EncounterJournalTooltip;
 		
 		-- Hook Tips & Apply Settings
