@@ -477,7 +477,7 @@ end
 -- HOOK: GameTooltip:SetQuestItem
 local function SetQuestItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index);
+		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
 		if (itemLink) then
 			local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
@@ -492,7 +492,7 @@ end
 -- HOOK: GameTooltip:SetQuestLogItem
 local function SetQuestLogItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local isChoice = (_type == "choice");
+		local isChoice = (_type == "choice"); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local itemID, numItems;
 		if (isChoice) then
 			local name, texture, _numItems, quality, isUsable, _itemID = GetQuestLogChoiceInfo(index);
@@ -517,7 +517,7 @@ end
 -- HOOK: GameTooltip:SetQuestCurrency
 local function SetQuestCurrency_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local currencyID = GetQuestCurrencyID(_type, index);
+		local currencyID = GetQuestCurrencyID(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local name, texture, quantity, quality = GetQuestCurrencyInfo(_type, index);
 		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
 		if (link) then
@@ -533,7 +533,7 @@ end
 -- HOOK: GameTooltip:SetQuestLogCurrency
 local function SetQuestLogCurrency_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local questID = C_QuestLog.GetSelectedQuest();
+		local questID = C_QuestLog.GetSelectedQuest(); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local isChoice = (_type == "choice");
 		local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(index, questID, isChoice);
 		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
@@ -666,6 +666,20 @@ local function SetLFGDungeonShortageReward_Hook(self, dungeonID, rewardArg, rewa
 	end
 end
 
+-- HOOK: GameTooltip:SetCurrencyByID
+local function SetCurrencyByID_Hook(self, currencyID, quantity)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		if (link) then
+			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
+			if (_currencyID) then
+				tipDataAdded[self] = linkType;
+				LinkTypeFuncs.currency(self, link, linkType, _currencyID, _quantity);
+			end
+		end
+	end
+end
+
 -- HOOK: GameTooltip:SetCurrencyToken
 local function SetCurrencyToken_Hook(self, currencyIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
@@ -675,6 +689,20 @@ local function SetCurrencyToken_Hook(self, currencyIndex)
 			if (currencyID) then
 				tipDataAdded[self] = linkType;
 				LinkTypeFuncs.currency(self, link, linkType, currencyID, quantity);
+			end
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetCurrencyTokenByID
+local function SetCurrencyTokenByID_Hook(self, currencyID)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local link = C_CurrencyInfo.GetCurrencyLink(currencyID);
+		if (link) then
+			local linkType, _currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
+			if (_currencyID) then
+				tipDataAdded[self] = linkType;
+				LinkTypeFuncs.currency(self, link, linkType, _currencyID, quantity);
 			end
 		end
 	end
@@ -1019,7 +1047,9 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
+					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
+					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
 					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
@@ -1488,20 +1518,19 @@ end
 
 -- currency -- Thanks to Vladinator for adding this!
 function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
+	local currencyInfo = nil;
 	local icon, quality;
 	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyID, quantity);
 	
 	if (isCurrencyContainer) then
-		local currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, quantity);
+		currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, quantity);
 		icon = currencyInfo.icon;
 		quality = currencyInfo.quality;
 	else
-		local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID);
+		currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID);
 		icon = currencyInfo.iconFileID;
 		quality = currencyInfo.quality;
 	end
-	
-	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID);
 	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then

@@ -1398,7 +1398,6 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						end
 						tipHooked = true;
 					elseif (IsAddOnLoaded("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
-						-- commented out for embedded tooltips, see description in tt:SetPadding()
 						for scriptName, hookFunc in next, bpttEjttScriptHooks do
 							tip:HookScript(scriptName, hookFunc);
 						end
