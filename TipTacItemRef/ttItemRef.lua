@@ -71,7 +71,6 @@ local cfg = {
 	if_showFlyoutId = false,
 	if_petActionColoredBorder = true,
 	if_showPetActionId = false,
-	if_guildChallengeColoredBorder = true,
 	if_pvpEnlistmentBonusColoredBorder = true,
 
 	if_showIcon = true,
@@ -94,6 +93,7 @@ local tipsToModify = {
 
 local addOnsLoaded = {
 	["TipTacItemRef"] = false,
+	["Blizzard_AchievementUI"] = false,
 	["Blizzard_Collections"] = false,
 	["Blizzard_Communities"] = false,
 	["Blizzard_EncounterJournal"] = false,
@@ -914,10 +914,9 @@ end
 local function GNB_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
 		local newsType = self.newsType;
-		
 		if (newsType == NEWS_PLAYER_ACHIEVEMENT or newsType == NEWS_GUILD_ACHIEVEMENT) then
-			local achievementId = self.id;
-			local link = GetAchievementLink(achievementId);
+			local achievementID = self.id;
+			local link = GetAchievementLink(achievementID);
 			local refString = link:match("|H([^|]+)|h") or link;
 			tipDataAdded[gtt] = "achievement";
 			LinkTypeFuncs.achievement(gtt, refString, (":"):split(refString));
@@ -962,6 +961,27 @@ local function WCFICFM_OnEnter_Hook(self)
 					end
 				end
 			end
+		end
+	end
+end
+
+-- HOOK: AchievementFrameMiniAchievement:OnEnter, see AchievementShield_OnEnter() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
+local function ABMA_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local parent = self:GetParent(); -- see AchievementObjectives_DisplayProgressiveAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
+		if (parent) then
+			local achievementID = parent.id;
+			repeat
+				local _achievementID, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe, earnedBy, isStatistic = GetAchievementInfo(achievementID);
+				if (name == self.name) and (description == self.desc) then
+					local link = GetAchievementLink(achievementID);
+					local refString = link:match("|H([^|]+)|h") or link;
+					tipDataAdded[gtt] = "achievement";
+					LinkTypeFuncs.achievement(gtt, refString, (":"):split(refString));
+					break;
+				end
+				achievementID = GetPreviousAchievement(achievementID);
+			until (not achievementID);
 		end
 	end
 end
@@ -1168,8 +1188,19 @@ function ttif:ADDON_LOADED(event, addOnName)
 		return;
 	end
 	
+	-- now AchievementFrameMiniAchievement exists
+	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_AchievementUI"))) then
+		local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
+		
+		hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
+			local frame = _G["AchievementFrameMiniAchievement"..index];
+			if (frame) and (not ABMAhooked[frame]) then
+				frame:HookScript("OnEnter", ABMA_OnEnter_Hook);
+				ABMAhooked[frame] = true;
+			end
+		end);
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections"))) then
+	elseif (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections"))) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
@@ -1557,6 +1588,7 @@ end
 
 -- achievement
 function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, completed, month, day, year, criteria1, criteria2, criteria3, criteria4)
+	local _achievementID, name, points, _completed, _month, _day, _year, description, flags, icon, rewardText, isGuild, wasEarnedByMe, earnedBy, isStatistic = GetAchievementInfo(achievementID);
 	if (cfg.if_modifyAchievementTips) then
 		completed = (tonumber(completed) == 1);
 		local tipName = self:GetName();
@@ -1592,14 +1624,13 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 		end
 		-- Cache Info
 		local progressText = _G[tipName.."TextLeft3"]:GetText() or "";
-		local _, title, points, _, _, _, _, description, _, icon, reward = GetAchievementInfo(achievementID);
 		-- Rebuild Tip
 		self:ClearLines();
 		local stat = isPlayer and GetStatistic(achievementID);
-		self:AddDoubleLine(title,(stat ~= "0" and stat ~= "--" and stat),nil,nil,nil,1,1,1);
+		self:AddDoubleLine(name,(stat ~= "0" and stat ~= "--" and stat),nil,nil,nil,1,1,1);
 		self:AddLine("<"..category..">");
-		if (reward) then
-			self:AddLine(reward,unpack(cfg.if_infoColor));
+		if (rewardText) then
+			self:AddLine(rewardText,unpack(cfg.if_infoColor));
 		end
 		self:AddLine(description,1,1,1,1);
 		if (progressText ~= "") then
@@ -1634,24 +1665,19 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 		if (cfg.if_showAchievementIdAndCategoryId) then
 			self:AddLine(format("AchievementID: %d, CategoryID: %d",achievementID or 0,catId or 0),unpack(cfg.if_infoColor));
 		end
-		-- Icon
-		if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
-			self:ttSetIconTextureAndText(icon,points);
-		end
 		-- Show
 		self:Show();	-- call Show() to resize tip after adding lines
 	else
-		-- Icon
-		if (self.ttSetIconTextureAndText) then
-			local _, _, points, _, _, _, _, _, _, icon = GetAchievementInfo(achievementID);
-			self:ttSetIconTextureAndText(icon,points);
-		end
 		-- AchievementID + Category
 		if (cfg.if_showAchievementIdAndCategoryId) then
 			local catId = GetAchievementCategory(achievementID);
 			self:AddLine(format("AchievementID: %d, CategoryID: %d",achievementID or 0,catId or 0),unpack(cfg.if_infoColor));
 			self:Show();	-- call Show() to resize tip after adding lines
 		end
+	end
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+		self:ttSetIconTextureAndText(icon,points);
 	end
   	--  Colored Border
 	if (cfg.if_achievmentColoredBorder) then
@@ -1896,7 +1922,7 @@ end
 -- guild challenge
 function CustomTypeFuncs:guildChallenge(link, linkType)
   	-- Colored Border
-	if (cfg.if_guildChallengeColoredBorder) then
+	if (cfg.if_questDifficultyBorder) then
 		local guildChallengeColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see CommunitiesGuildChallengeTemplate:OnEnter() / GuildChallengeTemplate:OnEnter() in "Blizzard_Communities/GuildInfo.xml" / "Blizzard_GuildUI/Blizzard_GuildInfo.xml"
 		ttif:SetBackdropBorderColor(self, guildChallengeColor:GetRGBA());
 	end

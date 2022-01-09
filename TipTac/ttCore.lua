@@ -201,7 +201,6 @@ local TT_DefaultConfig = {
 	if_showFlyoutId = false,
 	if_petActionColoredBorder = true,
 	if_showPetActionId = false,
-	if_guildChallengeColoredBorder = true,
 	if_pvpEnlistmentBonusColoredBorder = true,
 
 	if_showIcon = true,
