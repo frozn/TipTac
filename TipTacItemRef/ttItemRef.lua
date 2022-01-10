@@ -870,6 +870,22 @@ local function GTT_AddQuestRewardsToTooltip(self, questID, style)
 	end
 end
 
+-- HOOK: DressUpOutfitDetailsSlotMixin:OnEnter
+local function DUODSM_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		if (self.item) then
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(self.item.itemID);
+			if (itemLink) then
+				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
+				if (itemID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.item(gtt, itemLink, linkType, itemID);
+				end
+			end
+		end
+	end
+end
+
 -- HOOK: HonorFrame.BonusFrame.Buttons:OnEnter
 local function HFBFB_OnEnter(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) then
@@ -1063,13 +1079,13 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
 				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
-				hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
-				hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
 					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
+					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
+					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
 					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
@@ -1088,6 +1104,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
+						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
 					end
 				end
 				tipHooked = true;
