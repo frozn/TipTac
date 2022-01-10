@@ -873,13 +873,24 @@ end
 -- HOOK: DressUpOutfitDetailsSlotMixin:OnEnter
 local function DUODSM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
-		if (self.item) then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(self.item.itemID);
+		if (self.item) then -- item
+			local itemID = self.item.itemID;
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
 			if (itemLink) then
-				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
-				if (itemID) then
+				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
+				if (_itemID) then
 					tipDataAdded[gtt] = linkType;
-					LinkTypeFuncs.item(gtt, itemLink, linkType, itemID);
+					LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
+				end
+			end
+		else -- illusion
+			local illusionID = self.transmogID;
+			local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
+			if (hyperlink) then
+				local linkType, illusionID = hyperlink:match("H?(%a+):(%d+)");
+				if (illusionID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.transmogillusion(gtt, hyperlink, linkType, illusionID);
 				end
 			end
 		end
@@ -1361,6 +1372,11 @@ local function SmartIconEvaluation(tip,linkType)
 		end
 	-- Runeforge power
 	elseif (linkType == "runeforgePower") then
+		if (owner.Icon) then
+			return false;
+		end
+	-- Transmog illusion
+	elseif (linkType == "transmogillusion") then
 		if (owner.Icon) then
 			return false;
 		end
@@ -1853,7 +1869,7 @@ function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
 	-- IllusionID
 	if (cfg.if_showTransmogIllusionId) then
 		self:AddLine(format("IllusionID: %d", illusionID), unpack(cfg.if_infoColor));
-		-- self:Show();	-- call Show() to resize tip after adding lines
+		self:Show();	-- call Show() to resize tip after adding lines. only necessary for dress up frame.
 	end
 
   	-- Colored Border
