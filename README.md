@@ -20,12 +20,14 @@ WoW AddOn TipTac
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities and illusions (from Wardrobe)
+  - added mouseover for torghast anima power chatlinks
 - added class border color for member list in guild/community->chat and guild/community->guild roster if config option "Colors->Color Tip Border by Class Color" is checked
 - changes regarding (added) config options under "ItemRef":
-  - added border color for spells, tradeskills, currencies (in chatframe), achievements, guild challenges (in guild/community->info) and pvp enlistment bonus (in pvp->quick match)
-  - added border color and infos for battle pet, battle pet abilities, (world) quests in worldmap/questlog/questtracker, trade skill reagents (in TradeSkillUI), toys (in ToyBox), items and illusions (in Wardrobe), currencies, achievements in guild/community->info->news, rewards in quest(log)/LFG-browser, runeforge power (in adventure journal), conduits
+  - added border color for spells, unit auras, tradeskills, currencies (in chatframe), achievements, guild challenges (in guild/community->info) and pvp enlistment bonus (in pvp->quick match)
+  - added border color and infos for battle pet, battle pet abilities, (world/party) quests in worldmap/questlog/questtracker, trade skill reagents (in TradeSkillUI), toys (in ToyBox), items and illusions (in Wardrobe), currencies, achievements in guild/community->info->news, rewards in quest(log)/LFG-browser, runeforge power (in adventure journal), conduits, spells in macros on action bar, torghast anima powers, mini achievement shields in achievement buttons, items/illusions in dress up frame, flyouts (e.g. mage portals), pet actions
   - fixed "Smart Icon Appearance" for mounts and mount equipment (in mount journal), items (in adventure journal), spells and items (in guild/community->perks)
 - added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
+- fixed 1-pixel borders which are sometimes 2 pixels wide
 
 If there are additional fixes in the future, I update this note accordingly.
 
