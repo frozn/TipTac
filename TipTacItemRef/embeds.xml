@@ -2,5 +2,6 @@
 
 <Script file="libs\LibStub\LibStub.lua"/>
 <Include file="libs\AceHook-3.0\AceHook-3.0.xml"/>
+<Script file="libs\table_MawPower_by_mawPowerID.lua"/>
 
 </Ui>

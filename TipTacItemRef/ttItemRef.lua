@@ -21,7 +21,7 @@ end
 
 local CreateColorFromHexString = CreateColorFromHexString;
 
-if (CreateColorFromHexString == nil) then
+if (not CreateColorFromHexString) then
 	CreateColorFromHexString = function(hexColor)
 		return CreateColor(tonumber(hexColor:sub(3, 4), 16) / 255, tonumber(hexColor:sub(5, 6), 16) / 255, tonumber(hexColor:sub(7, 8), 16) / 255, tonumber(hexColor:sub(1, 2), 16) / 255);
 	end
@@ -46,6 +46,7 @@ local cfg = {
 	if_showItemId = false,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
+	if_showMawPowerId = false,
 	if_showAuraCaster = true,
 	if_questDifficultyBorder = true,
 	if_showQuestLevel = false,
@@ -71,7 +72,6 @@ local cfg = {
 	if_showFlyoutId = false,
 	if_petActionColoredBorder = true,
 	if_showPetActionId = false,
-	if_pvpEnlistmentBonusColoredBorder = true,
 
 	if_showIcon = true,
 	if_smartIcons = true,
@@ -98,6 +98,7 @@ local addOnsLoaded = {
 	["Blizzard_Communities"] = false,
 	["Blizzard_EncounterJournal"] = false,
 	["Blizzard_GuildUI"] = false,
+	["Blizzard_PlayerChoice"] = false,
 	["Blizzard_PVPUI"] = false
 };
 
@@ -310,33 +311,71 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 		-- Call Tip Type Func
 		if (LinkTypeFuncs[linkType]) and (self:NumLines() > 0) then
 			tipDataAdded[self] = "hyperlink";
-			LinkTypeFuncs[linkType](self, refString,(":"):split(refString));
+			if (linkType == "spell") then
+				LinkTypeFuncs.spell(self, nil, refString, (":"):split(refString));
+			else
+				LinkTypeFuncs[linkType](self, refString, (":"):split(refString));
+			end
 		end
 	end
 end
 
--- HOOK: SetUnitAura -- Adds both name of "Caster" and "SpellID"
-local function SetUnitAura_Hook(self,unit,index,filter)
-	if (cfg.if_enable) and (cfg.if_showSpellIdAndRank or cfg.if_showAuraCaster) then
-		local _, _, _, _, _, _, casterUnit, _, _, spellId = UnitAura(unit,index,filter);	-- [18.07.19] 8.0/BfA: "dropped second parameter"
-		-- format the info line for spellID and caster -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
-		local tipInfoLine = "";
-		if (cfg.if_showAuraCaster) and (UnitExists(casterUnit)) then
-			tipInfoLine = tipInfoLine..format("Caster: %s",UnitName(casterUnit) or UNKNOWNOBJECT);
-		end
-		if (cfg.if_showSpellIdAndRank) and (spellId) and (spellId ~= 0) then
-			if (tipInfoLine ~= "") then
-				tipInfoLine = tipInfoLine..", ";
+-- HOOK: SetUnitAura
+local function SetUnitAura_Hook(self, unit, index, filter)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod =  UnitAura(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
+		if (spellID) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (_spellID) then
+					tipDataAdded[self] = linkType;
+					LinkTypeFuncs.spell(self, source, link, linkType, _spellID);
+
+					-- workaround for the following "bug": on first mouseover over aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetUnitAura() (only approx. 0.2 seconds later), but on the next OnUpdate the UnitAura() is set again.
+					-- ttSetUnitAuraWorkaroundStatus:
+					-- nil = no hooks set (initial status)
+					-- 1   = hooks GameTooltip:OnTooltipCleared and AuraButton:OnLeave set
+					-- 2   = hooks GameTooltip:OnUpdate and AuraButton:OnLeave set
+					-- 3   = no hooks set respectively not needed any more
+					local owner = self:GetOwner();
+					
+					if (not owner.ttSetUnitAuraWorkaroundStatus) then
+						AceHook:HookScript(gtt, "OnTooltipCleared", function(self)
+							AceHook:HookScript(gtt, "OnUpdate", function(self)
+								tipDataAdded[self] = linkType;
+								LinkTypeFuncs.spell(self, source, link, linkType, _spellID);
+
+								AceHook:Unhook(gtt, "OnUpdate");
+								owner.ttSetUnitAuraWorkaroundStatus = 3;
+							end);
+							AceHook:Unhook(gtt, "OnTooltipCleared");
+							owner.ttSetUnitAuraWorkaroundStatus = 2;
+						end);
+						AceHook:HookScript(owner, "OnLeave", function(self)
+							if (self.ttSetUnitAuraWorkaroundStatus == 1) then
+								AceHook:Unhook(gtt, "OnTooltipCleared");
+							elseif (owner.ttSetUnitAuraWorkaroundStatus == 2) then
+								AceHook:Unhook(gtt, "OnUpdate");
+							end
+							AceHook:Unhook(self, "OnLeave");
+							self.ttSetUnitAuraWorkaroundStatus = nil;
+						end);
+						owner.ttSetUnitAuraWorkaroundStatus = 1;
+					else
+						if (owner.ttSetUnitAuraWorkaroundStatus == 1) then
+							AceHook:Unhook(gtt, "OnTooltipCleared");
+						elseif (owner.ttSetUnitAuraWorkaroundStatus == 2) then
+							AceHook:Unhook(gtt, "OnUpdate");
+						end
+						owner.ttSetUnitAuraWorkaroundStatus = 3;
+					end
+				end
 			end
-			tipInfoLine = tipInfoLine..format("SpellID: %d",spellId);
-		end
-		-- add line to tooltip if it contains info
-		if (tipInfoLine ~= "") then
-			self:AddLine(tipInfoLine,unpack(cfg.if_infoColor));
-			self:Show();	-- call Show() to resize tip after adding lines
 		end
 	end
 end
+
 
 -- HOOK: GameTooltip:SetCompanionPet
 local function SetCompanionPet_Hook(self, petID)
@@ -403,7 +442,7 @@ local function SetAction_Hook(self, slot)
 					local linkType, _spellID = link:match("H?(%a+):(%d+)");
 					if (_spellID) then
 						tipDataAdded[self] = linkType;
-						LinkTypeFuncs.spell(self, link, linkType, _spellID);
+						LinkTypeFuncs.spell(self, nil, link, linkType, _spellID);
 					end
 				end
 			end
@@ -437,7 +476,7 @@ local function SetPetAction_Hook(self, slot)
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, link, linkType, _spellID);
+					LinkTypeFuncs.spell(self, nil, link, linkType, _spellID);
 				end
 			end
 		else
@@ -547,6 +586,16 @@ local function SetQuestLogCurrency_Hook(self, _type, index)
 	end
 end
 
+-- HOOK: GameTooltip:SetQuestPartyProgress
+local function SetQuestPartyProgress_Hook(self, questID, omitTitle, ignoreActivePlayer)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local link = GetQuestLink(questID);
+		local level = link:match("H?%a+:%d+:(%d+)");
+		tipDataAdded[self] = "quest";
+		LinkTypeFuncs.quest(self, nil, "quest", questID, level);
+	end
+end
+
 -- HOOK: GameTooltip:SetRecipeReagentItem
 local function SetRecipeReagentItem_Hook(self, recipeID, reagentIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
@@ -571,7 +620,7 @@ local function SetToyByItemID_Hook(self, itemID)
 				tipDataAdded[self] = linkType;
 				LinkTypeFuncs.item(self, link, linkType, itemID);
 				
-				-- workaround for the following "bug": on first mouseover over toy the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID() (only approx. 1 second later), but on the next OnUpdate the GetItem() is set again.
+				-- workaround for the following "bug": on first mouseover over toy after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID() (only approx. 1 second later), but on the next OnUpdate the GetItem() is set again.
 				-- ttSetToyByItemIDWorkaroundStatus:
 				-- nil = no hooks set (initial status)
 				-- 1   = hooks GameTooltip:OnTooltipCleared and ToySpellButton:OnLeave set
@@ -796,7 +845,7 @@ local function OnTooltipSetSpell(self,...)
 				local linkType, spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, link, linkType, spellID);
+					LinkTypeFuncs.spell(self, nil, link, linkType, spellID);
 				end
 			end
 		end
@@ -891,6 +940,23 @@ local function DUODSM_OnEnter_Hook(self)
 				if (illusionID) then
 					tipDataAdded[gtt] = linkType;
 					LinkTypeFuncs.transmogillusion(gtt, hyperlink, linkType, illusionID);
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: PlayerChoiceTorghastOptionTemplateMixin:OnEnter
+local function PCTOTM_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local spellID = self.optionInfo and self.optionInfo.spellID;
+		if (spellID) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (_spellID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.spell(gtt, nil, link, linkType, _spellID);
 				end
 			end
 		end
@@ -1097,6 +1163,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
 					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
 					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
+					hooksecurefunc(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
 					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
@@ -1217,7 +1284,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	end
 	
 	-- now AchievementFrameMiniAchievement exists
-	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_AchievementUI"))) then
+	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI"))) then
 		local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
 		
 		hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
@@ -1277,6 +1344,9 @@ function ttif:ADDON_LOADED(event, addOnName)
 		hooksecurefunc("GuildInfoFrame_UpdateChallenges", function()
 			ttif:ApplyHooksToGIFIC();
 		end);
+	-- now PlayerChoiceTorghastOption exists
+	elseif (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice"))) then
+		hooksecurefunc(PlayerChoiceTorghastOptionTemplateMixin, "OnEnter", PCTOTM_OnEnter_Hook);
 	-- now PVPRewardTemplate exists
 	elseif (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI"))) then
 		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
@@ -1347,12 +1417,16 @@ local function SmartIconEvaluation(tip,linkType)
 		end
 	-- Spell
 	elseif (linkType == "spell") then
-		if (owner.action or owner.icon or owner.Icon) then -- mount tooltip in action bar
+		if (owner.action or owner.texture or owner.icon or owner.Icon or -- mount tooltip in action bar
+				(owner.unit and owner.count and owner.filter)) then -- aura
 			return false;
 		end
-		if (owner.ActiveTexture) then -- mount tooltip in mount journal list
-			local ownerParent = owner:GetParent();
-			if (ownerParent and owner:GetParent().icon) then
+		local ownerParent = owner:GetParent();
+		if (ownerParent) then
+			if (owner.ActiveTexture and ownerParent.icon) then -- mount tooltip in mount journal list
+				return false;
+			end
+			if (ownerParent.Artwork) then -- player choice torghast option
 				return false;
 			end
 		end
@@ -1536,22 +1610,128 @@ function LinkTypeFuncs:item(link,linkType,id)
 end
 
 -- spell
-function LinkTypeFuncs:spell(link, linkType, spellID)
+function LinkTypeFuncs:spell(source, link, linkType, spellID)
 	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
+	rank = (rank and rank ~= "" and ", "..rank or "");
+
+	local mawPowerID = nil;
+	if (isWoWRetail) then
+		local linkMawPower = GetMawPowerLinkBySpellID(spellID);
+		if (linkMawPower) then
+			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");
+			mawPowerID = _mawPowerID;
+		end
+	end
+
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		self:ttSetIconTextureAndText(icon);
 	end
-	-- SpellID + Rank
-	if (cfg.if_showSpellIdAndRank) then
-		rank = (rank and rank ~= "" and ", "..rank or "");
-		self:AddLine("SpellID: "..spellID..rank,unpack(cfg.if_infoColor));
+	
+	-- Caster
+	local showAuraCaster = (cfg.if_showAuraCaster and UnitExists(source));
+	if (showAuraCaster) then
+		self:AddLine(format("Caster: %s", UnitName(source) or UNKNOWNOBJECT), unpack(cfg.if_infoColor));
+	end
+	
+	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
+	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
+	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID and (spellID ~= 0));
+	if (showMawPowerID or showSpellIdAndRank) then
+		if (not showMawPowerID) then
+			self:AddLine(format("SpellID: %d", spellID)..rank, unpack(cfg.if_infoColor));
+		elseif (showSpellIdAndRank) then
+			self:AddLine(format("MawPowerID: %d, SpellID: %d", mawPowerID, spellID)..rank, unpack(cfg.if_infoColor));
+		else
+			self:AddLine(format("MawPowerID: %d", mawPowerID), unpack(cfg.if_infoColor));
+		end
+	end
+
+	if (showAuraCaster or showMawPowerID or showSpellIdAndRank) then
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
+
   	-- Colored Border
 	if (cfg.if_spellColoredBorder) then
-		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		local spellColor = nil;
+		
+		if (mawPowerID) then
+			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
+			if (rarityAtlas) then
+				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(1)));
+				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-green") then
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(2)));
+				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-blue") then
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(3)));
+				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-purple") then
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(4)));
+				end
+			end
+		end
+		
+		if (not spellColor) then
+			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		end
+		
+		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
+	end
+end
+
+-- maw power
+function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
+	local spellID = nil;
+	if (mawPowerID and table_MawPower_by_MawPowerID[mawPowerID]) then
+		spellID = table_MawPower_by_MawPowerID[mawPowerID].spellID;
+	end
+	
+	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
+	rank = (rank and rank ~= "" and ", "..rank or "");
+
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+		self:ttSetIconTextureAndText(icon);
+	end
+	
+	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
+	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
+	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID and (spellID ~= 0));
+	if (showMawPowerID or showSpellIdAndRank) then
+		if (not showMawPowerID) then
+			self:AddLine(format("SpellID: %d", spellID)..rank, unpack(cfg.if_infoColor));
+		elseif (showSpellIdAndRank) then
+			self:AddLine(format("MawPowerID: %d, SpellID: %d", mawPowerID, spellID)..rank, unpack(cfg.if_infoColor));
+		else
+			self:AddLine(format("MawPowerID: %d", mawPowerID), unpack(cfg.if_infoColor));
+		end
+		-- self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+  	-- Colored Border
+	if (cfg.if_spellColoredBorder) then
+		local spellColor = nil;
+		
+		if (mawPowerID) then
+			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
+			if (rarityAtlas) then
+				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(1)));
+				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-green") then
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(2)));
+				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-blue") then
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(3)));
+				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-purple") then
+					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(4)));
+				end
+			end
+		end
+		
+		if (not spellColor) then
+			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		end
+		
 		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
 	end
 end
@@ -1964,7 +2144,7 @@ end
 -- pvp enlistment bonus
 function CustomTypeFuncs:pvpEnlistmentBonus(link, linkType)
   	-- Colored Border
-	if (cfg.if_pvpEnlistmentBonusColoredBorder) then
+	if (cfg.if_itemQualityBorder) then
 		local pvpEnlistmentBonusColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see PVPRewardEnlistmentBonus_OnEnter() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
 		ttif:SetBackdropBorderColor(self, pvpEnlistmentBonusColor:GetRGBA());
 	end

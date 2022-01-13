@@ -176,6 +176,7 @@ local TT_DefaultConfig = {
 	if_showItemId = false,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
+	if_showMawPowerId = false,
 	if_showAuraCaster = true,
 	if_questDifficultyBorder = true,
 	if_showQuestLevel = false,
@@ -201,7 +202,6 @@ local TT_DefaultConfig = {
 	if_showFlyoutId = false,
 	if_petActionColoredBorder = true,
 	if_showPetActionId = false,
-	if_pvpEnlistmentBonusColoredBorder = true,
 
 	if_showIcon = true,
 	if_smartIcons = true,
@@ -526,6 +526,11 @@ end
 --                                              Settings                                              --
 --------------------------------------------------------------------------------------------------------
 
+-- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
+local function GetNearestPixelSize(size)
+	return PixelUtil.GetNearestPixelSize(size, UIParent:GetEffectiveScale());
+end
+
 -- Resolves the given table array of string names into their global objects
 local function ResolveGlobalNamedObjects(tipTable)
 	local resolved = {};
@@ -594,11 +599,11 @@ function tt:ApplySettings()
 	end
 	tipBackdrop.tile = false;
 	tipBackdrop.tileEdge = false;
-	tipBackdrop.edgeSize = cfg.backdropEdgeSize;
-	tipBackdrop.insets.left = cfg.backdropInsets;
-	tipBackdrop.insets.right = cfg.backdropInsets;
-	tipBackdrop.insets.top = cfg.backdropInsets;
-	tipBackdrop.insets.bottom = cfg.backdropInsets;
+	tipBackdrop.edgeSize = GetNearestPixelSize(cfg.backdropEdgeSize);
+	tipBackdrop.insets.left = GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.right = GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.top = GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.bottom = GetNearestPixelSize(cfg.backdropInsets);
 
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
@@ -667,10 +672,13 @@ function tt:SetPadding(tip, calledFromEvent)
 	local oldPaddingWidth, oldPaddingHeight = tip:GetPadding();
 	
 	local itemTooltip = tip.ItemTooltip;
-	local isItemTooltipShown = itemTooltip and itemTooltip:IsShown();
-	local isBottomFontStringShown = tip.BottomFontString and tip.BottomFontString:IsShown();
+	local isItemTooltipShown = (itemTooltip and itemTooltip:IsShown());
+	local isBottomFontStringShown = (tip.BottomFontString and tip.BottomFontString:IsShown());
 	
-	if (not isItemTooltipShown) and (not isBottomFontStringShown) and (calledFromEvent ~= "GameTooltip_AddQuestRewardsToTooltip") and (calledFromEvent ~= "GameTooltip_CalculatePadding") then
+	if (not isItemTooltipShown) and (not isBottomFontStringShown) and
+			(calledFromEvent ~= "GameTooltip_AddQuestRewardsToTooltip") and
+			(calledFromEvent ~= "GameTooltip_CalculatePadding") then
+
 		if (math.abs(tt.paddingRight - oldPaddingWidth) > 0.5) or (math.abs(tt.paddingBottom - oldPaddingHeight) > 0.5) then
 			tip:SetPadding(tt.paddingRight, tt.paddingBottom, tt.paddingLeft, tt.paddingTop);
 		end
@@ -1226,6 +1234,13 @@ end
 -- HOOK: AreaPOIPinMixin:OnMouseEnter()
 local function APOIPM_OnMouseEnter(self)
 	if (gtt:IsShown()) then
+		tt:ApplyTipBackdrop(gtt, "AreaPOIPinMixin:OnMouseEnter");
+	end
+end
+
+-- HOOK: VignettePinMixin:OnMouseEnter()
+local function VPM_OnMouseEnter(self)
+	if (gtt:IsShown()) then
 		tt:ApplyTipBackdrop(gtt);
 	end
 end
@@ -1359,6 +1374,9 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					-- Post-Hook AreaPOIPinMixin:OnMouseEnter() to reapply backdrop for AreaPOIPin on world map (e.g. Torghast)
 					hooksecurefunc(AreaPOIPinMixin, "OnMouseEnter", APOIPM_OnMouseEnter);
 					
+					-- Post-Hook VignettePinMixin:OnMouseEnter() to reapply backdrop for VignettePin on world map (e.g. special event in Maw)
+					hooksecurefunc(VignettePinMixin, "OnMouseEnter", VPM_OnMouseEnter);
+
 					-- Post-Hook TaskPOI_OnEnter() to reapply padding if modified
 					-- commented out for embedded tooltips, see description in tt:SetPadding()
 					-- hooksecurefunc("TaskPOI_OnEnter", function(self)

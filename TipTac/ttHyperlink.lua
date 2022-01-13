@@ -29,6 +29,7 @@ local supportedHyperLinks = {
 	transmogillusion = true,
 	conduit = true,
 	currency = true,
+	mawpower = true,
 };
 
 local addOnsLoaded = {
@@ -110,7 +111,6 @@ local function OnHyperlinkEnter(self, refString, text)
 			showingTooltip = gtt;
 			local link, illusionID = (":"):split(refString);
 			local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
-			gtt:SetOwner(self, "ANCHOR_RIGHT");
 			gtt:SetText(name);
 			if (sourceText) then
 				gtt:AddLine(sourceText, 1, 1, 1, 1);
