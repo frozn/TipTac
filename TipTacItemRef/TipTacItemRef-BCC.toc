@@ -1,5 +1,5 @@
 ## Interface: 20502
-## Version: 22.01.03
+## Version: 22.01.13
 ## Title: TipTacItemRef
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Improved ItemRefTooltip
