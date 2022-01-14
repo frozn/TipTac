@@ -1058,6 +1058,36 @@ local function WCFICFM_OnEnter_Hook(self)
 	end
 end
 
+-- HOOK: WardrobeCollectionFrame.SetsCollectionFrame:RefreshAppearanceTooltip respectively WardrobeCollectionFrame.SetsCollectionFrame.DetailsFrame.itemFramesPool:OnEnter, see WardrobeSetsDetailsItemMixin:OnMouseDown() and WardrobeSetsCollectionMixin:RefreshAppearanceTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local setID = self:GetSelectedSetID();
+		local sourceID = self.tooltipPrimarySourceID;
+		
+		local sourceInfo = C_TransmogCollection.GetSourceInfo(sourceID);
+		local slot = C_Transmog.GetSlotForInventoryType(sourceInfo.invType);
+		local sources = C_TransmogSets.GetSourcesForSlot(setID, slot);
+		if (#sources == 0) then
+			-- can happen if a slot only has HiddenUntilCollected sources
+			tinsert(sources, sourceInfo);
+		end
+		CollectionWardrobeUtil.SortSources(sources, sourceInfo.visualID, sourceID);
+		local wardrobeCollectionFrame = self:GetParent();
+		local selectedIndex = wardrobeCollectionFrame.tooltipSourceIndex;
+		if (selectedIndex) then
+			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(selectedIndex, #sources);
+			local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sources[index].sourceID));
+			if (link) then
+				local linkType, itemID = link:match("H?(%a+):(%d+)");
+				if (itemID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.item(gtt, link, linkType, itemID);
+				end
+			end
+		end
+	end
+end
+
 -- HOOK: AchievementFrameMiniAchievement:OnEnter, see AchievementShield_OnEnter() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
 local function ABMA_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -1313,6 +1343,9 @@ function ttif:ADDON_LOADED(event, addOnName)
 			local model = itemsCollectionFrame.Models[i];
 			model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
 		end
+		
+		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
+		hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook);
 	-- now CommunitiesGuildNewsFrame exists
 	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities"))) then
 		hooksecurefunc("CommunitiesGuildNewsButton_OnEnter", GNB_OnEnter_Hook);
