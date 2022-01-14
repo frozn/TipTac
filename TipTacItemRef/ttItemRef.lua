@@ -1692,14 +1692,14 @@ function LinkTypeFuncs:spell(source, link, linkType, spellID)
 		if (mawPowerID) then
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
-				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(1)));
-				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-green") then
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(2)));
-				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-blue") then
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(3)));
-				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-purple") then
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(4)));
+				local rarityAtlasColors = { -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
+					["jailerstower-animapowerlist-powerborder-white"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Common],
+					["jailerstower-animapowerlist-powerborder-green"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Uncommon],
+					["jailerstower-animapowerlist-powerborder-blue"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Rare],
+					["jailerstower-animapowerlist-powerborder-purple"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Epic]
+				};
+				if (rarityAtlasColors[rarityAtlas]) then
+					spellColor = rarityAtlasColors[rarityAtlas].color;
 				end
 			end
 		end
@@ -1787,8 +1787,17 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 	end
   	-- Difficulty Border
 	if (cfg.if_questDifficultyBorder) then
-		local difficultyColor = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID));
-		local difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
+		local difficultyColorMixin;
+		
+		if (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
+			local tagInfo = C_QuestLog.GetQuestTagInfo(questID);
+			local quality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
+			difficultyColorMixin = WORLD_QUEST_QUALITY_COLORS[quality].color;
+		else
+			local difficultyColor = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID));
+			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
+		end
+		
 		ttif:SetBackdropBorderColor(self, difficultyColorMixin:GetRGBA());
 	end
 end
