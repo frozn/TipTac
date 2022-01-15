@@ -105,7 +105,11 @@ local addOnsLoaded = {
 -- Tips which will have an icon
 local tipsToAddIcon = {
 	["GameTooltip"] = true,
+	["ShoppingTooltip1"] = true,
+	["ShoppingTooltip2"] = true,
 	["ItemRefTooltip"] = true,
+	["ItemRefShoppingTooltip1"] = true,
+	["ItemRefShoppingTooltip2"] = true,
 	["BattlePetTooltip"] = true,
 	["FloatingBattlePetTooltip"] = true,
 	["PetJournalPrimaryAbilityTooltip"] = true,
