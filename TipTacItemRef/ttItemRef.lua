@@ -99,7 +99,8 @@ local addOnsLoaded = {
 	["Blizzard_EncounterJournal"] = false,
 	["Blizzard_GuildUI"] = false,
 	["Blizzard_PlayerChoice"] = false,
-	["Blizzard_PVPUI"] = false
+	["Blizzard_PVPUI"] = false,
+	["WorldQuestTracker"] = false
 };
 
 -- Tips which will have an icon
@@ -1113,6 +1114,19 @@ local function ABMA_OnEnter_Hook(self)
 	end
 end
 
+-- HOOK: WorldQuestTracker_Tracker:OnEnter, see TrackerFrameOnEnter() in "WorldQuestTracker/WorldQuestTracker_Tracker.lua"
+local function WQTT_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local questID = self.questID;
+		if (questID) then
+			local link = GetQuestLink(questID);
+			local level = link:match("H?%a+:%d+:(%d+)");
+			tipDataAdded[gtt] = "quest";
+			LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
+		end
+	end
+end
+
 -- OnTooltipCleared
 local function OnTooltipCleared(self)
 	tipDataAdded[self] = nil;
@@ -1397,6 +1411,17 @@ function ttif:ADDON_LOADED(event, addOnName)
 		for i, button in pairs(buttons) do
 			button.Reward.EnlistmentBonus:HookScript("OnEnter", HFBFB_OnEnter);
 		end
+	-- now WorldQuestTrackerAddon exists
+	elseif (addOnName == "WorldQuestTracker") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("WorldQuestTracker"))) then
+		local WQTThooked = {}; -- see WorldQuestTracker.GetOrCreateTrackerWidget() in "WorldQuestTracker/WorldQuestTracker_Tracker.lua"
+		
+		hooksecurefunc(WorldQuestTrackerAddon, "GetOrCreateTrackerWidget", function(index)
+			local frame = _G["WorldQuestTracker_Tracker" .. index];
+			if (frame) and (not WQTThooked[frame]) then
+				frame:HookScript("OnEnter", WQTT_OnEnter_Hook);
+				WQTThooked[frame] = true;
+			end
+		end);
 	end
 	
 	addOnsLoaded[addOnName] = true;
