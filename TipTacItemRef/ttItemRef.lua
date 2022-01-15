@@ -1030,6 +1030,27 @@ local function GIFC_OnEnter_Hook(self)
 	end
 end
 
+-- HOOK: WardrobeCollectionFrame.ItemsCollectionFrame:RefreshAppearanceTooltip() respectively WardrobeCollectionFrame.ItemsCollectionFrame.Models:OnEnter, see WardrobeItemsCollectionMixin:RefreshAppearanceTooltip() and WardrobeItemsModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+local function WCFICF_RefreshAppearanceTooltip_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local itemsCollectionFrame = self; -- item, see WardrobeCollectionFrameMixin:GetAppearanceItemHyperlink() + WardrobeItemsModelMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+		local wardrobeCollectionFrame = itemsCollectionFrame:GetParent();
+		if (wardrobeCollectionFrame.tooltipSourceIndex) then
+			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory());
+			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
+			local sourceID = sources[index].sourceID;
+			local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
+			if (link) then
+				local linkType, itemID = link:match("H?(%a+):(%d+)");
+				if (itemID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.item(gtt, link, linkType, itemID);
+				end
+			end
+		end
+	end
+end
+
 -- HOOK: WardrobeCollectionFrame.ItemsCollectionFrame.Models:OnEnter, see WardrobeItemsModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 local function WCFICFM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -1044,26 +1065,11 @@ local function WCFICFM_OnEnter_Hook(self)
 					LinkTypeFuncs.transmogillusion(gtt, hyperlink, linkType, illusionID);
 				end
 			end
-		else -- item, see WardrobeCollectionFrameMixin:GetAppearanceItemHyperlink() + WardrobeItemsModelMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-			local wardrobeCollectionFrame = itemsCollectionFrame:GetParent();
-			if (wardrobeCollectionFrame.tooltipSourceIndex) then
-				local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.visualInfo.visualID, itemsCollectionFrame:GetActiveCategory());
-				local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
-				local sourceID = sources[index].sourceID;
-				local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
-				if (link) then
-					local linkType, itemID = link:match("H?(%a+):(%d+)");
-					if (itemID) then
-						tipDataAdded[gtt] = linkType;
-						LinkTypeFuncs.item(gtt, link, linkType, itemID);
-					end
-				end
-			end
 		end
 	end
 end
 
--- HOOK: WardrobeCollectionFrame.SetsCollectionFrame:RefreshAppearanceTooltip respectively WardrobeCollectionFrame.SetsCollectionFrame.DetailsFrame.itemFramesPool:OnEnter, see WardrobeSetsDetailsItemMixin:OnMouseDown() and WardrobeSetsCollectionMixin:RefreshAppearanceTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+-- HOOK: WardrobeCollectionFrame.SetsCollectionFrame:RefreshAppearanceTooltip respectively WardrobeCollectionFrame.SetsCollectionFrame.DetailsFrame.itemFramesPool:OnEnter, see WardrobeSetsCollectionMixin:RefreshAppearanceTooltip() and WardrobeSetsDetailsItemMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
 		local setID = self:GetSelectedSetID();
@@ -1356,6 +1362,8 @@ function ttif:ADDON_LOADED(event, addOnName)
 		self:OnApplyConfig();
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook);
+
 		local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame;
 		for i = 1, itemsCollectionFrame.PAGE_SIZE do
 			local model = itemsCollectionFrame.Models[i];
