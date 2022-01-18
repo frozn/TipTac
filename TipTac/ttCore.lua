@@ -662,12 +662,48 @@ local function STT_SetBackdropStyle(self, style, embedded)
 	end
 end
 
--- Sets backdrop border color
-function tt:SetBackdropBorderColor(tip, r, g, b, a)
+-- Sets backdrop
+function tt:SetBackdropLocked(tip, backdropInfo)
 	tip.ttSetBackdropLocked = false;
-	tip:SetBackdropBorderColor(r, g, b, a);
+	tip:SetBackdrop(backdropInfo);
 	tip.ttSetBackdropLocked = true;
-	tip.ttBackdropBorderColorApplied = true;
+end
+
+-- Sets backdrop color
+function tt:SetBackdropColorLocked(tip, lockColor, r, g, b, a)
+	if (not lockColor) and (tip.ttBackdropColorApplied) then
+		return;
+	end
+	tip.ttSetBackdropLocked = false;
+	tip:SetBackdropColor(r, g, b, (a or 1) * (tipBackdrop.backdropColor.a or 1));
+	tip.ttSetBackdropLocked = true;
+	
+	if (lockColor) then
+		tip.ttBackdropColorApplied = true;
+	end
+end
+
+-- Sets backdrop border color
+function tt:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
+	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
+		return;
+	end
+	tip.ttSetBackdropLocked = false;
+	tip:SetBackdropBorderColor(r, g, b, (a or 1) * (tipBackdrop.backdropBorderColor.a or 1));
+	tip.ttSetBackdropLocked = true;
+	
+	if (lockColor) then
+		tip.ttBackdropBorderColorApplied = true;
+	end
+end
+
+-- Resets backdrop (border) color
+function tt:ResetBackdropBorderColorLocked(tip)
+	tip.ttBackdropColorApplied = false;
+	tip.ttBackdropBorderColorApplied = false;
+
+	tt:SetBackdropColorLocked(tip, false, tipBackdrop.backdropColor:GetRGBA());
+	tt:SetBackdropBorderColorLocked(tip, false, tipBackdrop.backdropBorderColor:GetRGBA());
 end
 
 -- Sets padding, so that the tooltip text is still in the center piece.
@@ -726,7 +762,7 @@ function tt:SetPadding(tip, calledFromEvent)
 end
 
 -- Applies the backdrop, color and border color. The GTT will often reset these internally.
-function tt:ApplyTipBackdrop(tip, calledFromEvent)
+function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	-- remove default tip backdrop
 	if (tip.NineSlice) then
 		local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table
@@ -754,18 +790,15 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent)
 	tip.layoutTextureKit = nil;
 	
 	-- apply tip backdrop
-	tip.ttSetBackdropLocked = false;
-
 	--SharedTooltip_SetBackdropStyle(tip, tipBackdrop);
-	tip:SetBackdrop(tipBackdrop);
+	tt:SetBackdropLocked(tip, tipBackdrop);
 	
-	tip:SetBackdropColor(tipBackdrop.backdropColor:GetRGBA());
-
-	if (not tip.ttBackdropBorderColorApplied) then
-		tip:SetBackdropBorderColor(tipBackdrop.backdropBorderColor:GetRGBA());
+	if (resetBackdropColor) then
+		tt:ResetBackdropBorderColorLocked(tip);
+	else
+		tt:SetBackdropColorLocked(tip, false, tipBackdrop.backdropColor:GetRGBA());
+		tt:SetBackdropBorderColorLocked(tip, false, tipBackdrop.backdropBorderColor:GetRGBA());
 	end
-
-	tip.ttSetBackdropLocked = true;
 	
 	-- apply padding
 	tt:SetPadding(tip, calledFromEvent);
@@ -949,17 +982,17 @@ function tt:ApplyUnitAppearance(tip,first)
 
 	-- Backdrop Color: Reaction
 	if (cfg.reactColoredBackdrop) then
-		tip:SetBackdropColor(unpack(cfg["colReactBack"..tip.ttUnit.reactionIndex]));
+		tt:SetBackdropColorLocked(tip, true, unpack(cfg["colReactBack"..tip.ttUnit.reactionIndex]));
 	end
 
 	-- Backdrop Border Color: By Class or by Reaction
 	if (cfg.classColoredBorder) and (tip.ttUnit.isPlayer) then
 		if (first) then
 			local classColor = CLASS_COLORS[tip.ttUnit.classFile] or CLASS_COLORS["PRIEST"];
-			tt:SetBackdropBorderColor(tip, classColor.r, classColor.g, classColor.b);
+			tt:SetBackdropBorderColorLocked(tip, true, classColor.r, classColor.g, classColor.b);
 		end
 	elseif (cfg.reactColoredBorder) then	-- Az: this will override the classColoredBorder config, perhaps have that option take priority instead?
-		tt:SetBackdropBorderColor(tip, unpack(cfg["colReactBack"..tip.ttUnit.reactionIndex]));
+		tt:SetBackdropBorderColorLocked(tip, true, unpack(cfg["colReactBack"..tip.ttUnit.reactionIndex]));
 	end
 
 	-- Remove Unwanted Lines
@@ -1008,7 +1041,7 @@ local function CFMLLSFB_OnEnter_Hook(self)
 				end
 			end
 		end
-		tt:SetBackdropBorderColor(gtt, classColor.r, classColor.g, classColor.b);
+		tt:SetBackdropBorderColorLocked(gtt, true, classColor.r, classColor.g, classColor.b);
 	end
 end
 
@@ -1048,7 +1081,7 @@ function gttScriptHooks:OnShow()
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)
 	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
-		-- self:SetBackdropColor(unpack(cfg.tipColor));
+		-- tt:SetBackdropColorLocked(self, false, unpack(cfg.tipColor));
 	-- end
 end
 
@@ -1057,8 +1090,8 @@ function gttScriptHooks:OnUpdate(elapsed)
 	-- This ensures that mouse anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- local gttAnchor = self:GetAnchorType();
 	-- if (gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT") then
-		-- self:SetBackdropColor(unpack(cfg.tipColor));
-		-- tt:SetBackdropBorderColor(self, unpack(cfg.tipBorderColor));
+		-- tt:SetBackdropColorLocked(self, false, unpack(cfg.tipColor));
+		-- tt:SetBackdropBorderColorLocked(self, false, unpack(cfg.tipBorderColor));
 		-- return;
 	-- else
 	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
@@ -1071,7 +1104,7 @@ function gttScriptHooks:OnUpdate(elapsed)
 	
 	-- WoD: This background color reset, from OnShow(), has been copied down here. It seems resetting the color in OnShow() wasn't enough, as the color changes after the tip is being shown
 	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
-		-- self:SetBackdropColor(unpack(cfg.tipColor));
+		-- tt:SetBackdropColorLocked(self, false, unpack(cfg.tipColor));
 	-- end
 
 	-- Fadeout / Update Tip if Showing a Unit
@@ -1153,8 +1186,7 @@ function gttScriptHooks:OnTooltipCleared()
 
 	-- WoD: resetting the back/border color seems to be a necessary action, otherwise colors may stick when showing the next tooltip thing (world object tips)
 	-- BfA: The tooltip now also clears the backdrop in adition to color and bordercolor, so set it again here
-	self.ttBackdropBorderColorApplied = false;
-	tt:ApplyTipBackdrop(self, "OnTooltipCleared");
+	tt:ResetBackdropBorderColorLocked(self);
 
 	-- wipe the vars
 	if (self.ttUnit) then
@@ -1178,8 +1210,7 @@ end
 
 -- OnHide Script -- Used to default the background and border color -- Az: May cause issues with embedded tooltips, see GameTooltip.lua:396
 function gttScriptHooks:OnHide()
-	self.ttBackdropBorderColorApplied = false;
-	tt:ApplyTipBackdrop(self);
+	tt:ApplyTipBackdrop(self, nil, true);
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -1292,8 +1323,7 @@ end
 
 -- EventHook: OnHide
 function bpttEjttScriptHooks:OnHide()
-	self.ttBackdropBorderColorApplied = false;
-	tt:ApplyTipBackdrop(self);
+	tt:ResetBackdropBorderColorLocked(self);
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -1339,8 +1369,7 @@ end
 
 -- EventHook: OnHide
 function pjattScriptHooks:OnHide()
-	self.ttBackdropBorderColorApplied = false;
-	tt:ApplyTipBackdrop(self);
+	tt:ResetBackdropBorderColorLocked(self);
 end
 
 --------------------------------------------------------------------------------------------------------

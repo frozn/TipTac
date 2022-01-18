@@ -1556,11 +1556,17 @@ end
 --------------------------------------------------------------------------------------------------------
 
 -- Sets backdrop border color
-function ttif:SetBackdropBorderColor(tip, r, g, b, a)
+function ttif:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
+	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
+		return;
+	end
 	tip.ttSetBackdropLocked = false;
-	tip:SetBackdropBorderColor(r, g, b, a);
+	tip:SetBackdropBorderColor(r, g, b, (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor.a) or 1));
 	tip.ttSetBackdropLocked = true;
-	tip.ttBackdropBorderColorApplied = true;
+	
+	if (lockColor) then
+		tip.ttBackdropBorderColorApplied = true;
+	end
 end
 
 -- instancelock
@@ -1568,7 +1574,7 @@ function LinkTypeFuncs:instancelock(link,linkType,guid,mapId,difficulty,encounte
 	--AzDump(guid,mapId,difficulty,encounterBits)
   	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
 --	if (cfg.if_itemQualityBorder) then
---      ttif:SetBackdropBorderColor(self, 1, .5, 0, 1);
+--      ttif:SetBackdropBorderColorLocked(self, true, 1, .5, 0, 1);
 --	end
 end
 
@@ -1586,7 +1592,7 @@ function LinkTypeFuncs:item(link,linkType,id)
 	-- Quality Border
 	if (cfg.if_itemQualityBorder) then
 		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColor(self, itemQualityColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
 	end
 
 	-- level + id -- Only alter the tip if we got either a valid "itemLevel" or "id"
@@ -1739,7 +1745,7 @@ function LinkTypeFuncs:spell(source, link, linkType, spellID)
 			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
 		
-		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
 	end
 end
 
@@ -1796,7 +1802,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
 		
-		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
 	end
 end
 
@@ -1829,7 +1835,7 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
 		end
 		
-		ttif:SetBackdropBorderColor(self, difficultyColorMixin:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, difficultyColorMixin:GetRGBA());
 	end
 end
 
@@ -1867,7 +1873,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	if (cfg.if_currencyQualityBorder) then
 		if (currencyInfo) then
 			local currencyQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(quality)));
-			ttif:SetBackdropBorderColor(self, currencyQualityColor:GetRGBA());
+			ttif:SetBackdropBorderColorLocked(self, true, currencyQualityColor:GetRGBA());
 		end
 	end
 end
@@ -1969,7 +1975,7 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 	if (cfg.if_achievmentColoredBorder) then
 		local achievementColor = ACHIEVEMENT_COLOR_CODE:match("|c(%x+)");
 		local achievementColorMixin = CreateColorFromHexString(achievementColor);
-		ttif:SetBackdropBorderColor(self, achievementColorMixin:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, achievementColorMixin:GetRGBA());
 	end
 end
 
@@ -1985,7 +1991,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 	-- Quality Border
 	if (cfg.if_battlePetQualityBorder) then
 		local battlePetQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(breedQuality or 0)));
-		ttif:SetBackdropBorderColor(self, battlePetQualityColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, battlePetQualityColor:GetRGBA());
 	end
 
 	-- level + creatureID -- Only alter the tip if we got either a valid "level" or "creatureID"
@@ -2106,7 +2112,7 @@ function LinkTypeFuncs:battlePetAbil(link, linkType, abilityID, speciesID, petID
 	-- Colored Border
 	if (cfg.if_battlePetAbilityColoredBorder) then
 		local abilityColor = CreateColorFromHexString("FF4E96F7"); -- see GetBattlePetAbilityHyperlink() in "ItemRef.lua"
-		ttif:SetBackdropBorderColor(self, abilityColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, abilityColor:GetRGBA());
 	end
 end
 
@@ -2130,7 +2136,7 @@ function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
 		local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
 		local illusionColor = hyperlink:match("|c(%x+)");
 		local illusionColorMixin = CreateColorFromHexString(illusionColor);
-		ttif:SetBackdropBorderColor(self, illusionColorMixin:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, illusionColorMixin:GetRGBA());
 	end
 end
 
@@ -2175,7 +2181,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	if (cfg.if_conduitQualityBorder) then
 		local conduitQuality = C_Soulbinds.GetConduitQuality(conduitID, conduitRank);
 		local conduitQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(conduitQuality or 0)));
-		ttif:SetBackdropBorderColor(self, conduitQualityColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, conduitQualityColor:GetRGBA());
 	end
 end
 
@@ -2201,7 +2207,7 @@ function CustomTypeFuncs:runeforgePower(link, linkType, runeforgePowerID)
   	-- Colored Border
 	if (cfg.if_runeforgePowerColoredBorder) then
 		local runeforgePowerColor = CreateColor(LEGENDARY_ORANGE_COLOR.r, LEGENDARY_ORANGE_COLOR.g, LEGENDARY_ORANGE_COLOR.b, 1); -- see RuneforgePowerBaseMixin:OnEnter() in "RuneforgeUtil.lua"
-		ttif:SetBackdropBorderColor(self, runeforgePowerColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, runeforgePowerColor:GetRGBA());
 	end
 end
 
@@ -2210,7 +2216,7 @@ function CustomTypeFuncs:guildChallenge(link, linkType)
   	-- Colored Border
 	if (cfg.if_questDifficultyBorder) then
 		local guildChallengeColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see CommunitiesGuildChallengeTemplate:OnEnter() / GuildChallengeTemplate:OnEnter() in "Blizzard_Communities/GuildInfo.xml" / "Blizzard_GuildUI/Blizzard_GuildInfo.xml"
-		ttif:SetBackdropBorderColor(self, guildChallengeColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, guildChallengeColor:GetRGBA());
 	end
 end
 
@@ -2219,7 +2225,7 @@ function CustomTypeFuncs:pvpEnlistmentBonus(link, linkType)
   	-- Colored Border
 	if (cfg.if_itemQualityBorder) then
 		local pvpEnlistmentBonusColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see PVPRewardEnlistmentBonus_OnEnter() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
-		ttif:SetBackdropBorderColor(self, pvpEnlistmentBonusColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, pvpEnlistmentBonusColor:GetRGBA());
 	end
 end
 
@@ -2239,7 +2245,7 @@ function CustomTypeFuncs:flyout(link, linkType, flyoutID, icon)
   	-- Colored Border
 	if (cfg.if_flyoutColoredBorder) then
 		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
-		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
 	end
 end
 
@@ -2259,6 +2265,6 @@ function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
   	-- Colored Border
 	if (cfg.if_petActionColoredBorder) then
 		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
-		ttif:SetBackdropBorderColor(self, spellColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
 	end
 end
