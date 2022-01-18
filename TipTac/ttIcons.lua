@@ -66,14 +66,14 @@ function ttIcons:OnApplyConfig(cfg)
 	end
 end
 
-function ttIcons:OnPostStyleTip(tip,u,first)
+function ttIcons:OnPostStyleTip(tip,first)
 	if (self.wantIcon) then
-		self.icon:SetShown(self:SetIcon(self.icon,u));
+		self.icon:SetShown(self:SetIcon(self.icon,tip.ttUnit));
 	end
 end
 
-function ttIcons:OnCleared()
-	if (self.icon) then
+function ttIcons:OnCleared(tip)
+	if (self.icon) and (gtt == tip) then
 		self.icon:Hide();
 	end
 end

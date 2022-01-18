@@ -1,5 +1,15 @@
 local gtt = GameTooltip;
 
+-- classic support
+local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
+if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
+	isWoWClassic = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
+	isWoWBcc = true;
+else
+	isWoWRetail = true;
+end
+
 -- Addon
 local modName = ...;
 local ttt = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
@@ -8,7 +18,7 @@ ttt:Hide();
 -- String Constants
 local TALENTS_PREFIX = TALENTS..":|cffffffff ";	-- MoP: Could be changed from TALENTS to SPECIALIZATION
 local TALENTS_NA = NOT_APPLICABLE:lower();
-local TALENTS_NONE = NO.." "..TALENTS;
+local TALENTS_NONE = NONE_KEY; -- NO.." "..TALENTS
 local TALENTS_LOADING = SEARCH_LOADING_TEXT;
 
 -- Default Config -- NOTE: Only used when addon is stand-alone, together with TipTac, these are NOT used
@@ -50,7 +60,7 @@ end
 
 -- Queries the talent spec of the inspected unit, or player unit (MoP Code)
 function ttt:QuerySpecialization(record)
-	local spec = not record.isSelf and GetInspectSpecialization(record.unit) or GetSpecialization();
+	local spec = (isWoWRetail) and ((not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization());
 	if (not spec or spec == 0) then
 		record.format = TALENTS_NONE;
 	elseif (not record.isSelf) then

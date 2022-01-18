@@ -9,13 +9,13 @@ local gtt = GameTooltip;
 local UnitIsWildBattlePet = UnitIsWildBattlePet or function() return false end;
 local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion or function() return false end;
 
-local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false
+local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
-	isWoWClassic = true
+	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	isWoWBcc = true
+	isWoWBcc = true;
 else
-	isWoWRetail = true
+	isWoWRetail = true;
 end
 
 -- TipTac refs
@@ -276,36 +276,38 @@ function ttStyle:OnLoad()
 	cfg = TipTac_Config;
 end
 
-function ttStyle:OnStyleTip(tip,u,first)
+function ttStyle:OnStyleTip(tip,first)
 	-- some things only need to be done once initially when the tip is first displayed
 	if (first) then
 		-- Store Original Name
 		if (cfg.nameType == "original") then
-			u.originalName = GameTooltipTextLeft1:GetText();
+			tip.ttUnit.originalName = GameTooltipTextLeft1:GetText();
 		end
 
 		-- Az: RolePlay Experimental (Mary Sue Protocol)
-		if (u.isPlayer) and (cfg.nameType == "marysueprot") and (msp) then
+		if (tip.ttUnit.isPlayer) and (cfg.nameType == "marysueprot") and (msp) then
 			local field = "NA";
-			local name = UnitName(u.token);
+			local name = UnitName(tip.ttUnit.token);
 			msp:Request(name,field);	-- Az: does this return our request, or only storing it for later use? I'm guessing the info isn't available right away, but only after the person's roleplay addon replies.
 			if (msp.char[name]) and (msp.char[name].field[field] ~= "") then
-				u.rpName = msp.char[name].field[field] or name;
+				tip.ttUnit.rpName = msp.char[name].field[field] or name;
 			end
 		end
 
 		-- Find NPC Title -- 09.08.22: Should now work with colorblind mode
-		if (not u.isPlayer) then
-			u.title = (tt.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2):GetText();
-			if (u.title) and (u.title:find(TT_LevelMatch)) then
-				u.title = nil;
+		if (not tip.ttUnit.isPlayer) then
+			tip.ttUnit.title = (tt.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2):GetText();
+			if (tip.ttUnit.title) and (tip.ttUnit.title:find(TT_LevelMatch)) then
+				tip.ttUnit.title = nil;
 			end
 		end
 	end
 
-	self:ModifyUnitTooltip(u,first);
+	self:ModifyUnitTooltip(tip.ttUnit,first);
 end
 
-function ttStyle:OnCleared()
-	self.petLevelLineIndex = nil;
+function ttStyle:OnCleared(tip)
+	if (gtt == tip) then
+		self.petLevelLineIndex = nil;
+	end
 end

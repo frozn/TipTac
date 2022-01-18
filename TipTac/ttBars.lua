@@ -186,17 +186,17 @@ function ttBars:CreateBar(parent,tblMixin)
 end
 
 -- Initializes the anchoring position and color for each bar
-function ttBars:SetupBars(u)
+function ttBars:SetupBars(tip)
 	for index, bar in ipairs(bars) do
 		bar:ClearAllPoints();
 
-		if (bar:GetVisibility(u)) then
-			bar:SetPoint("BOTTOMLEFT", tt.paddingRight + BAR_MARGIN_X, tt.paddingBottom + BAR_MARGIN_Y);
-			bar:SetPoint("BOTTOMRIGHT", -tt.paddingLeft - BAR_MARGIN_X, tt.paddingBottom + BAR_MARGIN_Y);
+		if (bar:GetVisibility(tip.ttUnit)) then
+			bar:SetPoint("BOTTOMLEFT", tt.padding.right + BAR_MARGIN_X, tt.padding.bottom + BAR_MARGIN_Y);
+			bar:SetPoint("BOTTOMRIGHT", -tt.padding.left - BAR_MARGIN_X, tt.padding.bottom + BAR_MARGIN_Y);
 
-			bar:SetStatusBarColor(bar:GetColor(u));
+			bar:SetStatusBarColor(bar:GetColor(tip.ttUnit));
 
-			tt.paddingBottom = (tt.paddingBottom + cfg.barHeight + BAR_SPACING);
+			tt.padding.bottom = (tt.padding.bottom + cfg.barHeight + BAR_SPACING);
 
 			bar:Show();
 		else
@@ -236,10 +236,10 @@ function ttBars:OnApplyConfig(cfg)
 	end
 end
 
-function ttBars:OnPreStyleTip(tip,u,first)
+function ttBars:OnPreStyleTip(tip,first)
 	-- for the first time styling, we want to initialize the bars
 	if (first) then
-		self:SetupBars(u);
+		self:SetupBars(tip);
 
 		-- Hide GTT Status bar, we have our own, which is prettier!
 		if (cfg.hideDefaultBar) then
@@ -250,7 +250,7 @@ function ttBars:OnPreStyleTip(tip,u,first)
 	-- update each shown bar
 	for _, bar in ipairs(bars) do
 		if (bar:IsShown()) then
-			local val, max, fmt = bar:GetValueParams(u);
+			local val, max, fmt = bar:GetValueParams(tip.ttUnit);
 			bar:SetMinMaxValues(0,max);
 			bar:SetValue(val);
 			bar:SetFormattedBarValues(val,max,fmt);
@@ -258,8 +258,10 @@ function ttBars:OnPreStyleTip(tip,u,first)
 	end
 end
 
-function ttBars:OnCleared()
+function ttBars:OnCleared(tip)
 	for _, bar in ipairs(bars) do
-		bar:Hide();
+		if (bar:GetParent() == tip) then
+			bar:Hide();
+		end
 	end
 end

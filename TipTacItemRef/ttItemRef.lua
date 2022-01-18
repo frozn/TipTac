@@ -10,13 +10,13 @@ local fpbatt = FloatingPetBattleAbilityTooltip;
 local ejtt = EncounterJournalTooltip;
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false
+local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
-	isWoWClassic = true
+	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	isWoWBcc = true
+	isWoWBcc = true;
 else
-	isWoWRetail = true
+	isWoWRetail = true;
 end
 
 local CreateColorFromHexString = CreateColorFromHexString;
@@ -24,6 +24,15 @@ local CreateColorFromHexString = CreateColorFromHexString;
 if (not CreateColorFromHexString) then
 	CreateColorFromHexString = function(hexColor)
 		return CreateColor(tonumber(hexColor:sub(3, 4), 16) / 255, tonumber(hexColor:sub(5, 6), 16) / 255, tonumber(hexColor:sub(7, 8), 16) / 255, tonumber(hexColor:sub(1, 2), 16) / 255);
+	end
+end
+
+local GetSpellLink = GetSpellLink;
+
+if (isWoWClassic) then
+	GetSpellLink = function(spellID)
+		local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
 	end
 end
 
@@ -83,12 +92,15 @@ local cfg = {
 local tipsToModify = {
 	"GameTooltip",
 	"ItemRefTooltip",
+	"NamePlateTooltip",
 	"BattlePetTooltip",
 	"FloatingBattlePetTooltip",
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
 	--"EncounterJournalTooltip", -- commented out for embedded tooltips, see description in tt:SetPadding()
+	-- 3rd party addon tooltips
+	"PlaterNamePlateAuraTooltip",
 };
 
 local addOnsLoaded = {
@@ -243,6 +255,51 @@ end
 --                                       HOOK: Tooltip Functions                                      --
 --------------------------------------------------------------------------------------------------------
 
+-- apply workaround for the following "bug": on first mouseover over toy or unit aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID(), SetAction() or SetUnitAura() (only approx. 0.2-1 second later), but on the next OnUpdate the GetItem() is set again.
+-- ttWorkaroundForFirstMouseoverStatus:
+-- nil = no hooks set (initial status)
+-- 1   = hooks GameTooltip:OnTooltipCleared and Button:OnLeave set
+-- 2   = hooks GameTooltip:OnUpdate and Button:OnLeave set
+-- 3   = no hooks set respectively not needed any more
+function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
+	local tooltip = self;
+	local owner = self:GetOwner();
+	
+	if (not owner.ttWorkaroundForFirstMouseoverStatus) then
+		AceHook:HookScript(tooltip, "OnTooltipCleared", function(self)
+			AceHook:HookScript(tooltip, "OnUpdate", function(self)
+				tipDataAdded[self] = linkType;
+				if (linkType == "spell") then
+					LinkTypeFuncs.spell(self, source, link, linkType, id);
+				else
+					LinkTypeFuncs.item(self, link, linkType, id);
+				end
+				AceHook:Unhook(tooltip, "OnUpdate");
+				owner.ttWorkaroundForFirstMouseoverStatus = 3;
+			end);
+			AceHook:Unhook(tooltip, "OnTooltipCleared");
+			owner.ttWorkaroundForFirstMouseoverStatus = 2;
+		end);
+		AceHook:HookScript(owner, "OnLeave", function(self)
+			if (self.ttWorkaroundForFirstMouseoverStatus == 1) then
+				AceHook:Unhook(tooltip, "OnTooltipCleared");
+			elseif (owner.ttWorkaroundForFirstMouseoverStatus == 2) then
+				AceHook:Unhook(tooltip, "OnUpdate");
+			end
+			AceHook:Unhook(self, "OnLeave");
+			self.ttWorkaroundForFirstMouseoverStatus = nil;
+		end);
+		owner.ttWorkaroundForFirstMouseoverStatus = 1;
+	else
+		if (owner.ttWorkaroundForFirstMouseoverStatus == 1) then
+			AceHook:Unhook(tooltip, "OnTooltipCleared");
+		elseif (owner.ttWorkaroundForFirstMouseoverStatus == 2) then
+			AceHook:Unhook(tooltip, "OnUpdate");
+		end
+		owner.ttWorkaroundForFirstMouseoverStatus = 3;
+	end
+end
+
 -- add text line to PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip and EncounterJournalTooltip (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
 local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 	local linePadding = 2;
@@ -337,50 +394,13 @@ local function SetUnitAura_Hook(self, unit, index, filter)
 					tipDataAdded[self] = linkType;
 					LinkTypeFuncs.spell(self, source, link, linkType, _spellID);
 
-					-- workaround for the following "bug": on first mouseover over aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetUnitAura() (only approx. 0.2 seconds later), but on the next OnUpdate the UnitAura() is set again.
-					-- ttSetUnitAuraWorkaroundStatus:
-					-- nil = no hooks set (initial status)
-					-- 1   = hooks GameTooltip:OnTooltipCleared and AuraButton:OnLeave set
-					-- 2   = hooks GameTooltip:OnUpdate and AuraButton:OnLeave set
-					-- 3   = no hooks set respectively not needed any more
-					local owner = self:GetOwner();
-					
-					if (not owner.ttSetUnitAuraWorkaroundStatus) then
-						AceHook:HookScript(gtt, "OnTooltipCleared", function(self)
-							AceHook:HookScript(gtt, "OnUpdate", function(self)
-								tipDataAdded[self] = linkType;
-								LinkTypeFuncs.spell(self, source, link, linkType, _spellID);
-
-								AceHook:Unhook(gtt, "OnUpdate");
-								owner.ttSetUnitAuraWorkaroundStatus = 3;
-							end);
-							AceHook:Unhook(gtt, "OnTooltipCleared");
-							owner.ttSetUnitAuraWorkaroundStatus = 2;
-						end);
-						AceHook:HookScript(owner, "OnLeave", function(self)
-							if (self.ttSetUnitAuraWorkaroundStatus == 1) then
-								AceHook:Unhook(gtt, "OnTooltipCleared");
-							elseif (owner.ttSetUnitAuraWorkaroundStatus == 2) then
-								AceHook:Unhook(gtt, "OnUpdate");
-							end
-							AceHook:Unhook(self, "OnLeave");
-							self.ttSetUnitAuraWorkaroundStatus = nil;
-						end);
-						owner.ttSetUnitAuraWorkaroundStatus = 1;
-					else
-						if (owner.ttSetUnitAuraWorkaroundStatus == 1) then
-							AceHook:Unhook(gtt, "OnTooltipCleared");
-						elseif (owner.ttSetUnitAuraWorkaroundStatus == 2) then
-							AceHook:Unhook(gtt, "OnUpdate");
-						end
-						owner.ttSetUnitAuraWorkaroundStatus = 3;
-					end
+					-- apply workaround for first mouseover
+					ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, _spellID);
 				end
 			end
 		end
 	end
 end
-
 
 -- HOOK: GameTooltip:SetCompanionPet
 local function SetCompanionPet_Hook(self, petID)
@@ -428,6 +448,13 @@ local function SetAction_Hook(self, slot)
 				if (itemID) then
 					tipDataAdded[self] = linkType;
 					LinkTypeFuncs.item(self, link, linkType, itemID);
+					
+					-- apply workaround for first mouseover if item is a toy
+					_itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
+					
+					if (_itemID) then
+						ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, itemID);
+					end
 				end
 			end
 		elseif (actionType == "summonpet") then
@@ -625,44 +652,8 @@ local function SetToyByItemID_Hook(self, itemID)
 				tipDataAdded[self] = linkType;
 				LinkTypeFuncs.item(self, link, linkType, itemID);
 				
-				-- workaround for the following "bug": on first mouseover over toy after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID() (only approx. 1 second later), but on the next OnUpdate the GetItem() is set again.
-				-- ttSetToyByItemIDWorkaroundStatus:
-				-- nil = no hooks set (initial status)
-				-- 1   = hooks GameTooltip:OnTooltipCleared and ToySpellButton:OnLeave set
-				-- 2   = hooks GameTooltip:OnUpdate and ToySpellButton:OnLeave set
-				-- 3   = no hooks set respectively not needed any more
-				local owner = self:GetOwner();
-				
-				if (not owner.ttSetToyByItemIDWorkaroundStatus) then
-					AceHook:HookScript(gtt, "OnTooltipCleared", function(self)
-						AceHook:HookScript(gtt, "OnUpdate", function(self)
-							tipDataAdded[self] = linkType;
-							LinkTypeFuncs.item(self, link, linkType, itemID);
-
-							AceHook:Unhook(gtt, "OnUpdate");
-							owner.ttSetToyByItemIDWorkaroundStatus = 3;
-						end);
-						AceHook:Unhook(gtt, "OnTooltipCleared");
-						owner.ttSetToyByItemIDWorkaroundStatus = 2;
-					end);
-					AceHook:HookScript(owner, "OnLeave", function(self)
-						if (self.ttSetToyByItemIDWorkaroundStatus == 1) then
-							AceHook:Unhook(gtt, "OnTooltipCleared");
-						elseif (owner.ttSetToyByItemIDWorkaroundStatus == 2) then
-							AceHook:Unhook(gtt, "OnUpdate");
-						end
-						AceHook:Unhook(self, "OnLeave");
-						self.ttSetToyByItemIDWorkaroundStatus = nil;
-					end);
-					owner.ttSetToyByItemIDWorkaroundStatus = 1;
-				else
-					if (owner.ttSetToyByItemIDWorkaroundStatus == 1) then
-						AceHook:Unhook(gtt, "OnTooltipCleared");
-					elseif (owner.ttSetToyByItemIDWorkaroundStatus == 2) then
-						AceHook:Unhook(gtt, "OnUpdate");
-					end
-					owner.ttSetToyByItemIDWorkaroundStatus = 3;
-				end
+				-- apply workaround for first mouseover
+				ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, itemID);
 			end
 		end
 	end
@@ -1488,11 +1479,14 @@ local function SmartIconEvaluation(tip,linkType)
 	-- Spell
 	elseif (linkType == "spell") then
 		if (owner.action or owner.texture or owner.icon or owner.Icon or -- mount tooltip in action bar
-				(owner.unit and owner.count and owner.filter)) then -- aura
+				(owner.unit and owner.count and owner.filter)) then -- classic: aura
 			return false;
 		end
 		local ownerParent = owner:GetParent();
 		if (ownerParent) then
+			if (owner.unit and ownerParent.buffs) then -- classic: aura under frame
+				return false;
+			end
 			if (owner.ActiveTexture and ownerParent.icon) then -- mount tooltip in mount journal list
 				return false;
 			end
@@ -1563,9 +1557,9 @@ end
 
 -- Sets backdrop border color
 function ttif:SetBackdropBorderColor(tip, r, g, b, a)
-	tip.ttSetBackdropBorderColorLocked = false;
+	tip.ttSetBackdropLocked = false;
 	tip:SetBackdropBorderColor(r, g, b, a);
-	tip.ttSetBackdropBorderColorLocked = true;
+	tip.ttSetBackdropLocked = true;
 	tip.ttBackdropBorderColorApplied = true;
 end
 
