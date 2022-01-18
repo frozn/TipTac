@@ -1560,9 +1560,9 @@ function ttif:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
 	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
 		return;
 	end
-	tip.ttSetBackdropLocked = false;
+	tip.ttSetBackdropBorderColorLocked = false;
 	tip:SetBackdropBorderColor(r, g, b, (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor.a) or 1));
-	tip.ttSetBackdropLocked = true;
+	tip.ttSetBackdropBorderColorLocked = true;
 	
 	if (lockColor) then
 		tip.ttBackdropBorderColorApplied = true;

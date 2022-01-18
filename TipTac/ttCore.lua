@@ -674,9 +674,9 @@ function tt:SetBackdropColorLocked(tip, lockColor, r, g, b, a)
 	if (not lockColor) and (tip.ttBackdropColorApplied) then
 		return;
 	end
-	tip.ttSetBackdropLocked = false;
+	tip.ttSetBackdropColorLocked = false;
 	tip:SetBackdropColor(r, g, b, (a or 1) * (tipBackdrop.backdropColor.a or 1));
-	tip.ttSetBackdropLocked = true;
+	tip.ttSetBackdropColorLocked = true;
 	
 	if (lockColor) then
 		tip.ttBackdropColorApplied = true;
@@ -688,9 +688,9 @@ function tt:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
 	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
 		return;
 	end
-	tip.ttSetBackdropLocked = false;
+	tip.ttSetBackdropBorderColorLocked = false;
 	tip:SetBackdropBorderColor(r, g, b, (a or 1) * (tipBackdrop.backdropBorderColor.a or 1));
-	tip.ttSetBackdropLocked = true;
+	tip.ttSetBackdropBorderColorLocked = true;
 	
 	if (lockColor) then
 		tip.ttBackdropBorderColorApplied = true;
@@ -1390,14 +1390,14 @@ function tt:AddLockingFeature(tip)
 		tip_SetBackdrop_org(self, ...);
 	end
 	tip.SetBackdropColor = function(self, ...)
-		if (self.ttSetBackdropLocked) then
+		if (self.ttSetBackdropColorLocked) then
 			return;
 		end
 		
 		tip_SetBackdropColor_org(self, ...);
 	end
 	tip.SetBackdropBorderColor = function(self, ...)
-		if (self.ttSetBackdropLocked) then
+		if (self.ttSetBackdropBorderColorLocked) then
 			return;
 		end
 		
