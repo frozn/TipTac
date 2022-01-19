@@ -674,6 +674,7 @@ function tt:SetBackdropColorLocked(tip, lockColor, r, g, b, a)
 	if (not lockColor) and (tip.ttBackdropColorApplied) then
 		return;
 	end
+	
 	tip.ttSetBackdropColorLocked = false;
 	tip:SetBackdropColor(r, g, b, (a or 1) * (tipBackdrop.backdropColor.a or 1));
 	tip.ttSetBackdropColorLocked = true;
@@ -688,6 +689,7 @@ function tt:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
 	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
 		return;
 	end
+	
 	tip.ttSetBackdropBorderColorLocked = false;
 	tip:SetBackdropBorderColor(r, g, b, (a or 1) * (tipBackdrop.backdropBorderColor.a or 1));
 	tip.ttSetBackdropBorderColorLocked = true;
@@ -783,14 +785,17 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 				region:SetTexture(nil);
 			end
 		end
+
+		tip.NineSlice.layoutType = nil;
+		tip.NineSlice.layoutTextureKit = nil;
+		tip.NineSlice.backdropInfo = nil;
 	end
 	
-	tip.backdropInfo = nil;
 	tip.layoutType = nil;
 	tip.layoutTextureKit = nil;
+	tip.backdropInfo = nil;
 	
 	-- apply tip backdrop
-	--SharedTooltip_SetBackdropStyle(tip, tipBackdrop);
 	tt:SetBackdropLocked(tip, tipBackdrop);
 	
 	if (resetBackdropColor) then
@@ -1386,22 +1391,74 @@ function tt:AddLockingFeature(tip)
 		if (self.ttSetBackdropLocked) then
 			return;
 		end
-		
-		tip_SetBackdrop_org(self, ...);
+		if (tip_SetBackdrop_org) then
+			tip_SetBackdrop_org(self, ...);
+		end
 	end
 	tip.SetBackdropColor = function(self, ...)
 		if (self.ttSetBackdropColorLocked) then
 			return;
 		end
-		
-		tip_SetBackdropColor_org(self, ...);
+		if (tip_SetBackdropColor_org) then
+			tip_SetBackdropColor_org(self, ...);
+		end
 	end
 	tip.SetBackdropBorderColor = function(self, ...)
 		if (self.ttSetBackdropBorderColorLocked) then
 			return;
 		end
+		if (tip_SetBackdropBorderColor_org) then
+			tip_SetBackdropBorderColor_org(self, ...);
+		end
+	end
+	
+	if (tip.NineSlice) then
+		local tip_NineSlice_SetBackdrop_org = tip.NineSlice.SetBackdrop;
+		local tip_NineSlice_ApplyBackdrop_org = tip.NineSlice.ApplyBackdrop;
+		local tip_NineSlice_SetBackdropColor_org = tip.NineSlice.SetBackdropColor;
+		local tip_NineSlice_SetCenterColor_org = tip.NineSlice.SetCenterColor;
+		local tip_NineSlice_SetBorderColor_org = tip.NineSlice.SetBorderColor;
 		
-		tip_SetBackdropBorderColor_org(self, ...);
+		tip.NineSlice.SetBackdrop = function(self, ...)
+			if (self:GetParent().ttSetBackdropLocked) then
+				return;
+			end
+			if (tip_NineSlice_SetBackdrop_org) then
+				tip_NineSlice_SetBackdrop_org(self, ...);
+			end
+		end
+		tip.NineSlice.ApplyBackdrop = function(self, ...)
+			if (self:GetParent().ttSetBackdropLocked) then
+				return;
+			end
+			if (tip_NineSlice_ApplyBackdrop_org) then
+				tip_NineSlice_ApplyBackdrop_org(self, ...);
+			end
+		end
+		tip.NineSlice.SetBackdropColor = function(self, ...)
+			if (self:GetParent().ttSetBackdropColorLocked) then
+				return;
+			end
+			if (tip_NineSlice_SetBackdropColor_org) then
+				tip_NineSlice_SetBackdropColor_org(self, ...);
+			end
+		end
+		tip.NineSlice.SetCenterColor = function(self, ...)
+			if (self:GetParent().ttSetBackdropColorLocked) then
+				return;
+			end
+			if (tip_NineSlice_SetCenterColor_org) then
+				tip_NineSlice_SetCenterColor_org(self, ...);
+			end
+		end
+		tip.NineSlice.SetBorderColor = function(self, ...)
+			if (self:GetParent().ttSetBackdropBorderColorLocked) then
+				return;
+			end
+			if (tip_NineSlice_SetBorderColor_org) then
+				tip_NineSlice_SetBorderColor_org(self, ...);
+			end
+		end
 	end
 end
 
