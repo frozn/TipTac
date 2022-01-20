@@ -197,6 +197,9 @@ local function ResolveGlobalNamedObjects(tipTable)
 		elseif (tip) then
 			if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
 				Mixin(tip, BackdropTemplateMixin);
+				if (tip.NineSlice) then
+					Mixin(tip.NineSlice, BackdropTemplateMixin);
+				end
 			end
 			resolved[tip] = index;
 		end

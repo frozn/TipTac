@@ -544,6 +544,9 @@ local function ResolveGlobalNamedObjects(tipTable)
 		elseif (tip) then
 			if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
 				Mixin(tip, BackdropTemplateMixin);
+				if (tip.NineSlice) then
+					Mixin(tip.NineSlice, BackdropTemplateMixin);
+				end
 			end
 			
 			resolved[tip] = index;
@@ -1383,10 +1386,19 @@ end
 
 -- Function to add a locking feature for SetBackdrop, SetBackdropColor and SetBackdropBorderColor
 function tt:AddLockingFeature(tip)
+	local tip_ApplyBackdrop_org = tip.ApplyBackdrop;
 	local tip_SetBackdrop_org = tip.SetBackdrop;
 	local tip_SetBackdropColor_org = tip.SetBackdropColor;
 	local tip_SetBackdropBorderColor_org = tip.SetBackdropBorderColor;
 	
+	tip.ApplyBackdrop = function(self, ...)
+		if (self.ttSetBackdropLocked) then
+			return;
+		end
+		if (tip_ApplyBackdrop_org) then
+			tip_ApplyBackdrop_org(self, ...);
+		end
+	end
 	tip.SetBackdrop = function(self, ...)
 		if (self.ttSetBackdropLocked) then
 			return;
@@ -1413,20 +1425,13 @@ function tt:AddLockingFeature(tip)
 	end
 	
 	if (tip.NineSlice) then
-		local tip_NineSlice_SetBackdrop_org = tip.NineSlice.SetBackdrop;
 		local tip_NineSlice_ApplyBackdrop_org = tip.NineSlice.ApplyBackdrop;
+		local tip_NineSlice_SetBackdrop_org = tip.NineSlice.SetBackdrop;
 		local tip_NineSlice_SetBackdropColor_org = tip.NineSlice.SetBackdropColor;
+		local tip_NineSlice_SetBackdropBorderColor_org = tip.NineSlice.SetBackdropBorderColor;
 		local tip_NineSlice_SetCenterColor_org = tip.NineSlice.SetCenterColor;
 		local tip_NineSlice_SetBorderColor_org = tip.NineSlice.SetBorderColor;
 		
-		tip.NineSlice.SetBackdrop = function(self, ...)
-			if (self:GetParent().ttSetBackdropLocked) then
-				return;
-			end
-			if (tip_NineSlice_SetBackdrop_org) then
-				tip_NineSlice_SetBackdrop_org(self, ...);
-			end
-		end
 		tip.NineSlice.ApplyBackdrop = function(self, ...)
 			if (self:GetParent().ttSetBackdropLocked) then
 				return;
@@ -1435,12 +1440,28 @@ function tt:AddLockingFeature(tip)
 				tip_NineSlice_ApplyBackdrop_org(self, ...);
 			end
 		end
+		tip.NineSlice.SetBackdrop = function(self, ...)
+			if (self:GetParent().ttSetBackdropLocked) then
+				return;
+			end
+			if (tip_NineSlice_SetBackdrop_org) then
+				tip_NineSlice_SetBackdrop_org(self, ...);
+			end
+		end
 		tip.NineSlice.SetBackdropColor = function(self, ...)
 			if (self:GetParent().ttSetBackdropColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdropColor_org) then
 				tip_NineSlice_SetBackdropColor_org(self, ...);
+			end
+		end
+		tip.NineSlice.SetBackdropBorderColor = function(self, ...)
+			if (self:GetParent().ttSetBackdropBordeColorLocked) then
+				return;
+			end
+			if (tip_NineSlice_SetBackdropBordeColor_org) then
+				tip_NineSlice_SetBackdropBordeColor_org(self, ...);
 			end
 		end
 		tip.NineSlice.SetCenterColor = function(self, ...)
@@ -1654,6 +1675,9 @@ function tt:AddModifiedTip(tip,noHooks)
 		end
 		if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
 			Mixin(tip, BackdropTemplateMixin);
+			if (tip.NineSlice) then
+				Mixin(tip.NineSlice, BackdropTemplateMixin);
+			end
 		end
 		TT_TipsToModify[#TT_TipsToModify + 1] = tip;
 
