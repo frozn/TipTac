@@ -189,33 +189,33 @@ local function ResolveGlobalNamedObjects(tipTable)
 	local resolved = {};
 	for index, tipName in ipairs(tipTable) do
 		-- lookup the global object from this name, assign false if nonexistent, to preserve the table entry
-		local tip = (_G[tipName] or false);
+		if (type(tipName) == "string") then
+			local tip = (_G[tipName] or false);
 
-		-- Check if this object has already been resolved. This can happen for thing like AtlasLoot, which sets AtlasLootTooltip = GameTooltip
-		if (resolved[tip]) then
-			tip = false;
-		elseif (tip) then
-			if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
-				Mixin(tip, BackdropTemplateMixin);
-				if (tip.NineSlice) then
-					Mixin(tip.NineSlice, BackdropTemplateMixin);
+			-- Check if this object has already been resolved. This can happen for thing like AtlasLoot, which sets AtlasLootTooltip = GameTooltip
+			if (resolved[tip]) then
+				tip = false;
+			elseif (tip) then
+				if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
+					Mixin(tip, BackdropTemplateMixin);
+					if (tip.NineSlice) then
+						Mixin(tip.NineSlice, BackdropTemplateMixin);
+					end
 				end
+				resolved[tip] = index;
 			end
-			resolved[tip] = index;
-		end
 
-		-- Assign the resolved object or false back into the table array
-		tipTable[index] = tip;
+			-- Assign the resolved object or false back into the table array
+			tipTable[index] = tip;
+		end
 	end
 end
 
 -- Variables Loaded [One-Time-Event]
 function ttif:VARIABLES_LOADED(event)
 	-- What tipsToModify to use, TipTac's main addon, or our own?
-	local resolveGlobalNamedObjects = true;
 	if (TipTac and TipTac.tipsToModify) then
 		tipsToModify = TipTac.tipsToModify;
-		resolveGlobalNamedObjects = false;
 	end
 
 	-- Use TipTac settings if installed
@@ -224,7 +224,7 @@ function ttif:VARIABLES_LOADED(event)
 	end
 
 	-- Hook Tips & Apply Settings
-	self:HookTips(resolveGlobalNamedObjects);
+	self:HookTips();
 	self:OnApplyConfig();
 	
 	-- Cleanup
@@ -1320,8 +1320,8 @@ function ttif:ApplyHooksToGIFIC()
 end
 
 -- Apply hooks for all the tooltips to modify during VARIABLES_LOADED -- Only hook GameTooltip objects
-function ttif:HookTips(resolveGlobalNamedObjects)
-	self:ApplyHooksToTips(tipsToModify, resolveGlobalNamedObjects);
+function ttif:HookTips()
+	self:ApplyHooksToTips(tipsToModify, true);
 end
 
 -- AddOn Loaded

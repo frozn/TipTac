@@ -537,23 +537,25 @@ local function ResolveGlobalNamedObjects(tipTable)
 	local resolved = {};
 	for index, tipName in ipairs(tipTable) do
 		-- lookup the global object from this name, assign false if nonexistent, to preserve the table entry
-		local tip = (_G[tipName] or false);
-		-- Check if this object has already been resolved. This can happen for thing like AtlasLoot, which sets AtlasLootTooltip = GameTooltip
-		if (resolved[tip]) then
-			tip = false;
-		elseif (tip) then
-			if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
-				Mixin(tip, BackdropTemplateMixin);
-				if (tip.NineSlice) then
-					Mixin(tip.NineSlice, BackdropTemplateMixin);
-				end
-			end
+		if (type(tipName) == "string") then
+			local tip = (_G[tipName] or false);
 			
-			resolved[tip] = index;
-		end
+			-- Check if this object has already been resolved. This can happen for thing like AtlasLoot, which sets AtlasLootTooltip = GameTooltip
+			if (resolved[tip]) then
+				tip = false;
+			elseif (tip) then
+				if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
+					Mixin(tip, BackdropTemplateMixin);
+					if (tip.NineSlice) then
+						Mixin(tip.NineSlice, BackdropTemplateMixin);
+					end
+				end
+				resolved[tip] = index;
+			end
 
-		-- Assign the resolved object or false back into the table array
-		tipTable[index] = tip;
+			-- Assign the resolved object or false back into the table array
+			tipTable[index] = tip;
+		end
 	end
 end
 
