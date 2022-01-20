@@ -41,4 +41,6 @@ Classic: `\World of Warcraft\_classic_era_\Interface\AddOns`
 
 ## Install with WowUp.io
 
+Go to https://wowup.io/addons/995110  
+-OR-  
 In WowUp, go to `Get Addons->Install From URL` and enter `https://github.com/frozn/TipTac`
