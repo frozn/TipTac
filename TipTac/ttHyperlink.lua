@@ -143,7 +143,7 @@ function ttHyperlink:OnLoad()
 end
 
 function ttHyperlink:OnApplyConfig(cfg)
-	-- ChatFrame Hyperlink Hover -- Az: this may need some more testing, code seems wrong. e.g. why only on first window? Frozn45: completely rewritten.
+	-- ChatFrame Hyperlink Hover -- Az: this may need some more testing, code seems wrong. e.g. why only on first window? -- Frozn45: completely rewritten.
 	if (cfg.enableChatHoverTips) then
 		if (not self.hookedHoverHyperlinks) then
 			for i = 1, NUM_CHAT_WINDOWS do

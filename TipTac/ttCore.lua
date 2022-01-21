@@ -1080,13 +1080,19 @@ local FADE_BLOCK = 2;
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
 	-- Anchor GTT to Mouse -- Az: Initial mouse anchoring is now being done in GTT_SetDefaultAnchor (remove if there are no issues)
+	-- Frozn45: Needed for the following issue:
+	-- 1. Set "Anchors->Frame Tip Type" to "Mouse Anchor"
+	-- 2. Mount a flying mount
+	-- 3. Fly straight ahead with forward key pressed
+	-- 4. Open the world map and navigate to maw
+	-- 5. Hover with mouse over Torghast and see that the tooltip sometimes flicker between "Normal Anchor" and "Mouse Anchor" only during forward movement.
 	self.ttAnchorType, self.ttAnchorPoint = GetAnchorPosition(self);
-	-- if (self.ttAnchorType == "mouse") then
-		-- local gttAnchor = self:GetAnchorType();
-		-- if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
-			-- tt:AnchorFrameToMouse(self);
-		-- end
-	-- end
+	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irstt1 and self ~= irstt2) then
+		local gttAnchor = self:GetAnchorType();
+		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
+			tt:AnchorFrameToMouse(self);
+		end
+	end
 
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)
