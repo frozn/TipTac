@@ -756,7 +756,7 @@ local function SetCurrencyTokenByID_Hook(self, currencyID)
 	end
 end
 
--- HOOK: GameTooltip:SetConduit
+-- HOOK: GameTooltip:SetConduit + GameTooltip:SetEnhancedConduit
 local function SetConduit_Hook(self, conduitID, conduitRank)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local link = C_Soulbinds.GetConduitHyperlink(conduitID, conduitRank);
@@ -1206,6 +1206,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
+					hooksecurefunc(tip, "SetEnhancedConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
 					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
