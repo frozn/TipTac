@@ -5,7 +5,7 @@ WoW AddOn TipTac
 * added fixes for wow patch 9.1.5 (Shadowlands - Chains of Domination)
 * added several enhancements
 
-## The following problems are fixed respectively enhancements were added
+### The following problems are fixed respectively enhancements were added
 
 - lua errors regarding setBackdropColor(), setBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
 - background colors
@@ -36,6 +36,10 @@ WoW AddOn TipTac
 - fixed sometimes flickering tooltip if moving with flying mount
 - classic: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic: added missing styling of auras
+
+### The following problems aren't fixed
+
+- Padding for embedded tooltips and battle pet (ability) tooltips doesn't work. However, this only becomes a problem if a particularly thick border is set.
 
 If there are additional fixes in the future, I update this note accordingly.
 
