@@ -374,10 +374,20 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 		local refString = hyperlink:match("|H([^|]+)|h") or hyperlink;
 		local linkType = refString:match("^[^:]+");
 		-- Call Tip Type Func
-		if (LinkTypeFuncs[linkType]) and (self:NumLines() > 0) then
+		if (LinkTypeFuncs[linkType] or ((linkType == "transmogappearance") and LinkTypeFuncs["item"])) and (self:NumLines() > 0) then
 			tipDataAdded[self] = "hyperlink";
 			if (linkType == "spell") then
 				LinkTypeFuncs.spell(self, nil, refString, (":"):split(refString));
+			elseif (linkType == "transmogappearance") then
+				local _linkType, sourceID = (":"):split(refString);
+				local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
+				if (link) then
+					local __linkType, itemID = link:match("H?(%a+):(%d+)");
+					if (itemID) then
+						tipDataAdded[gtt] = __linkType;
+						LinkTypeFuncs.item(gtt, link, __linkType, itemID);
+					end
+				end
 			else
 				LinkTypeFuncs[linkType](self, refString, (":"):split(refString));
 			end
@@ -1093,6 +1103,17 @@ local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
 	end
 end
 
+-- HOOK: WardrobeCollectionFrame.SetsTransmogFrame.Models:OnEnter, see WardrobeSetsTransmogModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+local function WCFSTFM_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local setID = self.setID;
+		if (setID) then
+			tipDataAdded[gtt] = "transmogset";
+			LinkTypeFuncs.transmogset(gtt, nil, "transmogset", setID);
+		end
+	end
+end
+
 -- HOOK: AchievementFrameMiniAchievement:OnEnter, see AchievementShield_OnEnter() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
 local function ABMA_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -1357,16 +1378,38 @@ function ttif:ADDON_LOADED(event, addOnName)
 		self:OnApplyConfig();
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook);
+		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items
 
-		local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame;
+		local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame; -- for illusions
 		for i = 1, itemsCollectionFrame.PAGE_SIZE do
 			local model = itemsCollectionFrame.Models[i];
 			model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
 		end
+
+		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- for illusions at transmogrifier
+			if (C_Transmog.IsAtTransmogNPC()) and (gtt:IsShown()) then
+				local itemsCollectionFrame = self;
+				for i = 1, itemsCollectionFrame.PAGE_SIZE do
+					local model = itemsCollectionFrame.Models[i];
+					local gttOwner = gtt:GetOwner();
+					
+					if (gttOwner == model) then
+						WCFICFM_OnEnter_Hook(gttOwner);
+						break;
+					end
+				end
+			end
+		end);
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
 		hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook);
+
+		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsTransmogFrame, see WardrobeSetsTransmogMixin:UpdateSets() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+		local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame;
+		for i = 1, setsTransmogFrame.PAGE_SIZE do
+			local model = setsTransmogFrame.Models[i];
+			model:HookScript("OnEnter", WCFSTFM_OnEnter_Hook);
+		end
 	-- now CommunitiesGuildNewsFrame exists
 	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities"))) then
 		hooksecurefunc("CommunitiesGuildNewsButton_OnEnter", GNB_OnEnter_Hook);
@@ -2121,30 +2164,6 @@ function LinkTypeFuncs:battlePetAbil(link, linkType, abilityID, speciesID, petID
 	end
 end
 
--- transmog illusion
-function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
-	local illusionInfo = C_TransmogCollection.GetIllusionInfo(illusionID);
-	
-	-- Icon
-	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
-		self:ttSetIconTextureAndText(illusionInfo.icon);
-	end
-
-	-- IllusionID
-	if (cfg.if_showTransmogIllusionId) then
-		self:AddLine(format("IllusionID: %d", illusionID), unpack(cfg.if_infoColor));
-		self:Show();	-- call Show() to resize tip after adding lines. only necessary for dress up frame.
-	end
-
-  	-- Colored Border
-	if (cfg.if_transmogIllusionColoredBorder) then
-		local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
-		local illusionColor = hyperlink:match("|c(%x+)");
-		local illusionColorMixin = CreateColorFromHexString(illusionColor);
-		ttif:SetBackdropBorderColorLocked(self, true, illusionColorMixin:GetRGBA());
-	end
-end
-
 -- conduit -- Thanks to hobulian for code example
 function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	-- Icon
@@ -2190,6 +2209,79 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	end
 end
 
+-- transmog illusion
+function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
+	local illusionInfo = C_TransmogCollection.GetIllusionInfo(illusionID);
+	
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
+		self:ttSetIconTextureAndText(illusionInfo.icon);
+	end
+
+	-- IllusionID
+	if (cfg.if_showTransmogIllusionId) then
+		self:AddLine(format("IllusionID: %d", illusionID), unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines. only necessary for dress up frame.
+	end
+
+  	-- Colored Border
+	if (cfg.if_transmogIllusionColoredBorder) then
+		local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
+		local illusionColor = hyperlink:match("|c(%x+)");
+		local illusionColorMixin = CreateColorFromHexString(illusionColor);
+		ttif:SetBackdropBorderColorLocked(self, true, illusionColorMixin:GetRGBA());
+	end
+end
+
+-- transmog set (see WardrobeSetsTransmogModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua")
+function LinkTypeFuncs:transmogset(link, linkType, setID)
+	local totalQuality = 0;
+	local numTotalSlots = 0;
+	local waitingOnQuality = false;
+	local sourceQualityTable = {};
+	local primaryAppearances = C_TransmogSets.GetSetPrimaryAppearances(setID);
+	
+	for i, primaryAppearance in pairs(primaryAppearances) do
+		numTotalSlots = numTotalSlots + 1;
+		local sourceID = primaryAppearance.appearanceID;
+		if (sourceQualityTable[sourceID]) then
+			totalQuality = totalQuality + sourceQualityTable[sourceID];
+		else
+			local sourceInfo = C_TransmogCollection.GetSourceInfo(sourceID);
+			if (sourceInfo and sourceInfo.quality) then
+				sourceQualityTable[sourceID] = sourceInfo.quality;
+				totalQuality = totalQuality + sourceInfo.quality;
+			else
+				waitingOnQuality = true;
+			end
+		end
+	end
+	
+	if (waitingOnQuality) then
+		tipDataAdded[self] = nil;
+		return;
+	end
+	
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
+		local SetsDataProvider = CreateFromMixins(WardrobeSetsDataProviderMixin);
+		local icon = SetsDataProvider:GetIconForSet(setID);
+		self:ttSetIconTextureAndText(icon);
+	end
+
+	-- SetID
+	if (cfg.if_showItemId) then
+		self:AddLine(format("SetID: %d", setID), unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+  	-- Quality Border
+	if (cfg.if_itemQualityBorder) then
+		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
+		local setColor = CreateColorFromHexString(select(4, GetItemQualityColor(setQuality)));
+		ttif:SetBackdropBorderColorLocked(self, true, setColor:GetRGBA());
+	end
+end
 --------------------------------------------------------------------------------------------------------
 --                                      Tip CustomType Functions                                      --
 --------------------------------------------------------------------------------------------------------

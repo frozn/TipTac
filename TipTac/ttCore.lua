@@ -1308,6 +1308,13 @@ local function QPM_OnMouseEnter(self)
 	tt:ReApplyAnchorTypeForMouse(gtt);
 end
 
+-- HOOK: WardrobeCollectionFrame.ItemsCollectionFrame:UpdateItems(), see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+local function WCFICF_UpdateItems_Hook(self)
+	if (C_Transmog.IsAtTransmogNPC()) and (gtt:IsShown()) then
+		tt:ReApplyAnchorTypeForMouse(gtt);
+	end
+end
+
 --------------------------------------------------------------------------------------------------------
 --                      BattlePetTooltip / EncounterJournalTooltip Script Hooks                       --
 --------------------------------------------------------------------------------------------------------
@@ -1528,9 +1535,9 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					-- Post-Hook SharedTooltip_SetBackdropStyle() to reapply backdrop (e.g. needed for OnTooltipSetItem() or AreaPOIPinMixin:OnMouseEnter() on world map (e.g. Torghast) or VignettePin on world map (e.g. weekly event in Maw))
 					hooksecurefunc("SharedTooltip_SetBackdropStyle", STT_SetBackdropStyle);
 					
-					-- Post-Hook QuestPinMixin:OnMouseEnter() to re-anchor tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor"
+					-- Post-Hook QuestPinMixin:OnMouseEnter() to re-anchor tooltip (e.g. quests on world map with numeric banner) if "Anchors->Frame Tip Type" = "Mouse Anchor"
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter);
-
+					
 					-- Post-Hook TaskPOI_OnEnter() to reapply padding if modified
 					-- commented out for embedded tooltips, see description in tt:SetPadding()
 					-- hooksecurefunc("TaskPOI_OnEnter", function(self)
@@ -1632,9 +1639,12 @@ function tt:ADDON_LOADED(event, addOnName)
 		}, true, true);
 
 		self:ApplySettings();
+
+		-- Post-Hook WardrobeCollectionFrame.ItemsCollectionFrame:UpdateItems() to re-anchor tooltip at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor", see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", WCFICF_UpdateItems_Hook);
 	-- now CommunitiesGuildNewsFrame exists
 	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities"))) then
-		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame
+		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame to apply class colors
 		tt:ApplyHooksToCFMLLSF();
 		
 		hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
