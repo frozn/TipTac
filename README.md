@@ -33,7 +33,7 @@ WoW AddOn TipTac
 - added icons to item comparison tooltips (ShoppingTooltip1/ShoppingTooltip2 and ItemRefShoppingTooltip1/ItemRefShoppingTooltip2)
 - fixed fading issues with tooltip
 - fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
-- fixed sometimes flickering tooltip if moving with flying mount
+- fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
 - classic: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic: added missing styling of auras
 
