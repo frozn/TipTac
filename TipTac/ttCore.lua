@@ -1303,6 +1303,11 @@ local function GTT_SetUnitAura(self)
 	tt:ReApplyAnchorTypeForMouse(self);
 end
 
+-- HOOK: GameTooltip:SetToyByItemID()
+local function GTT_SetToyByItemID(self)
+	tt:ReApplyAnchorTypeForMouse(self);
+end
+
 -- HOOK: QuestPinMixin:OnMouseEnter()
 local function QPM_OnMouseEnter(self)
 	tt:ReApplyAnchorTypeForMouse(gtt);
@@ -1311,6 +1316,13 @@ end
 -- HOOK: WardrobeCollectionFrame.ItemsCollectionFrame:UpdateItems(), see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 local function WCFICF_UpdateItems_Hook(self)
 	if (C_Transmog.IsAtTransmogNPC()) and (gtt:IsShown()) then
+		tt:ReApplyAnchorTypeForMouse(gtt);
+	end
+end
+
+-- HOOK: RuneforgePowerBaseMixin:OnEnter(), see in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+local function RPBM_OnEnter_Hook(self)
+	if (gtt:IsShown()) then
 		tt:ReApplyAnchorTypeForMouse(gtt);
 	end
 end
@@ -1528,6 +1540,9 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 				hooksecurefunc(tip, "SetUnitBuff", GTT_SetUnitAura);
 				hooksecurefunc(tip, "SetUnitDebuff", GTT_SetUnitAura);
 				
+				-- Post-Hook GameTooltip:SetToyByItemID() to prevent flickering of tooltips if scrolling over toys from last page to previous page if "Anchors->Frame Tip Type" = "Mouse Anchor"
+				hooksecurefunc(tip, "SetToyByItemID", GTT_SetToyByItemID);
+				
 				if (tipName == "GameTooltip") then
 					-- Replace GameTooltip_SetDefaultAnchor() (For Re-Anchoring) -- Patch 3.2 made this function secure
 					hooksecurefunc("GameTooltip_SetDefaultAnchor", GTT_SetDefaultAnchor);
@@ -1556,6 +1571,9 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					-- added helper function for embedded tooltips, see description in tt:SetPadding()
 					if (isWoWRetail) then
 						hooksecurefunc("QuestUtils_AddQuestRewardsToTooltip", QU_AddQuestRewardsToTooltip);
+						
+						-- Post-Hook RuneforgePowerBaseMixin:OnEnter() to re-anchor tooltip in adventure journal if "Anchors->Frame Tip Type" = "Mouse Anchor" and scrolling up and down, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 					end
 				end
 				tipHooked = true;
@@ -1640,7 +1658,7 @@ function tt:ADDON_LOADED(event, addOnName)
 
 		self:ApplySettings();
 
-		-- Post-Hook WardrobeCollectionFrame.ItemsCollectionFrame:UpdateItems() to re-anchor tooltip at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor", see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+		-- Post-Hook WardrobeCollectionFrame.ItemsCollectionFrame:UpdateItems() to re-anchor tooltip at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor" and selecting items, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", WCFICF_UpdateItems_Hook);
 	-- now CommunitiesGuildNewsFrame exists
 	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities"))) then

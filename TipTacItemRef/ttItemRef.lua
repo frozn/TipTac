@@ -268,14 +268,30 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
 	local tooltip = self;
 	local owner = self:GetOwner();
 	
+	-- remove previous hooks if different id
+	if (owner.ttWorkaroundForFirstMouseoverStatus) and (owner.ttWorkaroundForFirstMouseoverID ~= id) then
+		if (owner.ttWorkaroundForFirstMouseoverStatus == 1) then
+			AceHook:Unhook(tooltip, "OnTooltipCleared");
+			AceHook:Unhook(owner, "OnLeave");
+		elseif (owner.ttWorkaroundForFirstMouseoverStatus == 2) then
+			AceHook:Unhook(tooltip, "OnUpdate");
+			AceHook:Unhook(owner, "OnLeave");
+		elseif (owner.ttWorkaroundForFirstMouseoverStatus == 3) then
+			AceHook:Unhook(owner, "OnLeave");
+		end
+		owner.ttWorkaroundForFirstMouseoverStatus = nil;
+		owner.ttWorkaroundForFirstMouseoverID = nil;
+	end
+	
+	-- apply hooks
 	if (not owner.ttWorkaroundForFirstMouseoverStatus) then
 		AceHook:HookScript(tooltip, "OnTooltipCleared", function(self)
 			AceHook:HookScript(tooltip, "OnUpdate", function(self)
 				tipDataAdded[self] = linkType;
 				if (linkType == "spell") then
-					LinkTypeFuncs.spell(self, source, link, linkType, id);
+					LinkTypeFuncs.spell(self, source, link, linkType, owner.ttWorkaroundForFirstMouseoverID);
 				else
-					LinkTypeFuncs.item(self, link, linkType, id);
+					LinkTypeFuncs.item(self, link, linkType, owner.ttWorkaroundForFirstMouseoverID);
 				end
 				AceHook:Unhook(tooltip, "OnUpdate");
 				owner.ttWorkaroundForFirstMouseoverStatus = 3;
@@ -291,8 +307,10 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
 			end
 			AceHook:Unhook(self, "OnLeave");
 			self.ttWorkaroundForFirstMouseoverStatus = nil;
+			self.ttWorkaroundForFirstMouseoverID = nil;
 		end);
 		owner.ttWorkaroundForFirstMouseoverStatus = 1;
+		owner.ttWorkaroundForFirstMouseoverID = id;
 	else
 		if (owner.ttWorkaroundForFirstMouseoverStatus == 1) then
 			AceHook:Unhook(tooltip, "OnTooltipCleared");
@@ -1103,8 +1121,8 @@ local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
 	end
 end
 
--- HOOK: WardrobeCollectionFrame.SetsTransmogFrame.Models:OnEnter, see WardrobeSetsTransmogModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-local function WCFSTFM_OnEnter_Hook(self)
+-- HOOK: WardrobeCollectionFrame.SetsTransmogFrame.Models:RefreshTooltip, see WardrobeSetsTransmogModelMixin:RefreshTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+local function WCFSTFM_RefreshTooltip_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
 		local setID = self.setID;
 		if (setID) then
@@ -1378,7 +1396,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 		self:OnApplyConfig();
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items
+		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items (incl. reapply for tabbing through items with same visualID)
 
 		local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame; -- for illusions
 		for i = 1, itemsCollectionFrame.PAGE_SIZE do
@@ -1386,8 +1404,8 @@ function ttif:ADDON_LOADED(event, addOnName)
 			model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
 		end
 
-		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- for illusions at transmogrifier
-			if (C_Transmog.IsAtTransmogNPC()) and (gtt:IsShown()) then
+		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- reapply if selecting or scrolling
+			if (gtt:IsShown()) then
 				local itemsCollectionFrame = self;
 				for i = 1, itemsCollectionFrame.PAGE_SIZE do
 					local model = itemsCollectionFrame.Models[i];
@@ -1402,13 +1420,13 @@ function ttif:ADDON_LOADED(event, addOnName)
 		end);
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
-		hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook);
+		hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
 
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsTransmogFrame, see WardrobeSetsTransmogMixin:UpdateSets() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame;
+		local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
 		for i = 1, setsTransmogFrame.PAGE_SIZE do
 			local model = setsTransmogFrame.Models[i];
-			model:HookScript("OnEnter", WCFSTFM_OnEnter_Hook);
+			hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
 		end
 	-- now CommunitiesGuildNewsFrame exists
 	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities"))) then
