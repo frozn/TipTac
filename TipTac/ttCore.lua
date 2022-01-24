@@ -6,6 +6,7 @@ local GetMouseFocus = GetMouseFocus;
 local gtt = GameTooltip;
 local stt1 = ShoppingTooltip1;
 local stt2 = ShoppingTooltip2;
+local irtt = ItemRefTooltip;
 local irstt1 = ItemRefShoppingTooltip1;
 local irstt2 = ItemRefShoppingTooltip2;
 local bptt = BattlePetTooltip;
@@ -881,7 +882,7 @@ function tt:ReApplyAnchorTypeForMouse(frame)
 	-- This prevents wrong initial positioning of item tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor" e.g. on opening character frame and mouse is already over the position of an appearing item.
 	frame.ttAnchorType, frame.ttAnchorPoint = GetAnchorPosition(frame);
 	
-	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (frame ~= stt1 and frame ~= stt2 and frame ~= irstt1 and frame ~= irstt2) then
+	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (frame ~= stt1 and frame ~= stt2 and frame ~= irtt and frame ~= irstt1 and frame ~= irstt2) then
 		local gttAnchor = frame:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_NONE") then
 			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
@@ -1087,7 +1088,7 @@ function gttScriptHooks:OnShow()
 	-- 4. Open the world map and navigate to maw
 	-- 5. Hover with mouse over Torghast and see that the tooltip sometimes flicker between "Normal Anchor" and "Mouse Anchor" only during forward movement.
 	self.ttAnchorType, self.ttAnchorPoint = GetAnchorPosition(self);
-	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irstt1 and self ~= irstt2) then
+	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irtt and self ~= irstt1 and self ~= irstt2) then
 		local gttAnchor = self:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
 			tt:AnchorFrameToMouse(self);
@@ -1111,7 +1112,7 @@ function gttScriptHooks:OnUpdate(elapsed)
 		-- return;
 	-- else
 	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
-	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irstt1 and self ~= irstt2) then
+	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irtt and self ~= irstt1 and self ~= irstt2) then
 		local gttAnchor = self:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
 			tt:AnchorFrameToMouse(self);
@@ -1540,7 +1541,7 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 				hooksecurefunc(tip, "SetUnitBuff", GTT_SetUnitAura);
 				hooksecurefunc(tip, "SetUnitDebuff", GTT_SetUnitAura);
 				
-				-- Post-Hook GameTooltip:SetToyByItemID() to prevent flickering of tooltips if scrolling over toys from last page to previous page if "Anchors->Frame Tip Type" = "Mouse Anchor"
+				-- Post-Hook GameTooltip:SetToyByItemID() to prevent flickering of tooltips if scrolling over toys from last page to previous page and "Anchors->Frame Tip Type" = "Mouse Anchor"
 				hooksecurefunc(tip, "SetToyByItemID", GTT_SetToyByItemID);
 				
 				if (tipName == "GameTooltip") then
