@@ -78,6 +78,8 @@ local cfg = {
 	if_conduitQualityBorder = true,
 	if_showConduitItemLevel = false,
 	if_showConduitId = false,
+	if_azeriteEssenceQualityBorder = true,
+	if_showAzeriteEssenceId = false,
 	if_runeforgePowerColoredBorder = true,
 	if_showRuneforgePowerId = false,
 	if_flyoutColoredBorder = true,
@@ -801,6 +803,20 @@ local function SetConduit_Hook(self, conduitID, conduitRank)
 	end
 end
 
+-- HOOK: GameTooltip:SetAzeriteEssence
+local function SetAzeriteEssence_Hook(self, essenceID, essenceRank)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
+		if (link) then
+			local linkType, _essenceID, _essenceRank = link:match("H?(%a+):(%d+):(%d+)");
+			if (_essenceID) then
+				tipDataAdded[self] = linkType;
+				LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
+			end
+		end
+	end
+end
+
 -- HOOK: BattlePetToolTip_Show
 local function BPTT_Show_Hook(speciesID, level, breedQuality, maxHealth, power, speed, customName)
 	if (cfg.if_enable) and (not tipDataAdded[bptt]) and (bptt:IsShown()) then
@@ -1254,6 +1270,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetEnhancedConduit", SetConduit_Hook);
+					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
 					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
@@ -1608,6 +1625,11 @@ local function SmartIconEvaluation(tip,linkType)
 	-- Pet action
 	elseif (linkType == "petAction") then
 		if (owner.icon) then
+			return false;
+		end
+	-- Azerite essence
+	elseif (linkType == "azessence") then
+		if (owner.Icon) then
 			return false;
 		end
 	end
@@ -2381,6 +2403,28 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
 		local setColor = CreateColorFromHexString(select(4, GetItemQualityColor(setQuality)));
 		ttif:SetBackdropBorderColorLocked(self, true, setColor:GetRGBA());
+	end
+end
+
+-- azerite essence
+function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
+	local essenceInfo = C_AzeriteEssence.GetEssenceInfo(essenceID);
+	
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
+		self:ttSetIconTextureAndText(essenceInfo.icon);
+	end
+
+	-- EssenceID
+	if (cfg.if_showAzeriteEssenceId) then
+		self:AddLine(format("EssenceID: %d", essenceID), unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines.
+	end
+
+  	-- Quality Border
+	if (cfg.if_azeriteEssenceQualityBorder) then
+		local essenceColor = CreateColorFromHexString(select(4, GetItemQualityColor(essenceRank + 1)));
+		ttif:SetBackdropBorderColorLocked(self, true, essenceColor:GetRGBA());
 	end
 end
 
