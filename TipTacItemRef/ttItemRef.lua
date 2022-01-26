@@ -269,7 +269,7 @@ end
 -- 1   = hooks GameTooltip:OnTooltipCleared and Button:OnLeave set
 -- 2   = hooks GameTooltip:OnUpdate and Button:OnLeave set
 -- 3   = no hooks set respectively not needed any more
-function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
+function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id, rank)
 	local tooltip = self;
 	local owner = self:GetOwner();
 	
@@ -286,6 +286,7 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
 		end
 		owner.ttWorkaroundForFirstMouseoverStatus = nil;
 		owner.ttWorkaroundForFirstMouseoverID = nil;
+		owner.ttWorkaroundForFirstMouseoverRank = nil;
 	end
 	
 	-- apply hooks
@@ -295,6 +296,8 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
 				tipDataAdded[self] = linkType;
 				if (linkType == "spell") then
 					LinkTypeFuncs.spell(self, source, link, linkType, owner.ttWorkaroundForFirstMouseoverID);
+				elseif (linkType == "azessence") then
+					LinkTypeFuncs.azessence(self, link, linkType, owner.ttWorkaroundForFirstMouseoverID, owner.ttWorkaroundForFirstMouseoverRank);
 				else
 					LinkTypeFuncs.item(self, link, linkType, owner.ttWorkaroundForFirstMouseoverID);
 				end
@@ -313,9 +316,11 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id)
 			AceHook:Unhook(self, "OnLeave");
 			self.ttWorkaroundForFirstMouseoverStatus = nil;
 			self.ttWorkaroundForFirstMouseoverID = nil;
+			self.ttWorkaroundForFirstMouseoverRank = nil;
 		end);
 		owner.ttWorkaroundForFirstMouseoverStatus = 1;
 		owner.ttWorkaroundForFirstMouseoverID = id;
+		owner.ttWorkaroundForFirstMouseoverRank = rank;
 	else
 		if (owner.ttWorkaroundForFirstMouseoverStatus == 1) then
 			AceHook:Unhook(tooltip, "OnTooltipCleared");
@@ -407,8 +412,21 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 				if (link) then
 					local __linkType, itemID = link:match("H?(%a+):(%d+)");
 					if (itemID) then
-						tipDataAdded[gtt] = __linkType;
-						LinkTypeFuncs.item(gtt, link, __linkType, itemID);
+						tipDataAdded[self] = __linkType;
+						LinkTypeFuncs.item(self, link, __linkType, itemID);
+					end
+				end
+			elseif (linkType == "azessence") then
+				local _linkType, essenceID, essenceRank = (":"):split(refString);
+				local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
+				if (link) then
+					local linkType, _essenceID, _essenceRank = link:match("H?(%a+):(%d+):(%d+)");
+					if (_essenceID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
+
+						-- apply workaround for first mouseover
+						ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, _essenceID, _essenceRank);
 					end
 				end
 			else
@@ -812,6 +830,9 @@ local function SetAzeriteEssence_Hook(self, essenceID, essenceRank)
 			if (_essenceID) then
 				tipDataAdded[self] = linkType;
 				LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
+
+				-- apply workaround for first mouseover
+				ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, _essenceID, _essenceRank);
 			end
 		end
 	end

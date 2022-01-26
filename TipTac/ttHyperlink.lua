@@ -31,6 +31,7 @@ local supportedHyperLinks = {
 	transmogset = true,
 	conduit = true,
 	currency = true,
+	azessence = true,
 	mawpower = true,
 	dungeonScore = true,
 	keystone = true,
