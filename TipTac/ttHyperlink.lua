@@ -32,6 +32,8 @@ local supportedHyperLinks = {
 	conduit = true,
 	currency = true,
 	mawpower = true,
+	dungeonScore = true,
+	keystone = true,
 };
 
 local addOnsLoaded = {
@@ -176,6 +178,79 @@ local function OnHyperlinkEnter(self, refString, text)
 			if (TipTacItemRef) then
 				TipTacItemRef:SetHyperlink_Hook(gtt, refString);
 			end
+		elseif (linkToken == "dungeonScore") then -- GetDungeonScoreLink() + DisplayDungeonScoreLink() in "ItemRef.lua"
+			local splits = StringSplitIntoTable(":", refString);
+			
+			--Bad Link, Return.
+			if (not splits) then
+				return;
+			end
+			
+			local dungeonScore = tonumber(splits[2]);
+			local playerName = splits[4];
+			local playerClass = splits[5];
+			local playerItemLevel = tonumber(splits[6]);
+			local playerLevel = tonumber(splits[7]);
+			local className, classFileName = GetClassInfo(playerClass);
+			local classColor = C_ClassColor.GetClassColor(classFileName);
+			local runsThisSeason = tonumber(splits[8]);
+			
+			--Bad Link..
+			if (not playerName or not playerClass or not playerItemLevel or not playerLevel) then
+				return;
+			end
+			
+			--Bad Link..
+			if (not className or not classFileName or not classColor) then
+				return;
+			end
+			
+			GameTooltip_SetTitle(gtt, classColor:WrapTextInColorCode(playerName));
+			GameTooltip_AddColoredLine(gtt, DUNGEON_SCORE_LINK_LEVEL_CLASS_FORMAT_STRING:format(playerLevel, className), HIGHLIGHT_FONT_COLOR);
+			GameTooltip_AddNormalLine(gtt, DUNGEON_SCORE_LINK_ITEM_LEVEL:format(playerItemLevel));
+			
+			local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore);
+			if (not color) then
+				color = HIGHLIGHT_FONT_COLOR;
+			end
+			
+			GameTooltip_AddNormalLine(gtt, DUNGEON_SCORE_LINK_RATING:format(color:WrapTextInColorCode(dungeonScore)));
+			GameTooltip_AddNormalLine(gtt, DUNGEON_SCORE_LINK_RUNS_SEASON:format(runsThisSeason));
+			GameTooltip_AddBlankLineToTooltip(gtt);
+			
+			local sortTable = { };
+			local DUNGEON_SCORE_LINK_INDEX_START = 9;
+			local DUNGEON_SCORE_LINK_ITERATE = 3;
+			for i = DUNGEON_SCORE_LINK_INDEX_START, (#splits), DUNGEON_SCORE_LINK_ITERATE do
+				local mapChallengeModeID = tonumber(splits[i]);
+				local completedInTime = tonumber(splits[i + 1]);
+				local level = tonumber(splits[i + 2]);
+				
+				local mapName = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID);
+				
+				--If any of the maps don't exist.. this is a bad link
+				if (not mapName) then
+					return;
+				end
+				
+				table.insert(sortTable, { mapName = mapName, completedInTime = completedInTime, level = level });
+			end
+			
+			-- Sort Alphabetically.
+			table.sort(sortTable, function(a, b) strcmputf8i(a.mapName, b.mapName); end);
+			
+			for i = 1, #sortTable do
+				local textColor = sortTable[i].completedInTime and HIGHLIGHT_FONT_COLOR or GRAY_FONT_COLOR;
+				GameTooltip_AddColoredDoubleLine(gtt, DUNGEON_SCORE_LINK_TEXT1:format(sortTable[i].mapName), (sortTable[i].level > 0 and  DUNGEON_SCORE_LINK_TEXT2:format(sortTable[i].level) or DUNGEON_SCORE_LINK_NO_SCORE), NORMAL_FONT_COLOR, textColor);
+			end
+			
+			-- Backdrop Border Color: By Class
+			if (cfg.classColoredBorder) then
+				tt:SetBackdropBorderColorLocked(gtt, true, classColor.r, classColor.g, classColor.b);
+			end
+			
+			showingTooltip = gtt;
+			gtt:Show();
 		else
 			showingTooltip = gtt;
 			gtt:SetHyperlink(refString);

@@ -179,6 +179,9 @@ local TT_DefaultConfig = {
 	if_itemQualityBorder = true,
 	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
 	if_showItemId = false,
+	if_showKeystoneRewardLevel = true,
+	if_showKeystoneTimeLimit = true,
+	if_showKeystoneAffixInfo = true,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
 	if_showMawPowerId = false,
@@ -237,6 +240,14 @@ local TT_TipsToModify = {
 	"PlaterNamePlateAuraTooltip",
 };
 tt.tipsToModify = TT_TipsToModify;
+
+local TT_NoReApplyAnchorFor = {
+	[stt1] = true,
+	[stt2] = true,
+	[irtt] = true,
+	[irstt1] = true,
+	[irstt2] = true
+};
 
 local TT_AddOnsLoaded = {
 	["TipTac"] = false,
@@ -882,7 +893,7 @@ function tt:ReApplyAnchorTypeForMouse(frame)
 	-- This prevents wrong initial positioning of item tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor" e.g. on opening character frame and mouse is already over the position of an appearing item.
 	frame.ttAnchorType, frame.ttAnchorPoint = GetAnchorPosition(frame);
 	
-	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (frame ~= stt1 and frame ~= stt2 and frame ~= irtt and frame ~= irstt1 and frame ~= irstt2) then
+	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[frame]) then
 		local gttAnchor = frame:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_NONE") then
 			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
@@ -1056,6 +1067,24 @@ local function CFMLLSFB_OnEnter_Hook(self)
 	end
 end
 
+-- HOOK: DisplayDungeonScoreLink, see "ItemRef.lua"
+local function IRTT_DisplayDungeonScoreLink(link)
+	if (cfg.classColoredBorder) and (irtt:IsShown()) then
+		local splits = StringSplitIntoTable(":", link);
+		
+		--Bad Link, Return.
+		if (not splits) then
+			return;
+		end
+		
+		local playerClass = splits[5];
+		local className, classFileName = GetClassInfo(playerClass);
+		local classColor = C_ClassColor.GetClassColor(classFileName);
+
+		tt:SetBackdropBorderColorLocked(irtt, true, classColor.r, classColor.g, classColor.b);
+	end
+end
+
 --------------------------------------------------------------------------------------------------------
 --                                      GameTooltip Script Hooks                                      --
 --------------------------------------------------------------------------------------------------------
@@ -1088,7 +1117,7 @@ function gttScriptHooks:OnShow()
 	-- 4. Open the world map and navigate to maw
 	-- 5. Hover with mouse over Torghast and see that the tooltip sometimes flicker between "Normal Anchor" and "Mouse Anchor" only during forward movement.
 	self.ttAnchorType, self.ttAnchorPoint = GetAnchorPosition(self);
-	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irtt and self ~= irstt1 and self ~= irstt2) then
+	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[self]) then
 		local gttAnchor = self:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
 			tt:AnchorFrameToMouse(self);
@@ -1112,7 +1141,7 @@ function gttScriptHooks:OnUpdate(elapsed)
 		-- return;
 	-- else
 	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
-	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (self ~= stt1 and self ~= stt2 and self ~= irtt and self ~= irstt1 and self ~= irstt2) then
+	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[self]) then
 		local gttAnchor = self:GetAnchorType();
 		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
 			tt:AnchorFrameToMouse(self);
@@ -1576,6 +1605,9 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						-- Post-Hook RuneforgePowerBaseMixin:OnEnter() to re-anchor tooltip in adventure journal if "Anchors->Frame Tip Type" = "Mouse Anchor" and scrolling up and down, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 					end
+				elseif (tipName == "ItemRefTooltip") then
+					-- Post-Hook DisplayDungeonScoreLink() to apply class colors
+					hooksecurefunc("DisplayDungeonScoreLink", IRTT_DisplayDungeonScoreLink);
 				end
 				tipHooked = true;
 			else

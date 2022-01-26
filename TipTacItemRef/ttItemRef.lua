@@ -53,6 +53,9 @@ local cfg = {
 	if_itemQualityBorder = true,
 	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
 	if_showItemId = false,
+	if_showKeystoneRewardLevel = true,
+	if_showKeystoneTimeLimit = true,
+	if_showKeystoneAffixInfo = true,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
 	if_showMawPowerId = false,
@@ -580,7 +583,7 @@ end
 local function SetQuestItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
-		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
 		if (itemLink) then
 			local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
 			if (_itemID) then
@@ -605,7 +608,7 @@ local function SetQuestLogItem_Hook(self, _type, index)
 			itemID = _itemID;
 			numItems = _numItems;
 		end
-		local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
+		local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
 		if (itemLink) then
 			local linkType, __itemID = itemLink:match("H?(%a+):(%d+)");
 			if (__itemID) then
@@ -695,7 +698,7 @@ local function SetLFGDungeonReward_Hook(self, dungeonID, rewardIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonRewardInfo(dungeonID, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
 		if (rewardType == "item") then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(rewardID);
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(rewardID);
 			if (itemLink) then
 				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
 				if (itemID) then
@@ -721,7 +724,7 @@ local function SetLFGDungeonShortageReward_Hook(self, dungeonID, rewardArg, rewa
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonShortageRewardInfo(dungeonID, rewardArg, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
 		if (rewardType == "item") then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(rewardID);
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(rewardID);
 			if (itemLink) then
 				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
 				if (itemID) then
@@ -853,10 +856,15 @@ local function OnTooltipSetItem(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local _, link = self:GetItem();
 		if (link) then
-			local linkType, itemID = link:match("H?(%a+):(%d+)");
-			if (itemID) then
+			local linkType, id = link:match("H?(%a+):(%d+)");
+			if (id) then
 				tipDataAdded[self] = linkType;
-				LinkTypeFuncs.item(self, link, linkType, itemID);
+				if (linkType == "keystone") then
+					local refString = link:match("|H([^|]+)|h") or link;
+					LinkTypeFuncs.keystone(self, link, (":"):split(refString));
+				else
+					LinkTypeFuncs.item(self, link, linkType, id);
+				end
 			end
 		end
 	end
@@ -951,7 +959,7 @@ local function DUODSM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
 		if (self.item) then -- item
 			local itemID = self.item.itemID;
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID);
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
 			if (itemLink) then
 				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
 				if (_itemID) then
@@ -1645,8 +1653,15 @@ function LinkTypeFuncs:instancelock(link,linkType,guid,mapId,difficulty,encounte
 end
 
 -- item
-function LinkTypeFuncs:item(link,linkType,id)
-	local _, _, itemRarity, itemLevel, _, _, _, itemStackCount, _, itemTexture = GetItemInfo(link);
+function LinkTypeFuncs:item(link, linkType, id)
+	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(link);
+	if (classID == 5) and (subClassID == 1) then -- keystone
+		local splits = StringSplitIntoTable(":", link);
+		local mapID = splits[17];
+		local keystoneLevel = splits[19];
+		LinkTypeFuncs.keystone(self, link, linkType, id, mapID, keystoneLevel, select(21, unpack(splits))); -- modifierID1, modifierID2, modifierID3, modifierID4
+		return;
+	end
 	itemLevel = LibItemString:GetTrueItemLevel(link);
 
 	-- Icon
@@ -1742,6 +1757,74 @@ function LinkTypeFuncs:item(link,linkType,id)
 			targetTooltip:AddLine(format("ItemLevel: %d",itemLevel),unpack(cfg.if_infoColor));
 		end
 		targetTooltip:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
+	end
+end
+
+-- keystone
+local getRewardLevelInitialized = false;
+
+function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ...) -- modifierID1, modifierID2, modifierID3, modifierID4
+	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+	itemLevel = LibItemString:GetTrueItemLevel(link);
+
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
+		self:ttSetIconTextureAndText(itemTexture,count);
+	end
+
+	-- Quality Border
+	if (cfg.if_itemQualityBorder) then
+		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
+		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
+	end
+
+	-- RewardLevel + WeeklyRewardLevel + ItemID
+	if (not getRewardLevelInitialized) then -- makes shure that C_MythicPlus.GetRewardLevelForDifficultyLevel() returns values
+		C_MythicPlus.RequestMapInfo();
+		getRewardLevelInitialized = true;
+	end
+	local weeklyRewardLevel, endOfRunRewardLevel = nil, nil;
+	if (keystoneLevel) then
+		weeklyRewardLevel, endOfRunRewardLevel = C_MythicPlus.GetRewardLevelForDifficultyLevel(keystoneLevel);
+	end
+
+	local showId = (itemID and cfg.if_showItemId);
+	local showRewardLevel = (endOfRunRewardLevel and cfg.if_showKeystoneRewardLevel);
+	local showWeeklyRewardLevel = (weeklyRewardLevel and cfg.if_showKeystoneRewardLevel);
+	local showTimeLimit = (mapID and cfg.if_showKeystoneTimeLimit);
+	local showAffixInfo = cfg.if_showKeystoneAffixInfo;
+	
+	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
+		if (showId) then
+			self:AddLine(format("ItemID: %d", itemID), unpack(cfg.if_infoColor));
+		end
+		if (not showRewardLevel and showWeeklyRewardLevel) then
+			self:AddLine(format("WeeklyRewardLevel: %d", weeklyRewardLevel), unpack(cfg.if_infoColor));
+		elseif (showRewardLevel and showWeeklyRewardLevel) then
+			self:AddLine(format("RewardLevel: %d, WeeklyRewardLevel: %d", endOfRunRewardLevel, weeklyRewardLevel), unpack(cfg.if_infoColor));
+		elseif (showRewardLevel and not showWeeklyRewardLevel) then
+			self:AddLine(format("RewardLevel: %d", endOfRunRewardLevel), unpack(cfg.if_infoColor));
+		end
+		if (showTimeLimit) then
+			local name, id, timeLimit, texture, backgroundTexture = C_ChallengeMode.GetMapUIInfo(mapID);
+			if (timeLimit) then
+				self:AddLine(format("TimeLimit: %s", SecondsToTime(timeLimit, false, true)), unpack(cfg.if_infoColor));
+			end
+		end
+		if (showAffixInfo) then
+			for i = 1, select('#', ...) do
+				local modifierID = select(i, ...);
+				modifierID = tonumber(modifierID);
+				if (modifierID) then
+					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(tonumber(modifierID));
+					if (modifierName and modifierDescription) then
+						self:AddLine(format("[%s] %s", modifierName, modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+					end
+				end
+			end
+		end
+		self:Show();	-- call Show() to resize tip after adding lines
 	end
 end
 
@@ -2300,6 +2383,7 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 		ttif:SetBackdropBorderColorLocked(self, true, setColor:GetRGBA());
 	end
 end
+
 --------------------------------------------------------------------------------------------------------
 --                                      Tip CustomType Functions                                      --
 --------------------------------------------------------------------------------------------------------
