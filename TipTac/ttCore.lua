@@ -1570,8 +1570,10 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 				hooksecurefunc(tip, "SetUnitBuff", GTT_SetUnitAura);
 				hooksecurefunc(tip, "SetUnitDebuff", GTT_SetUnitAura);
 				
-				-- Post-Hook GameTooltip:SetToyByItemID() to prevent flickering of tooltips if scrolling over toys from last page to previous page and "Anchors->Frame Tip Type" = "Mouse Anchor"
-				hooksecurefunc(tip, "SetToyByItemID", GTT_SetToyByItemID);
+				if (isWoWRetail) then
+					-- Post-Hook GameTooltip:SetToyByItemID() to prevent flickering of tooltips if scrolling over toys from last page to previous page and "Anchors->Frame Tip Type" = "Mouse Anchor"
+					hooksecurefunc(tip, "SetToyByItemID", GTT_SetToyByItemID);
+				end
 				
 				if (tipName == "GameTooltip") then
 					-- Replace GameTooltip_SetDefaultAnchor() (For Re-Anchoring) -- Patch 3.2 made this function secure
@@ -1606,8 +1608,10 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 					end
 				elseif (tipName == "ItemRefTooltip") then
-					-- Post-Hook DisplayDungeonScoreLink() to apply class colors
-					hooksecurefunc("DisplayDungeonScoreLink", IRTT_DisplayDungeonScoreLink);
+					if (isWoWRetail) then
+						-- Post-Hook DisplayDungeonScoreLink() to apply class colors
+						hooksecurefunc("DisplayDungeonScoreLink", IRTT_DisplayDungeonScoreLink);
+					end
 				end
 				tipHooked = true;
 			else

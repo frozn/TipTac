@@ -1779,7 +1779,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
 	end
 
-	-- RewardLevel + WeeklyRewardLevel + ItemID
+	-- RewardLevel + WeeklyRewardLevel + ItemID + TimeLimit + AffixInfos
 	if (not getRewardLevelInitialized) then -- makes shure that C_MythicPlus.GetRewardLevelForDifficultyLevel() returns values
 		C_MythicPlus.RequestMapInfo();
 		getRewardLevelInitialized = true;
