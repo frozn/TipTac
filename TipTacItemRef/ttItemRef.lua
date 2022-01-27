@@ -263,7 +263,7 @@ end
 --                                       HOOK: Tooltip Functions                                      --
 --------------------------------------------------------------------------------------------------------
 
--- apply workaround for the following "bug": on first mouseover over toy or unit aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID(), SetAction() or SetUnitAura() (only approx. 0.2-1 second later), but on the next OnUpdate the GetItem() is set again.
+-- apply workaround for the following "bug": on first mouseover over toy or unit aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID(), SetAction(), SetUnitAura() or SetAzeriteEssence() (only approx. 0.2-1 second later), but on the next OnUpdate the GetItem() is set again.
 -- ttWorkaroundForFirstMouseoverStatus:
 -- nil = no hooks set (initial status)
 -- 1   = hooks GameTooltip:OnTooltipCleared and Button:OnLeave set
@@ -271,63 +271,78 @@ end
 -- 3   = no hooks set respectively not needed any more
 function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id, rank)
 	local tooltip = self;
+	
 	local owner = self:GetOwner();
 	
-	-- remove previous hooks if different id
-	if (owner.ttWorkaroundForFirstMouseoverStatus) and (owner.ttWorkaroundForFirstMouseoverID ~= id) then
-		if (owner.ttWorkaroundForFirstMouseoverStatus == 1) then
-			AceHook:Unhook(tooltip, "OnTooltipCleared");
-			AceHook:Unhook(owner, "OnLeave");
-		elseif (owner.ttWorkaroundForFirstMouseoverStatus == 2) then
-			AceHook:Unhook(tooltip, "OnUpdate");
-			AceHook:Unhook(owner, "OnLeave");
-		elseif (owner.ttWorkaroundForFirstMouseoverStatus == 3) then
-			AceHook:Unhook(owner, "OnLeave");
+	-- functions
+	local reapplyTooltipModificationFn = function()
+		tipDataAdded[tooltip] = linkType;
+		if (linkType == "spell") then
+			LinkTypeFuncs.spell(tooltip, source, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
+		elseif (linkType == "azessence") then
+			LinkTypeFuncs.azessence(tooltip, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID, tooltip.ttWorkaroundForFirstMouseoverRank);
+		else
+			LinkTypeFuncs.item(tooltip, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
 		end
-		owner.ttWorkaroundForFirstMouseoverStatus = nil;
-		owner.ttWorkaroundForFirstMouseoverID = nil;
-		owner.ttWorkaroundForFirstMouseoverRank = nil;
+		AceHook:Unhook(tooltip, "OnUpdate");
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 3;
+	end
+	
+	local removeHooksFn = function(resetVars)
+		if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then
+			AceHook:Unhook(tooltip, "OnTooltipCleared");
+			AceHook:Unhook(tooltip, "OnHide");
+			if (owner ~= UIParent) then
+				AceHook:Unhook(owner, "OnLeave");
+			end
+		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 2) then
+			AceHook:Unhook(tooltip, "OnUpdate");
+			AceHook:Unhook(tooltip, "OnHide");
+			if (owner ~= UIParent) then
+				AceHook:Unhook(owner, "OnLeave");
+			end
+		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 3) then
+			AceHook:Unhook(tooltip, "OnHide");
+			if (owner ~= UIParent) then
+				AceHook:Unhook(owner, "OnLeave");
+			end
+		end
+		
+		if (resetVars) then
+			tooltip.ttWorkaroundForFirstMouseoverStatus = nil;
+			tooltip.ttWorkaroundForFirstMouseoverID = nil;
+			tooltip.ttWorkaroundForFirstMouseoverRank = nil;
+		end
+	end
+	
+	-- remove previous hooks if different id
+	if (tooltip.ttWorkaroundForFirstMouseoverStatus) and (tooltip.ttWorkaroundForFirstMouseoverID ~= id) then
+		removeHooksFn(true);
 	end
 	
 	-- apply hooks
-	if (not owner.ttWorkaroundForFirstMouseoverStatus) then
-		AceHook:HookScript(tooltip, "OnTooltipCleared", function(self)
-			AceHook:HookScript(tooltip, "OnUpdate", function(self)
-				tipDataAdded[self] = linkType;
-				if (linkType == "spell") then
-					LinkTypeFuncs.spell(self, source, link, linkType, owner.ttWorkaroundForFirstMouseoverID);
-				elseif (linkType == "azessence") then
-					LinkTypeFuncs.azessence(self, link, linkType, owner.ttWorkaroundForFirstMouseoverID, owner.ttWorkaroundForFirstMouseoverRank);
-				else
-					LinkTypeFuncs.item(self, link, linkType, owner.ttWorkaroundForFirstMouseoverID);
-				end
-				AceHook:Unhook(tooltip, "OnUpdate");
-				owner.ttWorkaroundForFirstMouseoverStatus = 3;
+	if (not tooltip.ttWorkaroundForFirstMouseoverStatus) then
+		AceHook:HookScript(tooltip, "OnTooltipCleared", function()
+			AceHook:HookScript(tooltip, "OnUpdate", function()
+				reapplyTooltipModificationFn();
 			end);
 			AceHook:Unhook(tooltip, "OnTooltipCleared");
-			owner.ttWorkaroundForFirstMouseoverStatus = 2;
+			tooltip.ttWorkaroundForFirstMouseoverStatus = 2;
 		end);
-		AceHook:HookScript(owner, "OnLeave", function(self)
-			if (self.ttWorkaroundForFirstMouseoverStatus == 1) then
-				AceHook:Unhook(tooltip, "OnTooltipCleared");
-			elseif (owner.ttWorkaroundForFirstMouseoverStatus == 2) then
-				AceHook:Unhook(tooltip, "OnUpdate");
-			end
-			AceHook:Unhook(self, "OnLeave");
-			self.ttWorkaroundForFirstMouseoverStatus = nil;
-			self.ttWorkaroundForFirstMouseoverID = nil;
-			self.ttWorkaroundForFirstMouseoverRank = nil;
+		AceHook:HookScript(tooltip, "OnHide", function()
+			removeHooksFn(true);
 		end);
-		owner.ttWorkaroundForFirstMouseoverStatus = 1;
-		owner.ttWorkaroundForFirstMouseoverID = id;
-		owner.ttWorkaroundForFirstMouseoverRank = rank;
-	else
-		if (owner.ttWorkaroundForFirstMouseoverStatus == 1) then
-			AceHook:Unhook(tooltip, "OnTooltipCleared");
-		elseif (owner.ttWorkaroundForFirstMouseoverStatus == 2) then
-			AceHook:Unhook(tooltip, "OnUpdate");
+		if (owner ~= UIParent) then
+			AceHook:HookScript(owner, "OnLeave", function()
+				removeHooksFn(true);
+			end);
 		end
-		owner.ttWorkaroundForFirstMouseoverStatus = 3;
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 1;
+		tooltip.ttWorkaroundForFirstMouseoverID = id;
+		tooltip.ttWorkaroundForFirstMouseoverRank = rank;
+	else
+		removeHooksFn();
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 3;
 	end
 end
 
@@ -838,6 +853,39 @@ local function SetAzeriteEssence_Hook(self, essenceID, essenceRank)
 	end
 end
 
+-- HOOK: GameTooltip:SetAzeriteEssenceSlot
+local function SetAzeriteEssenceSlot_Hook(self, slot)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local milestones = C_AzeriteEssence.GetMilestones();
+		
+		for i, milestoneInfo in ipairs(milestones) do
+			if (milestoneInfo.slot == slot) then
+				if (not milestoneInfo.unlocked) then
+					break;
+				end
+				
+				local milestoneID = milestoneInfo.ID;
+				local essenceID = C_AzeriteEssence.GetMilestoneEssence(milestoneID);
+				local essenceRank = milestoneInfo.rank;
+				
+				local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
+				if (link) then
+					local linkType, _essenceID, _essenceRank = link:match("H?(%a+):(%d+):(%d+)");
+					if (_essenceID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
+
+						-- apply workaround for first mouseover
+						ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, _essenceID, _essenceRank);
+					end
+				end
+				
+				break;
+			end
+		end
+	end
+end
+
 -- HOOK: BattlePetToolTip_Show
 local function BPTT_Show_Hook(speciesID, level, breedQuality, maxHealth, power, speed, customName)
 	if (cfg.if_enable) and (not tipDataAdded[bptt]) and (bptt:IsShown()) then
@@ -1292,6 +1340,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetEnhancedConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
+					hooksecurefunc(tip, "SetAzeriteEssenceSlot", SetAzeriteEssenceSlot_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
 					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
