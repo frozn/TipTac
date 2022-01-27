@@ -890,13 +890,18 @@ function tt:AnchorFrameToMouse(frame)
 end
 
 -- Re-anchor for anchor type mouse
-function tt:ReApplyAnchorTypeForMouse(frame)
+function tt:ReApplyAnchorTypeForMouse(frame, noUpdateAnchorPosition, ignoreWorldTips)
 	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
 	-- This prevents wrong initial positioning of item tooltip if "Anchors->Frame Tip Type" = "Mouse Anchor" e.g. on opening character frame and mouse is already over the position of an appearing item.
-	frame.ttAnchorType, frame.ttAnchorPoint = GetAnchorPosition(frame);
+	if (not noUpdateAnchorPosition) then
+		frame.ttAnchorType, frame.ttAnchorPoint = GetAnchorPosition(frame);
+	end
 	
 	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[frame]) then
 		local gttAnchor = frame:GetAnchorType();
+		if (ignoreWorldTips) and ((gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT")) then
+			return;
+		end
 		if (gttAnchor ~= "ANCHOR_NONE") then
 			-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
 			frame:SetAnchorType("ANCHOR_NONE");
@@ -1118,13 +1123,7 @@ function gttScriptHooks:OnShow()
 	-- 3. Fly straight ahead with forward key pressed
 	-- 4. Open the world map and navigate to maw
 	-- 5. Hover with mouse over Torghast and see that the tooltip sometimes flicker between "Normal Anchor" and "Mouse Anchor" only during forward movement.
-	self.ttAnchorType, self.ttAnchorPoint = GetAnchorPosition(self);
-	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[self]) then
-		local gttAnchor = self:GetAnchorType();
-		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
-			tt:AnchorFrameToMouse(self);
-		end
-	end
+	tt:ReApplyAnchorTypeForMouse(self, false, true);
 
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)
@@ -1143,12 +1142,7 @@ function gttScriptHooks:OnUpdate(elapsed)
 		-- return;
 	-- else
 	-- Anchor GTT to Mouse (no anchoring e.g. for tooltips from AddModifiedTip() or compare items)
-	if (self.ttAnchorType == "mouse") and (self:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[self]) then
-		local gttAnchor = self:GetAnchorType();
-		if (gttAnchor ~= "ANCHOR_CURSOR") and (gttAnchor ~= "ANCHOR_CURSOR_RIGHT") then
-			tt:AnchorFrameToMouse(self);
-		end
-	end
+	tt:ReApplyAnchorTypeForMouse(self, true, true);
 	
 	-- WoD: This background color reset, from OnShow(), has been copied down here. It seems resetting the color in OnShow() wasn't enough, as the color changes after the tip is being shown
 	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
