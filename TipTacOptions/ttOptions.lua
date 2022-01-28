@@ -230,7 +230,7 @@ if (TipTacTalents) then
 	};
 end
 
--- TipTacItemRef Support -- Az: this category page is full
+-- TipTacItemRef Support -- Az: this category page is full -- Frozn45: added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
 if (TipTacItemRef) then
 	options[#options + 1] = {
 		[0] = "ItemRef",

@@ -867,7 +867,8 @@ local function SetAzeriteEssenceSlot_Hook(self, slot)
 				
 				local milestoneID = milestoneInfo.ID;
 				local essenceID = C_AzeriteEssence.GetMilestoneEssence(milestoneID);
-				local essenceRank = milestoneInfo.rank;
+				local essenceInfo = C_AzeriteEssence.GetEssenceInfo(essenceID);
+				local essenceRank = essenceInfo.rank;
 				
 				local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
 				if (link) then
