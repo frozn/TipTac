@@ -56,6 +56,7 @@ local cfg = {
 	if_showKeystoneRewardLevel = true,
 	if_showKeystoneTimeLimit = true,
 	if_showKeystoneAffixInfo = true,
+	if_modifyKeystoneTips = true,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
 	if_showMawPowerId = false,
@@ -1888,34 +1889,76 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	local showAffixInfo = cfg.if_showKeystoneAffixInfo;
 	
 	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
+		local tipName = self:GetName();
+		local infoColorMixin = CreateColor(cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], (cfg.if_infoColor[4] or 1));
+
 		if (showId) then
 			self:AddLine(format("ItemID: %d", itemID), unpack(cfg.if_infoColor));
 		end
-		if (not showRewardLevel and showWeeklyRewardLevel) then
-			self:AddLine(format("WeeklyRewardLevel: %d", weeklyRewardLevel), unpack(cfg.if_infoColor));
-		elseif (showRewardLevel and showWeeklyRewardLevel) then
-			self:AddLine(format("RewardLevel: %d, WeeklyRewardLevel: %d", endOfRunRewardLevel, weeklyRewardLevel), unpack(cfg.if_infoColor));
-		elseif (showRewardLevel and not showWeeklyRewardLevel) then
-			self:AddLine(format("RewardLevel: %d", endOfRunRewardLevel), unpack(cfg.if_infoColor));
+		
+		if (cfg.if_modifyKeystoneTips) then
+			local textRight2 = _G[tipName.."TextRight2"];
+			if (not showRewardLevel and showWeeklyRewardLevel) then
+				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("WRL: %d", weeklyRewardLevel)));
+			elseif (showRewardLevel and showWeeklyRewardLevel) then
+				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("RL: %d, WRL: %d", endOfRunRewardLevel, weeklyRewardLevel)));
+			elseif (showRewardLevel and not showWeeklyRewardLevel) then
+				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("RL: %d", endOfRunRewardLevel)));
+			end
+			textRight2:Show();
+		else
+			if (not showRewardLevel and showWeeklyRewardLevel) then
+				self:AddLine(format("WeeklyRewardLevel: %d", weeklyRewardLevel), unpack(cfg.if_infoColor));
+			elseif (showRewardLevel and showWeeklyRewardLevel) then
+				self:AddLine(format("RewardLevel: %d, WeeklyRewardLevel: %d", endOfRunRewardLevel, weeklyRewardLevel), unpack(cfg.if_infoColor));
+			elseif (showRewardLevel and not showWeeklyRewardLevel) then
+				self:AddLine(format("RewardLevel: %d", endOfRunRewardLevel), unpack(cfg.if_infoColor));
+			end
 		end
+		
 		if (showTimeLimit) then
 			local name, id, timeLimit, texture, backgroundTexture = C_ChallengeMode.GetMapUIInfo(mapID);
 			if (timeLimit) then
-				self:AddLine(format("TimeLimit: %s", SecondsToTime(timeLimit, false, true)), unpack(cfg.if_infoColor));
+				if (cfg.if_modifyKeystoneTips) then
+					local textRight1 = _G[tipName.."TextRight1"];
+					textRight1:SetText(infoColorMixin:WrapTextInColorCode(format("TL: %s", SecondsToTime(timeLimit, false, false))));
+					textRight1:Show();
+				else
+					self:AddLine(format("TimeLimit: %s", SecondsToTime(timeLimit, false, false)), unpack(cfg.if_infoColor));
+				end
 			end
 		end
+		
 		if (showAffixInfo) then
+			local beginOfAffixes = nil;
+			if (cfg.if_modifyKeystoneTips) then
+				for i = 3, self:NumLines() do
+					local line = _G[tipName.."TextLeft"..i];
+					if (line and (line:GetText() or ""):match(CHALLENGE_MODE_DUNGEON_MODIFIERS)) then
+						beginOfAffixes = i;
+						break;
+					end
+				end
+			end
+			
 			for i = 1, select('#', ...) do
 				local modifierID = select(i, ...);
 				modifierID = tonumber(modifierID);
 				if (modifierID) then
-					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(tonumber(modifierID));
+					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(modifierID);
 					if (modifierName and modifierDescription) then
-						self:AddLine(format("[%s] %s", modifierName, modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+						if (cfg.if_modifyKeystoneTips) and (beginOfAffixes) then
+							local textRight = _G[tipName.."TextRight"..(beginOfAffixes + i)];
+							textRight:SetText(infoColorMixin:WrapTextInColorCode(format("%s", modifierDescription)));
+							textRight:Show();
+						else
+							self:AddLine(format("[%s] %s", modifierName, modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+						end
 					end
 				end
 			end
 		end
+		
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
 end

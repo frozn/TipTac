@@ -244,6 +244,7 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showKeystoneRewardLevel", label = "Show Keystone (Weekly) Reward Level", tip = "For keystone tooltips, show their rewardLevel and weeklyRewardLevel", y = 12 },
 		{ type = "Check", var = "if_showKeystoneTimeLimit", label = "Show Keystone Time Limit", tip = "For keystone tooltips, show the instance timeLimit" },
 		{ type = "Check", var = "if_showKeystoneAffixInfo", label = "Show Keystone Affix Infos", tip = "For keystone tooltips, show the affix infos" },
+		{ type = "Check", var = "if_modifyKeystoneTips", label = "Modify Keystone Tooltips", tip = "Changes the keystone tooltips to show a bit more information\nWarning: Might conflict with other keystone addons" },
 
 		{ type = "Check", var = "if_spellColoredBorder", label = "Show Spell Tips with Colored Border", tip = "When enabled and the tip is showing a spell, the tip border will have the standard spell color", y = 12 },
 		{ type = "Check", var = "if_showSpellIdAndRank", label = "Show Spell ID & Rank", tip = "For spell and aura tooltips, show their spellID and spellRank" },

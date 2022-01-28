@@ -182,6 +182,7 @@ local TT_DefaultConfig = {
 	if_showKeystoneRewardLevel = true,
 	if_showKeystoneTimeLimit = true,
 	if_showKeystoneAffixInfo = true,
+	if_modifyKeystoneTips = true,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
 	if_showMawPowerId = false,
@@ -1117,7 +1118,7 @@ local FADE_BLOCK = 2;
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
 	-- Anchor GTT to Mouse -- Az: Initial mouse anchoring is now being done in GTT_SetDefaultAnchor (remove if there are no issues)
-	-- Frozn45: Needed for the following issue:
+	-- Frozn45: Needed a.o. for the following issue:
 	-- 1. Set "Anchors->Frame Tip Type" to "Mouse Anchor"
 	-- 2. Mount a flying mount
 	-- 3. Fly straight ahead with forward key pressed
