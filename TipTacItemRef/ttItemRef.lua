@@ -1918,30 +1918,13 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		end
 		
 		if (showAffixInfo) then
-			-- local beginOfAffixes = nil;
-			-- if (cfg.if_modifyKeystoneTips) then
-				-- for i = 3, self:NumLines() do
-					-- local line = _G[tipName.."TextLeft"..i];
-					-- if (line and (line:GetText() or ""):match(CHALLENGE_MODE_DUNGEON_MODIFIERS)) then
-						-- beginOfAffixes = i;
-						-- break;
-					-- end
-				-- end
-			-- end
-			
 			for i = 1, select('#', ...) do
 				local modifierID = select(i, ...);
 				modifierID = tonumber(modifierID);
 				if (modifierID) then
 					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(modifierID);
 					if (modifierName and modifierDescription) then
-						-- if (cfg.if_modifyKeystoneTips) and (beginOfAffixes) then
-							-- local textRight = _G[tipName.."TextRight"..(beginOfAffixes + i)];
-							-- textRight:SetText(infoColorMixin:WrapTextInColorCode(format("%s", modifierDescription)));
-							-- textRight:Show();
-						-- else
-							self:AddLine(format("[%s] %s", modifierName, modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
-						-- end
+						self:AddLine(format("|T"..fileDataID..":0|t %s\n%s", GREEN_FONT_COLOR:WrapTextInColorCode(modifierName), modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
 					end
 				end
 			end
