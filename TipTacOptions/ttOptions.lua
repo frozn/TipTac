@@ -247,9 +247,11 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_modifyKeystoneTips", label = "Modify Keystone Tooltips", tip = "Changes the keystone tooltips to show a bit more information\nWarning: Might conflict with other keystone addons" },
 
 		{ type = "Check", var = "if_spellColoredBorder", label = "Show Spell Tips with Colored Border", tip = "When enabled and the tip is showing a spell, the tip border will have the standard spell color", y = 12 },
-		{ type = "Check", var = "if_showSpellIdAndRank", label = "Show Spell ID & Rank", tip = "For spell and aura tooltips, show their spellID and spellRank" },
-		{ type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" },
+		{ type = "Check", var = "if_showSpellIdAndRank", label = "Show Spell ID & Rank", tip = "For spell tooltips, show their spellID and spellRank" },
+		{ type = "Check", var = "if_auraSpellColoredBorder", label = "Show Aura Tips with Colored Border", tip = "When enabled and the tip is showing a buff or debuff, the tip border will have the standard spell color" },
+		{ type = "Check", var = "if_showAuraSpellIdAndRank", label = "Show Aura Spell ID & Rank", tip = "For buff and debuff tooltips, show their spellID and spellRank" },
 		{ type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura" },
+		{ type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" },
 
 		{ type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", y = 12 },
 		{ type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)" },
@@ -269,8 +271,14 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_battlePetAbilityColoredBorder", label = "Show Battle Pet Ability Tips with Colored Border", tip = "When enabled and the tip is showing a battle pet ability, the tip border will have the the standard battle pet ability color", y = 12 },
 		{ type = "Check", var = "if_showBattlePetAbilityId", label = "Show Battle Pet Ability ID", tip = "For battle bet ability tooltips, show their abilityID" },
 
+		{ type = "Check", var = "if_transmogAppearanceItemQualityBorder", label = "Show Transmog Appearance Item Tips with Quality Colored Border", tip = "When enabled and the tip is showing an transmog appearance item, the tip border will have the color of the transmog appearance item's quality", y = 12 },
+		{ type = "Check", var = "if_showTransmogAppearanceItemId", label = "Show Transmog Appearance Item ID", tip = "For transmog appearance item tooltips, show their itemID" },
+
 		{ type = "Check", var = "if_transmogIllusionColoredBorder", label = "Show Transmog Illusion Tips with Colored Border", tip = "When enabled and the tip is showing a transmog illusion, the tip border will have the the standard transmog illusion color", y = 12 },
 		{ type = "Check", var = "if_showTransmogIllusionId", label = "Show Transmog Illusion ID", tip = "For transmog illusion tooltips, show their illusionID" },
+
+		{ type = "Check", var = "if_transmogSetQualityBorder", label = "Show Transmog Set Tips with Quality Colored Border", tip = "When enabled and the tip is showing an transmog set, the tip border will have the color of the transmog set's quality", y = 12 },
+		{ type = "Check", var = "if_showTransmogSetId", label = "Show Transmog Set ID", tip = "For transmog set tooltips, show their setID" },
 
 		{ type = "Check", var = "if_conduitQualityBorder", label = "Show Conduit Tips with Quality Colored Border", tip = "When enabled and the tip is showing a conduit, the tip border will have the color of the conduit's quality", y = 12 },
 		{ type = "Check", var = "if_showConduitItemLevel", label = "Show Conduit Item Level", tip = "For conduit tooltips, show their itemLevel (Combines with conduitID)" },

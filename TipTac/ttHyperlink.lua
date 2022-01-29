@@ -112,13 +112,15 @@ local function OnHyperlinkEnter(self, refString, text)
 			PetJournal_ShowAbilityTooltip(gtt, tonumber(abilityID));
 			PetJournalPrimaryAbilityTooltip:ClearAllPoints();
 			PetJournalPrimaryAbilityTooltip:SetPoint(gtt:GetPoint());
-		elseif (linkToken == "transmogappearance") then -- see WardrobeCollectionFrameMixin:GetAppearanceItemHyperlink() + WardrobeItemsModelMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+		elseif (linkToken == "transmogappearance") then -- WardrobeItemsCollectionMixin:RefreshAppearanceTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 			local linkType, sourceID = (":"):split(refString);
-			local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
-			if (link) then
-				showingTooltip = gtt;
-				gtt:SetHyperlink(link);
-				gtt:Show();
+			local sourceInfo = C_TransmogCollection.GetSourceInfo(sourceID);
+			local name, nameColor = CollectionWardrobeUtil.GetAppearanceNameTextAndColor(sourceInfo);
+			GameTooltip_SetTitle(gtt, name, nameColor);
+			showingTooltip = gtt;
+			gtt:Show();
+			if (TipTacItemRef) then
+				TipTacItemRef:SetHyperlink_Hook(gtt, refString);
 			end
 		elseif (linkToken == "transmogillusion") then -- see WardrobeItemsModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 			local linkType, illusionID = (":"):split(refString);

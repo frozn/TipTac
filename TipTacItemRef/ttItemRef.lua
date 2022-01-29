@@ -59,6 +59,8 @@ local cfg = {
 	if_modifyKeystoneTips = true,
 	if_spellColoredBorder = true,
 	if_showSpellIdAndRank = false,
+	if_auraSpellColoredBorder = true,
+	if_showAuraSpellIdAndRank = false,
 	if_showMawPowerId = false,
 	if_showAuraCaster = true,
 	if_questDifficultyBorder = true,
@@ -74,8 +76,12 @@ local cfg = {
 	if_showBattlePetId = false,
 	if_battlePetAbilityColoredBorder = true,
 	if_showBattlePetAbilityId = false,
+	if_transmogAppearanceItemQualityBorder = true,
+	if_showTransmogAppearanceItemId = false,
 	if_transmogIllusionColoredBorder = true,
 	if_showTransmogIllusionId = false,
+	if_transmogSetQualityBorder = true,
+	if_showTransmogSetId = false,
 	if_conduitQualityBorder = true,
 	if_showConduitItemLevel = false,
 	if_showConduitId = false,
@@ -418,20 +424,10 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 		local refString = hyperlink:match("|H([^|]+)|h") or hyperlink;
 		local linkType = refString:match("^[^:]+");
 		-- Call Tip Type Func
-		if (LinkTypeFuncs[linkType] or ((linkType == "transmogappearance") and LinkTypeFuncs["item"])) and (self:NumLines() > 0) then
+		if (LinkTypeFuncs[linkType]) and (self:NumLines() > 0) then
 			tipDataAdded[self] = "hyperlink";
 			if (linkType == "spell") then
 				LinkTypeFuncs.spell(self, nil, refString, (":"):split(refString));
-			elseif (linkType == "transmogappearance") then
-				local _linkType, sourceID = (":"):split(refString);
-				local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
-				if (link) then
-					local __linkType, itemID = link:match("H?(%a+):(%d+)");
-					if (itemID) then
-						tipDataAdded[self] = __linkType;
-						LinkTypeFuncs.item(self, link, __linkType, itemID);
-					end
-				end
 			elseif (linkType == "azessence") then
 				local _linkType, essenceID, essenceRank = (":"):split(refString);
 				local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
@@ -1156,14 +1152,9 @@ local function WCFICF_RefreshAppearanceTooltip_Hook(self)
 			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory());
 			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
 			local sourceID = sources[index].sourceID;
-			local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
-			if (link) then
-				local linkType, itemID = link:match("H?(%a+):(%d+)");
-				if (itemID) then
-					tipDataAdded[gtt] = linkType;
-					LinkTypeFuncs.item(gtt, link, linkType, itemID);
-				end
-			end
+			
+			tipDataAdded[gtt] = "transmogappearance";
+			LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
 		end
 	end
 end
@@ -1204,14 +1195,10 @@ local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
 		local selectedIndex = wardrobeCollectionFrame.tooltipSourceIndex;
 		if (selectedIndex) then
 			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(selectedIndex, #sources);
-			local link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sources[index].sourceID));
-			if (link) then
-				local linkType, itemID = link:match("H?(%a+):(%d+)");
-				if (itemID) then
-					tipDataAdded[gtt] = linkType;
-					LinkTypeFuncs.item(gtt, link, linkType, itemID);
-				end
-			end
+			local _sourceID = sources[index].sourceID;
+			
+			tipDataAdded[gtt] = "transmogappearance";
+			LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", _sourceID);
 		end
 	end
 end
@@ -1761,7 +1748,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
-		self:ttSetIconTextureAndText(itemTexture,count);
+		self:ttSetIconTextureAndText(itemTexture, count);
 	end
 
 	-- Quality Border
@@ -1864,7 +1851,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
-		self:ttSetIconTextureAndText(itemTexture,count);
+		self:ttSetIconTextureAndText(itemTexture, count);
 	end
 
 	-- Quality Border
@@ -1925,22 +1912,22 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 					textRight1:SetText(infoColorMixin:WrapTextInColorCode(format("TL: %s", SecondsToTime(timeLimit, false, false))));
 					textRight1:Show();
 				else
-					self:AddLine(format("TimeLimit: %s", SecondsToTime(timeLimit, false, false)), unpack(cfg.if_infoColor));
+					self:AddLine(format("TimeLimit: %s", SecondsToTime(timeLimit, false, true)), unpack(cfg.if_infoColor));
 				end
 			end
 		end
 		
 		if (showAffixInfo) then
-			local beginOfAffixes = nil;
-			if (cfg.if_modifyKeystoneTips) then
-				for i = 3, self:NumLines() do
-					local line = _G[tipName.."TextLeft"..i];
-					if (line and (line:GetText() or ""):match(CHALLENGE_MODE_DUNGEON_MODIFIERS)) then
-						beginOfAffixes = i;
-						break;
-					end
-				end
-			end
+			-- local beginOfAffixes = nil;
+			-- if (cfg.if_modifyKeystoneTips) then
+				-- for i = 3, self:NumLines() do
+					-- local line = _G[tipName.."TextLeft"..i];
+					-- if (line and (line:GetText() or ""):match(CHALLENGE_MODE_DUNGEON_MODIFIERS)) then
+						-- beginOfAffixes = i;
+						-- break;
+					-- end
+				-- end
+			-- end
 			
 			for i = 1, select('#', ...) do
 				local modifierID = select(i, ...);
@@ -1948,13 +1935,13 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				if (modifierID) then
 					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(modifierID);
 					if (modifierName and modifierDescription) then
-						if (cfg.if_modifyKeystoneTips) and (beginOfAffixes) then
-							local textRight = _G[tipName.."TextRight"..(beginOfAffixes + i)];
-							textRight:SetText(infoColorMixin:WrapTextInColorCode(format("%s", modifierDescription)));
-							textRight:Show();
-						else
+						-- if (cfg.if_modifyKeystoneTips) and (beginOfAffixes) then
+							-- local textRight = _G[tipName.."TextRight"..(beginOfAffixes + i)];
+							-- textRight:SetText(infoColorMixin:WrapTextInColorCode(format("%s", modifierDescription)));
+							-- textRight:Show();
+						-- else
 							self:AddLine(format("[%s] %s", modifierName, modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
-						end
+						-- end
 					end
 				end
 			end
@@ -1978,6 +1965,9 @@ function LinkTypeFuncs:spell(source, link, linkType, spellID)
 			mawPowerID = _mawPowerID;
 		end
 	end
+	
+	local isAura = (source and true);
+	local isSpell = (not isAura);
 
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
@@ -1992,7 +1982,7 @@ function LinkTypeFuncs:spell(source, link, linkType, spellID)
 	
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
-	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID and (spellID ~= 0));
+	local showSpellIdAndRank = (((isSpell and cfg.if_showSpellIdAndRank) or (isAura and cfg.if_showAuraSpellIdAndRank)) and spellID and (spellID ~= 0));
 	if (showMawPowerID or showSpellIdAndRank) then
 		if (not showMawPowerID) then
 			self:AddLine(format("SpellID: %d", spellID)..rank, unpack(cfg.if_infoColor));
@@ -2008,7 +1998,7 @@ function LinkTypeFuncs:spell(source, link, linkType, spellID)
 	end
 
   	-- Colored Border
-	if (cfg.if_spellColoredBorder) then
+	if (isSpell and cfg.if_spellColoredBorder) or (isAura and cfg.if_auraSpellColoredBorder) then
 		local spellColor = nil;
 		
 		if (mawPowerID) then
@@ -2446,6 +2436,39 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	end
 end
 
+-- transmog appearance (see WardrobeCollectionFrameMixin:GetAppearanceItemHyperlink() + WardrobeItemsModelMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua")
+function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
+	local _linkType, itemID = nil, nil;
+	local _link = select(6, C_TransmogCollection.GetAppearanceSourceInfo(sourceID));
+	if (_link) then
+		_linkType, itemID = _link:match("H?(%a+):(%d+)");
+	end
+	if (not itemID) then
+		return;
+	end
+
+	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(_link);
+	itemLevel = LibItemString:GetTrueItemLevel(_link);
+
+	-- Icon
+	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
+		self:ttSetIconTextureAndText(itemTexture, count);
+	end
+
+	-- ItemID
+	if (cfg.if_showTransmogAppearanceItemId) then
+		self:AddLine(format("ItemID: %d", itemID), unpack(cfg.if_infoColor));
+		self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+	-- Quality Border
+	if (cfg.if_transmogAppearanceItemQualityBorder) then
+		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
+		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
+	end
+end
+
 -- transmog illusion
 function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
 	local illusionInfo = C_TransmogCollection.GetIllusionInfo(illusionID);
@@ -2507,13 +2530,13 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 	end
 
 	-- SetID
-	if (cfg.if_showItemId) then
+	if (cfg.if_showTransmogSetId) then
 		self:AddLine(format("SetID: %d", setID), unpack(cfg.if_infoColor));
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
 
   	-- Quality Border
-	if (cfg.if_itemQualityBorder) then
+	if (cfg.if_transmogSetQualityBorder) then
 		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
 		local setColor = CreateColorFromHexString(select(4, GetItemQualityColor(setQuality)));
 		ttif:SetBackdropBorderColorLocked(self, true, setColor:GetRGBA());
