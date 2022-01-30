@@ -288,7 +288,7 @@ function ttHyperlink:OnApplyConfig(cfg)
 			end
 			self.hookedHoverHyperlinks = true;
 		end
-		if (not self.hookedHoverHyperlinks) or (not self.hookedHoverHyperlinksOnCFCMF) then
+		if (not self.hookedHoverHyperlinksOnCFCMF) then
 			if (IsAddOnLoaded("Blizzard_Communities")) then
 				AceHook:HookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter", OnHyperlinkEnter);
 				AceHook:HookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave", OnHyperlinkLeave);
@@ -303,9 +303,13 @@ function ttHyperlink:OnApplyConfig(cfg)
 				AceHook:Unhook(chat, "OnHyperlinkLeave");
 			end
 			self.hookedHoverHyperlinks = false;
-			AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter");
-			AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave");
-			self.hookedHoverHyperlinksOnCFCMF = false;
+		end
+		if (self.hookedHoverHyperlinksOnCFCMF) then
+			if (IsAddOnLoaded("Blizzard_Communities")) then
+				AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter");
+				AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave");
+				self.hookedHoverHyperlinksOnCFCMF = false;
+			end
 		end
 	end
 end
