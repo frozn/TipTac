@@ -244,6 +244,7 @@ local TT_TipsToModify = {
 	"FloatingPetBattleAbilityTooltip",
 	"DropDownList1MenuBackdrop",
 	"DropDownList2MenuBackdrop",
+	"FriendsTooltip",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
 	"AtlasLootTooltip",
