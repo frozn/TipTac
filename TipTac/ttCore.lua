@@ -1104,6 +1104,21 @@ local function IRTT_DisplayDungeonScoreLink(link)
 	end
 end
 
+-- HOOK: LFGListFrame.ApplicationViewer.ScrollFrame.buttons.Members:OnEnter respectively LFGListApplicantMember_OnEnter, see "LFGList.lua"
+local function LFGLFAVSFBM_OnEnter_Hook(self)
+	if (cfg.classColoredBorder) and (gtt:IsShown()) then
+		local applicantID = self:GetParent().applicantID;
+		local memberIdx = self.memberIdx;
+		
+		local name, class, localizedClass, level, itemLevel, honorLevel, tank, healer, damage, assignedRole, relationship, dungeonScore, pvpItemLevel = C_LFGList.GetApplicantMemberInfo(applicantID, memberIdx);
+		
+		if (name) then
+			local classColor = RAID_CLASS_COLORS[class];
+			tt:SetBackdropBorderColorLocked(gtt, true, classColor.r, classColor.g, classColor.b);
+		end
+	end
+end
+
 --------------------------------------------------------------------------------------------------------
 --                                      GameTooltip Script Hooks                                      --
 --------------------------------------------------------------------------------------------------------
@@ -1614,6 +1629,15 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						
 						-- Post-Hook RuneforgePowerBaseMixin:OnEnter() to re-anchor tooltip in adventure journal if "Anchors->Frame Tip Type" = "Mouse Anchor" and scrolling up and down, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
+
+						-- Function to apply necessary hooks to LFGListFrame.ApplicationViewer.ScrollFrame.buttons to apply class colors
+						tt:ApplyHooksToLFGLFAVSFB();
+						
+						hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", function(button, applicantID)
+							tt:ApplyHooksToLFGLFAVSFB(button, applicantID);
+						end);
+						
+						hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSFBM_OnEnter_Hook);
 					end
 				elseif (tipName == "ItemRefTooltip") then
 					if (isWoWRetail) then
@@ -1662,6 +1686,35 @@ function tt:ApplyHooksToCFMLLSF()
 		if (not CFMLLSFBhooked[button]) then
 			button:HookScript("OnEnter", CFMLLSFB_OnEnter_Hook);
 			CFMLLSFBhooked[button] = true;
+		end
+	end
+end
+
+-- Function to apply necessary hooks to LFGListFrame.ApplicationViewer.ScrollFrame.buttons respectively LFGListApplicantMember_OnEnter()
+local LFGLFAVSFBMhooked = {};
+
+local function ApplyHooksToLFGLFAVSFB(button, applicantID)
+	local applicantInfo = C_LFGList.GetApplicantInfo(applicantID);
+	for i = 1, applicantInfo.numMembers do
+		local member = button.Members[i];
+		if (not LFGLFAVSFBMhooked[member]) then
+			member:HookScript("OnEnter", LFGLFAVSFBM_OnEnter_Hook);
+			LFGLFAVSFBMhooked[member] = true;
+		end
+	end
+end
+
+function tt:ApplyHooksToLFGLFAVSFB(button, applicantID)
+	if (button) then
+		ApplyHooksToLFGLFAVSFB(button, applicantID); -- see LFGListApplicationViewer_UpdateApplicant() in "LFGList.lua"
+	else
+		local buttons = LFGListFrame.ApplicationViewer.ScrollFrame.buttons; -- see LFGListApplicationViewer_UpdateResults() in "LFGList.lua"
+		for i = 1, #buttons do
+			local button = buttons[i];
+			local _applicantID = button.applicantID;
+			if (_applicantID) then
+				ApplyHooksToLFGLFAVSFB(button, _applicantID);
+			end
 		end
 	end
 end
