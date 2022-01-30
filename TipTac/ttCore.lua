@@ -247,11 +247,11 @@ local TT_TipsToModify = {
 	"FriendsTooltip",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
+	"LibDBIconTooltip",
 	"AtlasLootTooltip",
 	"QuestHelperTooltip",
 	"QuestGuru_QuestWatchTooltip",
-	"PlaterNamePlateAuraTooltip",
-	"LibDBIconTooltip",
+	"PlaterNamePlateAuraTooltip"
 };
 tt.tipsToModify = TT_TipsToModify;
 
@@ -1700,8 +1700,9 @@ function tt:ADDON_LOADED(event, addOnName)
 				return tooltip;
 			end
 		end
+	end
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	elseif (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections"))) then
+	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections"))) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
