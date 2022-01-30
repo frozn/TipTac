@@ -276,7 +276,7 @@ end
 -- 1   = hooks GameTooltip:OnTooltipCleared and Button:OnLeave set
 -- 2   = hooks GameTooltip:OnUpdate and Button:OnLeave set
 -- 3   = no hooks set respectively not needed any more
-function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id, rank)
+function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkType, id, rank)
 	local tooltip = self;
 	
 	local owner = self:GetOwner();
@@ -285,7 +285,7 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, id,
 	local reapplyTooltipModificationFn = function()
 		tipDataAdded[tooltip] = linkType;
 		if (linkType == "spell") then
-			LinkTypeFuncs.spell(tooltip, source, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
+			LinkTypeFuncs.spell(tooltip, isAura, source, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
 		elseif (linkType == "azessence") then
 			LinkTypeFuncs.azessence(tooltip, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID, tooltip.ttWorkaroundForFirstMouseoverRank);
 		else
@@ -427,7 +427,7 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 		if (LinkTypeFuncs[linkType]) and (self:NumLines() > 0) then
 			tipDataAdded[self] = "hyperlink";
 			if (linkType == "spell") then
-				LinkTypeFuncs.spell(self, nil, refString, (":"):split(refString));
+				LinkTypeFuncs.spell(self, false, nil, refString, (":"):split(refString));
 			elseif (linkType == "azessence") then
 				local _linkType, essenceID, essenceRank = (":"):split(refString);
 				local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
@@ -438,7 +438,7 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 						LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
 
 						-- apply workaround for first mouseover
-						ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, _essenceID, _essenceRank);
+						ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, _essenceID, _essenceRank);
 					end
 				end
 			else
@@ -458,10 +458,10 @@ local function SetUnitAura_Hook(self, unit, index, filter)
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, source, link, linkType, _spellID);
+					LinkTypeFuncs.spell(self, true, source, link, linkType, _spellID);
 
 					-- apply workaround for first mouseover
-					ttif:ApplyWorkaroundForFirstMouseover(self, source, link, linkType, _spellID);
+					ttif:ApplyWorkaroundForFirstMouseover(self, true, source, link, linkType, _spellID);
 				end
 			end
 		end
@@ -519,7 +519,7 @@ local function SetAction_Hook(self, slot)
 					_itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
 					
 					if (_itemID) then
-						ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, itemID);
+						ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
 					end
 				end
 			end
@@ -540,7 +540,7 @@ local function SetAction_Hook(self, slot)
 					local linkType, _spellID = link:match("H?(%a+):(%d+)");
 					if (_spellID) then
 						tipDataAdded[self] = linkType;
-						LinkTypeFuncs.spell(self, nil, link, linkType, _spellID);
+						LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
 					end
 				end
 			end
@@ -574,7 +574,7 @@ local function SetPetAction_Hook(self, slot)
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, nil, link, linkType, _spellID);
+					LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
 				end
 			end
 		else
@@ -719,7 +719,7 @@ local function SetToyByItemID_Hook(self, itemID)
 				LinkTypeFuncs.item(self, link, linkType, itemID);
 				
 				-- apply workaround for first mouseover
-				ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, itemID);
+				ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
 			end
 		end
 	end
@@ -844,7 +844,7 @@ local function SetAzeriteEssence_Hook(self, essenceID, essenceRank)
 				LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
 
 				-- apply workaround for first mouseover
-				ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, _essenceID, _essenceRank);
+				ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, _essenceID, _essenceRank);
 			end
 		end
 	end
@@ -874,7 +874,7 @@ local function SetAzeriteEssenceSlot_Hook(self, slot)
 						LinkTypeFuncs.azessence(self, link, linkType, _essenceID, _essenceRank);
 
 						-- apply workaround for first mouseover
-						ttif:ApplyWorkaroundForFirstMouseover(self, nil, link, linkType, _essenceID, _essenceRank);
+						ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, _essenceID, _essenceRank);
 					end
 				end
 				
@@ -963,7 +963,7 @@ local function OnTooltipSetSpell(self,...)
 				local linkType, spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, nil, link, linkType, spellID);
+					LinkTypeFuncs.spell(self, false, nil, link, linkType, spellID);
 				end
 			end
 		end
@@ -1077,7 +1077,7 @@ local function PCTOTM_OnEnter_Hook(self)
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
 					tipDataAdded[gtt] = linkType;
-					LinkTypeFuncs.spell(gtt, nil, link, linkType, _spellID);
+					LinkTypeFuncs.spell(gtt, false, nil, link, linkType, _spellID);
 				end
 			end
 		end
@@ -1938,7 +1938,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 end
 
 -- spell
-function LinkTypeFuncs:spell(source, link, linkType, spellID)
+function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
@@ -1952,7 +1952,6 @@ function LinkTypeFuncs:spell(source, link, linkType, spellID)
 		end
 	end
 	
-	local isAura = (source and true);
 	local isSpell = (not isAura);
 
 	-- Icon
