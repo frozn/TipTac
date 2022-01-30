@@ -1,3 +1,4 @@
+local LibQTip = LibStub("LibQTip-1.0", true);
 local _G = getfenv(0);
 local unpack = unpack;
 local UnitName = UnitName;
@@ -241,21 +242,24 @@ local TT_TipsToModify = {
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
+	"DropDownList1MenuBackdrop",
+	"DropDownList2MenuBackdrop",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
 	"AtlasLootTooltip",
 	"QuestHelperTooltip",
 	"QuestGuru_QuestWatchTooltip",
 	"PlaterNamePlateAuraTooltip",
+	"LibDBIconTooltip",
 };
 tt.tipsToModify = TT_TipsToModify;
 
 local TT_NoReApplyAnchorFor = {
-	[stt1] = true,
-	[stt2] = true,
-	[irtt] = true,
-	[irstt1] = true,
-	[irstt2] = true
+	["ShoppingTooltip1"] = true,
+	["ShoppingTooltip2"] = true,
+	["ItemRefTooltip"] = true,
+	["ItemRefShoppingTooltip1"] = true,
+	["ItemRefShoppingTooltip2"] = true
 };
 
 local TT_AddOnsLoaded = {
@@ -904,7 +908,7 @@ function tt:ReApplyAnchorTypeForMouse(frame, noUpdateAnchorPosition, ignoreWorld
 		frame.ttAnchorType, frame.ttAnchorPoint = GetAnchorPosition(frame);
 	end
 	
-	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[frame]) then
+	if (frame.ttAnchorType == "mouse") and (frame:GetObjectType() == "GameTooltip") and (not TT_NoReApplyAnchorFor[frame:GetName()]) then
 		local gttAnchor = frame:GetAnchorType();
 		if (ignoreWorldTips) and ((gttAnchor == "ANCHOR_CURSOR") or (gttAnchor == "ANCHOR_CURSOR_RIGHT")) then
 			return;
@@ -1685,8 +1689,18 @@ function tt:ADDON_LOADED(event, addOnName)
 		return;
 	end
 	
+	-- now LibQTip might be available
+	if (addOnName == "TipTac") then
+		if (LibQTip) then
+			local LibQTip_Acquire_org = LibQTip.Acquire;
+			LibQTip.Acquire = function(self, key, ...)
+				local tooltip = LibQTip_Acquire_org(self, key, ...);
+				tt:AddModifiedTip(tooltip, true);
+				return tooltip;
+			end
+		end
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections"))) then
+	elseif (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections"))) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		

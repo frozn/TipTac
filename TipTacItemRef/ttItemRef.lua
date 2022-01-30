@@ -1924,7 +1924,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				if (modifierID) then
 					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(modifierID);
 					if (modifierName and modifierDescription) then
-						self:AddLine(format("%s %s\n%s", CreateTextureMarkup(fileDataID, 64, 64, 0, 0, 0.0625, 0.9375, 0.0625, 0.9375), GREEN_FONT_COLOR:WrapTextInColorCode(modifierName), modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+						self:AddLine(format("%s %s\n%s", CreateTextureMarkup(fileDataID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93), GREEN_FONT_COLOR:WrapTextInColorCode(modifierName), modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
 					end
 				end
 			end
