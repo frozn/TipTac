@@ -1040,6 +1040,9 @@ end
 -- HOOK: DressUpOutfitDetailsSlotMixin:OnEnter
 local function DUODSM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		if (not self.transmogID) then
+			return;
+		end
 		if (self.item) then -- item
 			local itemID = self.item.itemID;
 			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
