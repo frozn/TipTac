@@ -242,7 +242,9 @@ local TT_TipsToModify = {
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
+	"DropDownList1Backdrop",
 	"DropDownList1MenuBackdrop",
+	"DropDownList2Backdrop",
 	"DropDownList2MenuBackdrop",
 	"FriendsTooltip",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
@@ -1666,6 +1668,12 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						for scriptName, hookFunc in next, bpttEjttScriptHooks do
 							tip:HookScript(scriptName, hookFunc);
 						end
+						tipHooked = true;
+					elseif (tipName == "DropDownList1Backdrop") or
+                           (tipName == "DropDownList1MenuBackdrop") or
+                           (tipName == "DropDownList2Backdrop") or
+                           (tipName == "DropDownList2MenuBackdrop") or
+						   (tipName == "FriendsTooltip") then
 						tipHooked = true;
 					end
 				end
