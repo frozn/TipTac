@@ -242,10 +242,6 @@ local TT_TipsToModify = {
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
-	"DropDownList1Backdrop",
-	"DropDownList1MenuBackdrop",
-	"DropDownList2Backdrop",
-	"DropDownList2MenuBackdrop",
 	"FriendsTooltip",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
@@ -255,6 +251,12 @@ local TT_TipsToModify = {
 	"QuestGuru_QuestWatchTooltip",
 	"PlaterNamePlateAuraTooltip"
 };
+
+for i = 1, UIDROPDOWNMENU_MAXLEVELS do
+	TT_TipsToModify[#TT_TipsToModify + 1] = "DropDownList"..i.."Backdrop";
+	TT_TipsToModify[#TT_TipsToModify + 1] = "DropDownList"..i.."MenuBackdrop";
+end
+
 tt.tipsToModify = TT_TipsToModify;
 
 local TT_NoReApplyAnchorFor = {
@@ -557,7 +559,7 @@ end
 
 -- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
 local function GetNearestPixelSize(size)
-	return PixelUtil.GetNearestPixelSize(size, UIParent:GetEffectiveScale());
+	return size * UIParent:GetEffectiveScale();
 end
 
 -- Resolves the given table array of string names into their global objects
@@ -800,7 +802,7 @@ end
 function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	-- remove default tip backdrop
 	if (tip.NineSlice) then
-		local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table
+		local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table in "NineSlice.lua"
 			"TopLeftCorner",
 			"TopRightCorner",
 			"BottomLeftCorner",
@@ -1669,11 +1671,7 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 							tip:HookScript(scriptName, hookFunc);
 						end
 						tipHooked = true;
-					elseif (tipName == "DropDownList1Backdrop") or
-                           (tipName == "DropDownList1MenuBackdrop") or
-                           (tipName == "DropDownList2Backdrop") or
-                           (tipName == "DropDownList2MenuBackdrop") or
-						   (tipName == "FriendsTooltip") then
+					elseif (tipName:match("DropDownList(%d+)Backdrop")) or (tipName:match("DropDownList(%d+)MenuBackdrop")) or (tipName == "FriendsTooltip") then
 						tipHooked = true;
 					end
 				end
