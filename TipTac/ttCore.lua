@@ -33,6 +33,11 @@ end
 local modName = ...;
 local tt = CreateFrame("Frame",modName,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
+-- actual pixel perfect scale
+local ui_scale = UIParent:GetEffectiveScale()
+local height = select(2, GetPhysicalScreenSize())
+local ppScale = (768 / height) / ui_scale
+
 -- Global Chat Message Function
 function AzMsg(msg) DEFAULT_CHAT_FRAME:AddMessage(tostring(msg):gsub("|1","|cffffff80"):gsub("|2","|cffffffff"),0.5,0.75,1.0); end
 
@@ -561,9 +566,9 @@ end
 --                                              Settings                                              --
 --------------------------------------------------------------------------------------------------------
 
--- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 0/2-pixels wide)
+-- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
 local function GetNearestPixelSize(size)
-	return PixelUtil.GetNearestPixelSize(size, cfg.gttScale);
+	return size * ppScale;
 end
 
 -- Resolves the given table array of string names into their global objects
@@ -905,8 +910,9 @@ end
 function tt:AnchorFrameToMouse(frame)
 	local x, y = GetCursorPosition();
 	local effScale = frame:GetEffectiveScale();
+	local offsetX, offsetY = cfg.mouseOffsetX * ppScale, cfg.mouseOffsetY * ppScale;
 	frame:ClearAllPoints();
-	frame:SetPoint(frame.ttAnchorPoint,UIParent,"BOTTOMLEFT",(x / effScale + cfg.mouseOffsetX),(y / effScale + cfg.mouseOffsetY));
+	frame:SetPoint(frame.ttAnchorPoint,UIParent,"BOTTOMLEFT",(x / effScale + offsetX),(y / effScale + offsetY));
 end
 
 -- Re-anchor for anchor type mouse
