@@ -50,7 +50,7 @@ end
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 
-	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 1));	-- auras we can fit into one row based on the current size of the tooltip
+	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2));	-- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = (auraType == "HELPFUL" and 1 or -1);				-- is +1 or -1 based on horz anchoring
 
 	local queryIndex = 1;							-- aura query index for this auraType
@@ -83,7 +83,7 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 				aura:SetPoint(anchor1,tip,anchor2,x,y);
 			else
 				-- anchor to last
-				aura:SetPoint(horzAnchor1,auras[auraFrameIndex - 1],horzAnchor2,xOffsetBasis,0);
+				aura:SetPoint(horzAnchor1, auras[auraFrameIndex - 1], horzAnchor2, (xOffsetBasis * 2), 0);
 			end
 
 			-- Cooldown
