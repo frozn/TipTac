@@ -98,10 +98,10 @@ local cfg = {
 	if_smartIcons = true,
 	if_borderlessIcons = false,
 	if_iconSize = 42,
-	if_itemIconAnchor = "BOTTOMLEFT",
-	if_itemTooltipAnchor = "TOPLEFT",
-	if_itemIconOffsetX = 0,
-	if_itemIconOffsetY = -2.5,
+	if_iconAnchor = "BOTTOMLEFT",
+	if_iconTooltipAnchor = "TOPLEFT",
+	if_iconOffsetX = 2.5,
+	if_iconOffsetY = -2.5,
 };
 
 -- Tooltips to Hook into -- MUST be a GameTooltip widget -- If the main TipTac is installed, the TT_TipsToModify is used instead
@@ -182,13 +182,13 @@ end
 
 -- Create Icon with Counter Text for Tooltip
 function ttif:CreateTooltipIcon(tip)
-	tip.ttIcon = tip:CreateTexture(nil,"BACKGROUND");
-	tip.ttIcon:SetPoint(cfg.if_itemIconAnchor,tip,cfg.if_itemTooltipAnchor,cfg.if_itemIconOffsetX,cfg.if_itemIconOffsetY);
+	tip.ttIcon = tip:CreateTexture(nil, "BACKGROUND");
+	tip.ttIcon:SetPoint(cfg.if_iconAnchor,tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
 	tip.ttIcon:Hide();
 
-	tip.ttCount = tip:CreateFontString(nil,"ARTWORK");
-	tip.ttCount:SetTextColor(1,1,1);
-	tip.ttCount:SetPoint("BOTTOMRIGHT",tip.ttIcon,"BOTTOMRIGHT",-3,3);
+	tip.ttCount = tip:CreateFontString(nil, "ARTWORK");
+	tip.ttCount:SetTextColor(1, 1, 1);
+	tip.ttCount:SetPoint("BOTTOMRIGHT", tip.ttIcon, "BOTTOMRIGHT", -3, 3);
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -254,15 +254,16 @@ function ttif:OnApplyConfig()
 	for index, tip in ipairs(tipsToModify) do
 		if (type(tip) == "table") and (tipsToAddIcon[tip:GetName()]) and (tip.ttIcon) then
 			if (cfg.if_showIcon) then
-				tip.ttIcon:SetSize(cfg.if_iconSize,cfg.if_iconSize);
-				tip.ttCount:SetFont(gameFont,(cfg.if_iconSize / 3),"OUTLINE");
+				tip.ttIcon:SetSize(cfg.if_iconSize, cfg.if_iconSize);
+				tip.ttCount:SetFont(gameFont, (cfg.if_iconSize / 3), "OUTLINE");
 				tip.ttSetIconTextureAndText = ttSetIconTextureAndText;
 				if (cfg.if_borderlessIcons) then
-					tip.ttIcon:SetTexCoord(0.07,0.93,0.07,0.93);
+					tip.ttIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93);
 				else
-					tip.ttIcon:SetTexCoord(0,1,0,1);
+					tip.ttIcon:SetTexCoord(0, 1, 0, 1);
 				end
-				tip.ttIcon:SetPoint(cfg.if_itemIconAnchor,tip,cfg.if_itemTooltipAnchor,cfg.if_itemIconOffsetX,cfg.if_itemIconOffsetY);
+				tip.ttIcon:ClearAllPoints();
+				tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
 			elseif (tip.ttSetIconTextureAndText) then
 				tip.ttIcon:Hide();
 				tip.ttSetIconTextureAndText = nil;
