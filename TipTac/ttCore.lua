@@ -563,7 +563,7 @@ end
 
 -- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
 local function GetNearestPixelSize(size)
-	return PixelUtil.GetNearestPixelSize(size * UIParent:GetEffectiveScale(), 1);
+	return size * UIParent:GetEffectiveScale();
 end
 
 -- Resolves the given table array of string names into their global objects
