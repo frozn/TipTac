@@ -16,7 +16,7 @@ local ttt = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropT
 ttt:Hide();
 
 -- String Constants
-local TALENTS_PREFIX = TALENTS..":|cffffffff ";	-- MoP: Could be changed from TALENTS to SPECIALIZATION
+local TALENTS_PREFIX = ((isWoWRetail and SPECIALIZATION) or TALENTS)..":|cffffffff ";	-- MoP: Could be changed from TALENTS to SPECIALIZATION
 local TALENTS_NA = NOT_APPLICABLE:lower();
 local TALENTS_NONE = NONE_KEY; -- NO.." "..TALENTS
 local TALENTS_LOADING = SEARCH_LOADING_TEXT;
@@ -25,7 +25,7 @@ local TALENTS_LOADING = SEARCH_LOADING_TEXT;
 local TTT_DefConfig = {
 	showTalents = true,			-- "Main Switch", addon does nothing if false
 	talentOnlyInParty = false,	-- Only show talents for party/raid members
-	--talentFormat = 1,			-- (obsolete setting)
+	talentFormat = 1,			-- Talent Format
 	talentCacheSize = 25,		-- Change cache size here (Default 25)
 
 	inspectDelay = 0.2,			-- The time delay for the scheduled inspection (default = 0.2)
@@ -34,11 +34,11 @@ local TTT_DefConfig = {
 
 -- Variables
 local cache = {};
-local current = {};
+local record = {};
 
 -- Allow these to be accessed externally from other addons
 ttt.cache = cache;
-ttt.current = current;
+ttt.record = record;
 
 -- Time of the last inspect reuqest. Init this to zero, just to make sure.
 -- This is a global variable, so other addons can use this as well.
@@ -60,18 +60,51 @@ end
 
 -- Queries the talent spec of the inspected unit, or player unit (MoP Code)
 function ttt:QuerySpecialization(record)
-	local spec = (isWoWRetail) and ((not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization());
-	if (not spec or spec == 0) then
-		record.format = TALENTS_NONE;
-	elseif (not record.isSelf) then
-		local _, specName = GetSpecializationInfoByID(spec);
-		--local _, specName = GetSpecializationInfoForClassID(spec,record.classID);
-		record.format = specName or TALENTS_NA;
-	else
-		-- MoP Note: Is it no longer possible to query the different talent spec groups anymore?
---		local group = GetActiveSpecGroup(isInspect) or 1;	-- Az: replaced with GetActiveSpecGroup(), but that does not support inspect?
-		local _, specName = GetSpecializationInfo(spec);
-		record.format = specName or TALENTS_NA;
+	if (isWoWRetail) then -- retail
+		local spec = (not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization();
+		if (not spec or spec == 0) then
+			record.format = TALENTS_NONE;
+		elseif (not record.isSelf) then
+			local _, specName = GetSpecializationInfoByID(spec);
+			--local _, specName = GetSpecializationInfoForClassID(spec,record.classID);
+			record.format = specName or TALENTS_NA;
+		else
+			-- MoP Note: Is it no longer possible to query the different talent spec groups anymore?
+--			local group = GetActiveSpecGroup(isInspect) or 1;	-- Az: replaced with GetActiveSpecGroup(), but that does not support inspect?
+			local _, specName = GetSpecializationInfo(spec);
+			record.format = specName or TALENTS_NA;
+		end
+	else -- classic
+		-- Inspect functions will always use the active spec when not inspecting
+		local isInspect = (not record.isSelf);
+		local activeTalentGroup = ((type(GetActiveTalentGroup) == "function") and GetActiveTalentGroup(isInspect));
+		-- Get points per tree, and set "maxTree" to the tree with most points
+		local numTalentTabs = GetNumTalentTabs(isInspect);
+		if (not numTalentTabs) then
+			record.format = TALENTS_NONE;
+			return;
+		end
+		record.tree = {};
+		local maxTree = 1;
+		for tabIndex = 1, numTalentTabs do
+			_, _, record.tree[tabIndex] = GetTalentTabInfo(tabIndex, isInspect, nil, activeTalentGroup);
+			if (record.tree[tabIndex] > record.tree[maxTree]) then
+				maxTree = tabIndex;
+			end
+		end
+		record.maxTree = GetTalentTabInfo(maxTree, isInspect, nil, activeTalentGroup);
+		-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
+		local cfg = TipTac_Config or TTT_DefConfig;
+		local talentFormat = (cfg.talentFormat or 1);
+		if (record[maxTree] == 0) then
+			record.format = TALENTS_NONE;
+		elseif (talentFormat == 1) then
+			record.format = record.maxTree.." ("..table.concat(record.tree, "/")..")";
+		elseif (talentFormat == 2) then
+			record.format = record.maxTree;
+		elseif (talentFormat == 3) then
+			record.format = table.concat(record.tree, "/");
+		end
 	end
 end
 
@@ -116,13 +149,28 @@ function ttt:CacheUnit(record)
 	end
 end
 
+-- Get value optionally without error speach
+function ttt:GetValueOptionallyWithoutErrorSpeech(valueFn, suppressErrorSpeech)
+	local cvarSound_EnableErrorSpeech_org;
+	if (suppressErrorSpeech) then
+		cvarSound_EnableErrorSpeech_org = GetCVar("Sound_EnableErrorSpeech");
+		SetCVar("Sound_EnableErrorSpeech", 0);
+	end
+	local value = valueFn();
+	if (suppressErrorSpeech) then
+		UIErrorsFrame:Clear();
+		SetCVar("Sound_EnableErrorSpeech", cvarSound_EnableErrorSpeech_org);
+	end
+	return value;
+end
+
 -- starts an inspection request
 function ttt:InitiateInspectRequest(unit,record)
 	-- Wipe Current Record
 	wipe(record);
 	record.unit = unit;
 	record.name = UnitName(unit);
-	record.guid = UnitGUID(unit)
+	record.guid = UnitGUID(unit);
 
 	-- invalidate lineindex
 	self.tipLineIndex = nil;
@@ -143,7 +191,11 @@ function ttt:InitiateInspectRequest(unit,record)
 	end
 
 	-- Queue a delayed inspect request
-	if (CanInspect(unit)) and (not IsInspectFrameOpen()) then
+	local canInspect = ttt:GetValueOptionallyWithoutErrorSpeech(function()
+		return (CanInspect(unit)) and (not IsInspectFrameOpen());
+	end, (not isWoWRetail));
+	
+	if (canInspect) then
 		local cfg = TipTac_Config or TTT_DefConfig;
 		local freq = (cfg.inspectFreq or TTT_DefConfig.inspectFreq);	-- Az: remove this extra fallback once a new main TipTac is released
 		local delay = (cfg.inspectDelay or TTT_DefConfig.inspectDelay);	-- Az: remove this extra fallback once a new main TipTac is released
@@ -170,8 +222,8 @@ end
 -- OnEvent [INSPECT_READY] -- Inspect data ready
 ttt:SetScript("OnEvent",function(self,event,guid,...)
 	self:UnregisterEvent(event);
-	if (guid == current.guid) then
-		ttt:InspectDataAvailable(current);
+	if (guid == record.guid) then
+		ttt:InspectDataAvailable(record);
 	end
 end);
 
@@ -183,10 +235,10 @@ ttt:SetScript("OnUpdate",function(self,elapsed)
 		-- Make sure the mouseover unit is still our unit
 		-- Check IsInspectFrameOpen() again: Since if the user right-clicks a unit frame, and clicks inspect,
 		-- it could cause TTT to schedule an inspect, while the inspection window is open
-		if (UnitGUID("mouseover") == current.guid) and (not IsInspectFrameOpen()) then
+		if (UnitGUID("mouseover") == record.guid) and (not IsInspectFrameOpen()) then
 			lastInspectRequest = GetTime();
 			self:RegisterEvent("INSPECT_READY");
-			NotifyInspect(current.unit);
+			NotifyInspect(record.unit);
 		end
 	end
 end);
@@ -223,6 +275,6 @@ gtt:HookScript("OnTooltipSetUnit",function(self,...)
 	-- No need to inspect players who has not yet gotten a specialization
 	local level = UnitLevel(unit);
 	if (level >= 10 or level == -1) then
-		ttt:InitiateInspectRequest(unit,current);
+		ttt:InitiateInspectRequest(unit,record);
 	end
 end);

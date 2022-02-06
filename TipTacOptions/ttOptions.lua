@@ -1,6 +1,16 @@
 local cfg = TipTac_Config;
 local modName = "TipTac";
 
+-- classic support
+local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
+if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
+	isWoWClassic = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
+	isWoWBcc = true;
+else
+	isWoWRetail = true;
+end
+
 -- DropDown Lists
 local DROPDOWN_FONTFLAGS = {
 	["|cffffa0a0None"] = "",
@@ -221,12 +231,20 @@ local options = {
 
 -- TipTacTalents Support
 if (TipTacTalents) then
+	local tttOptions = {
+		{ type = "Check", var = "showTalents", label = "Enable TipTacTalents", tip = "This option makes the tip show the talent specialization of other players" },
+		{ type = "Check", var = "talentOnlyInParty", label = "Only Show Talents for Party and Raid Members", tip = "When you enable this, only talents of players in your party or raid will be requested and shown" }
+	};
+	
+	if (not isWoWRetail) then
+		tttOptions[#tttOptions + 1] = { type = "DropDown", var = "talentFormat", label = "Talent Format", list = { ["Elemental (57/14/00)"] = 1, ["Elemental"] = 2, ["57/14/00"] = 3,}, y = 8 }; -- not supported with MoP changes
+	end
+
+	tttOptions[#tttOptions + 1] = { type = "Slider", var = "talentCacheSize", label = "Talent Cache Size", min = 0, max = 50, step = 1, y = 12 };
+	
 	options[#options + 1] = {
 		[0] = "Talents",
-		{ type = "Check", var = "showTalents", label = "Enable TipTacTalents", tip = "This option makes the tip show the talent specialization of other players" },
-		{ type = "Check", var = "talentOnlyInParty", label = "Only Show Talents for Party and Raid Members", tip = "When you enable this, only talents of players in your party or raid will be requested and shown" },
---		{ type = "DropDown", var = "talentFormat", label = "Talent Format", list = { ["Elemental (57/14/00)"] = 1, ["Elemental"] = 2, ["57/14/00"] = 3,}, y = 8 },	-- not supported with MoP changes
-		{ type = "Slider", var = "talentCacheSize", label = "Talent Cache Size", min = 0, max = 50, step = 1, y = 12 },
+		unpack(tttOptions)
 	};
 end
 

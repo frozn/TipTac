@@ -78,7 +78,7 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			if ((auraFrameIndex - 1) % aurasPerRow == 0) or (auraFrameIndex == startingAuraFrameIndex) then
 				-- new aura line
 				local x = (xOffsetBasis * 2);
-				local y = (cfg.auraSize + 1) * floor((auraFrameIndex - 1) / aurasPerRow);
+				local y = (cfg.auraSize + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + 1;
 				y = (cfg.aurasAtBottom and -y or y);
 				aura:SetPoint(anchor1,tip,anchor2,x,y);
 			else
