@@ -225,6 +225,10 @@ local TT_DefaultConfig = {
 	if_smartIcons = true,
 	if_borderlessIcons = false,
 	if_iconSize = 42,
+	if_itemIconAnchor = "BOTTOMLEFT",
+	if_itemTooltipAnchor = "TOPLEFT",
+	if_itemIconOffsetX = 0,
+	if_itemIconOffsetY = -2.5,
 };
 
 -- Tips modified by TipTac in appearance and scale, you can add to this list if you want to modify more tips.

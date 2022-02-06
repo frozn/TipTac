@@ -300,6 +300,10 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" },
 		{ type = "Check", var = "if_borderlessIcons", label = "Borderless Icons", tip = "Turn off the border on icons" },
 		{ type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 },
+		{ type = "DropDown", var = "if_itemIconAnchor", label = "Item Icon Anchor", tip = "The anchor of the Item Icon", list = DROPDOWN_ANCHORPOS },
+		{ type = "DropDown", var = "if_itemTooltipAnchor", label = "Item Tooltip Anchor", tip = "The anchor of the tooltip that the Item Icon should anchor to.", list = DROPDOWN_ANCHORPOS },
+		{ type = "Slider", var = "if_itemIconOffsetX", label = "Item Icon x offset", min = -256, max = 256, step = 0.5 },
+		{ type = "Slider", var = "if_itemIconOffsetY", label = "Item Icon y offset", min = -256, max = 256, step = 0.5 },
 	};
 end
 

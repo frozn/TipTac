@@ -98,6 +98,10 @@ local cfg = {
 	if_smartIcons = true,
 	if_borderlessIcons = false,
 	if_iconSize = 42,
+	if_itemIconAnchor = "BOTTOMLEFT",
+	if_itemTooltipAnchor = "TOPLEFT",
+	if_itemIconOffsetX = 0,
+	if_itemIconOffsetY = -2.5,
 };
 
 -- Tooltips to Hook into -- MUST be a GameTooltip widget -- If the main TipTac is installed, the TT_TipsToModify is used instead
@@ -179,7 +183,7 @@ end
 -- Create Icon with Counter Text for Tooltip
 function ttif:CreateTooltipIcon(tip)
 	tip.ttIcon = tip:CreateTexture(nil,"BACKGROUND");
-	tip.ttIcon:SetPoint("BOTTOMLEFT",tip,"TOPLEFT",0,-2.5);
+	tip.ttIcon:SetPoint(cfg.if_itemIconAnchor,tip,cfg.if_itemTooltipAnchor,cfg.if_itemIconOffsetX,cfg.if_itemIconOffsetY);
 	tip.ttIcon:Hide();
 
 	tip.ttCount = tip:CreateFontString(nil,"ARTWORK");
@@ -258,6 +262,7 @@ function ttif:OnApplyConfig()
 				else
 					tip.ttIcon:SetTexCoord(0,1,0,1);
 				end
+				tip.ttIcon:SetPoint(cfg.if_itemIconAnchor,tip,cfg.if_itemTooltipAnchor,cfg.if_itemIconOffsetX,cfg.if_itemIconOffsetY);
 			elseif (tip.ttSetIconTextureAndText) then
 				tip.ttIcon:Hide();
 				tip.ttSetIconTextureAndText = nil;
