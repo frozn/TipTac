@@ -168,6 +168,7 @@ function ttAuras:OnApplyConfig(cfg)
 		if (cfg.showBuffs or cfg.showDebuffs) then
 			aura:SetSize(cfg.auraSize*ppScale,cfg.auraSize*ppScale);
 			aura.border:SetSize(cfg.auraSize*ppScale,cfg.auraSize*ppScale);
+			aura.border:Show();
 			aura.count:SetFont(gameFont,(cfg.auraSize*ppScale / 2),"OUTLINE");
 			aura.cooldown.noCooldownCount = cfg.noCooldownCount;
 		else
