@@ -198,7 +198,7 @@ end
 
 -- Create Icon with Counter Text for Tooltip
 function ttif:CreateTooltipIcon(tip)
-	tip.ttIcon = tip:CreateTexture(nil, "BACKGROUND");
+	tip.ttIcon = tip:CreateTexture(nil, "ARTWORK");
 	tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
 	tip.ttIcon:Hide();
 
