@@ -574,8 +574,8 @@ end
 --------------------------------------------------------------------------------------------------------
 
 -- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
-local function GetNearestPixelSize(size)
-	return size * ppScale;
+function tt:GetNearestPixelSize(size)
+	return (size * ppScale) / cfg.gttScale;
 end
 
 -- Resolves the given table array of string names into their global objects
@@ -653,11 +653,11 @@ function tt:ApplySettings()
 	end
 	tipBackdrop.tile = false;
 	tipBackdrop.tileEdge = false;
-	tipBackdrop.edgeSize = GetNearestPixelSize(cfg.backdropEdgeSize);
-	tipBackdrop.insets.left = GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.right = GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.top = GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.bottom = GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.edgeSize = tt:GetNearestPixelSize(cfg.backdropEdgeSize);
+	tipBackdrop.insets.left = tt:GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.right = tt:GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.top = tt:GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.bottom = tt:GetNearestPixelSize(cfg.backdropInsets);
 
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
@@ -917,7 +917,7 @@ end
 function tt:AnchorFrameToMouse(frame)
 	local x, y = GetCursorPosition();
 	local effScale = frame:GetEffectiveScale();
-	local offsetX, offsetY = cfg.mouseOffsetX * ppScale, cfg.mouseOffsetY * ppScale;
+	local offsetX, offsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX), tt:GetNearestPixelSize(cfg.mouseOffsetY);
 	frame:ClearAllPoints();
 	frame:SetPoint(frame.ttAnchorPoint,UIParent,"BOTTOMLEFT",(x / effScale + offsetX),(y / effScale + offsetY));
 end

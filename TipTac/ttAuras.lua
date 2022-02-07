@@ -26,7 +26,7 @@ local validSelfCasterUnits = {
 
 local function CreateAuraFrame(parent)
 	local aura = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate");
-	aura:SetSize(cfg.auraSize*ppScale, cfg.auraSize*ppScale);
+	aura:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
 
 	aura.count = aura:CreateFontString(nil,"OVERLAY");
 	aura.count:SetPoint("BOTTOMRIGHT",1,0);
@@ -43,7 +43,7 @@ local function CreateAuraFrame(parent)
 	aura.cooldown.noCooldownCount = cfg.noCooldownCount or nil;
 
 	aura.border = CreateFrame("Frame", nil, aura, BackdropTemplateMixin and "BackdropTemplate");
-	aura.border:SetSize(cfg.auraSize*ppScale, cfg.auraSize*ppScale);
+	aura.border:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
 	aura.border:SetPoint("CENTER", aura, "CENTER");
 	aura.border:SetBackdrop(aura:GetParent().backdropInfo);
 	aura.border:SetBackdropColor(0, 0, 0, 0);
@@ -56,8 +56,9 @@ end
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 	-- want them to be flush with the tooltips borders, means we subtract 1 offset since the very last one doesn't need to be there
-	local aurasPerRow = floor((tip:GetWidth() - cfg.auraOffsetX*ppScale) / ((cfg.auraSize + cfg.auraOffsetX)*ppScale));	-- auras we can fit into one row based on the current size of the tooltip
-	local xOffsetBasis = (auraType == "HELPFUL" and cfg.auraOffsetX or -cfg.auraOffsetX) * ppScale;				-- is +1 or -1 based on horz anchoring
+	-- aura icons don't scale because we need the exact width, hav to change the size manually in the options instead.
+	local aurasPerRow = floor((tip:GetWidth() - tt:GetNearestPixelSize(cfg.auraSize)) / (tt:GetNearestPixelSize(cfg.auraSize + cfg.auraOffsetX)*ppScale));	-- auras we can fit into one row based on the current size of the tooltip
+	local xOffsetBasis = tt:GetNearestPixelSize(auraType == "HELPFUL" and cfg.auraOffsetX or -cfg.auraOffsetX);				-- is +1 or -1 based on horz anchoring
 
 	local queryIndex = 1;							-- aura query index for this auraType
 	local auraFrameIndex = startingAuraFrameIndex;	-- array index for the next aura frame, initialized to the starting index
@@ -85,7 +86,7 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			if ((auraFrameIndex - 1) % aurasPerRow == 0) or (auraFrameIndex == startingAuraFrameIndex) then
 				-- new aura line
 				local x = 0;
-				local y = (cfg.auraSize*ppScale + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + cfg.auraOffsetY*ppScale;
+				local y = (tt:GetNearestPixelSize(cfg.auraSize) + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + tt:GetNearestPixelSize(cfg.auraOffsetY);
 				y = (cfg.aurasAtBottom and -y or y);
 				aura:SetPoint(anchor1,tip,anchor2,x,y);
 			else
@@ -166,9 +167,9 @@ function ttAuras:OnApplyConfig(cfg)
 	local gameFont = GameFontNormal:GetFont();
 	for _, aura in ipairs(auras) do
 		if (cfg.showBuffs or cfg.showDebuffs) then
-			aura:SetSize(cfg.auraSize*ppScale,cfg.auraSize*ppScale);
-			aura.border:SetSize(cfg.auraSize*ppScale,cfg.auraSize*ppScale);
-			aura.count:SetFont(gameFont,(cfg.auraSize*ppScale / 2),"OUTLINE");
+			aura:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
+			aura.border:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
+			aura.count:SetFont(gameFont,(tt:GetNearestPixelSize(cfg.auraSize) / 2),"OUTLINE");
 			aura.cooldown.noCooldownCount = cfg.noCooldownCount;
 		else
 			aura:Hide();
