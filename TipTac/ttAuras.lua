@@ -56,8 +56,7 @@ end
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 	-- want them to be flush with the tooltips borders, means we subtract 1 offset since the very last one doesn't need to be there
-	-- also assure at least auraMinOffsetBetweenBuffAndDebuff pixels between buffs/debuffs
-	local aurasPerRow = floor((tip:GetWidth() - cfg.auraOffsetX*ppScale - cfg.auraMinOffsetBetweenBuffAndDebuff*ppScale) / ((cfg.auraSize + cfg.auraOffsetX)*ppScale));	-- auras we can fit into one row based on the current size of the tooltip
+	local aurasPerRow = floor((tip:GetWidth() - cfg.auraOffsetX*ppScale) / ((cfg.auraSize + cfg.auraOffsetX)*ppScale));	-- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = (auraType == "HELPFUL" and cfg.auraOffsetX or -cfg.auraOffsetX) * ppScale;				-- is +1 or -1 based on horz anchoring
 
 	local queryIndex = 1;							-- aura query index for this auraType

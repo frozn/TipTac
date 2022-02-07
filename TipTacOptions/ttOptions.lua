@@ -184,7 +184,6 @@ local options = {
 
 		{ type = "Slider", var = "auraOffsetX", label = "X offset between aura icons", min = 0, max = 20, step = 1 },
 		{ type = "Slider", var = "auraOffsetY", label = "Y offset between aura rows", min = 0, max = 20, step = 1 },
-		{ type = "Slider", var = "auraMinOffsetBetweenBuffAndDebuff", label = "Min. dist. between buffs/debuffs", min = 0, max = 50, step = 1 },
 
 
 		{ type = "Check", var = "showAuraCooldown", label = "Show Cooldown Models", tip = "With this option on, you will see a visual progress of the time left on the buff", y = 8 },
