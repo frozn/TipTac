@@ -4,6 +4,11 @@ local gtt = GameTooltip;
 local tt = TipTac;
 local cfg;
 
+-- actual pixel perfect scale
+local ui_scale = UIParent:GetEffectiveScale()
+local height = select(2, GetPhysicalScreenSize())
+local ppScale = (768 / height) / ui_scale
+
 -- element registration
 local ttAuras = tt:RegisterElement({ auras = {} },"Auras");
 local auras = ttAuras.auras;
@@ -20,8 +25,8 @@ local validSelfCasterUnits = {
 --------------------------------------------------------------------------------------------------------
 
 local function CreateAuraFrame(parent)
-	local aura = CreateFrame("Frame",nil,parent);
-	aura:SetSize(cfg.auraSize,cfg.auraSize);
+	local aura = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate");
+	aura:SetSize(cfg.auraSize*ppScale, cfg.auraSize*ppScale);
 
 	aura.count = aura:CreateFontString(nil,"OVERLAY");
 	aura.count:SetPoint("BOTTOMRIGHT",1,0);
@@ -37,11 +42,20 @@ local function CreateAuraFrame(parent)
 	aura.cooldown:SetFrameLevel(aura:GetFrameLevel());
 	aura.cooldown.noCooldownCount = cfg.noCooldownCount or nil;
 
-	aura.border = aura:CreateTexture(nil,"OVERLAY");
-	aura.border:SetPoint("TOPLEFT",-1,1);
-	aura.border:SetPoint("BOTTOMRIGHT",1,-1);
-	aura.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
-	aura.border:SetTexCoord(0.296875,0.5703125,0,0.515625);
+	if (cfg.auraCustomBorder) then
+		aura.border = CreateFrame("Frame", nil, aura, BackdropTemplateMixin and "BackdropTemplate");
+		aura.border:SetSize(cfg.auraSize*ppScale, cfg.auraSize*ppScale);
+		aura.border:SetPoint("CENTER", aura, "CENTER");
+		aura.border:SetBackdrop(parent.backdropInfo);
+		aura.border:SetBackdropColor(0, 0, 0, 0);
+		aura.border:SetFrameLevel(aura.cooldown:GetFrameLevel()+1);
+	else
+		aura.border = aura:CreateTexture(nil,"OVERLAY");
+		aura.border:SetPoint("TOPLEFT",-1,1);
+		aura.border:SetPoint("BOTTOMRIGHT",1,-1);
+		aura.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
+		aura.border:SetTexCoord(0.296875,0.5703125,0,0.515625);
+	end
 
 	auras[#auras + 1] = aura;
 	return aura;
@@ -49,9 +63,10 @@ end
 
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
-
-	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2));	-- auras we can fit into one row based on the current size of the tooltip
-	local xOffsetBasis = (auraType == "HELPFUL" and 1 or -1);				-- is +1 or -1 based on horz anchoring
+	-- want them to be flush with the tooltips borders, means we subtract 1 offset since the very last one doesn't need to be there
+	-- also assure at least auraMinOffsetBetweenBuffAndDebuff pixels between buffs/debuffs
+	local aurasPerRow = floor((tip:GetWidth() - cfg.auraOffsetX*ppScale - cfg.auraMinOffsetBetweenBuffAndDebuff*ppScale) / ((cfg.auraSize + cfg.auraOffsetX)*ppScale));	-- auras we can fit into one row based on the current size of the tooltip
+	local xOffsetBasis = (auraType == "HELPFUL" and cfg.auraOffsetX or -cfg.auraOffsetX) * ppScale;				-- is +1 or -1 based on horz anchoring
 
 	local queryIndex = 1;							-- aura query index for this auraType
 	local auraFrameIndex = startingAuraFrameIndex;	-- array index for the next aura frame, initialized to the starting index
@@ -70,6 +85,7 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 		if (not iconTexture) or (auraFrameIndex / aurasPerRow > cfg.auraMaxRows) then
 			break;
 		end
+
 		if (not cfg.selfAurasOnly or validSelfCasterUnits[casterUnit]) then
 			local aura = auras[auraFrameIndex] or CreateAuraFrame(tip);
 
@@ -77,13 +93,13 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			aura:ClearAllPoints();
 			if ((auraFrameIndex - 1) % aurasPerRow == 0) or (auraFrameIndex == startingAuraFrameIndex) then
 				-- new aura line
-				local x = (xOffsetBasis * 2);
-				local y = (cfg.auraSize + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + 1;
+				local x = 0;
+				local y = (cfg.auraSize*ppScale + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + cfg.auraOffsetY*ppScale;
 				y = (cfg.aurasAtBottom and -y or y);
 				aura:SetPoint(anchor1,tip,anchor2,x,y);
 			else
 				-- anchor to last
-				aura:SetPoint(horzAnchor1, auras[auraFrameIndex - 1], horzAnchor2, (xOffsetBasis * 2), 0);
+				aura:SetPoint(horzAnchor1, auras[auraFrameIndex - 1], horzAnchor2, (xOffsetBasis), 0);
 			end
 
 			-- Cooldown
@@ -98,12 +114,24 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			aura.count:SetText(count and count > 1 and count or "");
 
 			-- Border -- Only shown for debuffs
-			if (auraType == "HARMFUL") then
-				local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
-				aura.border:SetVertexColor(color.r,color.g,color.b);
-				aura.border:Show();
+			if (cfg.auraCustomBorder) then
+				if (cfg.auraBorderUseParentColor) then
+					aura.border:SetBackdropBorderColor(tip:GetBackdropBorderColor());
+				else
+					if (auraType == "HARMFUL") then
+						aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderDebuffColor));
+					else
+						aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderBuffColor));
+					end
+				end
 			else
-				aura.border:Hide();
+				if (auraType == "HARMFUL") then
+					local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
+					aura.border:SetVertexColor(color.r,color.g,color.b);
+					aura.border:Show();
+				else
+					aura.border:Hide();
+				end
 			end
 
 			-- Show + Next, Break if exceed max desired rows of aura
@@ -147,8 +175,9 @@ function ttAuras:OnApplyConfig(cfg)
 	local gameFont = GameFontNormal:GetFont();
 	for _, aura in ipairs(auras) do
 		if (cfg.showBuffs or cfg.showDebuffs) then
-			aura:SetWidth(cfg.auraSize,cfg.auraSize);
-			aura.count:SetFont(gameFont,(cfg.auraSize / 2),"OUTLINE");
+			aura:SetSize(cfg.auraSize*ppScale,cfg.auraSize*ppScale);
+			aura.border:SetSize(cfg.auraSize*ppScale,cfg.auraSize*ppScale);
+			aura.count:SetFont(gameFont,(cfg.auraSize*ppScale / 2),"OUTLINE");
 			aura.cooldown.noCooldownCount = cfg.noCooldownCount;
 		else
 			aura:Hide();

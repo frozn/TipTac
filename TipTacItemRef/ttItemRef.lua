@@ -40,6 +40,11 @@ end
 local modName = ...;
 local ttif = CreateFrame("Frame", modName);
 
+-- actual pixel perfect scale
+local ui_scale = UIParent:GetEffectiveScale()
+local height = select(2, GetPhysicalScreenSize())
+local ppScale = (768 / height) / ui_scale
+
 -- Register with TipTac core addon if available
 if (TipTac) then
 	TipTac:RegisterElement(ttif,"ItemRef");
@@ -102,6 +107,7 @@ local cfg = {
 	if_iconTooltipAnchor = "TOPLEFT",
 	if_iconOffsetX = 2.5,
 	if_iconOffsetY = -2.5,
+	if_copyParentBorder = false,
 };
 
 -- Tooltips to Hook into -- MUST be a GameTooltip widget -- If the main TipTac is installed, the TT_TipsToModify is used instead
@@ -173,8 +179,14 @@ local function ttSetIconTextureAndText(self, texture, count)
 		else
 			self.ttCount:SetText("");
 		end
+		if (not cfg.if_copyParentBorder) then
+			self.ttIcon.border:Hide();
+		else
+			self.ttIcon.border:Show();
+		end
 		self.ttIcon:Show();
 	else
+		self.ttIcon.border:Hide();
 		self.ttIcon:Hide();
 		self.ttCount:SetText("");
 	end
@@ -183,12 +195,26 @@ end
 -- Create Icon with Counter Text for Tooltip
 function ttif:CreateTooltipIcon(tip)
 	tip.ttIcon = tip:CreateTexture(nil, "BACKGROUND");
-	tip.ttIcon:SetPoint(cfg.if_iconAnchor,tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
+	tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX * ppScale, cfg.if_iconOffsetY * ppScale);
+	tip.ttIcon:SetScale(tip:GetScale());
 	tip.ttIcon:Hide();
+
+	tip.ttIcon.border = CreateFrame("Frame", nil, tip, BackdropTemplateMixin and "BackdropTemplate");
+	tip.ttIcon.border:SetPoint("BOTTOMLEFT", tip.ttIcon, "BOTTOMLEFT");
+	tip.ttIcon.border:SetScale(tip:GetScale());
+	--tip.ttIcon.border:Hide();
 
 	tip.ttCount = tip:CreateFontString(nil, "ARTWORK");
 	tip.ttCount:SetTextColor(1, 1, 1);
 	tip.ttCount:SetPoint("BOTTOMRIGHT", tip.ttIcon, "BOTTOMRIGHT", -3, 3);
+end
+
+function ttif:ApplyBorderToTooltipIcon(tip)
+	if (cfg.if_copyParentBorder) then
+		tip.ttIcon.border:SetBackdrop(tip.backdropInfo);
+		tip.ttIcon.border:SetBackdropColor(0, 0, 0, 0);
+		tip.ttIcon.border:SetBackdropBorderColor(tip:GetBackdropBorderColor());
+	end
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -254,16 +280,17 @@ function ttif:OnApplyConfig()
 	for index, tip in ipairs(tipsToModify) do
 		if (type(tip) == "table") and (tipsToAddIcon[tip:GetName()]) and (tip.ttIcon) then
 			if (cfg.if_showIcon) then
+				tip.ttIcon.border:SetSize(cfg.if_iconSize, cfg.if_iconSize);
 				tip.ttIcon:SetSize(cfg.if_iconSize, cfg.if_iconSize);
 				tip.ttCount:SetFont(gameFont, (cfg.if_iconSize / 3), "OUTLINE");
 				tip.ttSetIconTextureAndText = ttSetIconTextureAndText;
-				if (cfg.if_borderlessIcons) then
+				if (cfg.if_borderlessIcons or cfg.if_copyParentBorder) then
 					tip.ttIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93);
 				else
 					tip.ttIcon:SetTexCoord(0, 1, 0, 1);
 				end
 				tip.ttIcon:ClearAllPoints();
-				tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
+				tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX * ppScale, cfg.if_iconOffsetY * ppScale);
 			elseif (tip.ttSetIconTextureAndText) then
 				tip.ttIcon:Hide();
 				tip.ttSetIconTextureAndText = nil;
@@ -1727,6 +1754,7 @@ function ttif:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
 	tip.ttSetBackdropBorderColorLocked = false;
 	tip:SetBackdropBorderColor(r, g, b, (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor[4]) or 1));
 	tip.ttSetBackdropBorderColorLocked = true;
+	self:ApplyBorderToTooltipIcon(tip);
 	
 	if (lockColor) then
 		tip.ttBackdropBorderColorApplied = true;

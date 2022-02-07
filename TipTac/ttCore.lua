@@ -146,6 +146,13 @@ local TT_DefaultConfig = {
 	auraMaxRows = 2,
 	showAuraCooldown = true,
 	noCooldownCount = false,
+	auraCustomBorder = true,
+	auraBorderUseParentColor = false,
+	auraBorderBuffColor = { 0, 1, 0 },
+	auraBorderDebuffColor = { 1, 0, 0 },
+	auraOffsetX = 2,
+	auraOffsetY = 2,
+	auraMinOffsetBetweenBuffAndDebuff = 10,
 
 	iconRaid = true,
 	iconFaction = false,
@@ -234,6 +241,7 @@ local TT_DefaultConfig = {
 	if_iconTooltipAnchor = "TOPLEFT",
 	if_iconOffsetX = 2.5,
 	if_iconOffsetY = -2.5,
+	if_copyParentBorder = false,
 };
 
 -- Tips modified by TipTac in appearance and scale, you can add to this list if you want to modify more tips.
