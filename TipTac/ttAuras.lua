@@ -42,20 +42,12 @@ local function CreateAuraFrame(parent)
 	aura.cooldown:SetFrameLevel(aura:GetFrameLevel());
 	aura.cooldown.noCooldownCount = cfg.noCooldownCount or nil;
 
-	if (cfg.auraCustomBorder) then
-		aura.border = CreateFrame("Frame", nil, aura, BackdropTemplateMixin and "BackdropTemplate");
-		aura.border:SetSize(cfg.auraSize*ppScale, cfg.auraSize*ppScale);
-		aura.border:SetPoint("CENTER", aura, "CENTER");
-		aura.border:SetBackdrop(parent.backdropInfo);
-		aura.border:SetBackdropColor(0, 0, 0, 0);
-		aura.border:SetFrameLevel(aura.cooldown:GetFrameLevel()+1);
-	else
-		aura.border = aura:CreateTexture(nil,"OVERLAY");
-		aura.border:SetPoint("TOPLEFT",-1,1);
-		aura.border:SetPoint("BOTTOMRIGHT",1,-1);
-		aura.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
-		aura.border:SetTexCoord(0.296875,0.5703125,0,0.515625);
-	end
+	aura.border = CreateFrame("Frame", nil, aura, BackdropTemplateMixin and "BackdropTemplate");
+	aura.border:SetSize(cfg.auraSize*ppScale, cfg.auraSize*ppScale);
+	aura.border:SetPoint("CENTER", aura, "CENTER");
+	aura.border:SetBackdrop(aura:GetParent().backdropInfo);
+	aura.border:SetBackdropColor(0, 0, 0, 0);
+	aura.border:SetFrameLevel(aura.cooldown:GetFrameLevel()+1);
 
 	auras[#auras + 1] = aura;
 	return aura;
@@ -127,8 +119,7 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			else
 				if (auraType == "HARMFUL") then
 					local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
-					aura.border:SetVertexColor(color.r,color.g,color.b);
-					aura.border:Show();
+					aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderDebuffColor));
 				else
 					aura.border:Hide();
 				end
