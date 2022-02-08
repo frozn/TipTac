@@ -837,7 +837,7 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	local tipName = tip:GetName();
 	
 	if (tipName:match("DropDownList(%d+)Backdrop")) or (tipName:match("DropDownList(%d+)MenuBackdrop")) then
-		tip.template = "Default"; -- workaround for addon ElvUI to prevent applying of frame:SetTemplate('Transparent')
+		tip.template = "Default"; -- workaround for addon ElvUI to prevent applying of frame:StripTextures()
 	end
 	
 	-- apply tip backdrop
