@@ -181,20 +181,15 @@ local options = {
 		{ type = "Check", var = "selfAurasOnly", label = "Only Show Auras Coming from You", tip = "This will filter out and only display auras you cast yourself", y = 12 },
 		{ type = "Slider", var = "auraSize", label = "Aura Icon Dimension", min = 8, max = 60, step = 1, y = 12 },
 		{ type = "Slider", var = "auraMaxRows", label = "Max Aura Rows", min = 1, max = 8, step = 1 },
-
 		{ type = "Slider", var = "auraOffsetX", label = "X offset between aura icons", min = 0, max = 20, step = 1 },
 		{ type = "Slider", var = "auraOffsetY", label = "Y offset between aura rows", min = 0, max = 20, step = 1 },
-
-
 		{ type = "Check", var = "showAuraCooldown", label = "Show Cooldown Models", tip = "With this option on, you will see a visual progress of the time left on the buff", y = 8 },
 		{ type = "Check", var = "noCooldownCount", label = "No Cooldown Count Text", tip = "Tells cooldown enhancement addons, such as OmniCC, not to display cooldown text" },
-	
 		{ type = "Check", var = "auraCustomBorder", label = "Custom aura icon border", tip = "Use a custom aura icon border" },
 		{ type = "Check", var = "auraBorderUseParentColor", label = "Copy border color of tooltip", tip = "Copies the bordercolor of the tooltip for the aura icons" },
 		{ type = "Color", var = "auraBorderBuffColor", label = "Custom buff border color" },
 		{ type = "Color", var = "auraBorderDebuffColor", label = "Custom debuff border color" },
-
-
+		{ type = "Check", var = "auraBorderUseDebuffTypeColors", label = "Use blizz DEBUFF type color instead", tip = "Uses the default blizzard DEBUFF type colors instead (curse/poison/magic/disease" },
 	},
 	-- Icon
 	{

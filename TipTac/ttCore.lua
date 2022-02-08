@@ -152,6 +152,7 @@ local TT_DefaultConfig = {
 	auraBorderDebuffColor = { 1, 0, 0 },
 	auraOffsetX = 2,
 	auraOffsetY = 2,
+	auraBorderUseDebuffTypeColors = true,
 
 	iconRaid = true,
 	iconFaction = false,

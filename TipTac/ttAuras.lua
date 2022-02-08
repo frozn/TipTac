@@ -25,16 +25,12 @@ local validSelfCasterUnits = {
 --------------------------------------------------------------------------------------------------------
 
 local function CreateAuraFrame(parent)
-	local aura = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate");
+	local aura = CreateFrame("Frame", nil, parent);
 	aura:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
 
 	aura.count = aura:CreateFontString(nil,"OVERLAY");
 	aura.count:SetPoint("BOTTOMRIGHT",1,0);
 	aura.count:SetFont(GameFontNormal:GetFont(),(cfg.auraSize / 2),"OUTLINE");
-
-	aura.icon = aura:CreateTexture(nil,"BACKGROUND");
-	aura.icon:SetAllPoints();
-	aura.icon:SetTexCoord(0.07,0.93,0.07,0.93);
 
 	aura.cooldown = CreateFrame("Cooldown",nil,aura,"CooldownFrameTemplate");
 	aura.cooldown:SetReverse(1);
@@ -43,21 +39,32 @@ local function CreateAuraFrame(parent)
 	aura.cooldown.noCooldownCount = cfg.noCooldownCount or nil;
 
 	aura.border = CreateFrame("Frame", nil, aura, BackdropTemplateMixin and "BackdropTemplate");
-	aura.border:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
-	aura.border:SetPoint("CENTER", aura, "CENTER");
+	--aura.border:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
+	aura.border:SetAllPoints();
 	aura.border:SetBackdrop(aura:GetParent().backdropInfo);
 	aura.border:SetBackdropColor(0, 0, 0, 0);
 	aura.border:SetFrameLevel(aura.cooldown:GetFrameLevel()+1);
+
+	aura.icon = aura:CreateTexture(nil,"BACKGROUND");
+	aura.icon:SetPoint("CENTER",aura,"CENTER");
+	aura.icon:SetTexCoord(0.07,0.93,0.07,0.93);
+	ttAuras:ApplyInsetsToIconTexture(aura.icon, aura:GetParent().backdropInfo);
 
 	auras[#auras + 1] = aura;
 	return aura;
 end
 
+function ttAuras:ApplyInsetsToIconTexture(texture, backdropInfo)
+	-- manually implementing border insets because otherwise we cant remove the ugly default border
+	-- assumes symmetrical insets
+	texture:SetSize(tt:GetNearestPixelSize(cfg.auraSize) - backdropInfo.insets.left * 2, tt:GetNearestPixelSize(cfg.auraSize) - backdropInfo.insets.top * 2);
+end
+
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 	-- want them to be flush with the tooltips borders, means we subtract 1 offset since the very last one doesn't need to be there
-	-- aura icons don't scale because we need the exact width, hav to change the size manually in the options instead.
-	local aurasPerRow = floor((tip:GetWidth() - tt:GetNearestPixelSize(cfg.auraSize)) / (tt:GetNearestPixelSize(cfg.auraSize + cfg.auraOffsetX)*ppScale));	-- auras we can fit into one row based on the current size of the tooltip
+	-- aura icons don't scale because we need the exact width, have to change the size manually in the options instead.
+	local aurasPerRow = floor((tip:GetWidth() - tt:GetNearestPixelSize(cfg.auraOffsetX)) / tt:GetNearestPixelSize(cfg.auraSize + cfg.auraOffsetX));	-- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = tt:GetNearestPixelSize(auraType == "HELPFUL" and cfg.auraOffsetX or -cfg.auraOffsetX);				-- is +1 or -1 based on horz anchoring
 
 	local queryIndex = 1;							-- aura query index for this auraType
@@ -86,12 +93,12 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			if ((auraFrameIndex - 1) % aurasPerRow == 0) or (auraFrameIndex == startingAuraFrameIndex) then
 				-- new aura line
 				local x = 0;
-				local y = (tt:GetNearestPixelSize(cfg.auraSize) + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + tt:GetNearestPixelSize(cfg.auraOffsetY);
+				local y = (cfg.auraSize + cfg.auraOffsetY) * floor((auraFrameIndex - 1) / aurasPerRow) + cfg.auraOffsetY;
 				y = (cfg.aurasAtBottom and -y or y);
-				aura:SetPoint(anchor1,tip,anchor2,x,y);
+				aura:SetPoint(anchor1, tip, anchor2, x, tt:GetNearestPixelSize(y));
 			else
 				-- anchor to last
-				aura:SetPoint(horzAnchor1, auras[auraFrameIndex - 1], horzAnchor2, (xOffsetBasis), 0);
+				aura:SetPoint(horzAnchor1, auras[auraFrameIndex - 1], horzAnchor2, xOffsetBasis, 0);
 			end
 
 			-- Cooldown
@@ -105,24 +112,28 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 			aura.icon:SetTexture(iconTexture);
 			aura.count:SetText(count and count > 1 and count or "");
 
-			-- Border -- Only shown for debuffs
+			-- Border
 			if (cfg.auraCustomBorder) then
 				if (cfg.auraBorderUseParentColor) then
 					aura.border:SetBackdropBorderColor(tip:GetBackdropBorderColor());
 				else
 					if (auraType == "HARMFUL") then
-						aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderDebuffColor));
+						if (cfg.auraBorderUseDebuffTypeColors) then
+							local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
+							aura.border:SetBackdropBorderColor(color.r, color.g, color.b);
+						else
+							aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderDebuffColor));
+						end
 					else
 						aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderBuffColor));
 					end
 				end
 				aura.border:Show();
 			else
+				-- old way (only debuffs)
 				if (auraType == "HARMFUL") then
 					local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
-					aura.border:SetBackdropBorderColor(unpack(cfg.auraBorderDebuffColor));
-				else
-					aura.border:Hide();
+					aura.border:SetBackdropBorderColor(color.r, color.g, color.b);
 				end
 			end
 
@@ -141,11 +152,11 @@ end
 function ttAuras:SetupAuras(tip)
 --printf("[%.2f] %-24s %d x %d",GetTime(),"SetupAuras",tip:GetWidth(),tip:GetHeight())
 	local auraCount = 0;
-	if (cfg.showBuffs) then
-		auraCount = auraCount + self:DisplayAuras(tip,"HELPFUL",auraCount + 1);
-	end
 	if (cfg.showDebuffs) then
 		auraCount = auraCount + self:DisplayAuras(tip,"HARMFUL",auraCount + 1);
+	end
+	if (cfg.showBuffs) then
+		auraCount = auraCount + self:DisplayAuras(tip,"HELPFUL",auraCount + 1);
 	end
 
 	-- Hide the Unused
@@ -168,7 +179,11 @@ function ttAuras:OnApplyConfig(cfg)
 	for _, aura in ipairs(auras) do
 		if (cfg.showBuffs or cfg.showDebuffs) then
 			aura:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
-			aura.border:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
+			aura.border:SetBackdrop(nil);
+			aura.border:SetBackdrop(aura:GetParent().backdropInfo);
+			aura.border:SetBackdropColor(0, 0, 0, 0);
+			aura.border:SetAllPoints();
+			ttAuras:ApplyInsetsToIconTexture(aura.icon, aura:GetParent().backdropInfo);
 			aura.count:SetFont(gameFont,(tt:GetNearestPixelSize(cfg.auraSize) / 2),"OUTLINE");
 			aura.cooldown.noCooldownCount = cfg.noCooldownCount;
 		else
