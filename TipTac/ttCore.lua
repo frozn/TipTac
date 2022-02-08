@@ -833,7 +833,12 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	tip.layoutType = nil;
 	tip.layoutTextureKit = nil;
 	tip.backdropInfo = nil;
-	tip.template = "Default"; -- workaround for addon ElvUI to prevent applying of frame:SetTemplate('Transparent')
+	
+	local tipName = tip:GetName();
+	
+	if (tipName:match("DropDownList(%d+)Backdrop")) or (tipName:match("DropDownList(%d+)MenuBackdrop")) then
+		tip.template = "Default"; -- workaround for addon ElvUI to prevent applying of frame:SetTemplate('Transparent')
+	end
 	
 	-- apply tip backdrop
 	tt:SetBackdropLocked(tip, tipBackdrop);
