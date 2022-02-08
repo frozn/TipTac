@@ -212,6 +212,7 @@ end
 
 function ttif:ApplyBorderToTooltipIcon(tip)
 	if (cfg.if_copyParentBorder) then
+		tip.ttIcon.border:SetBackdrop(nil);
 		tip.ttIcon.border:SetBackdrop(tip.backdropInfo);
 		tip.ttIcon.border:SetBackdropColor(0, 0, 0, 0);
 		tip.ttIcon.border:SetBackdropBorderColor(tip:GetBackdropBorderColor());
