@@ -134,6 +134,8 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 				if (auraType == "HARMFUL") then
 					local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
 					aura.border:SetBackdropBorderColor(color.r, color.g, color.b);
+				else
+					aura.border:Hide();
 				end
 			end
 
