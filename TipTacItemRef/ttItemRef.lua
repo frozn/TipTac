@@ -203,15 +203,22 @@ end
 -- Create Icon with Counter Text for Tooltip
 function ttif:CreateTooltipIcon(tip)
 	tip.ttIcon = tip:CreateTexture(nil, "ARTWORK");
-	tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
-	tip.ttIcon:Hide();
-
+	
 	tip.ttIcon.border = CreateFrame("Frame", nil, tip, BackdropTemplateMixin and "BackdropTemplate");
-	tip.ttIcon.border:SetPoint("BOTTOMLEFT", tip.ttIcon, "BOTTOMLEFT");
+	tip.ttIcon.border:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
+
+	tip.ttIcon:SetPoint("CENTER", tip.ttIcon.border, "CENTER");
+	tip.ttIcon:Hide();
 
 	tip.ttCount = tip:CreateFontString(nil, "ARTWORK");
 	tip.ttCount:SetTextColor(1, 1, 1);
 	tip.ttCount:SetPoint("BOTTOMRIGHT", tip.ttIcon, "BOTTOMRIGHT", -3, 3);
+end
+
+function ttif:ApplyInsetsToIconTexture(texture, backdropInfo)
+	-- manually implementing border insets because otherwise we cant remove the ugly default border
+	-- assumes symmetrical insets
+	texture:SetSize(cfg.if_iconSize - backdropInfo.insets.left * 2, cfg.if_iconSize - backdropInfo.insets.top * 2);
 end
 
 function ttif:SetClamp(tip)
@@ -249,6 +256,8 @@ function ttif:ApplyBorderToTooltipIcon(tip)
 		tip.ttIcon.border:SetBackdrop(tip.backdropInfo);
 		tip.ttIcon.border:SetBackdropColor(0, 0, 0, 0);
 		tip.ttIcon.border:SetBackdropBorderColor(tip:GetBackdropBorderColor());
+
+		ttif:ApplyInsetsToIconTexture(tip.ttIcon, tip.backdropInfo);
 	end
 end
 
@@ -315,21 +324,25 @@ function ttif:OnApplyConfig()
 	for index, tip in ipairs(tipsToModify) do
 		if (type(tip) == "table") and (tipsToAddIcon[tip:GetName()]) and (tip.ttIcon) then
 			if (cfg.if_showIcon) then
+				tip.ttIcon.border:SetBackdrop(nil);
+				ttif:ApplyBorderToTooltipIcon(tip);
 				tip.ttIcon.border:SetSize(cfg.if_iconSize, cfg.if_iconSize);
 				tip.ttIcon:SetSize(cfg.if_iconSize, cfg.if_iconSize);
 				tip.ttCount:SetFont(gameFont, (cfg.if_iconSize / 3), "OUTLINE");
 				tip.ttSetIconTextureAndText = ttSetIconTextureAndText;
+				tip.ttIcon:ClearAllPoints();
+				tip.ttIcon.border:ClearAllPoints();
+				tip.ttIcon.border:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
+				tip.ttIcon:SetPoint("CENTER", tip.ttIcon.border, "CENTER");
+				tip.ttIcon:Hide();
+				tip.ttIcon.border:Hide();
+				tip.ttCount:Hide();
+				tip.ttCount:SetText("");
 				if (cfg.if_borderlessIcons or cfg.if_copyParentBorder) then
 					tip.ttIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93);
 				else
 					tip.ttIcon:SetTexCoord(0, 1, 0, 1);
 				end
-				tip.ttIcon:ClearAllPoints();
-				tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
-				tip.ttIcon:Hide();
-				tip.ttIcon.border:Hide();
-				tip.ttCount:Hide();
-				tip.ttCount:SetText("");
 			elseif (tip.ttSetIconTextureAndText) then
 				tip.ttIcon:Hide();
 				tip.ttSetIconTextureAndText = nil;
