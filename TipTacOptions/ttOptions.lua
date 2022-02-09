@@ -328,8 +328,8 @@ if (TipTacItemRef) then
 		{ type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 },
 		{ type = "DropDown", var = "if_iconAnchor", label = "Icon Anchor", tip = "The anchor of the icon", list = DROPDOWN_ANCHORPOS },
 		{ type = "DropDown", var = "if_iconTooltipAnchor", label = "Icon Tooltip Anchor", tip = "The anchor of the tooltip that the icon should anchor to.", list = DROPDOWN_ANCHORPOS },
-		{ type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5 },
-		{ type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5 },
+		{ type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 1 }, -- only whole numbers or we get jitters
+		{ type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 1 }, -- only whole numbers or we get jitters
 	};
 end
 

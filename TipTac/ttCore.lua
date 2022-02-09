@@ -239,8 +239,8 @@ local TT_DefaultConfig = {
 	if_iconSize = 42,
 	if_iconAnchor = "BOTTOMLEFT",
 	if_iconTooltipAnchor = "TOPLEFT",
-	if_iconOffsetX = 2.5,
-	if_iconOffsetY = -2.5,
+	if_iconOffsetX = 0,
+	if_iconOffsetY = 0,
 	if_copyParentBorder = false,
 };
 
@@ -944,6 +944,31 @@ function tt:ReApplyAnchorTypeForMouse(frame, noUpdateAnchorPosition, ignoreWorld
 	end
 end
 
+-- anchors the comparing items tooltip with an appropriate offset to account for the item icon
+function tt:anchorShoppingTooltips(frame)
+	if (frame:GetName() == "ShoppingTooltip1" or frame:GetName() == "ShoppingTooltip2") then
+		-- calculate offset if the icon is to the left or right of the tooltip
+		local iconDistance = 0;
+		if (cfg.if_showIcon) then
+			local leftDistance = gtt:GetLeft() - gtt.ttIcon:GetLeft();
+			local rightDistance = gtt.ttIcon:GetRight() - gtt:GetRight();
+			if (leftDistance > 0) then
+				iconDistance = leftDistance;
+			elseif (rightDistance > 0) then
+				iconDistance = rightDistance
+			end
+		end
+
+		local anchor, aFrame, anchorTo, x, y = frame:GetPoint();
+		local gapOffset = tt:GetNearestPixelSize(5);
+		local toTheLeft = (anchor == "TOPRIGHT");
+		local xOffset = (toTheLeft and -(gapOffset + iconDistance) or (gapOffset + iconDistance));
+
+		frame:ClearAllPoints();
+		frame:SetPoint(anchor, aFrame, anchorTo, xOffset, 0);
+	end
+end
+
 -- Removes lines from the tooltip which are unwanted, such as "PvP", "Alliance", "Horde"
 -- Also removes the coalesced realm line(s), which I am unsure is still in BfA?
 function tt:RemoveUnwantedLines(tip)
@@ -1297,6 +1322,7 @@ end
 -- EventHook: OnTooltipSetItem
 function gttScriptHooks:OnTooltipSetItem()
 	tt:ReApplyAnchorTypeForMouse(self);
+	tt:anchorShoppingTooltips(self, "ontooltipsetitem");
 end
 
 -- OnHide Script -- Used to default the background and border color -- Az: May cause issues with embedded tooltips, see GameTooltip.lua:396
