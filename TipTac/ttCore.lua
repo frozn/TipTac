@@ -982,7 +982,7 @@ function tt:anchorShoppingTooltips(frame)
 		local rightIcon = false;
 
 		-- calculate offset if the icon is to the left or right of the tooltip
-		if (cfg.if_showIcon and (gtt.ttIcon ~= nil)) then
+		if (cfg.if_showIcon and (gtt.ttIcon ~= nil) and (frame.ttIcon:GetLeft() ~= nil)) then
 			local leftDistance = frame:GetLeft() - frame.ttIcon:GetLeft();
 			local rightDistance = frame.ttIcon:GetRight() - frame:GetRight();
 			if (leftDistance > 0) then
