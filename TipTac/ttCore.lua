@@ -950,10 +950,6 @@ function tt:anchorShoppingTooltips(frame)
 		
 		-- retail has 2 points instead of 1 in tbcc, that anchor a bit differently, here we only set the relevant point
 		if (isWoWRetail) then
-			if (frame:GetNumPoints() == 0) then
-				return;
-			end
-
 			for n = 1, frame:GetNumPoints() do
 				local point, anchor, anchoredTo, x, y = frame:GetPoint(n);
 				if (point == "LEFT" or point == "RIGHT" or point == "TOPLEFT" or point == "TOPRIGHT") then
@@ -973,6 +969,10 @@ function tt:anchorShoppingTooltips(frame)
 			end
 		end
 
+		if (frame:GetNumPoints() == 0) then
+			return;
+		end
+
 		local anchor, aFrame, anchorTo, x, y = frame:GetPoint();
 		local gapOffset = tt:GetNearestPixelSize(5);
 		local toTheLeft = (anchor == "TOPRIGHT");
@@ -982,7 +982,7 @@ function tt:anchorShoppingTooltips(frame)
 		local rightIcon = false;
 
 		-- calculate offset if the icon is to the left or right of the tooltip
-		if (cfg.if_showIcon and (gtt.ttIcon ~= nil) and (frame:GetLeft() ~= nil)) then
+		if (cfg.if_showIcon and (gtt.ttIcon ~= nil)) then
 			local leftDistance = frame:GetLeft() - frame.ttIcon:GetLeft();
 			local rightDistance = frame.ttIcon:GetRight() - frame:GetRight();
 			if (leftDistance > 0) then
