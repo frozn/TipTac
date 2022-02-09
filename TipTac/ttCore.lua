@@ -947,21 +947,72 @@ end
 -- anchors the comparing items tooltip with an appropriate offset to account for the item icon
 function tt:anchorShoppingTooltips(frame)
 	if (frame:GetName() == "ShoppingTooltip1" or frame:GetName() == "ShoppingTooltip2") then
-		-- calculate offset if the icon is to the left or right of the tooltip
-		local iconDistance = 0;
-		if (cfg.if_showIcon) then
-			local leftDistance = gtt:GetLeft() - gtt.ttIcon:GetLeft();
-			local rightDistance = gtt.ttIcon:GetRight() - gtt:GetRight();
-			if (leftDistance > 0) then
-				iconDistance = leftDistance;
-			elseif (rightDistance > 0) then
-				iconDistance = rightDistance
+		
+		-- retail has 2 points instead of 1 in tbcc, that anchor a bit differently, here we only set the relevant point
+		if (isWoWRetail) then
+			if (frame:GetNumPoints() == 0) then
+				return;
+			end
+
+			for n = 1, frame:GetNumPoints() do
+				local point, anchor, anchoredTo, x, y = frame:GetPoint(n);
+				if (point == "LEFT" or point == "RIGHT" or point == "TOPLEFT" or point == "TOPRIGHT") then
+					-- this is the point we want
+					-- remove y offset by changing the anchor
+					if (point == "LEFT") then
+						point = "TOPLEFT";
+						anchoredTo = "TOPRIGHT";
+					elseif (point == "RIGHT") then
+						point = "TOPRIGHT";
+						anchoredTo = "TOPLEFT";
+					end
+					frame:ClearAllPoints()
+					frame:SetPoint(point, anchor, anchoredTo, x, y);
+					break;
+				end
 			end
 		end
 
 		local anchor, aFrame, anchorTo, x, y = frame:GetPoint();
 		local gapOffset = tt:GetNearestPixelSize(5);
 		local toTheLeft = (anchor == "TOPRIGHT");
+
+		local iconDistance = 0;
+		local leftIcon = false;
+		local rightIcon = false;
+
+		-- calculate offset if the icon is to the left or right of the tooltip
+		if (cfg.if_showIcon and (gtt.ttIcon ~= nil)) then
+			local leftDistance = frame:GetLeft() - frame.ttIcon:GetLeft();
+			local rightDistance = frame.ttIcon:GetRight() - frame:GetRight();
+			if (leftDistance > 0) then
+				leftIcon = true;
+				iconDistance = leftDistance;
+			elseif (rightDistance > 0) then
+				rightIcon = true;
+				iconDistance = rightDistance;
+			end
+		end
+
+		-- check if icon is hidden because of "Smart Icon Appearance"
+		-- this doesn't work because this happens before ttitemref had a chance to update gtt 
+		--if (not gtt.ttIcon:IsShown()) then
+		-- calling directly into ttitemref instead
+		local iconShown = (TipTacItemRef and cfg.if_showIcon);
+		local _, link = gtt:GetItem();
+		if (link and TipTacItemRef and cfg.if_smartIcons) then
+			local linkType, id = link:match("H?(%a+):(%d+)");
+			iconShown = TipTacItemRef:SmartIconEvaluation(gtt, linkType);
+		end
+		if (not iconShown) then
+			-- if it is, set the iconDistance to 0 for the first tooltip
+			if ((frame:GetName() == "ShoppingTooltip1" and toTheLeft and leftIcon) or 
+				(frame:GetName() == "ShoppingTooltip2" and not toTheLeft and rightIcon) or
+				(frame:GetName() == "ShoppingTooltip1" and not toTheLeft and rightIcon and not stt2:IsShown())) then
+					iconDistance = 0;
+			end
+		end
+		
 		local xOffset = (toTheLeft and -(gapOffset + iconDistance) or (gapOffset + iconDistance));
 
 		frame:ClearAllPoints();
@@ -1322,7 +1373,7 @@ end
 -- EventHook: OnTooltipSetItem
 function gttScriptHooks:OnTooltipSetItem()
 	tt:ReApplyAnchorTypeForMouse(self);
-	tt:anchorShoppingTooltips(self, "ontooltipsetitem");
+	tt:anchorShoppingTooltips(self);
 end
 
 -- OnHide Script -- Used to default the background and border color -- Az: May cause issues with embedded tooltips, see GameTooltip.lua:396

@@ -189,6 +189,8 @@ local function ttSetIconTextureAndText(self, texture, count)
 			self.ttIcon.border:Show();
 		end
 		self.ttIcon:Show();
+		self.ttCount:Show();
+		self.ttCount.border:Show();
 	else
 		self.ttIcon.border:Hide();
 		self.ttIcon:Hide();
@@ -293,6 +295,10 @@ function ttif:OnApplyConfig()
 				end
 				tip.ttIcon:ClearAllPoints();
 				tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
+				tip.ttIcon:Hide();
+				tip.ttIcon.border:Hide();
+				tip.ttCount:Hide();
+				tip.ttCount:SetText("");
 			elseif (tip.ttSetIconTextureAndText) then
 				tip.ttIcon:Hide();
 				tip.ttSetIconTextureAndText = nil;
@@ -1741,6 +1747,10 @@ local function SmartIconEvaluation(tip,linkType)
 
 	-- If we passed all checks, return true to show an icon
 	return true;
+end
+
+function ttif:SmartIconEvaluation(tip,linkType)
+	return SmartIconEvaluation(tip, linkType);
 end
 
 --------------------------------------------------------------------------------------------------------
