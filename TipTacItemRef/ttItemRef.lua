@@ -190,7 +190,7 @@ local function ttSetIconTextureAndText(self, texture, count)
 		end
 		self.ttIcon:Show();
 		self.ttCount:Show();
-		self.ttCount.border:Show();
+		self.ttIcon.border:Show();
 	else
 		self.ttIcon.border:Hide();
 		self.ttIcon:Hide();
