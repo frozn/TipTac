@@ -32,23 +32,28 @@ local function CreateAuraFrame(parent)
 	aura.count:SetPoint("BOTTOMRIGHT",1,0);
 	aura.count:SetFont(GameFontNormal:GetFont(),(cfg.auraSize / 2),"OUTLINE");
 
-	aura.cooldown = CreateFrame("Cooldown",nil,aura,"CooldownFrameTemplate");
-	aura.cooldown:SetReverse(1);
-	aura.cooldown:SetAllPoints();
-	aura.cooldown:SetFrameLevel(aura:GetFrameLevel());
-	aura.cooldown.noCooldownCount = cfg.noCooldownCount or nil;
+	aura.icon = CreateFrame("Frame", nil, aura);
+	aura.icon:SetPoint("CENTER",aura,"CENTER");
+	aura.icon:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
+
+	aura.icon.texture = aura:CreateTexture(nil,"BACKGROUND");
+	aura.icon.texture:SetPoint("CENTER",aura.icon,"CENTER");
+	aura.icon.texture:SetTexCoord(0.07,0.93,0.07,0.93);
+	ttAuras:ApplyInsetsToIconTexture(aura.icon.texture, aura:GetParent().backdropInfo);
+
+	aura.icon.cooldown = CreateFrame("Cooldown",nil,aura.icon,"CooldownFrameTemplate");
+	aura.icon.cooldown:SetReverse(1);
+	aura.icon.cooldown:SetPoint("CENTER",aura.icon,"CENTER");
+	aura.icon.cooldown:SetFrameLevel(aura:GetFrameLevel());
+	aura.icon.cooldown.noCooldownCount = cfg.noCooldownCount or nil;
+
+	ttAuras:ApplyInsetsToIconTexture(aura.icon, aura:GetParent().backdropInfo);
 
 	aura.border = CreateFrame("Frame", nil, aura, BackdropTemplateMixin and "BackdropTemplate");
-	--aura.border:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
 	aura.border:SetAllPoints();
 	aura.border:SetBackdrop(aura:GetParent().backdropInfo);
 	aura.border:SetBackdropColor(0, 0, 0, 0);
-	aura.border:SetFrameLevel(aura.cooldown:GetFrameLevel()+1);
-
-	aura.icon = aura:CreateTexture(nil,"BACKGROUND");
-	aura.icon:SetPoint("CENTER",aura,"CENTER");
-	aura.icon:SetTexCoord(0.07,0.93,0.07,0.93);
-	ttAuras:ApplyInsetsToIconTexture(aura.icon, aura:GetParent().backdropInfo);
+	aura.border:SetFrameLevel(aura.icon.cooldown:GetFrameLevel()+1);
 
 	auras[#auras + 1] = aura;
 	return aura;
@@ -103,13 +108,13 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 
 			-- Cooldown
 			if (cfg.showAuraCooldown) and (duration and duration > 0 and endTime and endTime > 0) then
-				aura.cooldown:SetCooldown(endTime - duration,duration);
+				aura.icon.cooldown:SetCooldown(endTime - duration,duration);
 			else
-				aura.cooldown:Hide();
+				aura.icon.cooldown:Hide();
 			end
 
 			-- Set Texture + Count
-			aura.icon:SetTexture(iconTexture);
+			aura.icon.texture:SetTexture(iconTexture);
 			aura.count:SetText(count and count > 1 and count or "");
 
 			-- Border
@@ -186,8 +191,9 @@ function ttAuras:OnApplyConfig(cfg)
 			aura.border:SetBackdropColor(0, 0, 0, 0);
 			aura.border:SetAllPoints();
 			ttAuras:ApplyInsetsToIconTexture(aura.icon, aura:GetParent().backdropInfo);
+			ttAuras:ApplyInsetsToIconTexture(aura.icon.texture, aura:GetParent().backdropInfo);
 			aura.count:SetFont(gameFont,(tt:GetNearestPixelSize(cfg.auraSize) / 2),"OUTLINE");
-			aura.cooldown.noCooldownCount = cfg.noCooldownCount;
+			aura.icon.cooldown.noCooldownCount = cfg.noCooldownCount;
 		else
 			aura:Hide();
 		end
