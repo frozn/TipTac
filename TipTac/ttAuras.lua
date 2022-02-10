@@ -69,7 +69,7 @@ end
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 	-- want them to be flush with the tooltips borders, means we subtract 1 offset since the very last one doesn't need to be there
 	-- aura icons don't scale because we need the exact width, have to change the size manually in the options instead.
-	local aurasPerRow = floor((tip:GetWidth() - tt:GetNearestPixelSize(cfg.auraOffsetX)) / tt:GetNearestPixelSize(cfg.auraSize + cfg.auraOffsetX));	-- auras we can fit into one row based on the current size of the tooltip
+	local aurasPerRow = floor((tip:GetWidth() + tt:GetNearestPixelSize(cfg.auraOffsetX)) / tt:GetNearestPixelSize(cfg.auraSize + cfg.auraOffsetX));	-- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = tt:GetNearestPixelSize(auraType == "HELPFUL" and cfg.auraOffsetX or -cfg.auraOffsetX);				-- is +1 or -1 based on horz anchoring
 
 	local queryIndex = 1;							-- aura query index for this auraType
