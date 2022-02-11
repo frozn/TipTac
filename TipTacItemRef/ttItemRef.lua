@@ -222,32 +222,22 @@ function ttif:ApplyInsetsToIconTexture(texture, backdropInfo)
 end
 
 function ttif:SetClamp(tip)
-	local basicOffset = GetNearestPixelSize(6);
-	local leftOffset = -basicOffset;
-	local rightOffset = basicOffset;
-	local topOffset = basicOffset;
-	local bottomOffset = -basicOffset;
+	local basicOffset = GetNearestPixelSize(5);
+	local left, right, top, bottom = -basicOffset, basicOffset, basicOffset, -basicOffset;
 	if(tip.ttIcon:IsShown() and tip.ttIcon:GetLeft() ~= nil) then
 		local leftDistance = tip:GetLeft() - tip.ttIcon:GetLeft();
 		local rightDistance = tip.ttIcon:GetRight() - tip:GetRight();
 		local topDistance = tip.ttIcon:GetTop() - tip:GetTop();
 		local bottomDistance = tip:GetBottom() - tip.ttIcon:GetBottom();
-		if (leftDistance > 0) then
-			leftOffset = leftOffset - leftDistance;
-		end
-		if (rightDistance > 0) then
-			rightOffset = rightOffset + rightDistance;
-		end
-		if (topDistance > 0) then
-			topOffset = topOffset + topDistance;
-		end
-		if (bottomDistance > 0) then
-			bottomOffset = bottomOffset - bottomDistance;
-		end
+
+		left = left + ((leftDistance > 0) and -leftDistance or 0);
+		right = right + ((rightDistance > 0) and rightDistance or 0);
+		top = top + ((topDistance > 0) and topDistance or 0);
+		bottom = bottom + ((bottomDistance > 0) and -bottomDistance or 0);
 	end
 
 	tip:SetClampedToScreen(true);
-	tip:SetClampRectInsets(leftOffset, rightOffset, topOffset, bottomOffset);
+	tip:SetClampRectInsets(left, right, top, bottom);
 end
 
 function ttif:ApplyBorderToTooltipIcon(tip)

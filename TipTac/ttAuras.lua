@@ -65,6 +65,26 @@ function ttAuras:ApplyInsetsToIconTexture(texture, backdropInfo)
 	texture:SetSize(tt:GetNearestPixelSize(cfg.auraSize) - backdropInfo.insets.left * 2, tt:GetNearestPixelSize(cfg.auraSize) - backdropInfo.insets.top * 2);
 end
 
+function ttAuras:SetClamp(tip, furthestAuraIcon)
+	local basicOffset = tt:GetNearestPixelSize(5);
+	local left, right, top, bottom = -basicOffset, basicOffset, basicOffset, -basicOffset;
+		
+	if(furthestAuraIcon ~= nil) then
+		local leftDistance = tip:GetLeft() - furthestAuraIcon:GetLeft();
+		local rightDistance = furthestAuraIcon:GetRight() - tip:GetRight();
+		local topDistance = furthestAuraIcon:GetTop() - tip:GetTop();
+		local bottomDistance = tip:GetBottom() - furthestAuraIcon:GetBottom();
+
+		left = left + ((leftDistance > 0) and -leftDistance or 0);
+		right = right + ((rightDistance > 0) and rightDistance or 0);
+		top = top + ((topDistance > 0) and topDistance or 0);
+		bottom = bottom + ((bottomDistance > 0) and -bottomDistance or 0);
+	end
+
+	tip:SetClampedToScreen(true);
+	tip:SetClampRectInsets(left, right, top, bottom);
+end
+
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
 function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 	-- want them to be flush with the tooltips borders, means we subtract 1 offset since the very last one doesn't need to be there
@@ -151,8 +171,10 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 		queryIndex = (queryIndex + 1);
 	end
 
+	local aurasDisplayed = (auraFrameIndex - startingAuraFrameIndex);
+	ttAuras:SetClamp(tip, auras[aurasDisplayed]); -- last one should be the furthest out
 	-- return the number of auras displayed
-	return (auraFrameIndex - startingAuraFrameIndex);
+	return aurasDisplayed;
 end
 
 -- display buffs and debuffs and hide unused aura frames
