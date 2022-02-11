@@ -863,7 +863,23 @@ local function GetAnchorPosition(tooltip)
 	local mouseFocus = GetMouseFocus();
 	local isUnit = (tooltip.ttDisplayingUnit) or (not tooltip.ttDisplayingAura) and (UnitExists("mouseover") or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")));	-- Az: GetAttribute("unit") here is bad, as that will find things like buff frames too
 	local var = "anchor"..(mouseFocus == WorldFrame and "World" or "Frame")..(isUnit and "Unit" or "Tip");
-	return cfg[var.."Type"], cfg[var.."Point"];
+	
+	local ttAnchorType, ttAnchorPoint = cfg[var.."Type"], cfg[var.."Point"];
+	
+	if (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) then -- don't anchor tooltip in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
+		local tooltipOwner = tooltip:GetOwner();
+		
+		if (tooltipOwner) and (type(tooltipOwner.GetName) == "function") then 
+			local tooltipOwnerName = tooltipOwner:GetName();
+			
+			if (tooltipOwnerName) and (tooltipOwnerName:match("LFGListSearchPanelScrollFrameButton(%d+)")) then
+				ttAnchorType = "normal";
+				ttAnchorPoint = "BOTTOMRIGHT";
+			end
+		end
+	end
+	
+	return ttAnchorType, ttAnchorPoint;
 end
 
 -- Set default anchor
