@@ -866,12 +866,10 @@ local function GetAnchorPosition(tooltip)
 	
 	local ttAnchorType, ttAnchorPoint = cfg[var.."Type"], cfg[var.."Point"];
 	
-	if (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) then -- don't anchor tooltip in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
+	if (tooltip == gtt) and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) then -- don't anchor tooltip in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
 		local tooltipOwner = tooltip:GetOwner();
-		
 		if (tooltipOwner) and (type(tooltipOwner.GetName) == "function") then 
 			local tooltipOwnerName = tooltipOwner:GetName();
-			
 			if (tooltipOwnerName) and (tooltipOwnerName:match("LFGListSearchPanelScrollFrameButton(%d+)")) then
 				ttAnchorType = "normal";
 				ttAnchorPoint = "BOTTOMRIGHT";
