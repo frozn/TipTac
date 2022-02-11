@@ -2392,8 +2392,8 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	end
 
 	-- ItemLevel + ConduitID
-	local conduitCollectionData = C_Soulbinds.GetConduitCollectionData(conduitID)
-	local conduitItemLevel = conduitCollectionData.conduitItemLevel;
+	local conduitCollectionData = C_Soulbinds.GetConduitCollectionData(conduitID);
+	local conduitItemLevel = (conduitCollectionData and conduitCollectionData.conduitItemLevel); -- conduitCollectionData is only available for own conduits
 	
 	local showLevel = (conduitItemLevel and cfg.if_showConduitItemLevel);
 	local showId = (conduitID and cfg.if_showConduitId);
