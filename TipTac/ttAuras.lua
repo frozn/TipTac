@@ -171,10 +171,8 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 		queryIndex = (queryIndex + 1);
 	end
 
-	local aurasDisplayed = (auraFrameIndex - startingAuraFrameIndex);
-	ttAuras:SetClamp(tip, auras[aurasDisplayed]); -- last one should be the furthest out
 	-- return the number of auras displayed
-	return aurasDisplayed;
+	return (auraFrameIndex - startingAuraFrameIndex);
 end
 
 -- display buffs and debuffs and hide unused aura frames
@@ -187,6 +185,8 @@ function ttAuras:SetupAuras(tip)
 	if (cfg.showBuffs) then
 		auraCount = auraCount + self:DisplayAuras(tip,"HELPFUL",auraCount + 1);
 	end
+
+	ttAuras:SetClamp(tip, auras[auraCount]); -- last one should be the furthest out
 
 	-- Hide the Unused
 	for i = (auraCount + 1), #auras do
