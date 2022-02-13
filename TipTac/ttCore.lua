@@ -257,8 +257,7 @@ local TT_TipsToModify = {
 };
 
 for i = 1, UIDROPDOWNMENU_MAXLEVELS do
-	TT_TipsToModify[#TT_TipsToModify + 1] = "DropDownList"..i.."Backdrop";
-	TT_TipsToModify[#TT_TipsToModify + 1] = "DropDownList"..i.."MenuBackdrop";
+	TT_TipsToModify[#TT_TipsToModify + 1] = "DropDownList"..i;
 end
 
 tt.tipsToModify = TT_TipsToModify;
@@ -268,14 +267,17 @@ local TT_NoReApplyAnchorFor = {
 	["ShoppingTooltip2"] = true,
 	["ItemRefTooltip"] = true,
 	["ItemRefShoppingTooltip1"] = true,
-	["ItemRefShoppingTooltip2"] = true
+	["ItemRefShoppingTooltip2"] = true,
+	["RaiderIO_ProfileTooltip"] = true,
+	["RaiderIO_SearchTooltip"] = true
 };
 
 local TT_AddOnsLoaded = {
 	["TipTac"] = false,
 	["Blizzard_Collections"] = false,
 	["Blizzard_Communities"] = false,
-	["Blizzard_EncounterJournal"] = false
+	["Blizzard_EncounterJournal"] = false,
+	["RaiderIO"] = false
 };
 
 -- Colors
@@ -617,6 +619,17 @@ function tt:SetPaddingVariables()
 	tt.padding.right, tt.padding.bottom, tt.padding.left, tt.padding.top = tipBackdrop.insets.right + tt.padding.offset, tipBackdrop.insets.bottom + tt.padding.offset, tipBackdrop.insets.left + tt.padding.offset, tipBackdrop.insets.top + tt.padding.offset;
 end
 
+-- Set scale to frame
+local function SetScale(frame)
+	local frameName = frame:GetName();
+	
+	if (frameName) and ((frameName:match("DropDownList(%d+)")) or (frameName == "RaiderIO_ProfileTooltip") or (frameName == "RaiderIO_SearchTooltip")) then
+		return;
+	end
+	
+	frame:SetScale(cfg.gttScale);
+end
+
 -- Apply Settings
 function tt:ApplySettings()
 	if (not cfg) then return end;
@@ -656,13 +669,13 @@ function tt:ApplySettings()
 	for _, tip in ipairs(TT_TipsToModify) do
 		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") then
 			if (tip == WorldMapTooltip) and (WorldMapTooltip.BackdropFrame) then
-				tip:SetScale(cfg.gttScale);
+				SetScale(tip);
 				tip = WorldMapTooltip.BackdropFrame;	-- workaround for the worldmap faux tip
 			elseif (tip == QuestScrollFrame) and (QuestScrollFrame.StoryTooltip) then
 				tip = QuestScrollFrame.StoryTooltip;
 			end
 			SetupGradientTip(tip);
-			tip:SetScale(cfg.gttScale);
+			SetScale(tip);
 			tt:ApplyTipBackdrop(tip);
 		end
 	end
@@ -749,7 +762,7 @@ end
 
 -- Sets padding, so that the tooltip text is still in the center piece.
 function tt:SetPadding(tip, calledFromEvent)
-	if (tip:GetObjectType() ~= "GameTooltip") then -- SetPadding() not available for BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip and EncounterJournalTooltip
+	if (tip:GetObjectType() ~= "GameTooltip") then -- SetPadding() not available for BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip, EncounterJournalTooltip and DropDownList
 		return;
 	end
 	local oldPaddingWidth, oldPaddingHeight = tip:GetPadding();
@@ -802,28 +815,33 @@ function tt:SetPadding(tip, calledFromEvent)
 	-- end
 end
 
+-- Strip textures form object
+local function StripTextures(obj)
+	local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table in "NineSlice.lua"
+		"TopLeftCorner",
+		"TopRightCorner",
+		"BottomLeftCorner",
+		"BottomRightCorner",
+		"TopEdge",
+		"BottomEdge",
+		"LeftEdge",
+		"RightEdge",
+		"Center"
+	};
+
+	for index, pieceName in ipairs(nineSlicePieces) do
+		local region = obj[pieceName];
+		if (region) then
+			region:SetTexture(nil);
+		end
+	end
+end
+
 -- Applies the backdrop, color and border color. The GTT will often reset these internally.
 function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	-- remove default tip backdrop
 	if (tip.NineSlice) then
-		local nineSlicePieces = { -- keys have to match pieceNames in nineSliceSetup table in "NineSlice.lua"
-			"TopLeftCorner",
-			"TopRightCorner",
-			"BottomLeftCorner",
-			"BottomRightCorner",
-			"TopEdge",
-			"BottomEdge",
-			"LeftEdge",
-			"RightEdge",
-			"Center"
-		};
-
-		for index, pieceName in ipairs(nineSlicePieces) do
-			local region = tip.NineSlice[pieceName];
-			if (region) then
-				region:SetTexture(nil);
-			end
-		end
+		StripTextures(tip.NineSlice);
 
 		tip.NineSlice.layoutType = nil;
 		tip.NineSlice.layoutTextureKit = nil;
@@ -836,8 +854,21 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	
 	local tipName = tip:GetName();
 	
-	if (tipName) and (tipName:match("DropDownList(%d+)Backdrop") or tipName:match("DropDownList(%d+)MenuBackdrop")) then
-		tip.template = "Default"; -- workaround for addon ElvUI to prevent applying of frame:StripTextures()
+	if (tipName) and (tipName:match("DropDownList(%d+)")) then
+		local dropDownListBackdrop = _G[tipName.."Backdrop"];
+		local dropDownListMenuBackdrop = _G[tipName.."MenuBackdrop"];
+		
+		StripTextures(dropDownListBackdrop);
+		if (dropDownListBackdrop.Bg) then
+			dropDownListBackdrop.Bg:SetTexture(nil);
+		end
+		StripTextures(dropDownListMenuBackdrop.NineSlice);
+		
+		if (IsAddOnLoaded("ElvUI")) then -- workaround for addon ElvUI to prevent applying of frame:StripTextures()
+			tip.template = "Default";
+			dropDownListBackdrop.template = "Default";
+			dropDownListMenuBackdrop.template = "Default";
+		end
 	end
 	
 	-- apply tip backdrop
@@ -1704,30 +1735,32 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					end
 				end
 				tipHooked = true;
-			else
-				if (tip:GetObjectType() == "Frame") then
-					if (tipName == "BattlePetTooltip") then
-						for scriptName, hookFunc in next, bpttEjttScriptHooks do
-							tip:HookScript(scriptName, hookFunc);
-						end
-						tipHooked = true;
-					elseif (IsAddOnLoaded("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
-						for scriptName, hookFunc in next, pjattScriptHooks do
-							tip:HookScript(scriptName, hookFunc);
-						end
-						if (tipName == "PetJournalPrimaryAbilityTooltip") then
-							-- Post-Hook SharedPetBattleAbilityTooltip_UpdateSize() to re-hook OnUpdate for PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip
-							hooksecurefunc("SharedPetBattleAbilityTooltip_UpdateSize", SPBATT_UpdateSize);
-						end
-						tipHooked = true;
-					elseif (IsAddOnLoaded("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
-						for scriptName, hookFunc in next, bpttEjttScriptHooks do
-							tip:HookScript(scriptName, hookFunc);
-						end
-						tipHooked = true;
-					elseif (tipName:match("DropDownList(%d+)Backdrop")) or (tipName:match("DropDownList(%d+)MenuBackdrop")) or (tipName == "FriendsTooltip") then
-						tipHooked = true;
+			elseif (tip:GetObjectType() == "Frame") then
+				if (tipName == "BattlePetTooltip") then
+					for scriptName, hookFunc in next, bpttEjttScriptHooks do
+						tip:HookScript(scriptName, hookFunc);
 					end
+					tipHooked = true;
+				elseif (IsAddOnLoaded("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
+					for scriptName, hookFunc in next, pjattScriptHooks do
+						tip:HookScript(scriptName, hookFunc);
+					end
+					if (tipName == "PetJournalPrimaryAbilityTooltip") then
+						-- Post-Hook SharedPetBattleAbilityTooltip_UpdateSize() to re-hook OnUpdate for PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip
+						hooksecurefunc("SharedPetBattleAbilityTooltip_UpdateSize", SPBATT_UpdateSize);
+					end
+					tipHooked = true;
+				elseif (IsAddOnLoaded("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
+					for scriptName, hookFunc in next, bpttEjttScriptHooks do
+						tip:HookScript(scriptName, hookFunc);
+					end
+					tipHooked = true;
+				elseif (tipName == "FriendsTooltip") then
+					tipHooked = true;
+				end
+			elseif (tip:GetObjectType() == "Button") then
+				if (tipName:match("DropDownList(%d+)")) then
+					tipHooked = true;
 				end
 			end
 			
@@ -1848,6 +1881,17 @@ function tt:ADDON_LOADED(event, addOnName)
 		-- }, true, true);
 
 		-- self:ApplySettings();
+	-- now RaiderIO_ProfileTooltip and RaiderIO_SearchTooltip exists
+	elseif (addOnName == "RaiderIO") or ((addOnName == "TipTac") and (IsAddOnLoaded("RaiderIO"))) then
+		-- Hook Tips & Apply Settings
+		C_Timer.After(1, function()
+			self:ApplyHooksToTips({
+				"RaiderIO_ProfileTooltip",
+				"RaiderIO_SearchTooltip"
+			}, true, true);
+			
+			self:ApplySettings();
+		end);
 	end
 	
 	TT_AddOnsLoaded[addOnName] = true;
