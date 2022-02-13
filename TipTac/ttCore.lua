@@ -820,7 +820,7 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 
 		for index, pieceName in ipairs(nineSlicePieces) do
 			local region = tip.NineSlice[pieceName];
-			if region then
+			if (region) then
 				region:SetTexture(nil);
 			end
 		end
@@ -854,6 +854,37 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	tt:SetPadding(tip, calledFromEvent);
 end
 
+-- Checks chain of frames, if a frame named like "patterns" exists.
+local function IsInFrameChain(frame, patterns, maxLevel)
+	local currentFrame = frame;
+	local currentLevel = 1;
+	
+	while (currentFrame) do
+		if (type(currentFrame.GetName) ~= "function") then
+			return false;
+		end
+		
+		local currentFrameName = currentFrame:GetName();
+		
+		if (currentFrameName) then
+			for _, pattern in ipairs(patterns) do
+				if (currentFrameName:match(pattern)) then
+					return true;
+				end
+			end
+		end
+		
+		if (maxLevel) and (currentLevel == maxLevel) then
+			return false;
+		end
+		
+		currentFrame = currentFrame:GetParent();
+		currentLevel = currentLevel + 1;
+	end
+	
+	return false;
+end
+
 -- Get The Anchor Position Depending on the Tip Content and Parent Frame
 -- Do not depend on "ttUnit.token" here, as it might not have been cleared yet!
 -- Checking "mouseover" here isn't ideal due to actionbars, it will sometimes return true because of selfcast.
@@ -866,14 +897,13 @@ local function GetAnchorPosition(tooltip)
 	
 	local ttAnchorType, ttAnchorPoint = cfg[var.."Type"], cfg[var.."Point"];
 	
-	if (tooltip == gtt) and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) then -- don't anchor tooltip in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
-		local tooltipOwner = tooltip:GetOwner();
-		if (tooltipOwner) and (type(tooltipOwner.GetName) == "function") then 
-			local tooltipOwnerName = tooltipOwner:GetName();
-			if (tooltipOwnerName) and (tooltipOwnerName:match("LFGListSearchPanelScrollFrameButton(%d+)")) then
-				ttAnchorType = "normal";
-				ttAnchorPoint = "BOTTOMRIGHT";
-			end
+	if (tooltip == gtt) and (var == "anchorFrameTip") and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) then -- don't anchor GTT (frame tip type) in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
+		if (IsInFrameChain(tooltip:GetOwner(), {
+					"LFGListSearchPanelScrollFrameButton(%d+)",
+					"LFGListApplicationViewerScrollFrameButton(%d+)"
+				}, 4)) then
+			ttAnchorType = "normal";
+			ttAnchorPoint = "BOTTOMRIGHT";
 		end
 	end
 	
