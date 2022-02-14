@@ -2107,12 +2107,13 @@ end
 
 -- currency -- Thanks to Vladinator for adding this!
 function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
+	local _quantity = (quantity or 0); -- mouseover over sightless eye currency link of missing recipes of broken isles (legion) returns nil
 	local currencyInfo = nil;
 	local icon, quality;
-	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyID, quantity);
+	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyID, _quantity);
 	
 	if (isCurrencyContainer) then
-		currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, quantity);
+		currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, _quantity);
 		icon = currencyInfo.icon;
 		quality = currencyInfo.quality;
 	else
@@ -2125,7 +2126,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		if (currencyInfo) then
 			local displayQuantity = nil;
-			self:ttSetIconTextureAndText(icon, quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
+			self:ttSetIconTextureAndText(icon, _quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
 		end
 	end
 

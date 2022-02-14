@@ -1881,7 +1881,7 @@ function tt:ADDON_LOADED(event, addOnName)
 		-- }, true, true);
 
 		-- self:ApplySettings();
-	-- now RaiderIO_ProfileTooltip and RaiderIO_SearchTooltip exists
+	-- now RaiderIO_ProfileTooltip and RaiderIO_SearchTooltip exist
 	elseif (addOnName == "RaiderIO") or ((addOnName == "TipTac") and (IsAddOnLoaded("RaiderIO"))) then
 		-- Hook Tips & Apply Settings
 		C_Timer.After(1, function()
