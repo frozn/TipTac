@@ -112,6 +112,7 @@ local options = {
 		[0] = "Backdrop",
 		{ type = "DropDown", var = "tipBackdropBG", label = "Background Texture", media = "background" },
 		{ type = "DropDown", var = "tipBackdropEdge", label = "Border Texture", media = "border" },
+		{ type = "Check", var = "pixelPerfectBackdropEdgeSize", label = "Pixel Perfect Backdrop Edge Size", tip = "Backdrop Edge Size corresponds to real pixels", y = 6 },
 		{ type = "Slider", var = "backdropEdgeSize", label = "Backdrop Edge Size", min = -20, max = 64, step = 0.5, y = 8 },
 		{ type = "Slider", var = "backdropInsets", label = "Backdrop Insets", min = -20, max = 20, step = 0.5 },
 		{ type = "Color", var = "tipColor", label = "Tip Background Color", y = 18 },

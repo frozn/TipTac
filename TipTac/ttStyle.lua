@@ -285,7 +285,7 @@ function ttStyle:ModifyUnitTooltip(u,first)
 	local gttLine = _G["GameTooltipTextLeft"..lineInfo.Index];
 	
 	-- 8.2 made the default XML template have only 2 lines, so it's possible to get here without the desired line existing (yet?)
-	-- Frozn45: The problem showed up in classic. Fixed it with adding the missing lines (see for-loop with gtt:Addline() above).
+	-- Frozn45: The problem showed up in classic. Fixed it with adding the missing lines (see for-loop with gtt:AddLine() above).
 	if (gttLine) then
 		gttLine:SetText(lineInfo:Concat());
 		gttLine:SetTextColor(1,1,1);

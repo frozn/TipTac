@@ -33,11 +33,6 @@ end
 local modName = ...;
 local tt = CreateFrame("Frame",modName,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
--- actual pixel perfect scale
-local ui_scale = UIParent:GetEffectiveScale()
-local height = select(2, GetPhysicalScreenSize())
-local ppScale = (768 / height) / ui_scale
-
 -- Global Chat Message Function
 function AzMsg(msg) DEFAULT_CHAT_FRAME:AddMessage(tostring(msg):gsub("|1","|cffffff80"):gsub("|2","|cffffffff"),0.5,0.75,1.0); end
 
@@ -91,6 +86,7 @@ local TT_DefaultConfig = {
 
 	tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 	tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
+	pixelPerfectBackdropEdgeSize = false,
 	backdropEdgeSize = 14,
 	backdropInsets = 2.5,
 
@@ -568,9 +564,9 @@ end
 --                                              Settings                                              --
 --------------------------------------------------------------------------------------------------------
 
--- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
+-- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 0/2-pixels wide)
 function tt:GetNearestPixelSize(size)
-	return (size * ppScale) / cfg.gttScale;
+	return PixelUtil.GetNearestPixelSize(size, UIParent:GetEffectiveScale()) / cfg.gttScale;
 end
 
 -- Resolves the given table array of string names into their global objects
@@ -659,11 +655,11 @@ function tt:ApplySettings()
 	end
 	tipBackdrop.tile = false;
 	tipBackdrop.tileEdge = false;
-	tipBackdrop.edgeSize = tt:GetNearestPixelSize(cfg.backdropEdgeSize);
-	tipBackdrop.insets.left = tt:GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.right = tt:GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.top = tt:GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.bottom = tt:GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.edgeSize = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropEdgeSize)) or cfg.backdropEdgeSize);
+	tipBackdrop.insets.left = cfg.backdropInsets;
+	tipBackdrop.insets.right = cfg.backdropInsets;
+	tipBackdrop.insets.top = cfg.backdropInsets;
+	tipBackdrop.insets.bottom = cfg.backdropInsets;
 
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
@@ -991,9 +987,8 @@ end
 function tt:AnchorFrameToMouse(frame)
 	local x, y = GetCursorPosition();
 	local effScale = frame:GetEffectiveScale();
-	local offsetX, offsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX), tt:GetNearestPixelSize(cfg.mouseOffsetY);
 	frame:ClearAllPoints();
-	frame:SetPoint(frame.ttAnchorPoint,UIParent,"BOTTOMLEFT",(x / effScale + offsetX),(y / effScale + offsetY));
+	frame:SetPoint(frame.ttAnchorPoint,UIParent,"BOTTOMLEFT",(x / effScale + cfg.mouseOffsetX),(y / effScale + cfg.mouseOffsetY));
 end
 
 -- Re-anchor for anchor type mouse
