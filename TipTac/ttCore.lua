@@ -514,6 +514,11 @@ function tt:CVAR_UPDATE(event,var,value)
 	end
 end
 
+-- UI Scale Changed
+function tt:UI_SCALE_CHANGED(event)
+	tt:ApplySettings();
+end
+
 tt:SetScript("OnMouseDown",tt.StartMoving);
 tt:SetScript("OnMouseUp",function(self) self:StopMovingOrSizing(); cfg.left, cfg.top = self:GetLeft(), self:GetTop(); end);
 tt:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end);
@@ -523,6 +528,7 @@ tt:RegisterEvent("PLAYER_LEVEL_UP");
 tt:RegisterEvent("VARIABLES_LOADED");
 tt:RegisterEvent("ADDON_LOADED");
 tt:RegisterEvent("CVAR_UPDATE");
+tt:RegisterEvent("UI_SCALE_CHANGED");
 
 --------------------------------------------------------------------------------------------------------
 --                                           Slash Handling                                           --
