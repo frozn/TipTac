@@ -576,7 +576,7 @@ end
 
 -- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 2-pixels wide)
 function tt:GetNearestPixelSize(size)
-	return (size * ppScale) / cfg.gttScale;
+	return PixelUtil.GetNearestPixelSize(size, UIParent:GetEffectiveScale()) / cfg.gttScale;
 end
 
 -- Resolves the given table array of string names into their global objects

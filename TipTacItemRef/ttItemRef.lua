@@ -40,11 +40,6 @@ end
 local modName = ...;
 local ttif = CreateFrame("Frame", modName);
 
--- actual pixel perfect scale
-local ui_scale = UIParent:GetEffectiveScale()
-local height = select(2, GetPhysicalScreenSize())
-local ppScale = (768 / height) / ui_scale
-
 -- Register with TipTac core addon if available
 if (TipTac) then
 	TipTac:RegisterElement(ttif,"ItemRef");
@@ -166,10 +161,6 @@ local COLOR_INCOMPLETE = { 0.5, 0.5, 0.5 };
 -- Colored text string (red/green)
 local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
 
-local function GetNearestPixelSize(size)
-	return (size * ppScale) / cfg.gttScale;
-end
-
 --------------------------------------------------------------------------------------------------------
 --                                         Create Tooltip Icon                                        --
 --------------------------------------------------------------------------------------------------------
@@ -205,7 +196,7 @@ function ttif:CreateTooltipIcon(tip)
 	tip.ttIcon = tip:CreateTexture(nil, "ARTWORK");
 	
 	tip.ttIcon.border = CreateFrame("Frame", nil, tip, BackdropTemplateMixin and "BackdropTemplate");
-	tip.ttIcon.border:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
+	tip.ttIcon.border:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
 
 	tip.ttIcon:SetPoint("CENTER", tip.ttIcon.border, "CENTER");
 	tip.ttIcon:Hide();
@@ -222,7 +213,7 @@ function ttif:ApplyInsetsToIconTexture(texture, backdropInfo)
 end
 
 function ttif:SetClamp(tip)
-	local basicOffset = GetNearestPixelSize(5);
+	local basicOffset = 5;
 	local left, right, top, bottom = -basicOffset, basicOffset, basicOffset, -basicOffset;
 	if(tip.ttIcon:IsShown() and tip.ttIcon:GetLeft() ~= nil) then
 		local leftDistance = tip:GetLeft() - tip.ttIcon:GetLeft();
@@ -322,7 +313,7 @@ function ttif:OnApplyConfig()
 				tip.ttSetIconTextureAndText = ttSetIconTextureAndText;
 				tip.ttIcon:ClearAllPoints();
 				tip.ttIcon.border:ClearAllPoints();
-				tip.ttIcon.border:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, GetNearestPixelSize(cfg.if_iconOffsetX), GetNearestPixelSize(cfg.if_iconOffsetY));
+				tip.ttIcon.border:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
 				tip.ttIcon:SetPoint("CENTER", tip.ttIcon.border, "CENTER");
 				tip.ttIcon:Hide();
 				tip.ttIcon.border:Hide();

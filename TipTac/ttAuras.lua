@@ -4,11 +4,6 @@ local gtt = GameTooltip;
 local tt = TipTac;
 local cfg;
 
--- actual pixel perfect scale
-local ui_scale = UIParent:GetEffectiveScale()
-local height = select(2, GetPhysicalScreenSize())
-local ppScale = (768 / height) / ui_scale
-
 -- element registration
 local ttAuras = tt:RegisterElement({ auras = {} },"Auras");
 local auras = ttAuras.auras;
