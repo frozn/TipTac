@@ -670,10 +670,10 @@ function tt:ApplySettings()
 	tipBackdrop.tile = false;
 	tipBackdrop.tileEdge = false;
 	tipBackdrop.edgeSize = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropEdgeSize)) or cfg.backdropEdgeSize);
-	tipBackdrop.insets.left = tt:GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.right = tt:GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.top = tt:GetNearestPixelSize(cfg.backdropInsets);
-	tipBackdrop.insets.bottom = tt:GetNearestPixelSize(cfg.backdropInsets);
+	tipBackdrop.insets.left = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropInsets)) or cfg.backdropInsets);
+	tipBackdrop.insets.right = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropInsets)) or cfg.backdropInsets);
+	tipBackdrop.insets.top = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropInsets)) or cfg.backdropInsets);
+	tipBackdrop.insets.bottom = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropInsets)) or cfg.backdropInsets);
 
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
