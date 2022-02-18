@@ -33,11 +33,6 @@ end
 local modName = ...;
 local tt = CreateFrame("Frame",modName,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
--- actual pixel perfect scale
-local ui_scale = UIParent:GetEffectiveScale()
-local height = select(2, GetPhysicalScreenSize())
-local ppScale = (768 / height) / ui_scale
-
 -- Global Chat Message Function
 function AzMsg(msg) DEFAULT_CHAT_FRAME:AddMessage(tostring(msg):gsub("|1","|cffffff80"):gsub("|2","|cffffffff"),0.5,0.75,1.0); end
 
