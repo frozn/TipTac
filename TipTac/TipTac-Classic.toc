@@ -1,5 +1,5 @@
 ## Interface: 11401
-## Version: 22.02.02
+## Version: 22.02.09
 ## Title: TipTac
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Highly Customizable Tooltip Enhancement Addon

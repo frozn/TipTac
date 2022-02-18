@@ -32,6 +32,8 @@
 	- CreateFrame() now uses the "BackdropTemplate"
 	——— 22.01.03 ——— Rev 15 ——— 9.1.5/Shadowlands ——— #frozn45
 	- parent of menu set to UIParent and comment out corresponding SetParent() to fix cut off dropdown menus by scroll frames. "menu.parent" stays at dropdown frame.
+	——— 22.02.09 ——— Rev 16 ——— 9.1.5/Shadowlands ——— #frozn45
+	- fix for rev 15: fixed hiding the menu if parent is hidden
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -51,7 +53,7 @@
 	tip			Tooltip will be shown when mouse is over item
 --]]
 
-local REVISION = 15;
+local REVISION = 16;
 if (type(AzDropDown) == "table") and (AzDropDown.vers >= REVISION) then
 	return;
 end
@@ -184,6 +186,10 @@ function DropDownMenuMixin:Initialize(parent,point,parentPoint)
 	-- Set DropDown Parent
 	self.parent = parent;
 	-- self:SetParent(parent);
+	
+	-- Hides the menu if parent is hidden
+	local menu = self;
+	menu.parent:SetScript("OnHide",function(self) if (menu:IsShown()) then menu:Hide(); end end);
 
 	-- Anchor to Parent
 	self:ClearAllPoints();
@@ -314,7 +320,6 @@ local function CreateDropDownMenu()
 	menu:SetToplevel(true);
 	menu:SetClampedToScreen(true);
 	menu:SetFrameStrata("FULLSCREEN_DIALOG");
-	menu:SetScript("OnHide",function(self) if (self:IsShown()) then self:Hide(); end end);	-- hides the menu if parent is hidden
 	menu:Hide();
 
 	menu.scroll = CreateFrame("ScrollFrame","AzDropDownScroll"..REVISION,menu,"FauxScrollFrameTemplate");

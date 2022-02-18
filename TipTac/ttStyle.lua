@@ -54,19 +54,40 @@ local COL_LIGHTGRAY = "|cffc0c0c0";
 
 -- Returns the correct difficulty color compared to the player
 -- Az: Check out GetCreatureDifficultyColor, GetQuestDifficultyColor, GetScalingQuestDifficultyColor, GetRelativeDifficultyColor
-local function GetDifficultyLevelColor(level)
-	level = (level - tt.playerLevel);
-	if (level > 4) then
-		return "|cffff2020"; -- red
-	elseif (level > 2) then
-		return "|cffff8040"; -- orange
-	elseif (level >= -2) then
-		return "|cffffff00"; -- yellow
-	elseif (isWoWRetail and level >= -UnitQuestTrivialLevelRange("player") or (not isWoWRetail) and level >= -GetQuestGreenRange("player")) then
-		return "|cff40c040"; -- green
+-- Frozn45: The above functions belong to the old color api. C_PlayerInfo.GetContentDifficultyCreatureForPlayer() belongs to the new color api.
+local function ClassicGetRelativeDifficultyColor(unitLevel, challengeLevel) -- copy from GetRelativeDifficultyColor() in "UIParent.lua" modded for classic
+	local levelDiff = challengeLevel - unitLevel;
+	local color;
+	
+	if (levelDiff >= 5) then
+		return QuestDifficultyColors["impossible"], QuestDifficultyHighlightColors["impossible"];
+	elseif (levelDiff >= 3) then
+		return QuestDifficultyColors["verydifficult"], QuestDifficultyHighlightColors["verydifficult"];
+	elseif (levelDiff >= -4) then
+		return QuestDifficultyColors["difficult"], QuestDifficultyHighlightColors["difficult"];
+	elseif (-levelDiff <= GetQuestGreenRange("player")) then
+		return QuestDifficultyColors["standard"], QuestDifficultyHighlightColors["standard"];
 	else
-		return "|cff808080"; -- gray
+		return QuestDifficultyColors["trivial"], QuestDifficultyHighlightColors["trivial"];
 	end
+end
+
+local function GetDifficultyLevelColor(unit, level) -- see GetDifficultyColor() in "UIParent.lua"
+	local difficultyColor;
+	
+	if (level == -1) then
+		difficultyColor = QuestDifficultyColors["impossible"];
+	else
+		if (isWoWRetail) then
+			difficultyColor = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit));
+		else
+			difficultyColor = ClassicGetRelativeDifficultyColor(tt.playerLevel, level); -- see GetCreatureDifficultyColor() in "UIParent.lua"
+		end
+	end
+	
+	local difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
+	
+	return difficultyColorMixin:GenerateHexColorMarkup();
 end
 
 -- Add target
@@ -228,7 +249,7 @@ function ttStyle:ModifyUnitTooltip(u,first)
 	-- Level + Classification
 	local level = (u.isPetWild or u.isPetCompanion) and UnitBattlePetLevel(unit) or UnitLevel(unit) or -1;
 	local classification = UnitClassification(unit) or "";
-	lineInfo.next = (UnitCanAttack(unit,"player") or UnitCanAttack("player",unit)) and GetDifficultyLevelColor(level ~= -1 and level or 500) or cfg.colLevel;
+	lineInfo.next = (UnitCanAttack(unit, "player") or UnitCanAttack("player", unit)) and GetDifficultyLevelColor(unit, level) or cfg.colLevel;
 	lineInfo.next = (cfg["classification_"..classification] or "%s? "):format(level == -1 and "??" or level);
 
 	-- Generate Line Modification
@@ -257,9 +278,14 @@ function ttStyle:ModifyUnitTooltip(u,first)
 	lineName:Clear();
 
 	-- Info Line
+	for i = (gtt:NumLines() + 1), lineInfo.Index do
+		gtt:AddLine(" ");
+	end
+	
 	local gttLine = _G["GameTooltipTextLeft"..lineInfo.Index];
 	
 	-- 8.2 made the default XML template have only 2 lines, so it's possible to get here without the desired line existing (yet?)
+	-- Frozn45: The problem showed up in classic. Fixed it with adding the missing lines (see for-loop with gtt:AddLine() above).
 	if (gttLine) then
 		gttLine:SetText(lineInfo:Concat());
 		gttLine:SetTextColor(1,1,1);

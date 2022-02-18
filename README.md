@@ -34,9 +34,13 @@ WoW AddOn TipTac
 - fixed fading issues with tooltip
 - fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
 - fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
+- added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
+- considered debuff border for aura positions
 - splitted options for auras from spells
 - classic: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic: added missing styling of auras
+- classic: reactivated talent format option
+- classic: suppressed error speech/message when calling CanInspect(unit) within TipTacTalents
 
 ### The following problems aren't fixed
 
