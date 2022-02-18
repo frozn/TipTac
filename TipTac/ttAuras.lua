@@ -15,6 +15,16 @@ local validSelfCasterUnits = {
 	vehicle = true,
 };
 
+-- actual pixel perfect scale
+local ui_scale = UIParent:GetEffectiveScale()
+local height = select(2, GetPhysicalScreenSize())
+local ppScale = (768 / height) / ui_scale
+
+-- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 0/2-pixels wide)
+function tt:GetNearestPixelSize(size)
+	return (size * ppScale) / cfg.gttScale;
+end
+
 --------------------------------------------------------------------------------------------------------
 --                                                Misc                                                --
 --------------------------------------------------------------------------------------------------------
@@ -200,6 +210,9 @@ end
 function ttAuras:OnApplyConfig(cfg)
 	-- If disabled, hide auras, else set their size
 	local gameFont = GameFontNormal:GetFont();
+	ui_scale = UIParent:GetEffectiveScale()
+	height = select(2, GetPhysicalScreenSize())
+	ppScale = (768 / height) / ui_scale
 	for _, aura in ipairs(auras) do
 		if (cfg.showBuffs or cfg.showDebuffs) then
 			aura:SetSize(tt:GetNearestPixelSize(cfg.auraSize), tt:GetNearestPixelSize(cfg.auraSize));
