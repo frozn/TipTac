@@ -86,7 +86,7 @@ local TT_DefaultConfig = {
 
 	tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 	tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
-	pixelPerfectBackdropEdgeSize = false,
+	pixelPerfectBackdrop = false,
 	backdropEdgeSize = 14,
 	backdropInsets = 2.5,
 
@@ -333,6 +333,21 @@ orgGTTSFontFace = "";         -- Set during VARIABLES_LOADED
 orgGTTSFontSize = 12;         -- Set during VARIABLES_LOADED
 orgGTTSFontFlags = "";        -- Set during VARIABLES_LOADED
 
+-- Pixel Perfect Scale
+local physicalScreenWidth, physicalScreenHeight, uiUnitFactor, uiScale;
+local mouseOffsetX, mouseOffsetY = 0, 0;
+
+local function updatePixelPerfectScale()
+	physicalScreenWidth, physicalScreenHeight = GetPhysicalScreenSize();
+	uiUnitFactor = 768.0 / physicalScreenHeight;
+	uiScale = UIParent:GetEffectiveScale();
+	if (cfg) then
+		mouseOffsetX, mouseOffsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX), tt:GetNearestPixelSize(cfg.mouseOffsetY);
+	end
+end
+
+updatePixelPerfectScale();
+
 -- Tooltip Backdrop -- Az: use this instead: TOOLTIP_BACKDROP_STYLE_DEFAULT;
 --local tipBackdrop = TOOLTIP_BACKDROP_STYLE_DEFAULT;
 local tipBackdrop = { bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 } };
@@ -519,6 +534,15 @@ function tt:UI_SCALE_CHANGED(event)
 	tt:ApplySettings();
 end
 
+hooksecurefunc(UIParent, "SetScale", function()
+	tt:ApplySettings();
+end);
+
+-- Display Size Changed
+function tt:DISPLAY_SIZE_CHANGED(event)
+	tt:ApplySettings();
+end
+
 tt:SetScript("OnMouseDown",tt.StartMoving);
 tt:SetScript("OnMouseUp",function(self) self:StopMovingOrSizing(); cfg.left, cfg.top = self:GetLeft(), self:GetTop(); end);
 tt:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end);
@@ -529,6 +553,7 @@ tt:RegisterEvent("VARIABLES_LOADED");
 tt:RegisterEvent("ADDON_LOADED");
 tt:RegisterEvent("CVAR_UPDATE");
 tt:RegisterEvent("UI_SCALE_CHANGED");
+tt:RegisterEvent("DISPLAY_SIZE_CHANGED");
 
 --------------------------------------------------------------------------------------------------------
 --                                           Slash Handling                                           --
@@ -571,8 +596,9 @@ end
 --------------------------------------------------------------------------------------------------------
 
 -- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 0/2-pixels wide)
-function tt:GetNearestPixelSize(size)
-	return PixelUtil.GetNearestPixelSize(size, UIParent:GetEffectiveScale()) / cfg.gttScale;
+function tt:GetNearestPixelSize(size, pixelPerfect)
+	local _size = ((pixelPerfect and (size * uiUnitFactor)) or size);
+	return PixelUtil.GetNearestPixelSize(_size, 1) / uiScale / cfg.gttScale;
 end
 
 -- Resolves the given table array of string names into their global objects
@@ -639,6 +665,8 @@ end
 
 -- Apply Settings
 function tt:ApplySettings()
+	updatePixelPerfectScale();
+	
 	if (not cfg) then return end;
 	
 	-- Hide World Tips Instantly
@@ -659,14 +687,19 @@ function tt:ApplySettings()
 	else
 		tipBackdrop.edgeFile = cfg.tipBackdropEdge;
 	end
+	
 	tipBackdrop.tile = false;
 	tipBackdrop.tileEdge = false;
-	tipBackdrop.edgeSize = ((cfg.pixelPerfectBackdropEdgeSize and tt:GetNearestPixelSize(cfg.backdropEdgeSize)) or cfg.backdropEdgeSize);
-	tipBackdrop.insets.left = cfg.backdropInsets;
-	tipBackdrop.insets.right = cfg.backdropInsets;
-	tipBackdrop.insets.top = cfg.backdropInsets;
-	tipBackdrop.insets.bottom = cfg.backdropInsets;
-
+	
+	local edgeSize = ((cfg.pixelPerfectBackdrop and tt:GetNearestPixelSize(cfg.backdropEdgeSize, true)) or cfg.backdropEdgeSize);
+	tipBackdrop.edgeSize = edgeSize;
+	
+	local insets = ((cfg.pixelPerfectBackdrop and tt:GetNearestPixelSize(cfg.backdropInsets, true)) or cfg.backdropInsets);
+	tipBackdrop.insets.left = insets;
+	tipBackdrop.insets.right = insets;
+	tipBackdrop.insets.top = insets;
+	tipBackdrop.insets.bottom = insets;
+	
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
 
@@ -962,7 +995,7 @@ local function SetDefaultAnchor(tooltip, parent, noSetOwner)
 	-- we have to just set it here statically, as we wont have the OnUpdate hooked for that tooltip
 	if (tooltip ~= gtt) and (tooltip.ttAnchorType == "mouse") then
 		if (not noSetOwner) then
-			tooltip:SetOwner(parent,"ANCHOR_CURSOR_RIGHT",cfg.mouseOffsetX,cfg.mouseOffsetY);
+			tooltip:SetOwner(parent, "ANCHOR_CURSOR_RIGHT", mouseOffsetX, mouseOffsetY);
 		end
 	else
 		-- Since TipTac handles all the anchoring, we want to use "ANCHOR_NONE" here
@@ -994,7 +1027,7 @@ function tt:AnchorFrameToMouse(frame)
 	local x, y = GetCursorPosition();
 	local effScale = frame:GetEffectiveScale();
 	frame:ClearAllPoints();
-	frame:SetPoint(frame.ttAnchorPoint,UIParent,"BOTTOMLEFT",(x / effScale + cfg.mouseOffsetX),(y / effScale + cfg.mouseOffsetY));
+	frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + mouseOffsetX), (y / effScale + mouseOffsetY));
 end
 
 -- Re-anchor for anchor type mouse
