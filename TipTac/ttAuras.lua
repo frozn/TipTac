@@ -24,7 +24,6 @@ local function CreateAuraFrame(parent)
 	if (cfg.auraPixelPerfectPositioning) then
 		aura:SetScale(tt.ppScale / cfg.gttScale);
 	end
-	print(aura:GetScale())
 	aura:SetSize(cfg.auraSize, cfg.auraSize);
 
 	aura.count = aura:CreateFontString(nil,"OVERLAY");
