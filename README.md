@@ -1,8 +1,8 @@
 # TipTac
-WoW AddOn TipTac
+WoW AddOn TipTac [SL] [BCC] [Classic]
 
 * based on latest version v20.11.04 from Nov 4, 2020
-* added fixes for wow patch 9.1.5 (Shadowlands - Chains of Domination)
+* added fixes for wow patch 9.1.5 (Shadowlands - Chains of Domination), bcc and classic
 * added several enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -17,7 +17,7 @@ WoW AddOn TipTac
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, auras from addon Plater, DropDownList1/2, FriendsTooltip, LibQTip, LibDBIcon
+- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, DropDownList1/2, FriendsTooltip, LibQTip, LibDBIcon, auras from addon Plater, tooltips from addon RaiderIO
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
@@ -29,7 +29,8 @@ WoW AddOn TipTac
   - fixed "Smart Icon Appearance" for mounts and mount equipment (in mount journal), items (in adventure journal), spells and items (in guild/community->perks)
 - added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
 - applied transparency from standard backdrop and backdrop border to special backdrop and backdrop border
-- fixed 1-pixel borders which are sometimes 2 pixels wide
+- fixed timewalking enemy tooltip level color
+- added option for pixel perfect tooltip backdrop (edge size and insets) to fix 1-pixel borders which are sometimes 2 pixels wide
 - added icons to item comparison tooltips (ShoppingTooltip1/ShoppingTooltip2 and ItemRefShoppingTooltip1/ItemRefShoppingTooltip2)
 - fixed fading issues with tooltip
 - fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
@@ -41,6 +42,7 @@ WoW AddOn TipTac
 - classic: added missing styling of auras
 - classic: reactivated talent format option
 - classic: suppressed error speech/message when calling CanInspect(unit) within TipTacTalents
+- classic: fixed sometimes missing displaying of level, race and class for unit tooltips
 
 ### The following problems aren't fixed
 
