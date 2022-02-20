@@ -177,6 +177,7 @@ local options = {
 	{
 		[0] = "Auras",
 		{ type = "Check", var = "aurasAtBottom", label = "Put Aura Icons at the Bottom Instead of Top", tip = "Puts the aura icons at the bottom of the tip instead of the default top" },
+		{ type = "Check", var = "auraPixelPerfectPositioning", label = "Pixel Perfect Aura Scale, Sizing and Positioning", tip = "Sizes and offsets correspond to real screen pixels, unscaled", y = 6 },
 		{ type = "Check", var = "showBuffs", label = "Show Unit Buffs", tip = "Show buffs of the unit", y = 12 },
 		{ type = "Check", var = "showDebuffs", label = "Show Unit Debuffs", tip = "Show debuffs of the unit" },
 		{ type = "Check", var = "selfAurasOnly", label = "Only Show Auras Coming from You", tip = "This will filter out and only display auras you cast yourself", y = 12 },

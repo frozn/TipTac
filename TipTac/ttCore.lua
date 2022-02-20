@@ -149,6 +149,7 @@ local TT_DefaultConfig = {
 	auraOffsetX = 2,
 	auraOffsetY = 2,
 	auraBorderUseDebuffTypeColors = true,
+	auraPixelPerfectPositioning = false,
 
 	iconRaid = true,
 	iconFaction = false,
@@ -344,11 +345,13 @@ orgGTTSFontFlags = "";        -- Set during VARIABLES_LOADED
 -- Pixel Perfect Scale
 local physicalScreenWidth, physicalScreenHeight, uiUnitFactor, uiScale;
 local mouseOffsetX, mouseOffsetY = 0, 0;
+tt.ppScale = nil
 
 local function updatePixelPerfectScale()
 	physicalScreenWidth, physicalScreenHeight = GetPhysicalScreenSize();
 	uiUnitFactor = 768.0 / physicalScreenHeight;
 	uiScale = UIParent:GetEffectiveScale();
+	tt.ppScale = uiUnitFactor / uiScale
 	if (cfg) then
 		mouseOffsetX, mouseOffsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX), tt:GetNearestPixelSize(cfg.mouseOffsetY);
 	end
