@@ -1955,6 +1955,9 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		if (linkMawPower) then
 			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");
 			mawPowerID = _mawPowerID;
+			if (not table_MawPower_by_MawPowerID[mawPowerID]) then -- possible internal blizzard bug: GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wow.tools/dbc/?dbc=mawpower)
+				mawPowerID = nil;
+			end
 		end
 	end
 	
@@ -1972,7 +1975,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	end
 	
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
-	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
+	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID);
 	local showSpellIdAndRank = (((isSpell and cfg.if_showSpellIdAndRank) or (isAura and cfg.if_showAuraSpellIdAndRank)) and spellID and (spellID ~= 0));
 	if (showMawPowerID or showSpellIdAndRank) then
 		if (not showMawPowerID) then
@@ -1992,7 +1995,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	if (isSpell and cfg.if_spellColoredBorder) or (isAura and cfg.if_auraSpellColoredBorder) then
 		local spellColor = nil;
 		
-		if (mawPowerID) then
+		if (mawPowerID and spellID) then
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
 				local rarityAtlasColors = { -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
@@ -2033,7 +2036,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
-	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID and (spellID ~= 0));
+	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID);
 	if (showMawPowerID or showSpellIdAndRank) then
 		if (not showMawPowerID) then
 			self:AddLine(format("SpellID: %d", spellID)..rank, unpack(cfg.if_infoColor));
@@ -2049,7 +2052,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	if (cfg.if_spellColoredBorder) then
 		local spellColor = nil;
 		
-		if (mawPowerID) then
+		if (mawPowerID and spellID) then
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
 				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"

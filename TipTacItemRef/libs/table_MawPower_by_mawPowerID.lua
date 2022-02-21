@@ -1,4 +1,4 @@
--- table MawPower from https://wow.tools/dbc/?dbc=mawpower&build=9.2.0.41827
+-- table MawPower from https://wow.tools/dbc/?dbc=mawpower&build=9.2.0.42423
 -- converted to lua dictionary table by mawPowerID with https://thdoan.github.io/mr-data-converter/
 
 table_MawPower_by_MawPowerID = {
@@ -1112,12 +1112,5 @@ table_MawPower_by_MawPowerID = {
   ["1589"]={["spellID"]=367911,["mawPowerRarityID"]=3},
   ["1590"]={["spellID"]=367912,["mawPowerRarityID"]=3},
   ["1591"]={["spellID"]=367913,["mawPowerRarityID"]=3},
-  ["1592"]={["spellID"]=367914,["mawPowerRarityID"]=3},
-  ["1593"]={["spellID"]=367915,["mawPowerRarityID"]=3},
-  ["1594"]={["spellID"]=367916,["mawPowerRarityID"]=3},
-  ["1595"]={["spellID"]=367917,["mawPowerRarityID"]=3},
-  ["1596"]={["spellID"]=367933,["mawPowerRarityID"]=4},
-  ["1597"]={["spellID"]=367934,["mawPowerRarityID"]=4},
-  ["1598"]={["spellID"]=367935,["mawPowerRarityID"]=4},
-  ["1599"]={["spellID"]=367936,["mawPowerRarityID"]=4}
+  ["1592"]={["spellID"]=367914,["mawPowerRarityID"]=3}
 }
