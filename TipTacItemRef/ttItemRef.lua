@@ -1552,9 +1552,6 @@ function ttif:ADDON_LOADED(event, addOnName)
 		hooksecurefunc("GuildInfoFrame_UpdateChallenges", function()
 			ttif:ApplyHooksToGIFIC();
 		end);
-	-- now PlayerChoiceTorghastOption exists
-	elseif (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice"))) then
-		hooksecurefunc(PlayerChoiceTorghastOptionTemplateMixin, "OnEnter", PCTOTM_OnEnter_Hook);
 	-- now PVPRewardTemplate exists
 	elseif (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI"))) then
 		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
