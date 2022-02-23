@@ -1030,7 +1030,7 @@ local function RPBM_OnEnter_Hook(self)
 end
 
 -- HOOK: GameTooltip_AddQuestRewardsToTooltip
-local function GTT_AddQuestRewardsToTooltip(self, questID, style)
+local function GTT_AddQuestRewardsToTooltip_Hook(self, questID, style)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local link = GetQuestLink(questID);
 		if (link) then
@@ -1040,6 +1040,104 @@ local function GTT_AddQuestRewardsToTooltip(self, questID, style)
 			LinkTypeFuncs.quest(self, nil, "quest", questID, nil);
 		end
 		tipDataAdded[self] = "quest";
+	end
+end
+
+-- HOOK: EmbeddedItemTooltip_SetItemByID
+local function EITT_SetItemByID_Hook(self, id, count)
+	local targetTooltip = self.Tooltip;
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+		local itemID = id;
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+		if (itemLink) then
+			local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
+			if (_itemID) then
+				tipDataAdded[targetTooltip] = linkType;
+				LinkTypeFuncs.item(targetTooltip, itemLink, linkType, _itemID);
+			end
+		end
+	end
+end
+
+-- HOOK: EmbeddedItemTooltip_SetItemByQuestReward
+local function EITT_SetItemByQuestReward_Hook(self, questLogIndex, questID, rewardType, showCollectionText)
+	local targetTooltip = self.Tooltip;
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+		if (not questLogIndex) then
+			return
+		end
+		
+		rewardType = (rewardType or "reward");
+		local getterFunc;
+		if (rewardType == "choice") then
+			getterFunc = GetQuestLogChoiceInfo;
+		else
+			getterFunc = GetQuestLogRewardInfo;
+		end
+		
+		local name, texture, numItems, quality, isUsable, itemID = getterFunc(questLogIndex, questID);
+		
+		if (name) and (texture) then
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+			if (itemLink) then
+				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
+				if (itemID) then
+					tipDataAdded[targetTooltip] = linkType;
+					LinkTypeFuncs.item(targetTooltip, itemLink, linkType, itemID);
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: EmbeddedItemTooltip_SetSpellByQuestReward
+local function EITT_SetSpellByQuestReward_Hook(self, rewardIndex, questID)
+	local targetTooltip = self.Tooltip;
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+		local texture, name, isTradeskillSpell, isSpellLearned, hideSpellLearnText, isBoostSpell, garrFollowerID, genericUnlock, spellID = GetQuestLogRewardSpell(rewardIndex, questID);
+		
+		if (name) and (texture) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (spellID) then
+					tipDataAdded[targetTooltip] = linkType;
+					LinkTypeFuncs.spell(targetTooltip, false, nil, link, linkType, _spellID);
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: EmbeddedItemTooltip_SetSpellWithTextureByID
+local function EITT_SetSpellWithTextureByID_Hook(self, spellID, texture)
+	local targetTooltip = self.Tooltip;
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+		if (texture) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (spellID) then
+					tipDataAdded[targetTooltip] = linkType;
+					LinkTypeFuncs.spell(targetTooltip, false, nil, link, linkType, _spellID);
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: EmbeddedItemTooltip_SetCurrencyByID
+local function EITT_SetCurrencyByID_Hook(self, currencyID, quantity)
+	local targetTooltip = self.Tooltip;
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		if (link) then
+			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
+			if (_currencyID) then
+				tipDataAdded[targetTooltip] = linkType;
+				LinkTypeFuncs.currency(targetTooltip, link, linkType, _currencyID, _quantity);
+			end
+		end
 	end
 end
 
@@ -1073,10 +1171,10 @@ local function DUODSM_OnEnter_Hook(self)
 	end
 end
 
--- HOOK: PlayerChoiceTorghastOptionTemplateMixin:OnEnter
-local function PCTOTM_OnEnter_Hook(self)
+-- HOOK: PlayerChoicePowerChoiceTemplateMixin:OnEnter
+local function PCPCTM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
-		local spellID = self.optionInfo and self.optionInfo.spellID;
+		local spellID = (self.optionInfo and self.optionInfo.spellID);
 		if (spellID) then
 			local link = GetSpellLink(spellID);
 			if (link) then
@@ -1265,6 +1363,12 @@ local function OnTooltipCleared(self)
 	end
 end
 
+-- HOOK: EmbeddedItemTooltip_Clear
+local function EITT_Clear_Hook(self)
+	local targetTooltip = self.Tooltip;
+	tipDataAdded[targetTooltip] = nil;
+end
+
 -- HOOK: BattlePetTooltip:OnHide
 local function BPTT_OnHide_Hook(self)
 	tipDataAdded[self] = nil;
@@ -1357,11 +1461,17 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				if (tipName == "GameTooltip") then
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					hooksecurefunc(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
-					hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip);
+					hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip_Hook);
+					hooksecurefunc("EmbeddedItemTooltip_SetItemByID", EITT_SetItemByID_Hook);
+					hooksecurefunc("EmbeddedItemTooltip_SetItemByQuestReward", EITT_SetItemByQuestReward_Hook);
+					hooksecurefunc("EmbeddedItemTooltip_SetSpellByQuestReward", EITT_SetSpellByQuestReward_Hook);
+					hooksecurefunc("EmbeddedItemTooltip_SetCurrencyByID", EITT_SetCurrencyByID_Hook);
+					hooksecurefunc("EmbeddedItemTooltip_Clear", EITT_Clear_Hook);
 					-- classic support
 					if (isWoWRetail) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
+						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
 					end
@@ -1554,7 +1664,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 		end);
 	-- now PlayerChoiceTorghastOption exists
 	elseif (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice"))) then
-		hooksecurefunc(PlayerChoiceTorghastOptionTemplateMixin, "OnEnter", PCTOTM_OnEnter_Hook);
+		hooksecurefunc(PlayerChoicePowerChoiceTemplateMixin, "OnEnter", PCPCTM_OnEnter_Hook);
 	-- now PVPRewardTemplate exists
 	elseif (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI"))) then
 		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
@@ -1755,13 +1865,13 @@ function LinkTypeFuncs:item(link, linkType, id)
 	itemLevel = LibItemString:GetTrueItemLevel(link);
 
 	-- Icon
-	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+	if (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
 		self:ttSetIconTextureAndText(itemTexture, count);
 	end
 
 	-- Quality Border
-	if (cfg.if_itemQualityBorder) then
+	if (not self.IsEmbedded) and (cfg.if_itemQualityBorder) then
 		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
 		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
 	end
@@ -1964,7 +2074,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	local isSpell = (not isAura);
 
 	-- Icon
-	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+	if (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		self:ttSetIconTextureAndText(icon);
 	end
 	
@@ -1992,7 +2102,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	end
 
   	-- Colored Border
-	if (isSpell and cfg.if_spellColoredBorder) or (isAura and cfg.if_auraSpellColoredBorder) then
+	if (not self.IsEmbedded) and ((isSpell and cfg.if_spellColoredBorder) or (isAura and cfg.if_auraSpellColoredBorder)) then
 		local spellColor = nil;
 		
 		if (mawPowerID and spellID) then
@@ -2126,7 +2236,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	end
 	
 	-- Icon
-	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
+	if (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		if (currencyInfo) then
 			local displayQuantity = nil;
 			self:ttSetIconTextureAndText(icon, _quantity);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
@@ -2140,7 +2250,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	end
 
   	-- Quality Border
-	if (cfg.if_currencyQualityBorder) then
+	if (not self.IsEmbedded) and (cfg.if_currencyQualityBorder) then
 		if (currencyInfo) then
 			local currencyQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(quality)));
 			ttif:SetBackdropBorderColorLocked(self, true, currencyQualityColor:GetRGBA());

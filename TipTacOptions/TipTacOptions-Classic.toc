@@ -1,5 +1,5 @@
 ## Interface: 11402
-## Version: 22.02.19
+## Version: 22.02.23
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Option Dialog for TipTac
