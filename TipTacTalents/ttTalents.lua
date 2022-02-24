@@ -219,62 +219,87 @@ end
 --                                           Event Handling                                           --
 --------------------------------------------------------------------------------------------------------
 
--- OnEvent [INSPECT_READY] -- Inspect data ready
-ttt:SetScript("OnEvent",function(self,event,guid,...)
+-- Apply hooks during VARIABLES_LOADED
+function ttt:HookTip()
+	-- Hooks needs to be applied as late as possible during load, as we want to try and be the
+	-- last addon to hook "OnTooltipSetUnit" so we always have a "completed" tip to work on
+	
+	-- OnUpdate -- Sends the inspect request after a delay
+	ttt:SetScript("OnUpdate",function(self,elapsed)
+		self.nextUpdate = (self.nextUpdate - elapsed);
+		if (self.nextUpdate <= 0) then
+			self:Hide();
+			-- Make sure the mouseover unit is still our unit
+			-- Check IsInspectFrameOpen() again: Since if the user right-clicks a unit frame, and clicks inspect,
+			-- it could cause TTT to schedule an inspect, while the inspection window is open
+			if (UnitGUID("mouseover") == record.guid) and (not IsInspectFrameOpen()) then
+				lastInspectRequest = GetTime();
+				self:RegisterEvent("INSPECT_READY");
+				NotifyInspect(record.unit);
+			end
+		end
+	end);
+
+	-- HOOK: OnTooltipSetUnit -- Will schedule a delayed inspect request
+	gtt:HookScript("OnTooltipSetUnit",function(self,...)
+		local cfg = TipTac_Config or TTT_DefConfig;
+		if not (cfg.showTalents) then
+			return;
+		end
+
+		-- Abort any delayed inspect in progress
+		ttt:Hide();
+
+		-- Get the unit -- Check the UnitFrame unit if this tip is from a concated unit, such as "targettarget".
+		local _, unit = self:GetUnit();
+		if (not unit) then
+			local mFocus = GetMouseFocus();
+			if (mFocus) and (mFocus.unit) then
+				unit = mFocus.unit;
+			end
+		end
+
+		-- No Unit or not a Player
+		if (not unit) or (not UnitIsPlayer(unit)) then
+			return;
+		end
+
+		-- Show only talents for people in your party/raid
+		if (cfg.talentOnlyInParty and not UnitInParty(unit) and not UnitInRaid(unit)) then
+			return;
+		end
+
+		-- No need to inspect players who has not yet gotten a specialization
+		local level = UnitLevel(unit);
+		if (level >= 10 or level == -1) then
+			ttt:InitiateInspectRequest(unit,record);
+		end
+	end);
+
+	-- Clear this function as it's not needed anymore
+	self.HookTips = nil;
+end
+
+-- Variables Loaded [One-Time-Event]
+function ttt:VARIABLES_LOADED(event)
+	-- Hook Tip
+	self:HookTip();
+	
+	-- Cleanup
 	self:UnregisterEvent(event);
+	self[event] = nil;
+end
+
+-- Inspect Ready -- Inspect data ready
+function ttt:INSPECT_READY(event, guid)
 	if (guid == record.guid) then
 		ttt:InspectDataAvailable(record);
 	end
-end);
+	
+	-- Cleanup
+	self:UnregisterEvent(event);
+end
 
--- OnUpdate -- Sends the inspect request after a delay
-ttt:SetScript("OnUpdate",function(self,elapsed)
-	self.nextUpdate = (self.nextUpdate - elapsed);
-	if (self.nextUpdate <= 0) then
-		self:Hide();
-		-- Make sure the mouseover unit is still our unit
-		-- Check IsInspectFrameOpen() again: Since if the user right-clicks a unit frame, and clicks inspect,
-		-- it could cause TTT to schedule an inspect, while the inspection window is open
-		if (UnitGUID("mouseover") == record.guid) and (not IsInspectFrameOpen()) then
-			lastInspectRequest = GetTime();
-			self:RegisterEvent("INSPECT_READY");
-			NotifyInspect(record.unit);
-		end
-	end
-end);
+ttt:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end);
 
--- HOOK: OnTooltipSetUnit -- Will schedule a delayed inspect request
-gtt:HookScript("OnTooltipSetUnit",function(self,...)
-	local cfg = TipTac_Config or TTT_DefConfig;
-	if not (cfg.showTalents) then
-		return;
-	end
-
-	-- Abort any delayed inspect in progress
-	ttt:Hide();
-
-	-- Get the unit -- Check the UnitFrame unit if this tip is from a concated unit, such as "targettarget".
-	local _, unit = self:GetUnit();
-	if (not unit) then
-		local mFocus = GetMouseFocus();
-		if (mFocus) and (mFocus.unit) then
-			unit = mFocus.unit;
-		end
-	end
-
-	-- No Unit or not a Player
-	if (not unit) or (not UnitIsPlayer(unit)) then
-		return;
-	end
-
-	-- Show only talents for people in your party/raid
-	if (cfg.talentOnlyInParty and not UnitInParty(unit) and not UnitInRaid(unit)) then
-		return;
-	end
-
-	-- No need to inspect players who has not yet gotten a specialization
-	local level = UnitLevel(unit);
-	if (level >= 10 or level == -1) then
-		ttt:InitiateInspectRequest(unit,record);
-	end
-end);
+ttt:RegisterEvent("VARIABLES_LOADED");
