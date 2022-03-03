@@ -13,9 +13,11 @@
 	22.01.03 Rev 14 9.1.5/Shadowlands #frozn45
 	- added a scroll frame to show a scroll bar if needed
 	- minor adjustments of some elements
+	xx.xx.xx Rev 15 9.2.0/Shadowlands #frozn45
+	- added a header element
 --]]
 
-local REVISION = 13;
+local REVISION = 15;
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -125,7 +127,10 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 
 			obj.option = option;
 			obj.text:SetText(option.label);
-			obj.class.Init(obj,option,self:GetConfigValue(option.var));
+			
+			if (obj.class.Init) then
+				obj.class.Init(obj,option,self:GetConfigValue(option.var));
+			end
 
 			-- Anchor the frame
 			obj:ClearAllPoints();
@@ -216,6 +221,59 @@ azof.objects.Slider = {
 		f.high = _G[sliderName.."High"];
 		f.high:ClearAllPoints();
 		f.high:SetPoint("BOTTOMRIGHT",f.slider,"TOPRIGHT",0,0);
+
+		return f;
+	end,
+};
+
+--------------------------------------------------------------------------------------------------------
+--                                               Header                                               --
+--------------------------------------------------------------------------------------------------------
+
+local function Header_OnEnter(self)
+	self.text:SetTextColor(1, 1, 1);
+	if (self.option.tip) then
+		GameTooltip:SetOwner(self, "ANCHOR_TOP");
+		GameTooltip:AddLine(self.option.label, 1, 1, 1);
+		GameTooltip:AddLine(self.option.tip, nil, nil, nil, 1);
+		GameTooltip:Show();
+	end
+end
+
+local function Header_OnLeave(self)
+	self.text:SetTextColor(1, 0.82, 0);
+	GameTooltip:Hide();
+end
+
+-- New Header
+azof.objects.Header = {
+	xOffset = 10,
+	yOffset = 0,
+	CreateNew = function(self)
+		local f = CreateFrame("Frame", nil, self.owner);
+		f:SetSize(302, 18);
+		
+		f.text = f:CreateFontString("ARTWORK", nil, "GameFontNormalSmall");
+		f.text:SetPoint("TOP");
+		f.text:SetPoint("BOTTOM");
+		f.text:SetJustifyH("CENTER");
+
+		f.leftH = f:CreateTexture(nil, "BACKGROUND");
+		f.leftH:SetHeight(8);
+		f.leftH:SetPoint("RIGHT", f.text, "LEFT", -5, 0);
+		f.leftH:SetPoint("LEFT", 3, 0);
+		f.leftH:SetTexture(137057); -- Interface\\Tooltips\\UI-Tooltip-Border
+		f.leftH:SetTexCoord(0.81, 0.94, 0.5, 1);
+
+		f.rightH = f:CreateTexture(nil, "BACKGROUND");
+		f.rightH:SetHeight(8);
+		f.rightH:SetPoint("RIGHT", -3, 0);
+		f.rightH:SetPoint("LEFT", f.text, "RIGHT", 5, 0);
+		f.rightH:SetTexture(137057); -- Interface\\Tooltips\\UI-Tooltip-Border
+		f.rightH:SetTexCoord(0.81, 0.94, 0.5, 1);
+		
+		f:SetScript("OnEnter", Header_OnEnter);
+		f:SetScript("OnLeave", Header_OnLeave);
 
 		return f;
 	end,

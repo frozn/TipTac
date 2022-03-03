@@ -158,6 +158,10 @@ local TT_DefaultConfig = {
 	anchorFrameUnitPoint = "BOTTOMRIGHT",
 	anchorFrameTipType = "normal",
 	anchorFrameTipPoint = "BOTTOMRIGHT",
+	
+	enableAnchorOverrideCF = false,
+	anchorOverrideCFType = "normal",
+	anchorOverrideCFPoint = "BOTTOMRIGHT",
 
 	mouseOffsetX = 0,
 	mouseOffsetY = 0,
@@ -925,8 +929,8 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	tt:SetPadding(tip, calledFromEvent);
 end
 
--- Checks chain of frames, if a frame named like "patterns" exists.
-local function IsInFrameChain(frame, patterns, maxLevel)
+-- Checks chain of frames, if a frame named like "patterns" or like specified frame exists.
+local function IsInFrameChain(frame, patternsOrFrame, maxLevel)
 	local currentFrame = frame;
 	local currentLevel = 1;
 	
@@ -937,9 +941,12 @@ local function IsInFrameChain(frame, patterns, maxLevel)
 		
 		local currentFrameName = currentFrame:GetName();
 		
-		if (currentFrameName) then
-			for _, pattern in ipairs(patterns) do
-				if (currentFrameName:match(pattern)) then
+		for _, patternOrFrame in ipairs(patternsOrFrame) do
+			if (patternOrFrame) then
+				local typePatternOrFrame = type(patternOrFrame);
+				
+				if ((typePatternOrFrame == "string") and (currentFrameName) and (currentFrameName:match(patternOrFrame))) or
+						((typePatternOrFrame == "table") and (currentFrame == patternOrFrame)) then
 					return true;
 				end
 			end
@@ -968,13 +975,22 @@ local function GetAnchorPosition(tooltip)
 	
 	local ttAnchorType, ttAnchorPoint = cfg[var.."Type"], cfg[var.."Point"];
 	
-	if (tooltip == gtt) and (var == "anchorFrameTip") and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) then -- don't anchor GTT (frame tip type) in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
-		if (IsInFrameChain(tooltip:GetOwner(), {
+	-- check for anchor overrides
+	if (tooltip == gtt) then
+		 -- don't anchor GTT (frame tip type) in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
+		if (var == "anchorFrameTip") and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) and (IsInFrameChain(tooltip:GetOwner(), {
 					"LFGListSearchPanelScrollFrameButton(%d+)",
 					"LFGListApplicationViewerScrollFrameButton(%d+)"
 				}, 4)) then
-			ttAnchorType = "normal";
-			ttAnchorPoint = "BOTTOMRIGHT";
+			return "normal", "BOTTOMRIGHT";
+		end
+		
+		-- override GTT anchor for (Guild & Community) ChatFrame
+		if (cfg.enableAnchorOverrideCF) and (IsInFrameChain(tooltip:GetOwner(), {
+					"ChatFrame(%d+)",
+					(IsAddOnLoaded("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
+				}, 1)) then
+			return cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
 		end
 	end
 	
