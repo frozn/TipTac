@@ -14,11 +14,11 @@ local ttIcons = tt:RegisterElement({},"Icons");
 --------------------------------------------------------------------------------------------------------
 
 function ttIcons:SetIcon(icon,u)
-	local raidIconIndex = nil;
-	
-	if (UnitExists(u.token)) then
-		raidIconIndex = GetRaidTargetIndex(u.token);
+	if (not UnitExists(u.token)) then
+		return;
 	end
+	
+	local raidIconIndex = GetRaidTargetIndex(u.token);
 
 	if (cfg.iconRaid) and (raidIconIndex) then
 		icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
