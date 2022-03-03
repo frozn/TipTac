@@ -110,7 +110,8 @@ local options = {
 	-- Backdrop
 	{
 		[0] = "Backdrop",
-		{ type = "DropDown", var = "tipBackdropBG", label = "Background Texture", media = "background" },
+		{ type = "Check", var = "enableBackdrop", label = "Enable Backdrop Modifications", tip = "Turns on or off all modifications of the backdrop\nNOTE: A Reload of the UI (/reload) is required for the setting to take affect if disabling this option" },
+		{ type = "DropDown", var = "tipBackdropBG", label = "Background Texture", media = "background", y = 8 },
 		{ type = "DropDown", var = "tipBackdropEdge", label = "Border Texture", media = "border" },
 		{ type = "Check", var = "pixelPerfectBackdrop", label = "Pixel Perfect Backdrop Edge Size and Insets", tip = "Backdrop Edge Size and Insets corresponds to real pixels", y = 6 },
 		{ type = "Slider", var = "backdropEdgeSize", label = "Backdrop Edge Size", min = -20, max = 64, step = 0.5, y = 8 },

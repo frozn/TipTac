@@ -84,6 +84,7 @@ local TT_DefaultConfig = {
 	colReactBack6 = { 0, 0, 0.5 },
 	colReactBack7 = { 0.05, 0.05, 0.05 },
 
+	enableBackdrop = true,
 	tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 	tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
 	pixelPerfectBackdrop = false,
@@ -635,7 +636,7 @@ end
 -- Setup Gradient Tip
 local function SetupGradientTip(tip)
 	local g = tip.ttGradient;
-	if (not cfg.gradientTip) then
+	if (not cfg.enableBackdrop) or (not cfg.gradientTip) then
 		if (g) then
 			g:Hide();
 		end
@@ -883,6 +884,10 @@ end
 
 -- Applies the backdrop, color and border color. The GTT will often reset these internally.
 function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
+	if (not cfg.enableBackdrop) then
+		return;
+	end
+	
 	-- remove default tip backdrop
 	if (tip.NineSlice) then
 		StripTextures(tip.NineSlice);
@@ -1617,7 +1622,7 @@ function tt:AddLockingFeature(tip)
 	local tip_SetBackdropBorderColor_org = tip.SetBackdropBorderColor;
 	
 	tip.ApplyBackdrop = function(self, ...)
-		if (self.ttSetBackdropLocked) then
+		if (cfg.enableBackdrop) and (self.ttSetBackdropLocked) then
 			return;
 		end
 		if (tip_ApplyBackdrop_org) then
@@ -1625,7 +1630,7 @@ function tt:AddLockingFeature(tip)
 		end
 	end
 	tip.SetBackdrop = function(self, ...)
-		if (self.ttSetBackdropLocked) then
+		if (cfg.enableBackdrop) and (self.ttSetBackdropLocked) then
 			return;
 		end
 		if (tip_SetBackdrop_org) then
@@ -1633,7 +1638,7 @@ function tt:AddLockingFeature(tip)
 		end
 	end
 	tip.SetBackdropColor = function(self, ...)
-		if (self.ttSetBackdropColorLocked) then
+		if (cfg.enableBackdrop) and (self.ttSetBackdropColorLocked) then
 			return;
 		end
 		if (tip_SetBackdropColor_org) then
@@ -1641,7 +1646,7 @@ function tt:AddLockingFeature(tip)
 		end
 	end
 	tip.SetBackdropBorderColor = function(self, ...)
-		if (self.ttSetBackdropBorderColorLocked) then
+		if (cfg.enableBackdrop) and (self.ttSetBackdropBorderColorLocked) then
 			return;
 		end
 		if (tip_SetBackdropBorderColor_org) then
@@ -1658,7 +1663,7 @@ function tt:AddLockingFeature(tip)
 		local tip_NineSlice_SetBorderColor_org = tip.NineSlice.SetBorderColor;
 		
 		tip.NineSlice.ApplyBackdrop = function(self, ...)
-			if (self:GetParent().ttSetBackdropLocked) then
+			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropLocked) then
 				return;
 			end
 			if (tip_NineSlice_ApplyBackdrop_org) then
@@ -1666,7 +1671,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBackdrop = function(self, ...)
-			if (self:GetParent().ttSetBackdropLocked) then
+			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdrop_org) then
@@ -1674,7 +1679,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBackdropColor = function(self, ...)
-			if (self:GetParent().ttSetBackdropColorLocked) then
+			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdropColor_org) then
@@ -1682,7 +1687,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBackdropBorderColor = function(self, ...)
-			if (self:GetParent().ttSetBackdropBordeColorLocked) then
+			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropBordeColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdropBordeColor_org) then
@@ -1690,7 +1695,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetCenterColor = function(self, ...)
-			if (self:GetParent().ttSetBackdropColorLocked) then
+			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetCenterColor_org) then
@@ -1698,7 +1703,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBorderColor = function(self, ...)
-			if (self:GetParent().ttSetBackdropBorderColorLocked) then
+			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropBorderColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBorderColor_org) then
