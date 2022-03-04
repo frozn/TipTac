@@ -1616,13 +1616,17 @@ end
 
 -- Function to add a locking feature for SetBackdrop, SetBackdropColor and SetBackdropBorderColor
 function tt:AddLockingFeature(tip)
+	if (not cfg.enableBackdrop) then
+		return;
+	end
+	
 	local tip_ApplyBackdrop_org = tip.ApplyBackdrop;
 	local tip_SetBackdrop_org = tip.SetBackdrop;
 	local tip_SetBackdropColor_org = tip.SetBackdropColor;
 	local tip_SetBackdropBorderColor_org = tip.SetBackdropBorderColor;
 	
 	tip.ApplyBackdrop = function(self, ...)
-		if (cfg.enableBackdrop) and (self.ttSetBackdropLocked) then
+		if (self.ttSetBackdropLocked) then
 			return;
 		end
 		if (tip_ApplyBackdrop_org) then
@@ -1630,7 +1634,7 @@ function tt:AddLockingFeature(tip)
 		end
 	end
 	tip.SetBackdrop = function(self, ...)
-		if (cfg.enableBackdrop) and (self.ttSetBackdropLocked) then
+		if (self.ttSetBackdropLocked) then
 			return;
 		end
 		if (tip_SetBackdrop_org) then
@@ -1638,7 +1642,7 @@ function tt:AddLockingFeature(tip)
 		end
 	end
 	tip.SetBackdropColor = function(self, ...)
-		if (cfg.enableBackdrop) and (self.ttSetBackdropColorLocked) then
+		if (self.ttSetBackdropColorLocked) then
 			return;
 		end
 		if (tip_SetBackdropColor_org) then
@@ -1646,7 +1650,7 @@ function tt:AddLockingFeature(tip)
 		end
 	end
 	tip.SetBackdropBorderColor = function(self, ...)
-		if (cfg.enableBackdrop) and (self.ttSetBackdropBorderColorLocked) then
+		if (self.ttSetBackdropBorderColorLocked) then
 			return;
 		end
 		if (tip_SetBackdropBorderColor_org) then
@@ -1663,7 +1667,7 @@ function tt:AddLockingFeature(tip)
 		local tip_NineSlice_SetBorderColor_org = tip.NineSlice.SetBorderColor;
 		
 		tip.NineSlice.ApplyBackdrop = function(self, ...)
-			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropLocked) then
+			if (self:GetParent().ttSetBackdropLocked) then
 				return;
 			end
 			if (tip_NineSlice_ApplyBackdrop_org) then
@@ -1671,7 +1675,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBackdrop = function(self, ...)
-			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropLocked) then
+			if (self:GetParent().ttSetBackdropLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdrop_org) then
@@ -1679,7 +1683,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBackdropColor = function(self, ...)
-			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropColorLocked) then
+			if (self:GetParent().ttSetBackdropColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdropColor_org) then
@@ -1687,7 +1691,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBackdropBorderColor = function(self, ...)
-			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropBordeColorLocked) then
+			if (self:GetParent().ttSetBackdropBordeColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBackdropBordeColor_org) then
@@ -1695,7 +1699,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetCenterColor = function(self, ...)
-			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropColorLocked) then
+			if (self:GetParent().ttSetBackdropColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetCenterColor_org) then
@@ -1703,7 +1707,7 @@ function tt:AddLockingFeature(tip)
 			end
 		end
 		tip.NineSlice.SetBorderColor = function(self, ...)
-			if (cfg.enableBackdrop) and (self:GetParent().ttSetBackdropBorderColorLocked) then
+			if (self:GetParent().ttSetBackdropBorderColorLocked) then
 				return;
 			end
 			if (tip_NineSlice_SetBorderColor_org) then
