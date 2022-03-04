@@ -285,8 +285,6 @@ end
 function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkType, id, rank)
 	local tooltip = self;
 	
-	local owner = self:GetOwner();
-	
 	-- functions
 	local reapplyTooltipModificationFn = function()
 		tipDataAdded[tooltip] = linkType;
@@ -305,37 +303,36 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 		if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then
 			AceHook:Unhook(tooltip, "OnTooltipCleared");
 			AceHook:Unhook(tooltip, "OnHide");
-			if (owner ~= UIParent) then
-				AceHook:Unhook(owner, "OnLeave");
-			end
 		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 2) then
 			AceHook:Unhook(tooltip, "OnUpdate");
 			AceHook:Unhook(tooltip, "OnHide");
-			if (owner ~= UIParent) then
-				AceHook:Unhook(owner, "OnLeave");
-			end
 		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 3) then
 			AceHook:Unhook(tooltip, "OnHide");
-			if (owner ~= UIParent) then
-				AceHook:Unhook(owner, "OnLeave");
-			end
 		end
 		
 		if (resetVars) then
 			tooltip.ttWorkaroundForFirstMouseoverStatus = nil;
 			tooltip.ttWorkaroundForFirstMouseoverID = nil;
 			tooltip.ttWorkaroundForFirstMouseoverRank = nil;
+			tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
 		end
 	end
 	
 	-- remove previous hooks if different id
-	if (tooltip.ttWorkaroundForFirstMouseoverStatus) and (tooltip.ttWorkaroundForFirstMouseoverID ~= id) then
+	local owner = tooltip:GetOwner();
+	
+	if (tooltip.ttWorkaroundForFirstMouseoverStatus) and ((tooltip.ttWorkaroundForFirstMouseoverID ~= id) or (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner)) then
 		removeHooksFn(true);
 	end
 	
 	-- apply hooks
 	if (not tooltip.ttWorkaroundForFirstMouseoverStatus) then
 		AceHook:HookScript(tooltip, "OnTooltipCleared", function()
+			local owner = tooltip:GetOwner();
+			if (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner) then
+				removeHooksFn(true);
+				return;
+			end
 			AceHook:HookScript(tooltip, "OnUpdate", function()
 				reapplyTooltipModificationFn();
 			end);
@@ -345,14 +342,10 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 		AceHook:HookScript(tooltip, "OnHide", function()
 			removeHooksFn(true);
 		end);
-		if (owner ~= UIParent) then
-			AceHook:HookScript(owner, "OnLeave", function()
-				removeHooksFn(true);
-			end);
-		end
 		tooltip.ttWorkaroundForFirstMouseoverStatus = 1;
 		tooltip.ttWorkaroundForFirstMouseoverID = id;
 		tooltip.ttWorkaroundForFirstMouseoverRank = rank;
+		tooltip.ttWorkaroundForFirstMouseoverOwner = owner;
 	else
 		removeHooksFn();
 		tooltip.ttWorkaroundForFirstMouseoverStatus = 3;
