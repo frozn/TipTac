@@ -2018,11 +2018,12 @@ end
 --------------------------------------------------------------------------------------------------------
 
 -- HOOK: GameTooltip_SetDefaultAnchor -- fix for: FrameXML\GameTooltip.lua:161: Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint
-local GameTooltip_SetDefaultAnchor_org = GameTooltip_SetDefaultAnchor;
-GameTooltip_SetDefaultAnchor = function(self, ...)
-	self:ClearAllPoints();
-	GameTooltip_SetDefaultAnchor_org(self, ...);
-end
+-- deactivated because of tainting GameTooltip_SetDefaultAnchor() by TipTac, see https://github.com/frozn/TipTac/issues/62
+-- local GameTooltip_SetDefaultAnchor_org = GameTooltip_SetDefaultAnchor;
+-- GameTooltip_SetDefaultAnchor = function(self, ...)
+	-- self:ClearAllPoints();
+	-- GameTooltip_SetDefaultAnchor_org(self, ...);
+-- end
 
 -- HOOK: GarrisonLandingPageReportMission_OnEnter -- fix for: Blizzard_GarrisonUI\Blizzard_GarrisonLandingPage.lua:870: Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint
 local GarrisonLandingPageReportMission_OnEnter_org = GarrisonLandingPageReportMission_OnEnter;
