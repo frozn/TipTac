@@ -2194,8 +2194,9 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 		end
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
+	
   	-- Difficulty Border
-	if (cfg.if_questDifficultyBorder) then
+	if (not self.IsEmbedded) and (cfg.if_questDifficultyBorder) then
 		local difficultyColorMixin;
 		
 		if (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
