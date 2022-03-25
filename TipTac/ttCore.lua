@@ -246,6 +246,7 @@ local TT_TipsToModify = {
 	"ItemRefTooltip",
 	"ItemRefShoppingTooltip1",
 	"ItemRefShoppingTooltip2",
+	"EmbeddedItemTooltip",
 	"NamePlateTooltip",
 	"BattlePetTooltip",
 	"FloatingBattlePetTooltip",
@@ -253,6 +254,7 @@ local TT_TipsToModify = {
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
 	"FriendsTooltip",
+	"ContributionBuffTooltip",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
 	"LibDBIconTooltip",
@@ -282,6 +284,7 @@ local TT_AddOnsLoaded = {
 	["TipTac"] = false,
 	["Blizzard_Collections"] = false,
 	["Blizzard_Communities"] = false,
+	["Blizzard_Contribution"] = false,
 	["Blizzard_EncounterJournal"] = false,
 	["RaiderIO"] = false
 };
@@ -1485,8 +1488,9 @@ end
 -- HOOK: QuestUtils_AddQuestRewardsToTooltip
 -- added helper function for embedded tooltips, see description in tt:SetPadding()
 local function QU_AddQuestRewardsToTooltip(tooltip, questID, style)
-	if (not tooltip:IsShown()) and (tooltip.ItemTooltip and tooltip.ItemTooltip:IsShown()) then
-		tooltip:SetPadding(0, 0, 0, 0);
+	-- reset padding to fix displaying of embedded tooltips
+	if (tooltip.ItemTooltip and tooltip.ItemTooltip:IsShown()) then
+		GameTooltip_CalculatePadding(tooltip);
 	end
 end
 
@@ -1776,9 +1780,9 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					-- commented out for embedded tooltips, see description in tt:SetPadding()
 					-- hooksecurefunc("GameTooltip_CalculatePadding", GTT_CalculatePadding);
 					
-					-- Post-Hook QuestUtils_AddQuestRewardsToTooltip() to reset padding to fix displaying of embedded tooltips
-					-- added helper function for embedded tooltips, see description in tt:SetPadding()
 					if (isWoWRetail) then
+						-- Post-Hook QuestUtils_AddQuestRewardsToTooltip() to reset padding to fix displaying of embedded tooltips
+						-- added helper function for embedded tooltips, see description in tt:SetPadding()
 						hooksecurefunc("QuestUtils_AddQuestRewardsToTooltip", QU_AddQuestRewardsToTooltip);
 						
 						-- Post-Hook RuneforgePowerBaseMixin:OnEnter() to re-anchor tooltip in adventure journal if "Anchors->Frame Tip Type" = "Mouse Anchor" and scrolling up and down, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
@@ -1935,6 +1939,14 @@ function tt:ADDON_LOADED(event, addOnName)
 		hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
 			tt:ApplyHooksToCFMLLSF();
 		end);
+	-- now ContributionBuffTooltip exists
+	elseif (addOnName == "Blizzard_Contribution") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Contribution"))) then
+		-- Hook Tips & Apply Settings
+		self:ApplyHooksToTips({
+			"ContributionBuffTooltip"
+		}, true, true);
+
+		self:ApplySettings();
 	-- now EncounterJournalTooltip exists
 	elseif (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_EncounterJournal"))) then
 		ejtt = EncounterJournalTooltip;

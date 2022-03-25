@@ -2196,7 +2196,7 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 	end
 	
   	-- Difficulty Border
-	if (not self.IsEmbedded) and (cfg.if_questDifficultyBorder) then
+	if (cfg.if_questDifficultyBorder) then
 		local difficultyColorMixin;
 		
 		if (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
