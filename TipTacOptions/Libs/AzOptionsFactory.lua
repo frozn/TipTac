@@ -13,7 +13,7 @@
 	22.01.03 Rev 14 9.1.5/Shadowlands #frozn45
 	- added a scroll frame to show a scroll bar if needed
 	- minor adjustments of some elements
-	xx.xx.xx Rev 15 9.2.0/Shadowlands #frozn45
+	22.03.30 Rev 15 9.2.0/Shadowlands #frozn45
 	- added a header element
 --]]
 
