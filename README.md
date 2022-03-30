@@ -17,7 +17,7 @@ WoW AddOn TipTac [SL] [BCC] [Classic]
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, DropDownList1/2, FriendsTooltip, LibQTip, LibDBIcon, auras from addon Plater, tooltips from addon RaiderIO
+- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip and contribution buff (e.g. for contribution reward at legionfall construction table), LibQTip, LibDBIcon, auras from addon Plater, tooltips from addon RaiderIO
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
@@ -36,13 +36,15 @@ WoW AddOn TipTac [SL] [BCC] [Classic]
 - fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
 - fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
 - added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
+- added option in "Anchors" to override GTT anchor for (Guild & Community) ChatFrame
+- added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - classic: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic: added missing styling of auras
 - classic: reactivated talent format option
 - classic: suppressed error speech/message when calling CanInspect(unit) within TipTacTalents
-- classic: fixed sometimes missing displaying of level, race and class for unit tooltips
+- classic: fixed sometimes missing displaying of level, race, class and talents for unit tooltips
 
 ### The following problems aren't fixed
 
