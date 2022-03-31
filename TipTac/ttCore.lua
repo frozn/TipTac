@@ -1134,15 +1134,22 @@ end
 
 -- Add "Targeted By" line
 function tt:AddTargetedBy(u)
+	local numUnits, inGroup, inRaid, nameplates;
+	
 	local numGroup = GetNumGroupMembers();
-	if (not numGroup) or (numGroup <= 1) then
-		return;
+	if (numGroup) and (numGroup >= 1) then
+		numUnits = numGroup;
+		inGroup = true;
+		inRaid = IsInRaid();
+	else
+		nameplates = C_NamePlate.GetNamePlates();
+		numUnits = #nameplates;
+		inGroup = false;
 	end
-
-	local inRaid = IsInRaid();
-	for i = 1, numGroup do
-		local unit = (inRaid and "raid"..i or "party"..i);
-		if (UnitIsUnit(unit.."target",u.token)) and (not UnitIsUnit(unit,"player")) then
+	
+	for i = 1, numUnits do
+		local unit = inGroup and (inRaid and "raid"..i or "party"..i) or (nameplates[i].namePlateUnitToken);
+		if (UnitIsUnit(unit.."target", u.token)) and (not UnitIsUnit(unit, "player")) then
 			local _, classFile = UnitClass(unit);
 			targetedByList.next = TT_ClassColorMarkup[classFile];
 			targetedByList.next = UnitName(unit);
