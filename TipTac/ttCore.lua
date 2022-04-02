@@ -646,12 +646,13 @@ local function SetupGradientTip(tip)
 		return;
 	elseif (not g) then
 		g = tip:CreateTexture();
-		g:SetColorTexture(1,1,1,1);
+		g:SetColorTexture(1, 1, 1, 1);
 		tip.ttGradient = g;
 	end
-	g:SetGradientAlpha("VERTICAL",0,0,0,0,unpack(cfg.gradientColor));
-	g:SetPoint("TOPLEFT",cfg.backdropInsets,cfg.backdropInsets * -1);
-	g:SetPoint("BOTTOMRIGHT",tip,"TOPRIGHT",cfg.backdropInsets * -1,-cfg.gradientHeight);
+	g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, unpack(cfg.gradientColor));
+	local insets = ((cfg.pixelPerfectBackdrop and tt:GetNearestPixelSize(cfg.backdropInsets, true)) or cfg.backdropInsets);
+	g:SetPoint("TOPLEFT", insets, insets * -1);
+	g:SetPoint("BOTTOMRIGHT", tip, "TOPRIGHT", insets * -1, -cfg.gradientHeight);
 	g:Show();
 end
 
