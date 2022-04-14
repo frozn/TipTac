@@ -350,7 +350,7 @@ local function updatePixelPerfectScale()
 	uiUnitFactor = 768.0 / physicalScreenHeight;
 	uiScale = UIParent:GetEffectiveScale();
 	if (cfg) then
-		mouseOffsetX, mouseOffsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX), tt:GetNearestPixelSize(cfg.mouseOffsetY);
+		mouseOffsetX, mouseOffsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX or 0), tt:GetNearestPixelSize(cfg.mouseOffsetY or 0);
 	end
 end
 
@@ -606,7 +606,7 @@ end
 -- Get nearest pixel size (e.g. to avoid 1-pixel borders, which are sometimes 0/2-pixels wide)
 function tt:GetNearestPixelSize(size, pixelPerfect)
 	local _size = ((pixelPerfect and (size * uiUnitFactor)) or size);
-	return PixelUtil.GetNearestPixelSize(_size, 1) / uiScale / cfg.gttScale;
+	return PixelUtil.GetNearestPixelSize(_size, 1) / uiScale / (cfg.gttScale or 1);
 end
 
 -- Resolves the given table array of string names into their global objects

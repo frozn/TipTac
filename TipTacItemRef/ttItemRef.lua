@@ -46,7 +46,8 @@ if (TipTac) then
 end
 
 -- Options without TipTac. If the base TipTac addon is used, the global TipTac_Config table is used instead
-local cfg = {
+local cfg;
+local TTIF_DefaultConfig = {
 	if_enable = true,
 	if_infoColor = { 0.2, 0.6, 1 },
 
@@ -236,7 +237,7 @@ function ttif:VARIABLES_LOADED(event)
 
 	-- Use TipTac settings if installed
 	if (TipTac_Config) then
-		cfg = TipTac_Config;
+		cfg = setmetatable(TipTac_Config, { __index = TTIF_DefaultConfig });
 	end
 
 	-- Hook Tips & Apply Settings
@@ -247,6 +248,10 @@ function ttif:VARIABLES_LOADED(event)
 	self:UnregisterEvent(event);
 	self[event] = nil;
 end
+
+--------------------------------------------------------------------------------------------------------
+--                                           Element Events                                           --
+--------------------------------------------------------------------------------------------------------
 
 -- Apply Settings -- It seems this may be called from TipTac:OnApplyConfig() before we have received our VARIABLES_LOADED, so ensure we have created the tip objects
 function ttif:OnApplyConfig()
