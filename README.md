@@ -40,6 +40,7 @@ WoW AddOn TipTac [SL] [BCC] [Classic]
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - considered debuff border for aura positions
 - splitted options for auras from spells
+- option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
 - classic: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic: added missing styling of auras
 - classic: reactivated talent format option
