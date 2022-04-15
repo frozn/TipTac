@@ -3,7 +3,7 @@ WoW AddOn TipTac [SL] [BCC] [Classic]
 
 * based on latest version v20.11.04 from Nov 4, 2020: https://www.curseforge.com/wow/addons/tip-tac
 * added fixes for wow patch 9.2.0 (Shadowlands - Eternity's End), bcc and classic
-* added several enhancements
+* added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
 
