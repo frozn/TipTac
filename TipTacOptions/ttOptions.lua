@@ -239,15 +239,15 @@ local options = {
 -- TipTacTalents Support
 if (TipTacTalents) then
 	local tttOptions = {
-		{ type = "Check", var = "showTalents", label = "Enable TipTacTalents", tip = "This option makes the tip show the talent specialization of other players" },
-		{ type = "Check", var = "talentOnlyInParty", label = "Only Show Talents for Party and Raid Members", tip = "When you enable this, only talents of players in your party or raid will be requested and shown" }
+		{ type = "Check", var = "t_showTalents", label = "Enable TipTacTalents", tip = "This option makes the tip show the talent specialization of other players" },
+		{ type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents for Party and Raid Members", tip = "When you enable this, only talents of players in your party or raid will be requested and shown" }
 	};
 	
 	if (not isWoWRetail) then
-		tttOptions[#tttOptions + 1] = { type = "DropDown", var = "talentFormat", label = "Talent Format", list = { ["Elemental (57/14/00)"] = 1, ["Elemental"] = 2, ["57/14/00"] = 3,}, y = 8 }; -- not supported with MoP changes
+		tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Format", list = { ["Elemental (57/14/00)"] = 1, ["Elemental"] = 2, ["57/14/00"] = 3,}, y = 8 }; -- not supported with MoP changes
 	end
 
-	tttOptions[#tttOptions + 1] = { type = "Slider", var = "talentCacheSize", label = "Talent Cache Size", min = 0, max = 50, step = 1, y = 12 };
+	tttOptions[#tttOptions + 1] = { type = "Slider", var = "t_talentCacheSize", label = "Talent Cache Size", min = 0, max = 50, step = 1, y = 12 };
 	
 	options[#options + 1] = {
 		[0] = "Talents",

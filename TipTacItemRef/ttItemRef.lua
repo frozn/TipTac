@@ -45,7 +45,7 @@ if (TipTac) then
 	TipTac:RegisterElement(ttif,"ItemRef");
 end
 
--- Options without TipTac. If the base TipTac addon is used, the global TipTac_Config table is used instead
+-- Default Config
 local cfg;
 local TTIF_DefaultConfig = {
 	if_enable = true,
@@ -228,6 +228,37 @@ local function ResolveGlobalNamedObjects(tipTable)
 	end
 end
 
+-- Chain config tables
+local function ChainConfigTables(config, defaults)
+	local config_metatable_org = getmetatable(config);
+	
+	return setmetatable(config, {
+		__index = function(tab, index)
+			local value = defaults[index];
+			
+			if (value) then
+				return value;
+			end
+			
+			if (not config_metatable_org) then
+				return nil;
+			end
+			
+			local config_metatable_org__index = config_metatable_org.__index;
+			
+			if (not config_metatable_org__index) then
+				return nil;
+			end
+			
+			if (type(config_metatable_org__index) == "table") then
+				return config_metatable_org__index[index];
+			end
+			
+			return config_metatable_org__index(tab, index);
+		end
+	});
+end
+
 -- Variables Loaded [One-Time-Event]
 function ttif:VARIABLES_LOADED(event)
 	-- What tipsToModify to use, TipTac's main addon, or our own?
@@ -237,7 +268,9 @@ function ttif:VARIABLES_LOADED(event)
 
 	-- Use TipTac settings if installed
 	if (TipTac_Config) then
-		cfg = setmetatable(TipTac_Config, { __index = TTIF_DefaultConfig });
+		cfg = ChainConfigTables(TipTac_Config, TTIF_DefaultConfig);
+	else
+		cfg = TTIF_DefaultConfig;
 	end
 
 	-- Hook Tips & Apply Settings

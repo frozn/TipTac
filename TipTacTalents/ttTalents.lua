@@ -21,15 +21,16 @@ local TALENTS_NA = NOT_APPLICABLE:lower();
 local TALENTS_NONE = NONE_KEY; -- NO.." "..TALENTS
 local TALENTS_LOADING = SEARCH_LOADING_TEXT;
 
--- Default Config -- NOTE: Only used when addon is stand-alone, together with TipTac, these are NOT used
-local TTT_DefConfig = {
-	showTalents = true,			-- "Main Switch", addon does nothing if false
-	talentOnlyInParty = false,	-- Only show talents for party/raid members
-	talentFormat = 1,			-- Talent Format
-	talentCacheSize = 25,		-- Change cache size here (Default 25)
+-- Default Config
+local cfg;
+local TTT_DefaultConfig = {
+	t_showTalents = true,         -- "Main Switch", addon does nothing if false
+	t_talentOnlyInParty = false,  -- Only show talents for party/raid members
+	t_talentFormat = 1,           -- Talent Format
+	t_talentCacheSize = 25,       -- Change cache size here (Default 25)
 
-	inspectDelay = 0.2,			-- The time delay for the scheduled inspection (default = 0.2)
-	inspectFreq = 2,			-- How soon after an inspection are we allowed to inspect again? (default = 2)
+	t_inspectDelay = 0.2,         -- The time delay for the scheduled inspection (default = 0.2)
+	t_inspectFreq = 2,            -- How soon after an inspection are we allowed to inspect again? (default = 2)
 }
 
 -- Variables
@@ -94,8 +95,7 @@ function ttt:QuerySpecialization(record)
 		end
 		record.maxTree = GetTalentTabInfo(maxTree, isInspect, nil, activeTalentGroup);
 		-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
-		local cfg = TipTac_Config or TTT_DefConfig;
-		local talentFormat = (cfg.talentFormat or 1);
+		local talentFormat = (cfg.t_talentFormat or 1);
 		if (record[maxTree] == 0) then
 			record.format = TALENTS_NONE;
 		elseif (talentFormat == 1) then
@@ -130,8 +130,7 @@ end
 
 -- caches the given unit record
 function ttt:CacheUnit(record)
-	local cfg = TipTac_Config or TTT_DefConfig;
-	local cacheSize = cfg.talentCacheSize;
+	local cacheSize = cfg.t_talentCacheSize;
 	-- remove previous entries of this unit
 	for i = #cache, 1, -1 do
 		if (record.guid == cache[i].guid) then
@@ -196,9 +195,8 @@ function ttt:InitiateInspectRequest(unit,record)
 	end, (not isWoWRetail));
 	
 	if (canInspect) then
-		local cfg = TipTac_Config or TTT_DefConfig;
-		local freq = (cfg.inspectFreq or TTT_DefConfig.inspectFreq);	-- Az: remove this extra fallback once a new main TipTac is released
-		local delay = (cfg.inspectDelay or TTT_DefConfig.inspectDelay);	-- Az: remove this extra fallback once a new main TipTac is released
+		local delay = cfg.t_inspectDelay;
+		local freq = cfg.t_inspectFreq;
 
 		local lastInspectTime = (GetTime() - lastInspectRequest);
 		self.nextUpdate = (lastInspectTime > freq) and delay or (freq - lastInspectTime + delay);
@@ -242,8 +240,7 @@ function ttt:HookTip()
 
 	-- HOOK: OnTooltipSetUnit -- Will schedule a delayed inspect request
 	gtt:HookScript("OnTooltipSetUnit",function(self,...)
-		local cfg = TipTac_Config or TTT_DefConfig;
-		if not (cfg.showTalents) then
+		if not (cfg.t_showTalents) then
 			return;
 		end
 
@@ -265,7 +262,7 @@ function ttt:HookTip()
 		end
 
 		-- Show only talents for people in your party/raid
-		if (cfg.talentOnlyInParty and not UnitInParty(unit) and not UnitInRaid(unit)) then
+		if (cfg.t_talentOnlyInParty and not UnitInParty(unit) and not UnitInRaid(unit)) then
 			return;
 		end
 
@@ -280,8 +277,46 @@ function ttt:HookTip()
 	self.HookTips = nil;
 end
 
+-- Chain config tables
+local function ChainConfigTables(config, defaults)
+	local config_metatable_org = getmetatable(config);
+	
+	return setmetatable(config, {
+		__index = function(tab, index)
+			local value = defaults[index];
+			
+			if (value) then
+				return value;
+			end
+			
+			if (not config_metatable_org) then
+				return nil;
+			end
+			
+			local config_metatable_org__index = config_metatable_org.__index;
+			
+			if (not config_metatable_org__index) then
+				return nil;
+			end
+			
+			if (type(config_metatable_org__index) == "table") then
+				return config_metatable_org__index[index];
+			end
+			
+			return config_metatable_org__index(tab, index);
+		end
+	});
+end
+
 -- Variables Loaded [One-Time-Event]
 function ttt:VARIABLES_LOADED(event)
+	-- Use TipTac settings if installed
+	if (TipTac_Config) then
+		cfg = ChainConfigTables(TipTac_Config, TTT_DefaultConfig);
+	else
+		cfg = TTT_DefaultConfig;
+	end
+	
 	-- Hook Tip
 	self:HookTip();
 	

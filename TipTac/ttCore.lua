@@ -36,7 +36,7 @@ local tt = CreateFrame("Frame",modName,UIParent,BackdropTemplateMixin and "Backd
 -- Global Chat Message Function
 function AzMsg(msg) DEFAULT_CHAT_FRAME:AddMessage(tostring(msg):gsub("|1","|cffffff80"):gsub("|2","|cffffffff"),0.5,0.75,1.0); end
 
--- Config Data Variables
+-- Default Config
 local cfg;
 local TT_DefaultConfig = {
 	showUnitTip = true,
@@ -124,7 +124,7 @@ local TT_DefaultConfig = {
 	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
 
 	hideDefaultBar = true,
-	barsCondenseValues = false,
+	barsCondenseValues = true,
 	healthBar = true,
 	healthBarClassColor = true,
 	healthBarText = "value",
@@ -170,71 +170,6 @@ local TT_DefaultConfig = {
 	hideUFTipsInCombat = false,
 	hideAllTipsInCombat = false,
 	showHiddenTipsOnShift = false,
-
-	-- Talents
-	showTalents = true,
-	talentOnlyInParty = false,
-	talentFormat = 1,
-	talentCacheSize = 25,
-	inspectDelay = 0.2,			-- The time delay for the scheduled inspection
-	inspectFreq = 2,			-- How soon after an inspection are we allowed to inspect again?
-
-	-- ItemRef
-	if_enable = true,
-	if_infoColor = { 0.2, 0.6, 1 },
-
-	if_itemQualityBorder = true,
-	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
-	if_showItemId = false,
-	if_showKeystoneRewardLevel = true,
-	if_showKeystoneTimeLimit = true,
-	if_showKeystoneAffixInfo = true,
-	if_modifyKeystoneTips = true,
-	if_spellColoredBorder = true,
-	if_showSpellIdAndRank = false,
-	if_auraSpellColoredBorder = true,
-	if_showAuraSpellIdAndRank = false,
-	if_showMawPowerId = false,
-	if_showAuraCaster = true,
-	if_questDifficultyBorder = true,
-	if_showQuestLevel = false,
-	if_showQuestId = false,
-	if_currencyQualityBorder = true,
-	if_showCurrencyId = false,
-	if_achievmentColoredBorder = true,
-	if_showAchievementIdAndCategoryId = false,
-	if_modifyAchievementTips = true,
-	if_battlePetQualityBorder = true,
-	if_showBattlePetLevel = false,
-	if_showBattlePetId = false,
-	if_battlePetAbilityColoredBorder = true,
-	if_showBattlePetAbilityId = false,
-	if_transmogAppearanceItemQualityBorder = true,
-	if_showTransmogAppearanceItemId = false,
-	if_transmogIllusionColoredBorder = true,
-	if_showTransmogIllusionId = false,
-	if_transmogSetQualityBorder = true,
-	if_showTransmogSetId = false,
-	if_conduitQualityBorder = true,
-	if_showConduitItemLevel = false,
-	if_showConduitId = false,
-	if_azeriteEssenceQualityBorder = true,
-	if_showAzeriteEssenceId = false,
-	if_runeforgePowerColoredBorder = true,
-	if_showRuneforgePowerId = false,
-	if_flyoutColoredBorder = true,
-	if_showFlyoutId = false,
-	if_petActionColoredBorder = true,
-	if_showPetActionId = false,
-
-	if_showIcon = true,
-	if_smartIcons = true,
-	if_borderlessIcons = false,
-	if_iconSize = 42,
-	if_iconAnchor = "BOTTOMLEFT",
-	if_iconTooltipAnchor = "TOPLEFT",
-	if_iconOffsetX = 2.5,
-	if_iconOffsetY = -2.5,
 };
 
 -- Tips modified by TipTac in appearance and scale, you can add to this list if you want to modify more tips.
@@ -475,6 +410,37 @@ function tt:PLAYER_LEVEL_UP(event,newLevel)
 	self.playerLevel = newLevel;
 end
 
+-- Chain config tables
+local function ChainConfigTables(config, defaults)
+	local config_metatable_org = getmetatable(config);
+	
+	return setmetatable(config, {
+		__index = function(tab, index)
+			local value = defaults[index];
+			
+			if (value) then
+				return value;
+			end
+			
+			if (not config_metatable_org) then
+				return nil;
+			end
+			
+			local config_metatable_org__index = config_metatable_org.__index;
+			
+			if (not config_metatable_org__index) then
+				return nil;
+			end
+			
+			if (type(config_metatable_org__index) == "table") then
+				return config_metatable_org__index[index];
+			end
+			
+			return config_metatable_org__index(tab, index);
+		end
+	});
+end
+
 -- Variables Loaded [One-Time-Event]
 function tt:VARIABLES_LOADED(event)
 	self.isColorBlind = (GetCVar("colorblindMode") == "1");
@@ -496,7 +462,7 @@ function tt:VARIABLES_LOADED(event)
 	if (not TipTac_Config) then
 		TipTac_Config = {};
 	end
-	cfg = setmetatable(TipTac_Config,{ __index = TT_DefaultConfig });
+	cfg = ChainConfigTables(TipTac_Config, TT_DefaultConfig);
 
 	-- Default the bar texture if it no longer exists
 	GameTooltipStatusBar:SetStatusBarTexture(cfg.barTexture);
