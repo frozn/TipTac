@@ -178,13 +178,21 @@ local options = {
 	{
 		[0] = "Auras",
 		{ type = "Check", var = "aurasAtBottom", label = "Put Aura Icons at the Bottom Instead of Top", tip = "Puts the aura icons at the bottom of the tip instead of the default top" },
+		{ type = "Check", var = "auraPixelPerfectPositioning", label = "Pixel Perfect Aura Scale, Sizing and Positioning", tip = "Sizes and offsets correspond to real screen pixels, unscaled", y = 6 },
 		{ type = "Check", var = "showBuffs", label = "Show Unit Buffs", tip = "Show buffs of the unit", y = 12 },
 		{ type = "Check", var = "showDebuffs", label = "Show Unit Debuffs", tip = "Show debuffs of the unit" },
 		{ type = "Check", var = "selfAurasOnly", label = "Only Show Auras Coming from You", tip = "This will filter out and only display auras you cast yourself", y = 12 },
 		{ type = "Slider", var = "auraSize", label = "Aura Icon Dimension", min = 8, max = 60, step = 1, y = 12 },
 		{ type = "Slider", var = "auraMaxRows", label = "Max Aura Rows", min = 1, max = 8, step = 1 },
+		{ type = "Slider", var = "auraOffsetX", label = "X offset between aura icons", min = 0, max = 20, step = 1 },
+		{ type = "Slider", var = "auraOffsetY", label = "Y offset between aura rows", min = 0, max = 20, step = 1 },
 		{ type = "Check", var = "showAuraCooldown", label = "Show Cooldown Models", tip = "With this option on, you will see a visual progress of the time left on the buff", y = 8 },
 		{ type = "Check", var = "noCooldownCount", label = "No Cooldown Count Text", tip = "Tells cooldown enhancement addons, such as OmniCC, not to display cooldown text" },
+		{ type = "Check", var = "auraCustomBorder", label = "Custom aura icon border", tip = "Use a custom aura icon border" },
+		{ type = "Check", var = "auraBorderUseParentColor", label = "Copy border color of tooltip", tip = "Copies the bordercolor of the tooltip for the aura icons" },
+		{ type = "Color", var = "auraBorderBuffColor", label = "Custom buff border color" },
+		{ type = "Color", var = "auraBorderDebuffColor", label = "Custom debuff border color" },
+		{ type = "Check", var = "auraBorderUseDebuffTypeColors", label = "Use blizz DEBUFF type color instead", tip = "Uses the default blizzard DEBUFF type colors instead (curse/poison/magic/disease" },
 	},
 	-- Icon
 	{
@@ -324,11 +332,12 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown", y = 12 },
 		{ type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" },
 		{ type = "Check", var = "if_borderlessIcons", label = "Borderless Icons", tip = "Turn off the border on icons" },
+		{ type = "Check", var = "if_copyParentBorder", label = "Copy border from tooltip", tip = "Copies the border from the tooltip" },
 		{ type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 },
 		{ type = "DropDown", var = "if_iconAnchor", label = "Icon Anchor", tip = "The anchor of the icon", list = DROPDOWN_ANCHORPOS },
 		{ type = "DropDown", var = "if_iconTooltipAnchor", label = "Icon Tooltip Anchor", tip = "The anchor of the tooltip that the icon should anchor to.", list = DROPDOWN_ANCHORPOS },
-		{ type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5 },
-		{ type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5 },
+		{ type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 1 }, -- only whole numbers or we get jitters
+		{ type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 1 }, -- only whole numbers or we get jitters
 	};
 end
 

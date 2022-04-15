@@ -143,6 +143,14 @@ local TT_DefaultConfig = {
 	auraMaxRows = 2,
 	showAuraCooldown = true,
 	noCooldownCount = false,
+	auraCustomBorder = true,
+	auraBorderUseParentColor = false,
+	auraBorderBuffColor = { 0, 1, 0 },
+	auraBorderDebuffColor = { 1, 0, 0 },
+	auraOffsetX = 2,
+	auraOffsetY = 2,
+	auraBorderUseDebuffTypeColors = true,
+	auraPixelPerfectPositioning = false,
 
 	iconRaid = true,
 	iconFaction = false,
@@ -233,8 +241,9 @@ local TT_DefaultConfig = {
 	if_iconSize = 42,
 	if_iconAnchor = "BOTTOMLEFT",
 	if_iconTooltipAnchor = "TOPLEFT",
-	if_iconOffsetX = 2.5,
-	if_iconOffsetY = -2.5,
+	if_iconOffsetX = 0,
+	if_iconOffsetY = 0,
+	if_copyParentBorder = false,
 };
 
 -- Tips modified by TipTac in appearance and scale, you can add to this list if you want to modify more tips.
@@ -344,11 +353,13 @@ orgGTTSFontFlags = "";        -- Set during VARIABLES_LOADED
 -- Pixel Perfect Scale
 local physicalScreenWidth, physicalScreenHeight, uiUnitFactor, uiScale;
 local mouseOffsetX, mouseOffsetY = 0, 0;
+tt.ppScale = nil
 
 local function updatePixelPerfectScale()
 	physicalScreenWidth, physicalScreenHeight = GetPhysicalScreenSize();
 	uiUnitFactor = 768.0 / physicalScreenHeight;
 	uiScale = UIParent:GetEffectiveScale();
+	tt.ppScale = uiUnitFactor / uiScale
 	if (cfg) then
 		mouseOffsetX, mouseOffsetY = tt:GetNearestPixelSize(cfg.mouseOffsetX or 0), tt:GetNearestPixelSize(cfg.mouseOffsetY or 0);
 	end
@@ -708,7 +719,6 @@ function tt:ApplySettings()
 	tipBackdrop.insets.right = insets;
 	tipBackdrop.insets.top = insets;
 	tipBackdrop.insets.bottom = insets;
-	
 	tipBackdrop.backdropColor:SetRGBA(unpack(cfg.tipColor));
 	tipBackdrop.backdropBorderColor:SetRGBA(unpack(cfg.tipBorderColor));
 
@@ -1076,6 +1086,82 @@ function tt:ReApplyAnchorTypeForMouse(frame, noUpdateAnchorPosition, ignoreWorld
 	end
 end
 
+-- anchors the comparing items tooltip with an appropriate offset to account for the item icon
+function tt:anchorShoppingTooltips(frame)
+	if (frame:GetName() == "ShoppingTooltip1" or frame:GetName() == "ShoppingTooltip2") then
+		
+		-- retail has 2 points instead of 1 in tbcc, that anchor a bit differently, here we only set the relevant point
+		if (isWoWRetail) then
+			for n = 1, frame:GetNumPoints() do
+				local point, anchor, anchoredTo, x, y = frame:GetPoint(n);
+				if (point == "LEFT" or point == "RIGHT" or point == "TOPLEFT" or point == "TOPRIGHT") then
+					-- this is the point we want
+					-- remove y offset by changing the anchor
+					if (point == "LEFT") then
+						point = "TOPLEFT";
+						anchoredTo = "TOPRIGHT";
+					elseif (point == "RIGHT") then
+						point = "TOPRIGHT";
+						anchoredTo = "TOPLEFT";
+					end
+					frame:ClearAllPoints()
+					frame:SetPoint(point, anchor, anchoredTo, x, y);
+					break;
+				end
+			end
+		end
+
+		if (frame:GetNumPoints() == 0) then
+			return;
+		end
+
+		local anchor, aFrame, anchorTo, x, y = frame:GetPoint();
+		local gapOffset = tt:GetNearestPixelSize(5);
+		local toTheLeft = (anchor == "TOPRIGHT");
+
+		local iconDistance = 0;
+		local leftIcon = false;
+		local rightIcon = false;
+
+		-- calculate offset if the icon is to the left or right of the tooltip
+		if (cfg.if_showIcon and (gtt.ttIcon ~= nil) and (frame.ttIcon:GetLeft() ~= nil)) then
+			local leftDistance = frame:GetLeft() - frame.ttIcon:GetLeft();
+			local rightDistance = frame.ttIcon:GetRight() - frame:GetRight();
+			if (leftDistance > 0) then
+				leftIcon = true;
+				iconDistance = leftDistance;
+			elseif (rightDistance > 0) then
+				rightIcon = true;
+				iconDistance = rightDistance;
+			end
+		end
+
+		-- check if icon is hidden because of "Smart Icon Appearance"
+		-- this doesn't work because this happens before ttitemref had a chance to update gtt 
+		--if (not gtt.ttIcon:IsShown()) then
+		-- calling directly into ttitemref instead
+		local iconShown = (TipTacItemRef and cfg.if_showIcon);
+		local _, link = gtt:GetItem();
+		if (link and TipTacItemRef and cfg.if_smartIcons) then
+			local linkType, id = link:match("H?(%a+):(%d+)");
+			iconShown = TipTacItemRef:SmartIconEvaluation(gtt, linkType);
+		end
+		if (not iconShown) then
+			-- if it is, set the iconDistance to 0 for the first tooltip
+			if ((frame:GetName() == "ShoppingTooltip1" and toTheLeft and leftIcon) or 
+				(frame:GetName() == "ShoppingTooltip2" and not toTheLeft and rightIcon) or
+				(frame:GetName() == "ShoppingTooltip1" and not toTheLeft and rightIcon and not stt2:IsShown())) then
+					iconDistance = 0;
+			end
+		end
+		
+		local xOffset = (toTheLeft and -(gapOffset + iconDistance) or (gapOffset + iconDistance));
+
+		frame:ClearAllPoints();
+		frame:SetPoint(anchor, aFrame, anchorTo, xOffset, 0);
+	end
+end
+
 -- Removes lines from the tooltip which are unwanted, such as "PvP", "Alliance", "Horde"
 -- Also removes the coalesced realm line(s), which I am unsure is still in BfA?
 function tt:RemoveUnwantedLines(tip)
@@ -1436,6 +1522,7 @@ end
 -- EventHook: OnTooltipSetItem
 function gttScriptHooks:OnTooltipSetItem()
 	tt:ReApplyAnchorTypeForMouse(self);
+	tt:anchorShoppingTooltips(self);
 end
 
 -- OnHide Script -- Used to default the background and border color -- Az: May cause issues with embedded tooltips, see GameTooltip.lua:396
