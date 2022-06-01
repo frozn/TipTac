@@ -1287,7 +1287,7 @@ local function WCFICF_RefreshAppearanceTooltip_Hook(self)
 		local itemsCollectionFrame = self; -- item, see WardrobeCollectionFrameMixin:GetAppearanceItemHyperlink() + WardrobeItemsModelMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 		local wardrobeCollectionFrame = itemsCollectionFrame:GetParent();
 		if (wardrobeCollectionFrame.tooltipSourceIndex) then
-			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory());
+			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory(), itemsCollectionFrame.transmogLocation);
 			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
 			local sourceID = sources[index].sourceID;
 			
