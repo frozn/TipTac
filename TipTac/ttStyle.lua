@@ -90,6 +90,11 @@ local function GetDifficultyLevelColor(unit, level) -- see GetDifficultyColor() 
 	return difficultyColorMixin:GenerateHexColorMarkup();
 end
 
+function ttStyle:GetUnitSpeed(unit)
+	s = string.format("%.0f", (GetUnitSpeed(unit) / 7) * 100);
+    return s
+end
+
 -- Add target
 local function AddTarget(lineList,target,targetName)
 	if (UnitIsUnit("player",target)) then
@@ -178,6 +183,12 @@ function ttStyle:GeneratePlayerLines(u,first,unit)
 		GameTooltipTextLeft2:SetFormattedText(cfg.showGuildRank and guildRank and "%s<%s> %s%s" or "%s<%s>",guildColor,guild,COL_LIGHTGRAY,guildRank);
 		lineInfo.Index = (lineInfo.Index + 1);
 	end
+	if (self:GetUnitSpeed(unit) ~= nil) then
+		lineInfo.next = " ";
+		lineInfo.next = COL_LIGHTGRAY;
+		lineInfo.next = self:GetUnitSpeed(unit);
+		lineInfo.next = "%"
+	end	
 end
 
 -- PET Styling
@@ -209,6 +220,12 @@ function ttStyle:GeneratePetLines(u,first,unit)
 			GameTooltipTextLeft2:SetFormattedText("%s<%s>",u.reactionColor,u.title);
 		end
 	end
+	if (self:GetUnitSpeed(unit) ~= nil) then
+		lineInfo.next = " ";
+		lineInfo.next = COL_LIGHTGRAY;
+		lineInfo.next = self:GetUnitSpeed(unit);
+		lineInfo.next = "%"
+	end
 end
 
 -- NPC Styling
@@ -233,6 +250,12 @@ function ttStyle:GenerateNpcLines(u,first,unit)
 	lineInfo.next = " ";
 	lineInfo.next = cfg.colRace;
 	lineInfo.next = class;
+	if (self:GetUnitSpeed(unit) ~= nil) then
+		lineInfo.next = " ";
+		lineInfo.next = COL_LIGHTGRAY;
+		lineInfo.next = self:GetUnitSpeed(unit);
+		lineInfo.next = "%"
+	end
 end
 
 -- Modify Tooltip Lines (name + info)
