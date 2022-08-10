@@ -38,6 +38,7 @@ local supportedHyperLinks = {
 };
 
 local addOnsLoaded = {
+	["TipTac"] = false,
 	["Blizzard_Communities"] = false
 };
 
@@ -53,14 +54,20 @@ ttHyperlink:RegisterEvent("ADDON_LOADED");
 
 -- AddOn Loaded
 function ttHyperlink:ADDON_LOADED(event, addOnName)
+	if (not cfg) then return end;
+	
 	-- check if addon is already loaded
 	if (addOnsLoaded[addOnName] == nil) or (addOnsLoaded[addOnName]) then
 		return;
 	end
 	
 	-- now CommunitiesGuildNewsFrame exists
-	if (addOnName == "Blizzard_Communities") then
+	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
 		self:OnApplyConfig(cfg);
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_Communities"] = true;
+		end
 	end
 	
 	addOnsLoaded[addOnName] = true;

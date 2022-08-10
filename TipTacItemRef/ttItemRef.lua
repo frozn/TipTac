@@ -1600,13 +1600,15 @@ end
 
 -- AddOn Loaded
 function ttif:ADDON_LOADED(event, addOnName)
+	if (not cfg) then return end;
+	
 	-- check if addon is already loaded
 	if (addOnsLoaded[addOnName] == nil) or (addOnsLoaded[addOnName]) then
 		return;
 	end
 	
 	-- now AchievementFrameMiniAchievement exists
-	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI"))) then
+	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
 		local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
 		
 		hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
@@ -1616,8 +1618,13 @@ function ttif:ADDON_LOADED(event, addOnName)
 				ABMAhooked[frame] = true;
 			end
 		end);
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_AchievementUI"] = true;
+		end
+	end
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	elseif (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections"))) then
+	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections")) and (not addOnsLoaded['Blizzard_Collections'])) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
@@ -1662,8 +1669,13 @@ function ttif:ADDON_LOADED(event, addOnName)
 			local model = setsTransmogFrame.Models[i];
 			hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
 		end
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_Collections"] = true;
+		end
+	end
 	-- now CommunitiesGuildNewsFrame exists
-	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities"))) then
+	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
 		hooksecurefunc("CommunitiesGuildNewsButton_OnEnter", GNB_OnEnter_Hook);
 
 		-- Function to apply necessary hooks to CommunitiesFrameGuildDetailsFrameInfo
@@ -1672,8 +1684,13 @@ function ttif:ADDON_LOADED(event, addOnName)
 		hooksecurefunc("CommunitiesGuildInfoFrame_UpdateChallenges", function()
 			ttif:ApplyHooksToCFGDFI();
 		end);
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_Communities"] = true;
+		end
+	end
 	-- now EncounterJournalTooltip exists
-	elseif (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_EncounterJournal"))) then
+	if (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_EncounterJournal")) and (not addOnsLoaded['Blizzard_EncounterJournal'])) then
 		ejtt = EncounterJournalTooltip;
 		
 		-- Hook Tips & Apply Settings
@@ -1683,8 +1700,13 @@ function ttif:ADDON_LOADED(event, addOnName)
 		-- }, true, true);
 
 		-- self:OnApplyConfig();
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_EncounterJournal"] = true;
+		end
+	end
 	-- now GuildNewsButton exists
-	elseif (addOnName == "Blizzard_GuildUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_GuildUI"))) then
+	if (addOnName == "Blizzard_GuildUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_GuildUI")) and (not addOnsLoaded['Blizzard_GuildUI'])) then
 		hooksecurefunc("GuildNewsButton_OnEnter", GNB_OnEnter_Hook);
 		
 		-- Function to apply necessary hooks to GuildInfoFrameInfoChallenge
@@ -1693,11 +1715,21 @@ function ttif:ADDON_LOADED(event, addOnName)
 		hooksecurefunc("GuildInfoFrame_UpdateChallenges", function()
 			ttif:ApplyHooksToGIFIC();
 		end);
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_GuildUI"] = true;
+		end
+	end
 	-- now PlayerChoiceTorghastOption exists
-	elseif (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice"))) then
+	if (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice")) and (not addOnsLoaded['Blizzard_PlayerChoice'])) then
 		hooksecurefunc(PlayerChoicePowerChoiceTemplateMixin, "OnEnter", PCPCTM_OnEnter_Hook);
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_PlayerChoice"] = true;
+		end
+	end
 	-- now PVPRewardTemplate exists
-	elseif (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI"))) then
+	if (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI")) and (not addOnsLoaded['Blizzard_PVPUI'])) then
 		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
 		local buttons = {
 			HonorFrame.BonusFrame.RandomBGButton,
@@ -1709,8 +1741,13 @@ function ttif:ADDON_LOADED(event, addOnName)
 		for i, button in pairs(buttons) do
 			button.Reward.EnlistmentBonus:HookScript("OnEnter", HFBFB_OnEnter);
 		end
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["Blizzard_PVPUI"] = true;
+		end
+	end
 	-- now WorldQuestTrackerAddon exists
-	elseif (addOnName == "WorldQuestTracker") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("WorldQuestTracker"))) then
+	if (addOnName == "WorldQuestTracker") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("WorldQuestTracker")) and (not addOnsLoaded['WorldQuestTracker'])) then
 		local WQTThooked = {}; -- see WorldQuestTracker.GetOrCreateTrackerWidget() in "WorldQuestTracker/WorldQuestTracker_Tracker.lua"
 		
 		hooksecurefunc(WorldQuestTrackerAddon, "GetOrCreateTrackerWidget", function(index)
@@ -1720,6 +1757,10 @@ function ttif:ADDON_LOADED(event, addOnName)
 				WQTThooked[frame] = true;
 			end
 		end);
+		
+		if (addOnName == "TipTac") then
+			addOnsLoaded["WorldQuestTracker"] = true;
+		end
 	end
 	
 	addOnsLoaded[addOnName] = true;

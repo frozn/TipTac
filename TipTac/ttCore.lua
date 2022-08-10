@@ -1874,6 +1874,8 @@ end
 
 -- AddOn Loaded
 function tt:ADDON_LOADED(event, addOnName)
+	if (not cfg) then return end;
+	
 	-- check if addon is already loaded
 	if (TT_AddOnsLoaded[addOnName] == nil) or (TT_AddOnsLoaded[addOnName]) then
 		return;
@@ -1891,7 +1893,7 @@ function tt:ADDON_LOADED(event, addOnName)
 		end
 	end
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections"))) then
+	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Collections")) and (not TT_AddOnsLoaded['Blizzard_Collections'])) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
@@ -1905,24 +1907,39 @@ function tt:ADDON_LOADED(event, addOnName)
 
 		-- Post-Hook WardrobeCollectionFrame.ItemsCollectionFrame:UpdateItems() to re-anchor tooltip at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor" and selecting items, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", WCFICF_UpdateItems_Hook);
+		
+		if (addOnName == "TipTac") then
+			TT_AddOnsLoaded["Blizzard_Collections"] = true;
+		end
+	end
 	-- now CommunitiesGuildNewsFrame exists
-	elseif (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities"))) then
+	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities")) and (not TT_AddOnsLoaded['Blizzard_Communities'])) then
 		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame to apply class colors
 		tt:ApplyHooksToCFMLLSF();
 		
 		hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
 			tt:ApplyHooksToCFMLLSF();
 		end);
+		
+		if (addOnName == "TipTac") then
+			TT_AddOnsLoaded["Blizzard_Communities"] = true;
+		end
+	end
 	-- now ContributionBuffTooltip exists
-	elseif (addOnName == "Blizzard_Contribution") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Contribution"))) then
+	if (addOnName == "Blizzard_Contribution") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Contribution")) and (not TT_AddOnsLoaded['Blizzard_Contribution'])) then
 		-- Hook Tips & Apply Settings
 		self:ApplyHooksToTips({
 			"ContributionBuffTooltip"
 		}, true, true);
 
 		self:ApplySettings();
+		
+		if (addOnName == "TipTac") then
+			TT_AddOnsLoaded["Blizzard_Contribution"] = true;
+		end
+	end
 	-- now EncounterJournalTooltip exists
-	elseif (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_EncounterJournal"))) then
+	if (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_EncounterJournal")) and (not TT_AddOnsLoaded['Blizzard_EncounterJournal'])) then
 		ejtt = EncounterJournalTooltip;
 		
 		-- Hook Tips & Apply Settings
@@ -1932,8 +1949,13 @@ function tt:ADDON_LOADED(event, addOnName)
 		-- }, true, true);
 
 		-- self:ApplySettings();
+		
+		if (addOnName == "TipTac") then
+			TT_AddOnsLoaded["Blizzard_EncounterJournal"] = true;
+		end
+	end
 	-- now RaiderIO_ProfileTooltip and RaiderIO_SearchTooltip exist
-	elseif (addOnName == "RaiderIO") or ((addOnName == "TipTac") and (IsAddOnLoaded("RaiderIO"))) then
+	if (addOnName == "RaiderIO") or ((addOnName == "TipTac") and (IsAddOnLoaded("RaiderIO")) and (not TT_AddOnsLoaded['RaiderIO'])) then
 		-- Hook Tips & Apply Settings
 		C_Timer.After(1, function()
 			self:ApplyHooksToTips({
@@ -1943,6 +1965,10 @@ function tt:ADDON_LOADED(event, addOnName)
 			
 			self:ApplySettings();
 		end);
+		
+		if (addOnName == "TipTac") then
+			TT_AddOnsLoaded["RaiderIO"] = true;
+		end
 	end
 	
 	TT_AddOnsLoaded[addOnName] = true;
