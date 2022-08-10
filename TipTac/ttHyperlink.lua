@@ -50,7 +50,18 @@ local itemsCollectionFrame = nil;
 
 ttHyperlink:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end);
 
+ttHyperlink:RegisterEvent("VARIABLES_LOADED");
 ttHyperlink:RegisterEvent("ADDON_LOADED");
+
+-- Variables Loaded [One-Time-Event]
+function ttHyperlink:VARIABLES_LOADED(event)
+	-- Re-Trigger event ADDON_LOADED for TipTac if config wasn't ready
+	self:ADDON_LOADED("ADDON_LOADED", "TipTac");
+	
+	-- Cleanup
+	self:UnregisterEvent(event);
+	self[event] = nil;
+end
 
 -- AddOn Loaded
 function ttHyperlink:ADDON_LOADED(event, addOnName)

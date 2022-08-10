@@ -277,6 +277,9 @@ function ttif:VARIABLES_LOADED(event)
 	self:HookTips();
 	self:OnApplyConfig();
 	
+	-- Re-Trigger event ADDON_LOADED for TipTacItemRef if config wasn't ready
+	self:ADDON_LOADED("ADDON_LOADED", "TipTacItemRef");
+	
 	-- Cleanup
 	self:UnregisterEvent(event);
 	self[event] = nil;

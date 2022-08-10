@@ -490,7 +490,10 @@ function tt:VARIABLES_LOADED(event)
 	if (not targetedByList) then
 		targetedByList = self:CreatePushArray();
 	end
-
+	
+	-- Re-Trigger event ADDON_LOADED for TipTac if config wasn't ready
+	self:ADDON_LOADED("ADDON_LOADED", "TipTac");
+	
 	-- Cleanup
 	self:UnregisterEvent(event);
 	self[event] = nil;
