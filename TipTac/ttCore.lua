@@ -960,6 +960,13 @@ local function GetAnchorPosition(tooltip)
 			return "normal", "BOTTOMRIGHT";
 		end
 		
+		-- workaround for bug in RaiderIO: https://github.com/RaiderIO/raiderio-addon/issues/203
+		if (var == "anchorFrameTip") and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) and IsAddOnLoaded("Blizzard_Communities") and (IsInFrameChain(tooltip:GetOwner(), {
+					CommunitiesFrame.MemberList.ListScrollFrame
+				}, 3)) then
+			return "normal", "BOTTOMRIGHT";
+		end
+		
 		-- override GTT anchor for (Guild & Community) ChatFrame
 		if (cfg.enableAnchorOverrideCF) and (IsInFrameChain(tooltip:GetOwner(), {
 					"ChatFrame(%d+)",
