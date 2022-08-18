@@ -269,7 +269,7 @@ function ttStyle:ModifyUnitTooltip(u,first)
 		lineInfo.next = TT_Reaction[u.reactionIndex];
 	end
 
-	-- Dungeon Score
+	-- Mythic+ Dungeon Score
 	if (u.isPlayer) and (cfg.showMythicPlusDungeonScore) and (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
 		local ratingSummary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit);
 		if (ratingSummary) then
