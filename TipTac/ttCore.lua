@@ -48,6 +48,7 @@ local TT_DefaultConfig = {
 	showRealm = "show",
 	showTarget = "last",
 	targetYouText = "<<YOU>>",
+	showDungeonScore = true,
 
 	showBattlePetTip = true,
 	gttScale = 1,

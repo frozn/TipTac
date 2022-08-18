@@ -34,6 +34,7 @@ local TT_LevelMatch = "^"..TOOLTIP_UNIT_LEVEL:gsub("%%[^s ]*s",".+"); -- Was cha
 local TT_LevelMatchPet = "^"..TOOLTIP_WILDBATTLEPET_LEVEL_CLASS:gsub("%%[^s ]*s",".+");	-- "^Pet Level .+ .+"
 local TT_NotSpecified = "Not specified";
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
+local TT_DungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
 local TT_Reaction = {
 	"Tapped",					-- No localized string of this
 	FACTION_STANDING_LABEL2,	-- Hostile
@@ -261,16 +262,28 @@ function ttStyle:ModifyUnitTooltip(u,first)
 		self:GenerateNpcLines(u,first,unit);
 	end
 
-	-- Target
-	if (cfg.showTarget ~= "none") then
-		self:GenerateTargetLines(unit,cfg.showTarget);
-	end
-
 	-- Reaction Text
 	if (cfg.reactText) then
 		lineInfo.next = "\n";
 		lineInfo.next = u.reactionColor;
 		lineInfo.next = TT_Reaction[u.reactionIndex];
+	end
+
+	-- Dungeon Score
+	if (u.isPlayer) and (cfg.showDungeonScore) then
+		local ratingSummary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit);
+		if (ratingSummary) then
+			local dungeonScore = ratingSummary.currentSeasonScore;
+			if (dungeonScore > 0) then
+				lineInfo.next = "\n|cffffd100";
+				lineInfo.next = TT_DungeonScore:format(C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore):WrapTextInColorCode(dungeonScore));
+			end
+		end
+	end
+
+	-- Target
+	if (cfg.showTarget ~= "none") then
+		self:GenerateTargetLines(unit,cfg.showTarget);
 	end
 
 	-- Name Line
