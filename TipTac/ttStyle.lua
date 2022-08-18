@@ -270,7 +270,7 @@ function ttStyle:ModifyUnitTooltip(u,first)
 	end
 
 	-- Dungeon Score
-	if (u.isPlayer) and (cfg.showMythicPlusDungeonScore) then
+	if (u.isPlayer) and (cfg.showMythicPlusDungeonScore) and (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
 		local ratingSummary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit);
 		if (ratingSummary) then
 			local mythicPlusDungeonScore = ratingSummary.currentSeasonScore;
