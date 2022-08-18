@@ -38,6 +38,7 @@ WoW AddOn TipTac [SL] [BCC] [Classic]
 - added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
 - added option in "Anchors" to override GTT anchor for (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
+- added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
