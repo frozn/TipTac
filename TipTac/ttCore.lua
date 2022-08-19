@@ -48,6 +48,7 @@ local TT_DefaultConfig = {
 	showRealm = "show",
 	showTarget = "last",
 	targetYouText = "<<YOU>>",
+	showCurrentUnitSpeed = false,
 	showMythicPlusDungeonScore = true,
 
 	showBattlePetTip = true,

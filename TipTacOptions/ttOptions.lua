@@ -53,7 +53,8 @@ local ttOptionsGeneral = {
 	{ type = "Check", var = "showStatus", label = "Show DC, AFK and DND Status", tip = "Will show the <DC>, <AFK> and <DND> status after the player name", y = 8 },
 	{ type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title" },
 	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options 'Interface->Names') are evaluated instead." },
-	{ type = "Check", var = "showPlayerGender", label = "Show Player Gender", tip = "This will show the gender of the player. E.g. \"85 Female Blood Elf Paladin\"." }
+	{ type = "Check", var = "showPlayerGender", label = "Show Player Gender", tip = "This will show the gender of the player. E.g. \"85 Female Blood Elf Paladin\"." },
+	{ type = "Check", var = "showCurrentUnitSpeed", label = "Show Current Unit Speed", tip = "This will show the current speed of the unit after race & class." }
 };
 
 if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
