@@ -1,8 +1,8 @@
 # TipTac
-WoW AddOn TipTac [SL] [BCC] [Classic]
+WoW AddOn TipTac [SL] [BCC/WotLKC] [Classic]
 
 * based on latest version v20.11.04 from Nov 4, 2020: https://www.curseforge.com/wow/addons/tip-tac
-* added fixes for wow patch 9.2.5 (Shadowlands - Eternity's End), bcc and classic
+* added fixes for wow patch 9.2.7 (Shadowlands - Eternity's End), bcc/wotlkc and classic
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -39,6 +39,7 @@ WoW AddOn TipTac [SL] [BCC] [Classic]
 - added option in "Anchors" to override GTT anchor for (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score
+- added option "General->Show Current Unit Speed" to show current unit speed after race & class
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
