@@ -1,5 +1,5 @@
 ## Interface: 90207
-## Version: 22.08.18
+## Version: 22.09.01
 ## Title: TipTacItemRef
 ## Author: Aezay (Earthen Ring EU)
 ## Notes: Improved ItemRefTooltip

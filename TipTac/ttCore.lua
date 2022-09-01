@@ -650,10 +650,12 @@ function tt:ApplySettings()
 	if (not cfg) then return end;
 	
 	-- Hide World Tips Instantly
-	if (cfg.hideWorldTips) then
-		self:RegisterEvent("CURSOR_UPDATE");
-	else
-		self:UnregisterEvent("CURSOR_UPDATE");
+	if (not isWoWBcc) then -- fix for possible blizzard bug in wotlk classic: event CURSOR_UPDATE didn't exist
+		if (cfg.hideWorldTips) then
+			self:RegisterEvent("CURSOR_UPDATE");
+		else
+			self:UnregisterEvent("CURSOR_UPDATE");
+		end
 	end
 
 	-- Set Backdrop -- not setting "tileSize" as we dont tile
