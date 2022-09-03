@@ -10,11 +10,13 @@ local fpbatt = FloatingPetBattleAbilityTooltip;
 local ejtt = EncounterJournalTooltip;
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
+	isWoWWotlkc = true;
 else
 	isWoWRetail = true;
 end
@@ -1472,16 +1474,18 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
 				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
+				if (isWoWWotlkc) or (isWoWRetail) then
+					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
+					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
+					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
+					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
+				end
 				if (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetEnhancedConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssenceSlot", SetAzeriteEssenceSlot_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
-					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
-					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
-					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
-					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 					hooksecurefunc(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);

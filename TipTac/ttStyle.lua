@@ -9,11 +9,13 @@ local gtt = GameTooltip;
 local UnitIsWildBattlePet = UnitIsWildBattlePet or function() return false end;
 local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion or function() return false end;
 
-local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
+	isWoWWotlkc = true;
 else
 	isWoWRetail = true;
 end

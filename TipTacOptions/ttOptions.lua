@@ -2,11 +2,13 @@ local cfg = TipTac_Config;
 local modName = "TipTac";
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
+	isWoWWotlkc = true;
 else
 	isWoWRetail = true;
 end
@@ -72,7 +74,7 @@ local ttOptionsFading = {
 	{ type = "Slider", var = "fadeTime", label = "Fadeout Time", min = 0, max = 5, step = 0.05 }
 };
 
-if (not isWoWBcc) then -- fix for possible blizzard bug in wotlk classic: event CURSOR_UPDATE didn't exist
+if (not isWoWWotlkc) then -- fix for possible blizzard bug in wotlk classic: event CURSOR_UPDATE didn't exist
 	ttOptionsFading[#ttOptionsFading + 1] = { type = "Check", var = "hideWorldTips", label = "Instantly Hide World Frame Tips", tip = "This option will make most tips which appear from objects in the world disappear instantly when you take the mouse off the object. Examples such as mailboxes, herbs or chests.\nNOTE: Does not work for all world objects.", y = 16 };
 end
 

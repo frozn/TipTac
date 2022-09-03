@@ -20,11 +20,13 @@ local wipe = wipe;
 local tconcat = table.concat;
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWRetail = false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
+	isWoWWotlkc = true;
 else
 	isWoWRetail = true;
 end
@@ -650,7 +652,7 @@ function tt:ApplySettings()
 	if (not cfg) then return end;
 	
 	-- Hide World Tips Instantly
-	if (not isWoWBcc) then -- fix for possible blizzard bug in wotlk classic: event CURSOR_UPDATE didn't exist
+	if (not isWoWWotlkc) then -- fix for possible blizzard bug in wotlk classic: event CURSOR_UPDATE didn't exist
 		if (cfg.hideWorldTips) then
 			self:RegisterEvent("CURSOR_UPDATE");
 		else
