@@ -1,7 +1,0 @@
-## Interface: 20504
-## Version: 22.09.17
-## Title: TipTacTalents
-## Author: Aezay (Earthen Ring EU), Frozn45
-## Notes: Adds Talent Spec to Player Tooltips
-## OptionalDeps: TipTac
-ttTalents.lua
