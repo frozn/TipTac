@@ -1,8 +1,8 @@
 # TipTac
-WoW AddOn TipTac [SL] [BCC/WotLKC] [Classic]
+WoW AddOn TipTac [SL] [WotLKC] [Classic]
 
 * based on latest version v20.11.04 from Nov 4, 2020: https://www.curseforge.com/wow/addons/tip-tac
-* added fixes for wow patch 9.2.7 (Shadowlands - Eternity's End), bcc/wotlkc and classic
+* added fixes for wow patch 9.2.7 (Shadowlands - Eternity's End), wotlkc and classic
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -60,7 +60,7 @@ If there are additional fixes in the future, I update this note accordingly.
 Get [latest release](https://github.com/frozn/TipTac/releases) and replace the folders `TipTac`, `TipTacItemRef`, `TipTacOptions` and `TipTacTalents` with those from the zip file.
 
 Shadowlands: `\World of Warcraft\_retail_\Interface\AddOns`  
-Burning Crusade Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
+Wrath of the Lich King Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
 Classic: `\World of Warcraft\_classic_era_\Interface\AddOns`  
 
 ## Install with WowUp.io
