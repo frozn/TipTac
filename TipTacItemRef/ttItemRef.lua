@@ -38,7 +38,7 @@ if (isWoWClassic) then
 	end
 end
 
-local C_CurrencyInfo_GetCurrencyLink = C_CurrencyInfo_GetCurrencyLink;
+local C_CurrencyInfo_GetCurrencyLink = C_CurrencyInfo.GetCurrencyLink;
 
 if (not C_CurrencyInfo_GetCurrencyLink) then
 	C_CurrencyInfo_GetCurrencyLink = GetCurrencyLink;
