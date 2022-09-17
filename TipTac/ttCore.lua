@@ -390,14 +390,22 @@ tt.close = CreateFrame("Button",nil,tt,"UIPanelCloseButton");
 tt.close:SetSize(24,24);
 tt.close:SetPoint("RIGHT");
 
--- Cursor Update -- Event only registered when the "hideWorldTips" option is ENABLED.
-function tt:CURSOR_UPDATE(event)
+-- Cursor Update/Changed -- Event only registered when the "hideWorldTips" option is ENABLED.
+local function hideWorldTips()
 	if (gtt:IsShown()) and (gtt:IsOwned(UIParent)) and ((not gtt.ttUnit) or (not gtt.ttUnit.token)) then
 		-- Restoring the text of the first line, is a workaround so that gatherer addons can get the name of nodes
 		local backup = GameTooltipTextLeft1:GetText();
 		gtt:Hide();
 		GameTooltipTextLeft1:SetText(backup);
 	end
+end
+
+function tt:CURSOR_UPDATE(event)
+	hideWorldTips();
+end
+
+function tt:CURSOR_CHANGED(event)
+	hideWorldTips();
 end
 
 -- Login [One-Time-Event] -- Initialize Level for difficulty coloring
@@ -652,12 +660,10 @@ function tt:ApplySettings()
 	if (not cfg) then return end;
 	
 	-- Hide World Tips Instantly
-	if (not isWoWWotlkc) then -- fix for possible blizzard bug in wotlk classic: event CURSOR_UPDATE didn't exist
-		if (cfg.hideWorldTips) then
-			self:RegisterEvent("CURSOR_UPDATE");
-		else
-			self:UnregisterEvent("CURSOR_UPDATE");
-		end
+	if (cfg.hideWorldTips) then
+		self:RegisterEvent(isWoWClassic and "CURSOR_UPDATE" or "CURSOR_CHANGED");
+	else
+		self:UnregisterEvent(isWoWClassic and "CURSOR_UPDATE" or "CURSOR_CHANGED");
 	end
 
 	-- Set Backdrop -- not setting "tileSize" as we dont tile
@@ -1395,6 +1401,7 @@ end
 function gttScriptHooks:OnTooltipCleared()
 	-- reset the padding that might have been modified to fit health/power bars
 	tt:SetPaddingVariables();
+	tt:SetPadding(self);
 
 	-- WoD: resetting the back/border color seems to be a necessary action, otherwise colors may stick when showing the next tooltip thing (world object tips)
 	-- BfA: The tooltip now also clears the backdrop in adition to color and bordercolor, so set it again here

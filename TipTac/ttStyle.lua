@@ -57,35 +57,14 @@ local COL_LIGHTGRAY = "|cffc0c0c0";
 
 -- Returns the correct difficulty color compared to the player
 -- Az: Check out GetCreatureDifficultyColor, GetQuestDifficultyColor, GetScalingQuestDifficultyColor, GetRelativeDifficultyColor
--- Frozn45: The above functions belong to the old color api. C_PlayerInfo.GetContentDifficultyCreatureForPlayer() belongs to the new color api.
-local function ClassicGetRelativeDifficultyColor(unitLevel, challengeLevel) -- copy from GetRelativeDifficultyColor() in "UIParent.lua" modded for classic
-	local levelDiff = challengeLevel - unitLevel;
-	local color;
-	
-	if (levelDiff >= 5) then
-		return QuestDifficultyColors["impossible"], QuestDifficultyHighlightColors["impossible"];
-	elseif (levelDiff >= 3) then
-		return QuestDifficultyColors["verydifficult"], QuestDifficultyHighlightColors["verydifficult"];
-	elseif (levelDiff >= -4) then
-		return QuestDifficultyColors["difficult"], QuestDifficultyHighlightColors["difficult"];
-	elseif (-levelDiff <= GetQuestGreenRange("player")) then
-		return QuestDifficultyColors["standard"], QuestDifficultyHighlightColors["standard"];
-	else
-		return QuestDifficultyColors["trivial"], QuestDifficultyHighlightColors["trivial"];
-	end
-end
-
+-- Frozn45: The above functions belong to the old color api. GetDifficultyColor() with C_PlayerInfo.GetContentDifficultyCreatureForPlayer() or C_PlayerInfo.GetContentDifficultyQuestForPlayer() belongs to the new color api.
 local function GetDifficultyLevelColor(unit, level) -- see GetDifficultyColor() in "UIParent.lua"
 	local difficultyColor;
 	
 	if (level == -1) then
 		difficultyColor = QuestDifficultyColors["impossible"];
 	else
-		if (isWoWRetail) then
-			difficultyColor = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit));
-		else
-			difficultyColor = ClassicGetRelativeDifficultyColor(tt.playerLevel, level); -- see GetCreatureDifficultyColor() in "UIParent.lua"
-		end
+		difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit)) or GetCreatureDifficultyColor(level);
 	end
 	
 	local difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
@@ -268,9 +247,9 @@ function ttStyle:ModifyUnitTooltip(u,first)
 	if (cfg.showCurrentUnitSpeed) then
 		local currentUnitSpeed = GetUnitSpeed(unit);
 		if (currentUnitSpeed > 0) then
-			lineInfo.next = " ";
+			lineInfo.next = " " .. CreateAtlasMarkup("glueannouncementpopup-arrow");
 			lineInfo.next = COL_LIGHTGRAY;
-			lineInfo.next = string.format("-> %.0f%%", currentUnitSpeed / BASE_MOVEMENT_SPEED * 100);
+			lineInfo.next = string.format("%.0f%%", currentUnitSpeed / BASE_MOVEMENT_SPEED * 100);
 		end
 	end
 	

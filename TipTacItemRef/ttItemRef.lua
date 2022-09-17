@@ -38,6 +38,22 @@ if (isWoWClassic) then
 	end
 end
 
+local C_CurrencyInfo_GetCurrencyLink = C_CurrencyInfo_GetCurrencyLink;
+
+if (not C_CurrencyInfo_GetCurrencyLink) then
+	C_CurrencyInfo_GetCurrencyLink = GetCurrencyLink;
+end
+
+local C_QuestLog_GetSelectedQuest = C_QuestLog.GetSelectedQuest;
+
+if (not C_QuestLog_GetSelectedQuest) then
+	C_QuestLog_GetSelectedQuest = function()
+		local index = GetQuestLogSelection();
+		local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isBounty, isStory, isHidden, isScaling = GetQuestLogTitle(index);
+		return questID;
+	end
+end
+
 -- Addon
 local modName = ...;
 local ttif = CreateFrame("Frame", modName);
@@ -528,17 +544,19 @@ local function SetAction_Hook(self, slot)
 			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
 			local name = line and (line:GetText() or "");
 			if (name ~= "" and PetHasSpellbook()) then
-				local numPetSpells, petToken = HasPetSpells();
+				local numPetSpells, petToken = HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
-				for i = 1, numPetSpells do
-					local spellType, _id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
-					if (spellType == "PETACTION") then
-						local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
-						if (spellName == name) then
-							local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET);
-							tipDataAdded[self] = "petAction";
-							CustomTypeFuncs.petAction(self, nil, "petAction", _id, icon);
-							break;
+				if (numPetSpells) then
+					for i = 1, numPetSpells do
+						local spellType, _id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+						if (spellType == "PETACTION") then
+							local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
+							if (spellName == name) then
+								local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET);
+								tipDataAdded[self] = "petAction";
+								CustomTypeFuncs.petAction(self, nil, "petAction", _id, icon);
+								break;
+							end
 						end
 					end
 				end
@@ -558,10 +576,12 @@ local function SetAction_Hook(self, slot)
 					LinkTypeFuncs.item(self, link, linkType, itemID);
 					
 					-- apply workaround for first mouseover if item is a toy
-					_itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
-					
-					if (_itemID) then
-						ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
+					if (C_ToyBox) then
+						_itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
+						
+						if (_itemID) then
+							ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
+						end
 					end
 				end
 			end
@@ -630,16 +650,18 @@ local function SetPetAction_Hook(self, slot)
 			end
 			
 			if (_name ~= "" and PetHasSpellbook()) then -- id is missing. as a workaround find pet action in pet spell book by name.
-				local numPetSpells, petToken = HasPetSpells();
+				local numPetSpells, petToken = HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
-				for i = 1, numPetSpells do
-					local spellType, id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
-					if (spellType == "PETACTION") then
-						local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
-						if (spellName == _name) then
-							tipDataAdded[self] = "petAction";
-							CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
-							break;
+				if (numPetSpells) then
+					for i = 1, numPetSpells do
+						local spellType, id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+						if (spellType == "PETACTION") then
+							local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
+							if (spellName == _name) then
+								tipDataAdded[self] = "petAction";
+								CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
+								break;
+							end
 						end
 					end
 				end
@@ -698,7 +720,7 @@ local function SetQuestCurrency_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local currencyID = GetQuestCurrencyID(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local name, texture, quantity, quality = GetQuestCurrencyInfo(_type, index);
-		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
 			if (_currencyID) then
@@ -712,10 +734,10 @@ end
 -- HOOK: GameTooltip:SetQuestLogCurrency
 local function SetQuestLogCurrency_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local questID = C_QuestLog.GetSelectedQuest(); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
+		local questID = C_QuestLog_GetSelectedQuest(); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local isChoice = (_type == "choice");
 		local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(index, questID, isChoice);
-		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
 			if (_currencyID) then
@@ -781,7 +803,7 @@ local function SetLFGDungeonReward_Hook(self, dungeonID, rewardIndex)
 				end
 			end
 		elseif (rewardType == "currency") then
-			local link = C_CurrencyInfo.GetCurrencyLink(rewardID, numItems);
+			local link = C_CurrencyInfo_GetCurrencyLink(rewardID, numItems);
 			if (link) then
 				local linkType, currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
 				if (currencyID) then
@@ -807,7 +829,7 @@ local function SetLFGDungeonShortageReward_Hook(self, dungeonID, rewardArg, rewa
 				end
 			end
 		elseif (rewardType == "currency") then
-			local link = C_CurrencyInfo.GetCurrencyLink(rewardID, numItems);
+			local link = C_CurrencyInfo_GetCurrencyLink(rewardID, numItems);
 			if (link) then
 				local linkType, currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
 				if (currencyID) then
@@ -822,7 +844,7 @@ end
 -- HOOK: GameTooltip:SetCurrencyByID
 local function SetCurrencyByID_Hook(self, currencyID, quantity)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
 			if (_currencyID) then
@@ -850,7 +872,7 @@ end
 -- HOOK: GameTooltip:SetCurrencyTokenByID
 local function SetCurrencyTokenByID_Hook(self, currencyID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local link = C_CurrencyInfo.GetCurrencyLink(currencyID);
+		local link = C_CurrencyInfo_GetCurrencyLink(currencyID);
 		if (link) then
 			local linkType, _currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
 			if (_currencyID) then
@@ -1166,7 +1188,7 @@ end
 local function EITT_SetCurrencyByID_Hook(self, currencyID, quantity)
 	local targetTooltip = self.Tooltip;
 	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
-		local link = C_CurrencyInfo.GetCurrencyLink(currencyID, quantity);
+		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
 			if (_currencyID) then
@@ -1244,7 +1266,7 @@ local function AJR_OnEnter_Hook(self)
 				end
 			end
 			if (rewardData.currencyType) then -- currency
-				local currencyLink = C_CurrencyInfo.GetCurrencyLink(rewardData.currencyType, rewardData.currencyQuantity)
+				local currencyLink = C_CurrencyInfo_GetCurrencyLink(rewardData.currencyType, rewardData.currencyQuantity)
 				if (currencyLink) then
 					local linkType, currencyID, quantity = currencyLink:match("H?(%a+):(%d+):(%d+)");
 					if (currencyID) then
@@ -1475,8 +1497,6 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
 				if (isWoWWotlkc) or (isWoWRetail) then
-					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
-					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
 					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
 					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 				end
@@ -1486,6 +1506,8 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssenceSlot", SetAzeriteEssenceSlot_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
+					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
+					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
 					hooksecurefunc(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
@@ -1941,7 +1963,10 @@ function LinkTypeFuncs:item(link, linkType, id)
 		LinkTypeFuncs.keystone(self, link, linkType, id, mapID, keystoneLevel, select(21, unpack(splits))); -- modifierID1, modifierID2, modifierID3, modifierID4
 		return;
 	end
-	itemLevel = LibItemString:GetTrueItemLevel(link);
+	local trueItemLevel = LibItemString:GetTrueItemLevel(link);
+	if (trueItemLevel) then
+		itemLevel = trueItemLevel;
+	end
 
 	-- Icon
 	if (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
@@ -2044,7 +2069,10 @@ local getRewardLevelInitialized = false;
 
 function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ...) -- modifierID1, modifierID2, modifierID3, modifierID4
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
-	itemLevel = LibItemString:GetTrueItemLevel(link);
+	local trueItemLevel = LibItemString:GetTrueItemLevel(link);
+	if (trueItemLevel) then
+		itemLevel = trueItemLevel;
+	end
 
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
@@ -2285,12 +2313,12 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 	if (cfg.if_questDifficultyBorder) then
 		local difficultyColorMixin;
 		
-		if (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
+		if (C_QuestLog.IsWorldQuest and C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
 			local tagInfo = C_QuestLog.GetQuestTagInfo(questID);
 			local quality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
 			difficultyColorMixin = WORLD_QUEST_QUALITY_COLORS[quality].color;
 		else
-			local difficultyColor = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID));
+			local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or GetQuestDifficultyColor(level);
 			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
 		end
 		
@@ -2303,7 +2331,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	local _quantity = (quantity or 0); -- mouseover over sightless eye currency link of missing recipes of broken isles (legion) returns nil
 	local currencyInfo = nil;
 	local icon, quality;
-	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyID, _quantity);
+	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer and C_CurrencyInfo.IsCurrencyContainer(currencyID, _quantity);
 	
 	if (isCurrencyContainer) then
 		currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, _quantity);
@@ -2633,7 +2661,10 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 	end
 
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(_link);
-	itemLevel = LibItemString:GetTrueItemLevel(_link);
+	local trueItemLevel = LibItemString:GetTrueItemLevel(_link);
+	if (trueItemLevel) then
+		itemLevel = trueItemLevel;
+	end
 
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then

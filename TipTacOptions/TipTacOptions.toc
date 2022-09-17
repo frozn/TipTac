@@ -1,7 +1,7 @@
 ## Interface: 90207
-## Version: 22.09.03
+## Version: 22.09.17
 ## Title: TipTacOptions
-## Author: Aezay (Earthen Ring EU)
+## Author: Aezay (Earthen Ring EU), Frozn45
 ## Notes: Option Dialog for TipTac
 ## Dependencies: TipTac
 ## LoadOnDemand: 1
