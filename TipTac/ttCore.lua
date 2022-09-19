@@ -194,6 +194,7 @@ local TT_TipsToModify = {
 	"FloatingPetBattleAbilityTooltip",
 	"FriendsTooltip",
 	"ContributionBuffTooltip",
+	"QueueStatusFrame",
 	-- "EncounterJournalTooltip", -- commented out for embedded tooltips: SetPadding() makes problems with embedded tooltips.
 	-- 3rd party addon tooltips
 	"LibDBIconTooltip",
@@ -646,7 +647,8 @@ end
 local function SetScale(frame)
 	local frameName = frame:GetName();
 	
-	if (frameName) and ((frameName:match("DropDownList(%d+)")) or (frameName == "RaiderIO_ProfileTooltip") or (frameName == "RaiderIO_SearchTooltip")) then
+	-- don't scale some frames
+	if (frameName) and ((frameName == "QueueStatusFrame") or (frameName:match("DropDownList(%d+)")) or (frameName == "RaiderIO_ProfileTooltip") or (frameName == "RaiderIO_SearchTooltip")) then
 		return;
 	end
 	
@@ -1401,7 +1403,7 @@ end
 function gttScriptHooks:OnTooltipCleared()
 	-- reset the padding that might have been modified to fit health/power bars
 	tt:SetPaddingVariables();
-	tt:SetPadding(self);
+	tt:SetPadding(self, "OnTooltipCleared");
 
 	-- WoD: resetting the back/border color seems to be a necessary action, otherwise colors may stick when showing the next tooltip thing (world object tips)
 	-- BfA: The tooltip now also clears the backdrop in adition to color and bordercolor, so set it again here
