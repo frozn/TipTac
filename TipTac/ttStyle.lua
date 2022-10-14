@@ -1,8 +1,6 @@
 local _G = getfenv(0);
 local unpack = unpack;
 local UnitName = UnitName;
-local UnitQuestTrivialLevelRange = UnitQuestTrivialLevelRange;
-local GetQuestGreenRange = GetQuestGreenRange;
 local gtt = GameTooltip;
 
 -- classic support

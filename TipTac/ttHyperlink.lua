@@ -301,15 +301,15 @@ function ttHyperlink:OnApplyConfig(cfg)
 		if (not self.hookedHoverHyperlinks) then
 			for i = 1, NUM_CHAT_WINDOWS do
 				local chat = _G["ChatFrame"..i];
-				AceHook:HookScript(chat, "OnHyperlinkEnter", OnHyperlinkEnter);
-				AceHook:HookScript(chat, "OnHyperlinkLeave", OnHyperlinkLeave);
+				AceHook:SecureHookScript(chat, "OnHyperlinkEnter", OnHyperlinkEnter);
+				AceHook:SecureHookScript(chat, "OnHyperlinkLeave", OnHyperlinkLeave);
 			end
 			self.hookedHoverHyperlinks = true;
 		end
 		if (not self.hookedHoverHyperlinksOnCFCMF) then
 			if (IsAddOnLoaded("Blizzard_Communities")) then
-				AceHook:HookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter", OnHyperlinkEnter);
-				AceHook:HookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave", OnHyperlinkLeave);
+				AceHook:SecureHookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter", OnHyperlinkEnter);
+				AceHook:SecureHookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave", OnHyperlinkLeave);
 				self.hookedHoverHyperlinksOnCFCMF = true;
 			end
 		end
