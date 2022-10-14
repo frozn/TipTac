@@ -1,5 +1,5 @@
 ## Interface: 30400
-## Version: 22.09.17
+## Version: 22.10.14
 ## Title: TipTac
 ## Author: Aezay (Earthen Ring EU), Frozn45
 ## Notes: Highly Customizable Tooltip Enhancement Addon
