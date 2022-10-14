@@ -1,24 +1,28 @@
 local gtt = GameTooltip;
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	isWoWWotlkc = true;
-else
-	isWoWRetail = true;
+else -- retail
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+		isWoWSl = true;
+	else
+		isWoWRetail = true;
+	end
 end
 
 -- Addon
 local modName = ...;
-local ttt = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
+local ttt = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropTemplate"); -- 9.0.1: Using BackdropTemplate
 ttt:Hide();
 
 -- String Constants
-local TALENTS_PREFIX = ((isWoWRetail and SPECIALIZATION) or TALENTS)..":|cffffffff ";	-- MoP: Could be changed from TALENTS to SPECIALIZATION
+local TALENTS_PREFIX = (((isWoWSl or isWoWRetail) and SPECIALIZATION) or TALENTS)..":|cffffffff "; -- MoP: Could be changed from TALENTS to SPECIALIZATION
 local TALENTS_NA = NOT_APPLICABLE:lower();
 local TALENTS_NONE = NONE_KEY; -- NO.." "..TALENTS
 local TALENTS_LOADING = SEARCH_LOADING_TEXT;
@@ -63,7 +67,7 @@ end
 
 -- Queries the talent spec of the inspected unit, or player unit (MoP Code)
 function ttt:QuerySpecialization(record)
-	if (isWoWRetail) then -- retail
+	if (isWoWSL) or (isWoWRetail) then -- retail
 		local spec = (not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization();
 		if (not spec or spec == 0) then
 			record.format = TALENTS_NONE;
@@ -194,7 +198,7 @@ function ttt:InitiateInspectRequest(unit,record)
 	-- Queue a delayed inspect request
 	local canInspect = ttt:GetValueOptionallyWithoutErrorSpeech(function()
 		return (CanInspect(unit)) and (not IsInspectFrameOpen());
-	end, (not isWoWRetail));
+	end, (not isWoWSl) and (not isWoWRetail));
 	
 	if (canInspect) then
 		local delay = cfg.t_inspectDelay;

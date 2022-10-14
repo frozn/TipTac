@@ -20,15 +20,19 @@ local wipe = wipe;
 local tconcat = table.concat;
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	isWoWWotlkc = true;
-else
-	isWoWRetail = true;
+else -- retail
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+		isWoWSl = true;
+	else
+		isWoWRetail = true;
+	end
 end
 
 -- Addon
@@ -620,6 +624,7 @@ end
 
 -- Setup Gradient Tip
 local function SetupGradientTip(tip)
+	if (isWoWRetail) then return; end -- df todo: function SetGradientAlpha() doesn't exist in df any more
 	local g = tip.ttGradient;
 	if (not cfg.enableBackdrop) or (not cfg.gradientTip) then
 		if (g) then
@@ -1042,7 +1047,8 @@ function tt:AnchorFrameToMouse(frame)
 	local x, y = GetCursorPosition();
 	local effScale = frame:GetEffectiveScale();
 	frame:ClearAllPoints();
-	frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + mouseOffsetX), (y / effScale + mouseOffsetY));
+	-- frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + mouseOffsetX), (y / effScale + mouseOffsetY));
+	frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", tt:GetNearestPixelSize(x / effScale + mouseOffsetX), tt:GetNearestPixelSize(y / effScale + mouseOffsetY));
 end
 
 -- Re-anchor for anchor type mouse
@@ -1750,7 +1756,7 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 				hooksecurefunc(tip, "SetUnitBuff", GTT_SetUnitAura);
 				hooksecurefunc(tip, "SetUnitDebuff", GTT_SetUnitAura);
 				
-				if (isWoWRetail) then
+				if (isWoWSl) or (isWoWRetail) then
 					-- Post-Hook GameTooltip:SetToyByItemID() to prevent flickering of tooltips if scrolling over toys from last page to previous page and "Anchors->Frame Tip Type" = "Mouse Anchor"
 					hooksecurefunc(tip, "SetToyByItemID", GTT_SetToyByItemID);
 				end
@@ -1779,7 +1785,7 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					-- commented out for embedded tooltips, see description in tt:SetPadding()
 					-- hooksecurefunc("GameTooltip_CalculatePadding", GTT_CalculatePadding);
 					
-					if (isWoWRetail) then
+					if (isWoWSl) or (isWoWRetail) then
 						-- Post-Hook QuestUtils_AddQuestRewardsToTooltip() to reset padding to fix displaying of embedded tooltips
 						-- added helper function for embedded tooltips, see description in tt:SetPadding()
 						hooksecurefunc("QuestUtils_AddQuestRewardsToTooltip", QU_AddQuestRewardsToTooltip);
@@ -1788,16 +1794,18 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 
 						-- Function to apply necessary hooks to LFGListFrame.ApplicationViewer.ScrollFrame.buttons to apply class colors
-						tt:ApplyHooksToLFGLFAVSFB();
-						
-						hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", function(button, applicantID)
-							tt:ApplyHooksToLFGLFAVSFB(button, applicantID);
-						end);
-						
-						hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSFBM_OnEnter_Hook);
+						if (isWoWSl) then -- df todo: ScrollFrame doesn't exist in df. replaced with ScrollBox.
+							tt:ApplyHooksToLFGLFAVSFB();
+							
+							hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", function(button, applicantID)
+								tt:ApplyHooksToLFGLFAVSFB(button, applicantID);
+							end);
+							
+							hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSFBM_OnEnter_Hook);
+						end
 					end
 				elseif (tipName == "ItemRefTooltip") then
-					if (isWoWRetail) then
+					if (isWoWSl) or (isWoWRetail) then
 						-- Post-Hook DisplayDungeonScoreLink() to apply class colors
 						hooksecurefunc("DisplayDungeonScoreLink", IRTT_DisplayDungeonScoreLink);
 					end
@@ -1939,12 +1947,14 @@ function tt:ADDON_LOADED(event, addOnName)
 	end
 	-- now CommunitiesGuildNewsFrame exists
 	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities")) and (not TT_AddOnsLoaded['Blizzard_Communities'])) then
+		if (isWoWSl) then -- df todo: ListScrollFrame doesn't exist in df. replaced with ScrollBox.
 		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame to apply class colors
-		tt:ApplyHooksToCFMLLSF();
-		
-		hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
 			tt:ApplyHooksToCFMLLSF();
-		end);
+			
+			hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
+				tt:ApplyHooksToCFMLLSF();
+			end);
+		end
 		
 		if (addOnName == "TipTac") then
 			TT_AddOnsLoaded["Blizzard_Communities"] = true;

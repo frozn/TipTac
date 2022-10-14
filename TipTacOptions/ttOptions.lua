@@ -2,15 +2,19 @@ local cfg = TipTac_Config;
 local modName = "TipTac";
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	isWoWWotlkc = true;
-else
-	isWoWRetail = true;
+else -- retail
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+		isWoWSl = true;
+	else
+		isWoWRetail = true;
+	end
 end
 
 -- DropDown Lists
@@ -50,6 +54,7 @@ local DROPDOWN_BARTEXTFORMAT = {
 local activePage = 1;
 local options = {};
 
+-- General
 local ttOptionsGeneral = {
 	{ type = "Check", var = "showUnitTip", label = "Enable TipTac Unit Tip Appearance", tip = "Will change the appearance of how unit tips look. Many options in TipTac only work with this setting enabled.\nNOTE: Using this options with a non English client may cause issues!" },
 	{ type = "Check", var = "showStatus", label = "Show DC, AFK and DND Status", tip = "Will show the <DC>, <AFK> and <DND> status after the player name", y = 8 },
@@ -67,6 +72,23 @@ ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType",
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["Do not show realm"] = "none", ["Show realm"] = "show", ["Show (*) instead"] = "asterisk" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["Do not show target"] = "none", ["First line"] = "first", ["Second line"] = "second", ["Last line"] = "last" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 16 };
+
+-- Backdrop
+local ttOptionsBackdrop = {
+	{ type = "Check", var = "enableBackdrop", label = "Enable Backdrop Modifications", tip = "Turns on or off all modifications of the backdrop\nNOTE: A Reload of the UI (/reload) is required for the setting to take affect" },
+	{ type = "DropDown", var = "tipBackdropBG", label = "Background Texture", media = "background", y = 8 },
+	{ type = "DropDown", var = "tipBackdropEdge", label = "Border Texture", media = "border" },
+	{ type = "Check", var = "pixelPerfectBackdrop", label = "Pixel Perfect Backdrop Edge Size and Insets", tip = "Backdrop Edge Size and Insets corresponds to real pixels", y = 6 },
+	{ type = "Slider", var = "backdropEdgeSize", label = "Backdrop Edge Size", min = -20, max = 64, step = 0.5, y = 8 },
+	{ type = "Slider", var = "backdropInsets", label = "Backdrop Insets", min = -20, max = 20, step = 0.5 },
+	{ type = "Color", var = "tipColor", label = "Tip Background Color", y = 18 },
+	{ type = "Color", var = "tipBorderColor", label = "Tip Border Color", x = 160 }
+};
+
+if (not isWoWRetail) then
+	ttOptionsBackdrop[#ttOptionsBackdrop + 1] = { type = "Check", var = "gradientTip", label = "Show Gradient Tooltips", tip = "Display a small gradient area at the top of the tip to add a minor 3D effect to it. If you have an addon like Skinner, you may wish to disable this to avoid conflicts", y = 6 };
+	ttOptionsBackdrop[#ttOptionsBackdrop + 1] = { type = "Color", var = "gradientColor", label = "Gradient Color", tip = "Select the base color for the gradient", x = 160 };
+end
 
 local options = {
 	-- General
@@ -124,16 +146,7 @@ local options = {
 	-- Backdrop
 	{
 		[0] = "Backdrop",
-		{ type = "Check", var = "enableBackdrop", label = "Enable Backdrop Modifications", tip = "Turns on or off all modifications of the backdrop\nNOTE: A Reload of the UI (/reload) is required for the setting to take affect" },
-		{ type = "DropDown", var = "tipBackdropBG", label = "Background Texture", media = "background", y = 8 },
-		{ type = "DropDown", var = "tipBackdropEdge", label = "Border Texture", media = "border" },
-		{ type = "Check", var = "pixelPerfectBackdrop", label = "Pixel Perfect Backdrop Edge Size and Insets", tip = "Backdrop Edge Size and Insets corresponds to real pixels", y = 6 },
-		{ type = "Slider", var = "backdropEdgeSize", label = "Backdrop Edge Size", min = -20, max = 64, step = 0.5, y = 8 },
-		{ type = "Slider", var = "backdropInsets", label = "Backdrop Insets", min = -20, max = 20, step = 0.5 },
-		{ type = "Color", var = "tipColor", label = "Tip Background Color", y = 18 },
-		{ type = "Color", var = "tipBorderColor", label = "Tip Border Color", x = 160 },
-		{ type = "Check", var = "gradientTip", label = "Show Gradient Tooltips", tip = "Display a small gradient area at the top of the tip to add a minor 3D effect to it. If you have an addon like Skinner, you may wish to disable this to avoid conflicts", y = 6 },
-		{ type = "Color", var = "gradientColor", label = "Gradient Color", tip = "Select the base color for the gradient", x = 160 },
+		unpack(ttOptionsBackdrop)
 	},
 	-- Font
 	{
@@ -257,7 +270,7 @@ if (TipTacTalents) then
 		{ type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents for Party and Raid Members", tip = "When you enable this, only talents of players in your party or raid will be requested and shown" }
 	};
 	
-	if (not isWoWRetail) then
+	if (not isWoWSl) and (not isWoWRetail) then
 		tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Format", list = { ["Elemental (57/14/00)"] = 1, ["Elemental"] = 2, ["57/14/00"] = 3,}, y = 8 }; -- not supported with MoP changes
 	end
 

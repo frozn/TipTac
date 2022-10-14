@@ -10,15 +10,19 @@ local fpbatt = FloatingPetBattleAbilityTooltip;
 local ejtt = EncounterJournalTooltip;
 
 -- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	isWoWWotlkc = true;
-else
-	isWoWRetail = true;
+else -- retail
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+		isWoWSl = true;
+	else
+		isWoWRetail = true;
+	end
 end
 
 local CreateColorFromHexString = CreateColorFromHexString;
@@ -530,9 +534,11 @@ end
 local function SetCompanionPet_Hook(self, petID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByPetID(petID);
-		local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(petID);
-		tipDataAdded[self] = "battlepet";
-		LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality - 1, maxHealth, power, speed, nil, displayID);
+		if (speciesID) then
+			local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(petID);
+			tipDataAdded[self] = "battlepet";
+			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, nil, displayID);
+		end
 	end
 end
 
@@ -587,9 +593,11 @@ local function SetAction_Hook(self, slot)
 			end
 		elseif (actionType == "summonpet") then
 			local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByPetID(id);
-			local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(id);
-			tipDataAdded[self] = "battlepet";
-			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality - 1, maxHealth, power, speed, nil, displayID);
+			if (speciesID) then
+				local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(id);
+				tipDataAdded[self] = "battlepet";
+				LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, nil, displayID);
+			end
 		elseif (actionType == "flyout") then
 			local icon = GetActionTexture(slot);
 			tipDataAdded[self] = "flyout";
@@ -1496,11 +1504,11 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
 				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
-				if (isWoWWotlkc) or (isWoWRetail) then
+				if (isWoWWotlkc) or (isWoWSl) or (isWoWRetail) then
 					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
 					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 				end
-				if (isWoWRetail) then
+				if (isWoWSl) or (isWoWRetail) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetEnhancedConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
@@ -1528,7 +1536,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc("EmbeddedItemTooltip_SetCurrencyByID", EITT_SetCurrencyByID_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_Clear", EITT_Clear_Hook);
 					-- classic support
-					if (isWoWRetail) then
+					if (isWoWSl) or (isWoWRetail) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
 						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
@@ -1638,15 +1646,17 @@ function ttif:ADDON_LOADED(event, addOnName)
 	
 	-- now AchievementFrameMiniAchievement exists
 	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
-		local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
-		
-		hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
-			local frame = _G["AchievementFrameMiniAchievement"..index];
-			if (frame) and (not ABMAhooked[frame]) then
-				frame:HookScript("OnEnter", ABMA_OnEnter_Hook);
-				ABMAhooked[frame] = true;
-			end
-		end);
+		if (isWoWSl) then -- df todo: function AchievementButton_GetMiniAchievement() doesn't exist in df.
+			local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
+			
+			hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
+				local frame = _G["AchievementFrameMiniAchievement"..index];
+				if (frame) and (not ABMAhooked[frame]) then
+					frame:HookScript("OnEnter", ABMA_OnEnter_Hook);
+					ABMAhooked[frame] = true;
+				end
+			end);
+		end
 		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_AchievementUI"] = true;
@@ -1764,7 +1774,8 @@ function ttif:ADDON_LOADED(event, addOnName)
 			HonorFrame.BonusFrame.RandomBGButton,
 			HonorFrame.BonusFrame.Arena1Button,
 			HonorFrame.BonusFrame.RandomEpicBGButton,
-			HonorFrame.BonusFrame.BrawlButton
+			HonorFrame.BonusFrame.BrawlButton,
+			HonorFrame.BonusFrame.BrawlButton2
 		};
 		
 		for i, button in pairs(buttons) do
@@ -2167,7 +2178,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
 	local mawPowerID = nil;
-	if (isWoWRetail) then
+	if (isWoWSl) or (isWoWRetail) then
 		local linkMawPower = GetMawPowerLinkBySpellID(spellID);
 		if (linkMawPower) then
 			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");

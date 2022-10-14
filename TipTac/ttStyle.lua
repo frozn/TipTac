@@ -4,19 +4,23 @@ local UnitName = UnitName;
 local gtt = GameTooltip;
 
 -- classic support
-local UnitIsWildBattlePet = UnitIsWildBattlePet or function() return false end;
-local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion or function() return false end;
-
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWRetail = false, false, false, false;
+local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	isWoWClassic = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	isWoWBcc = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	isWoWWotlkc = true;
-else
-	isWoWRetail = true;
+else -- retail
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+		isWoWSl = true;
+	else
+		isWoWRetail = true;
+	end
 end
+
+local UnitIsWildBattlePet = UnitIsWildBattlePet or function() return false end;
+local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion or function() return false end;
 
 -- TipTac refs
 local tt = TipTac;
