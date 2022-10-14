@@ -2,7 +2,6 @@
 -- converted to lua dictionary table by mawPowerID with https://thdoan.github.io/mr-data-converter/
 
 table_MawPower_by_MawPowerID = {
-{
   ["1"]={["spellID"]=294578,["mawPowerRarityID"]=1},
   ["2"]={["spellID"]=294587,["mawPowerRarityID"]=2},
   ["3"]={["spellID"]=294588,["mawPowerRarityID"]=3},

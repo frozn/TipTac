@@ -1047,8 +1047,7 @@ function tt:AnchorFrameToMouse(frame)
 	local x, y = GetCursorPosition();
 	local effScale = frame:GetEffectiveScale();
 	frame:ClearAllPoints();
-	-- frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + mouseOffsetX), (y / effScale + mouseOffsetY));
-	frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", tt:GetNearestPixelSize(x / effScale + mouseOffsetX), tt:GetNearestPixelSize(y / effScale + mouseOffsetY));
+	frame:SetPoint(frame.ttAnchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + mouseOffsetX), (y / effScale + mouseOffsetY));
 end
 
 -- Re-anchor for anchor type mouse

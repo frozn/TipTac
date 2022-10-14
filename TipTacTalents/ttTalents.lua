@@ -67,7 +67,7 @@ end
 
 -- Queries the talent spec of the inspected unit, or player unit (MoP Code)
 function ttt:QuerySpecialization(record)
-	if (isWoWSL) or (isWoWRetail) then -- retail
+	if (isWoWSl) or (isWoWRetail) then -- retail
 		local spec = (not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization();
 		if (not spec or spec == 0) then
 			record.format = TALENTS_NONE;
