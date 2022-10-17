@@ -1447,7 +1447,7 @@ end
 -- This function might have been made secure in 8.2?
 local gttFadeOut = gtt.FadeOut;
 gtt.FadeOut = function(self,...)
-	if ((not self.ttUnit) and (not self.ttUnit.token)) or (not cfg.overrideFade) then
+	if (not self.ttUnit) or (not self.ttUnit.token) or (not cfg.overrideFade) then
 		self.ttFadeOut = FADE_BLOCK; -- Don't allow the OnUpdate handler to run the fadeout/update code
 		gttFadeOut(self,...);
 	elseif (cfg.preFadeTime == 0 and cfg.fadeTime == 0) then
