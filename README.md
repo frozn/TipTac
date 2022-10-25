@@ -1,4 +1,4 @@
-[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.me/frozn45)  
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
 
 # TipTac
 WoW AddOn TipTac [DF] [SL] [WotLKC] [Classic]
@@ -72,4 +72,4 @@ In WowUp, go to `Get Addons->Install From URL` and enter `https://github.com/fro
 ## Buy me a coffee
 Donations are welcome to appreciate my work to keep this addon alive, but isn't required at all. If you would like to donate (as requested to me), you can do so down below.
 
-[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.me/frozn45)  
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
