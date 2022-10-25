@@ -72,6 +72,8 @@ Classic: `\World of Warcraft\_classic_era_\Interface\AddOns`
 In WowUp, go to `Get Addons->Install From URL` and enter `https://github.com/frozn/TipTac`
 
 ## Buy me a coffee
-Donations are welcome to appreciate my work to keep this addon alive, but isn't required at all. If you would like to donate (as requested to me), you can do so down below.
+Donations are welcome to appreciate my work to keep this addon alive, but isn't required at all. If you would like to donate (as requested to me), you can do so down below:
 
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
+
+After using many WoW addons in the last years I decided to give something back to the mod/addon community and continued the one or other not longer supported/maintained projects (see [here](https://www.curseforge.com/members/frozn45/projects)) including TipTac.
