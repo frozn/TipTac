@@ -1,3 +1,5 @@
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.me/frozn45)  
+
 # TipTac
 WoW AddOn TipTac [DF] [SL] [WotLKC] [Classic]
 
