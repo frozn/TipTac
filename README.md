@@ -1,3 +1,5 @@
+![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)
+$~$
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
 
 # TipTac
