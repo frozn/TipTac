@@ -1,4 +1,6 @@
-![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)
+![runs](https://img.shields.io/badge/runs-retail%20%2B%20classic-brightgreen)
+$~$
+[![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
 $~$
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
 
