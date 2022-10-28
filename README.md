@@ -1,8 +1,18 @@
+![runs](https://img.shields.io/badge/runs-retail%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen)
+&nbsp; 
+[![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
+&nbsp; 
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
+
 # TipTac
-WoW AddOn TipTac [DF] [SL] [WotLKC] [Classic]
+WoW AddOn TipTac [DF] [SL] [WotLKC] [Classic Era]
 
 * based on latest version v20.11.04 from Nov 4, 2020: https://www.curseforge.com/wow/addons/tip-tac
-* added fixes for wow patch 9.2.7 (Shadowlands - Eternity's End), wotlkc and classic
+* added fixes for wow patch ...
+  * 10.0.0 - Dragonflight [DF]
+  * 9.2.7 - Shadowlands - Eternity's End [SL]
+  * 3.4.0 - Wrath of the Lich King Classic [WotLKC]
+  * 1.14.3 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -43,11 +53,11 @@ WoW AddOn TipTac [DF] [SL] [WotLKC] [Classic]
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
-- classic: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
-- classic: added missing styling of auras
-- classic: reactivated talent format option
-- classic: suppressed error speech/message when calling CanInspect(unit) within TipTacTalents
-- classic: fixed sometimes missing displaying of level, race, class and talents for unit tooltips
+- classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
+- classic era: added missing styling of auras
+- classic era: reactivated talent format option
+- classic era: suppressed error speech/message when calling CanInspect(unit) within TipTacTalents
+- classic era: fixed sometimes missing displaying of level, race, class and talents for unit tooltips
 
 ### The following problems aren't fixed
 
@@ -61,8 +71,15 @@ Get [latest release](https://github.com/frozn/TipTac/releases) and replace the f
 
 Shadowlands: `\World of Warcraft\_retail_\Interface\AddOns`  
 Wrath of the Lich King Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
-Classic: `\World of Warcraft\_classic_era_\Interface\AddOns`  
+Classic Era: `\World of Warcraft\_classic_era_\Interface\AddOns`  
 
 ## Install with WowUp.io
 
 In WowUp, go to `Get Addons->Install From URL` and enter `https://github.com/frozn/TipTac`
+
+## Buy me a coffee
+Donations are welcome to appreciate my work to keep this addon alive, but isn't required at all. If you would like to donate (as requested to me), you can do so down below:
+
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
+
+After using many WoW addons in the last years I decided to give something back to the mod/addon community and continued the one or other not longer supported/maintained projects (see [here](https://www.curseforge.com/members/frozn45/projects)) including TipTac.
