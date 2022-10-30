@@ -341,15 +341,30 @@ end
 
 -- apply workaround for the following "bug": on first mouseover over toy or unit aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID(), SetAction(), SetUnitAura() or SetAzeriteEssence() (only approx. 0.2-1 second later), but on the next OnUpdate the GetItem() is set again.
 -- ttWorkaroundForFirstMouseoverStatus:
--- nil = no hooks set (initial status)
--- 1   = hooks GameTooltip:OnTooltipCleared and Button:OnLeave set
--- 2   = hooks GameTooltip:OnUpdate and Button:OnLeave set
--- 3   = no hooks set respectively not needed any more
+-- nil = no hooks applied (uninitialized)
+-- 0   = hooks applied (initialized)
+-- 1   = waiting for GameTooltip:OnTooltipCleared (armed, 1st stage)
+-- 2   = waiting for GameTooltip:OnUpdate (armed, 2nd stage)
+-- 3   = tooltip modification reapplied (triggered)
 function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkType, id, rank)
 	local tooltip = self;
 	
 	-- functions
-	local reapplyTooltipModificationFn = function()
+	local resetVarsFn = function(tooltip)
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 0; -- initialized
+		tooltip.ttWorkaroundForFirstMouseoverID = nil;
+		tooltip.ttWorkaroundForFirstMouseoverRank = nil;
+		tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
+	end
+	
+	local initVarsFn = function(tooltip, id, rank, owner)
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 1; -- armed, 1st stage
+		tooltip.ttWorkaroundForFirstMouseoverID = id;
+		tooltip.ttWorkaroundForFirstMouseoverRank = rank;
+		tooltip.ttWorkaroundForFirstMouseoverOwner = owner;
+	end
+	
+	local reapplyTooltipModificationFn = function(tooltip)
 		tipDataAdded[tooltip] = linkType;
 		if (linkType == "spell") then
 			LinkTypeFuncs.spell(tooltip, isAura, source, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
@@ -358,60 +373,38 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 		else
 			LinkTypeFuncs.item(tooltip, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
 		end
-		AceHook:Unhook(tooltip, "OnUpdate");
-		tooltip.ttWorkaroundForFirstMouseoverStatus = 3;
-	end
-	
-	local removeHooksFn = function(resetVars)
-		if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then
-			AceHook:Unhook(tooltip, "OnTooltipCleared");
-			AceHook:Unhook(tooltip, "OnHide");
-		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 2) then
-			AceHook:Unhook(tooltip, "OnUpdate");
-			AceHook:Unhook(tooltip, "OnHide");
-		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 3) then
-			AceHook:Unhook(tooltip, "OnHide");
-		end
-		
-		if (resetVars) then
-			tooltip.ttWorkaroundForFirstMouseoverStatus = nil;
-			tooltip.ttWorkaroundForFirstMouseoverID = nil;
-			tooltip.ttWorkaroundForFirstMouseoverRank = nil;
-			tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
-		end
-	end
-	
-	-- remove previous hooks if different id
-	local owner = tooltip:GetOwner();
-	
-	if (tooltip.ttWorkaroundForFirstMouseoverStatus) and ((tooltip.ttWorkaroundForFirstMouseoverID ~= id) or (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner)) then
-		removeHooksFn(true);
 	end
 	
 	-- apply hooks
-	if (not tooltip.ttWorkaroundForFirstMouseoverStatus) then
-		AceHook:SecureHookScript(tooltip, "OnTooltipCleared", function()
-			local owner = tooltip:GetOwner();
-			if (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner) then
-				removeHooksFn(true);
-				return;
+	if (not tooltip.ttWorkaroundForFirstMouseoverStatus) then -- nil = uninitialized
+		AceHook:SecureHookScript(tooltip, "OnTooltipCleared", function(tooltip)
+			if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then -- armed, 1st stage
+				if (tooltip:GetOwner() ~= tooltip.ttWorkaroundForFirstMouseoverOwner) then
+					resetVarsFn(tooltip); -- 0 = initialized
+					return;
+				end
+				tooltip.ttWorkaroundForFirstMouseoverStatus = 2; -- armed, 2nd stage
 			end
-			AceHook:SecureHookScript(tooltip, "OnUpdate", function()
-				reapplyTooltipModificationFn();
-			end);
-			AceHook:Unhook(tooltip, "OnTooltipCleared");
-			tooltip.ttWorkaroundForFirstMouseoverStatus = 2;
 		end);
-		AceHook:SecureHookScript(tooltip, "OnHide", function()
-			removeHooksFn(true);
+		
+		AceHook:SecureHookScript(tooltip, "OnUpdate", function(tooltip)
+			if (tooltip.ttWorkaroundForFirstMouseoverStatus == 2) then -- armed, 2nd stage
+				reapplyTooltipModificationFn(tooltip);
+				tooltip.ttWorkaroundForFirstMouseoverStatus = 3; -- triggered
+			end
 		end);
-		tooltip.ttWorkaroundForFirstMouseoverStatus = 1;
-		tooltip.ttWorkaroundForFirstMouseoverID = id;
-		tooltip.ttWorkaroundForFirstMouseoverRank = rank;
-		tooltip.ttWorkaroundForFirstMouseoverOwner = owner;
+		
+		AceHook:SecureHookScript(tooltip, "OnHide", function(tooltip)
+			resetVarsFn(tooltip); -- 0 = initialized
+		end);
+		
+		resetVarsFn(tooltip); -- 0 = initialized
+	end
+	
+	if (tooltip.ttWorkaroundForFirstMouseoverStatus == 0) or (tooltip.ttWorkaroundForFirstMouseoverID ~= id) or (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner) then
+		initVarsFn(tooltip, id, rank, tooltip:GetOwner()); -- 1 = armed, 1st stage
 	else
-		removeHooksFn();
-		tooltip.ttWorkaroundForFirstMouseoverStatus = 3;
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 3; -- triggered
 	end
 end
 
