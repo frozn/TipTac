@@ -253,29 +253,29 @@ end
 -- Chain config tables
 local function ChainConfigTables(config, defaults)
 	local config_metatable_org = getmetatable(config);
-
+	
 	return setmetatable(config, {
 		__index = function(tab, index)
 			local value = defaults[index];
-
+			
 			if (value) then
 				return value;
 			end
-
+			
 			if (not config_metatable_org) then
 				return nil;
 			end
-
+			
 			local config_metatable_org__index = config_metatable_org.__index;
-
+			
 			if (not config_metatable_org__index) then
 				return nil;
 			end
-
+			
 			if (type(config_metatable_org__index) == "table") then
 				return config_metatable_org__index[index];
 			end
-
+			
 			return config_metatable_org__index(tab, index);
 		end
 	});
@@ -298,10 +298,10 @@ function ttif:VARIABLES_LOADED(event)
 	-- Hook Tips & Apply Settings
 	self:HookTips();
 	self:OnApplyConfig();
-
+	
 	-- Re-Trigger event ADDON_LOADED for TipTacItemRef if config wasn't ready
 	self:ADDON_LOADED("ADDON_LOADED", "TipTacItemRef");
-
+	
 	-- Cleanup
 	self:UnregisterEvent(event);
 	self[event] = nil;
@@ -347,7 +347,7 @@ end
 -- 3   = no hooks set respectively not needed any more
 function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkType, id, rank)
 	local tooltip = self;
-
+	
 	-- functions
 	local reapplyTooltipModificationFn = function()
 		tipDataAdded[tooltip] = linkType;
@@ -361,7 +361,7 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 		AceHook:Unhook(tooltip, "OnUpdate");
 		tooltip.ttWorkaroundForFirstMouseoverStatus = 3;
 	end
-
+	
 	local removeHooksFn = function(resetVars)
 		if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then
 			AceHook:Unhook(tooltip, "OnTooltipCleared");
@@ -372,7 +372,7 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 		elseif (tooltip.ttWorkaroundForFirstMouseoverStatus == 3) then
 			AceHook:Unhook(tooltip, "OnHide");
 		end
-
+		
 		if (resetVars) then
 			tooltip.ttWorkaroundForFirstMouseoverStatus = nil;
 			tooltip.ttWorkaroundForFirstMouseoverID = nil;
@@ -380,14 +380,14 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 			tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
 		end
 	end
-
+	
 	-- remove previous hooks if different id
 	local owner = tooltip:GetOwner();
-
+	
 	if (tooltip.ttWorkaroundForFirstMouseoverStatus) and ((tooltip.ttWorkaroundForFirstMouseoverID ~= id) or (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner)) then
 		removeHooksFn(true);
 	end
-
+	
 	-- apply hooks
 	if (not tooltip.ttWorkaroundForFirstMouseoverStatus) then
 		AceHook:SecureHookScript(tooltip, "OnTooltipCleared", function()
@@ -421,11 +421,11 @@ local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 	local anchorXOfs = 0;
 	local anchorYOfs = 0;
 	local anchorXOfsWrap = 0;
-
+	
 	if not r then
 		r, g, b = NORMAL_FONT_COLOR:GetRGB();
 	end
-
+	
 	local anchor = self.textLineAnchor;
 	if not anchor then
 		if (self == pjpatt or self == pjsatt or self == fpbatt) then
@@ -442,22 +442,22 @@ local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 			anchorYOfs = 6;
 		end
 	end
-
+	
 	local line = self.linePool:Acquire();
 	line:SetText(text);
 	line:SetTextColor(r, g, b);
 	line:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", anchorXOfs, -linePadding + anchorYOfs);
-
+	
 	if wrap then
 		line:SetPoint("RIGHT", self, "RIGHT", anchorXOfsWrap, -linePadding + anchorYOfs);
 	end
-
+	
 	line:Show();
-
+	
 	self.textLineAnchor = line;
-
+	
 	self:SetHeight(self:GetHeight() + line:GetHeight() + linePadding);
-
+	
 	if (self == pjpatt or self == pjsatt or self == fpbatt) then
 		self.bottomFrame = line;
 	end
@@ -478,7 +478,7 @@ end
 
 --
 -- main hooking functions
---
+-- 
 
 -- HOOK: ItemRefTooltip + GameTooltip:SetHyperlink
 function ttif:SetHyperlink_Hook(self, hyperlink)
@@ -537,7 +537,7 @@ local function SetCompanionPet_Hook(self, petID)
 		if (speciesID) then
 			local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(petID);
 			tipDataAdded[self] = "battlepet";
-			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, nil, displayID);
+			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, nil, displayID);
 		end
 	end
 end
@@ -551,7 +551,7 @@ local function SetAction_Hook(self, slot)
 			local name = line and (line:GetText() or "");
 			if (name ~= "" and PetHasSpellbook()) then
 				local numPetSpells, petToken = HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
-
+				
 				if (numPetSpells) then
 					for i = 1, numPetSpells do
 						local spellType, _id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
@@ -567,7 +567,7 @@ local function SetAction_Hook(self, slot)
 					end
 				end
 			end
-
+			
 			if (not tipDataAdded[self]) then -- fallback if pet action was not found in pet spell book by name.
 				local icon = GetActionTexture(slot);
 				tipDataAdded[self] = "petAction";
@@ -580,11 +580,11 @@ local function SetAction_Hook(self, slot)
 				if (itemID) then
 					tipDataAdded[self] = linkType;
 					LinkTypeFuncs.item(self, link, linkType, itemID);
-
+					
 					-- apply workaround for first mouseover if item is a toy
 					if (C_ToyBox) then
 						_itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
-
+						
 						if (_itemID) then
 							ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
 						end
@@ -656,10 +656,10 @@ local function SetPetAction_Hook(self, slot)
 				_name = name;
 				icon = texture;
 			end
-
+			
 			if (_name ~= "" and PetHasSpellbook()) then -- id is missing. as a workaround find pet action in pet spell book by name.
 				local numPetSpells, petToken = HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
-
+				
 				if (numPetSpells) then
 					for i = 1, numPetSpells do
 						local spellType, id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
@@ -674,7 +674,7 @@ local function SetPetAction_Hook(self, slot)
 					end
 				end
 			end
-
+			
 			if (not tipDataAdded[self]) then -- fallback if pet action was not found in pet spell book by name.
 				tipDataAdded[self] = "petAction";
 				CustomTypeFuncs.petAction(self, nil, "petAction", nil, icon);
@@ -767,9 +767,9 @@ local function SetQuestPartyProgress_Hook(self, questID, omitTitle, ignoreActive
 end
 
 -- HOOK: GameTooltip:SetRecipeReagentItem
-local function SetRecipeReagentItem_Hook(self, recipeID, reagentIndex)
+local function SetRecipeReagentItem_Hook(self, recipeID, dataSlotIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local link = C_TradeSkillUI.GetRecipeFixedReagentItemLink(recipeID, reagentIndex);
+		local link = C_TradeSkillUI.GetRecipeFixedReagentItemLink(recipeID, dataSlotIndex);
 		if (link) then
 			local linkType, itemID = link:match("H?(%a+):(%d+)");
 			if (itemID) then
@@ -789,7 +789,7 @@ local function SetToyByItemID_Hook(self, itemID)
 			if (itemID) then
 				tipDataAdded[self] = linkType;
 				LinkTypeFuncs.item(self, link, linkType, itemID);
-
+				
 				-- apply workaround for first mouseover
 				ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
 			end
@@ -926,18 +926,18 @@ end
 local function SetAzeriteEssenceSlot_Hook(self, slot)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local milestones = C_AzeriteEssence.GetMilestones();
-
+		
 		for i, milestoneInfo in ipairs(milestones) do
 			if (milestoneInfo.slot == slot) then
 				if (not milestoneInfo.unlocked) then
 					break;
 				end
-
+				
 				local milestoneID = milestoneInfo.ID;
 				local essenceID = C_AzeriteEssence.GetMilestoneEssence(milestoneID);
 				local essenceInfo = C_AzeriteEssence.GetEssenceInfo(essenceID);
 				local essenceRank = essenceInfo.rank;
-
+				
 				local link = C_AzeriteEssence.GetEssenceHyperlink(essenceID, essenceRank);
 				if (link) then
 					local linkType, _essenceID, _essenceRank = link:match("H?(%a+):(%d+):(%d+)");
@@ -949,7 +949,7 @@ local function SetAzeriteEssenceSlot_Hook(self, slot)
 						ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, _essenceID, _essenceRank);
 					end
 				end
-
+				
 				break;
 			end
 		end
@@ -1084,6 +1084,24 @@ local function QPM_OnMouseEnter_Hook(self)
 	end
 end
 
+-- HOOK: QuestBlobPinMixin:OnMouseEnter
+local function QBPM_OnMouseEnter_Hook(self)
+print("!!! drin");
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+		local mouseX, mouseY = self:GetMap():GetNormalizedCursorPosition();
+		local questID, numPOITooltips = self:UpdateMouseOverTooltip(mouseX, mouseY);
+		-- local questID = self.highlightedQuestPOI;
+		local link = GetQuestLink(questID);
+		if (link) then
+			local level = link:match("H?%a+:%d+:(%d+)");
+			LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
+		else
+			LinkTypeFuncs.quest(gtt, nil, "quest", questID, nil);
+		end
+		tipDataAdded[gtt] = "quest";
+	end
+end
+
 -- HOOK: RuneforgePowerBaseMixin:OnEnter
 local function RPBM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -1132,7 +1150,7 @@ local function EITT_SetItemByQuestReward_Hook(self, questLogIndex, questID, rewa
 		if (not questLogIndex) then
 			return
 		end
-
+		
 		rewardType = (rewardType or "reward");
 		local getterFunc;
 		if (rewardType == "choice") then
@@ -1140,9 +1158,9 @@ local function EITT_SetItemByQuestReward_Hook(self, questLogIndex, questID, rewa
 		else
 			getterFunc = GetQuestLogRewardInfo;
 		end
-
+		
 		local name, texture, numItems, quality, isUsable, itemID = getterFunc(questLogIndex, questID);
-
+		
 		if (name) and (texture) then
 			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
 			if (itemLink) then
@@ -1161,7 +1179,7 @@ local function EITT_SetSpellByQuestReward_Hook(self, rewardIndex, questID)
 	local targetTooltip = self.Tooltip;
 	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
 		local texture, name, isTradeskillSpell, isSpellLearned, hideSpellLearnText, isBoostSpell, garrFollowerID, genericUnlock, spellID = GetQuestLogRewardSpell(rewardIndex, questID);
-
+		
 		if (name) and (texture) then
 			local link = GetSpellLink(spellID);
 			if (link) then
@@ -1325,7 +1343,7 @@ local function WCFICF_RefreshAppearanceTooltip_Hook(self)
 			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory(), itemsCollectionFrame.transmogLocation);
 			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
 			local sourceID = sources[index].sourceID;
-
+			
 			tipDataAdded[gtt] = "transmogappearance";
 			LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
 		end
@@ -1355,7 +1373,7 @@ local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
 		local setID = self:GetSelectedSetID();
 		local sourceID = self.tooltipPrimarySourceID;
-
+		
 		local sourceInfo = C_TransmogCollection.GetSourceInfo(sourceID);
 		local slot = C_Transmog.GetSlotForInventoryType(sourceInfo.invType);
 		local sources = C_TransmogSets.GetSourcesForSlot(setID, slot);
@@ -1369,7 +1387,7 @@ local function WCFSCF_RefreshAppearanceTooltip_Hook(self)
 		if (selectedIndex) then
 			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(selectedIndex, #sources);
 			local _sourceID = sources[index].sourceID;
-
+			
 			tipDataAdded[gtt] = "transmogappearance";
 			LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", _sourceID);
 		end
@@ -1481,17 +1499,17 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 	if (resolveGlobalNamedObjects) then
 		ResolveGlobalNamedObjects(tips);
 	end
-
+	
 	-- apply necessary hooks to tips
 	for index, tip in ipairs(tips) do
 		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") then
 			local tipName = tip:GetName();
 			local tipHooked = false;
-
+			
 			if (addToTipsToModify) then
 				tipsToModify[#tipsToModify + 1] = tip;
 			end
-
+			
 			if (tip:GetObjectType() == "GameTooltip") then
 				hooksecurefunc(tip, "SetHyperlink", function(self, ...)
 					ttif:SetHyperlink_Hook(self, ...)
@@ -1539,6 +1557,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					if (isWoWSl) or (isWoWRetail) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
+						hooksecurefunc(QuestBlobPinMixin, "OnMouseEnter", QBPM_OnMouseEnter_Hook);
 						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
@@ -1591,7 +1610,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					end
 				end
 			end
-
+			
 			if (tipHooked) then
 				if (tipsToAddIcon[tipName]) then
 					self:CreateTooltipIcon(tip);
@@ -1638,17 +1657,17 @@ end
 -- AddOn Loaded
 function ttif:ADDON_LOADED(event, addOnName)
 	if (not cfg) then return end;
-
+	
 	-- check if addon is already loaded
 	if (addOnsLoaded[addOnName] == nil) or (addOnsLoaded[addOnName]) then
 		return;
 	end
-
+	
 	-- now AchievementFrameMiniAchievement exists
 	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
 		if (isWoWSl) then -- df todo: function AchievementButton_GetMiniAchievement() doesn't exist in df.
 			local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
-
+			
 			hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
 				local frame = _G["AchievementFrameMiniAchievement"..index];
 				if (frame) and (not ABMAhooked[frame]) then
@@ -1657,7 +1676,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 				end
 			end);
 		end
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_AchievementUI"] = true;
 		end
@@ -1666,7 +1685,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections")) and (not addOnsLoaded['Blizzard_Collections'])) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
-
+		
 		-- Hook Tips & Apply Settings
 		self:ApplyHooksToTips({
 			"PetJournalPrimaryAbilityTooltip",
@@ -1674,7 +1693,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 		}, true, true);
 
 		self:OnApplyConfig();
-
+		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items (incl. reapply for tabbing through items with same visualID)
 
@@ -1690,7 +1709,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 				for i = 1, itemsCollectionFrame.PAGE_SIZE do
 					local model = itemsCollectionFrame.Models[i];
 					local gttOwner = gtt:GetOwner();
-
+					
 					if (gttOwner == model) then
 						WCFICFM_OnEnter_Hook(gttOwner);
 						break;
@@ -1698,7 +1717,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 				end
 			end
 		end);
-
+		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
 		hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
 
@@ -1708,7 +1727,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 			local model = setsTransmogFrame.Models[i];
 			hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
 		end
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_Collections"] = true;
 		end
@@ -1719,11 +1738,11 @@ function ttif:ADDON_LOADED(event, addOnName)
 
 		-- Function to apply necessary hooks to CommunitiesFrameGuildDetailsFrameInfo
 		ttif:ApplyHooksToCFGDFI();
-
+		
 		hooksecurefunc("CommunitiesGuildInfoFrame_UpdateChallenges", function()
 			ttif:ApplyHooksToCFGDFI();
 		end);
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_Communities"] = true;
 		end
@@ -1731,7 +1750,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	-- now EncounterJournalTooltip exists
 	if (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_EncounterJournal")) and (not addOnsLoaded['Blizzard_EncounterJournal'])) then
 		ejtt = EncounterJournalTooltip;
-
+		
 		-- Hook Tips & Apply Settings
 		-- commented out for embedded tooltips, see description in tt:SetPadding()
 		-- self:ApplyHooksToTips({
@@ -1739,7 +1758,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 		-- }, true, true);
 
 		-- self:OnApplyConfig();
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_EncounterJournal"] = true;
 		end
@@ -1747,14 +1766,14 @@ function ttif:ADDON_LOADED(event, addOnName)
 	-- now GuildNewsButton exists
 	if (addOnName == "Blizzard_GuildUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_GuildUI")) and (not addOnsLoaded['Blizzard_GuildUI'])) then
 		hooksecurefunc("GuildNewsButton_OnEnter", GNB_OnEnter_Hook);
-
+		
 		-- Function to apply necessary hooks to GuildInfoFrameInfoChallenge
 		ttif:ApplyHooksToGIFIC();
-
+		
 		hooksecurefunc("GuildInfoFrame_UpdateChallenges", function()
 			ttif:ApplyHooksToGIFIC();
 		end);
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_GuildUI"] = true;
 		end
@@ -1762,7 +1781,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	-- now PlayerChoiceTorghastOption exists
 	if (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice")) and (not addOnsLoaded['Blizzard_PlayerChoice'])) then
 		hooksecurefunc(PlayerChoicePowerChoiceTemplateMixin, "OnEnter", PCPCTM_OnEnter_Hook);
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_PlayerChoice"] = true;
 		end
@@ -1777,11 +1796,11 @@ function ttif:ADDON_LOADED(event, addOnName)
 			HonorFrame.BonusFrame.BrawlButton,
 			HonorFrame.BonusFrame.BrawlButton2
 		};
-
+		
 		for i, button in pairs(buttons) do
 			button.Reward.EnlistmentBonus:HookScript("OnEnter", HFBFB_OnEnter);
 		end
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_PVPUI"] = true;
 		end
@@ -1789,7 +1808,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	-- now WorldQuestTrackerAddon exists
 	if (addOnName == "WorldQuestTracker") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("WorldQuestTracker")) and (not addOnsLoaded['WorldQuestTracker'])) then
 		local WQTThooked = {}; -- see WorldQuestTracker.GetOrCreateTrackerWidget() in "WorldQuestTracker/WorldQuestTracker_Tracker.lua"
-
+		
 		hooksecurefunc(WorldQuestTrackerAddon, "GetOrCreateTrackerWidget", function(index)
 			local frame = _G["WorldQuestTracker_Tracker" .. index];
 			if (frame) and (not WQTThooked[frame]) then
@@ -1797,24 +1816,24 @@ function ttif:ADDON_LOADED(event, addOnName)
 				WQTThooked[frame] = true;
 			end
 		end);
-
+		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["WorldQuestTracker"] = true;
 		end
 	end
-
+	
 	addOnsLoaded[addOnName] = true;
-
+	
 	-- Cleanup if all addons are loaded
 	local allAddOnsLoaded = true;
-
+	
 	for addOn, isLoaded in pairs(addOnsLoaded) do
 		if (not isLoaded) then
 			allAddOnsLoaded = false;
 			break;
 		end
 	end
-
+	
 	if (allAddOnsLoaded) then
 		self:UnregisterEvent(event);
 		self[event] = nil;
@@ -1841,11 +1860,11 @@ local function SmartIconEvaluation(tip,linkType)
 		end
 		return true;
 	end
-
+	
 	if (tip == ejtt) then -- EncounterJournalTooltip
 		return false;
 	end
-
+	
 	local owner = tip:GetOwner();
 
 	-- No Owner?
@@ -1945,11 +1964,11 @@ function ttif:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
 	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
 		return;
 	end
-
+	
 	tip.ttSetBackdropBorderColorLocked = false;
 	tip:SetBackdropBorderColor(r, g, b, (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor[4]) or 1));
 	tip.ttSetBackdropBorderColorLocked = true;
-
+	
 	if (lockColor) then
 		tip.ttBackdropBorderColorApplied = true;
 	end
@@ -2010,12 +2029,12 @@ function LinkTypeFuncs:item(link, linkType, id)
 							break;
 						end
 					end
-				else
+				else 
 					-- remove level from tip's line pool
 					for line in self.linePool:EnumerateActive() do
 						if (line and (line:GetText() or ""):match(ITEM_LEVEL_PLUS)) then
 							local linePredecessorPoint, linePredecessorRelativeTo, linePredecessorRelativePoint, linePredecessorXOfs, linePredecessorYOfs = line:GetPoint(1);
-
+							
 							if (line == self.textLineAnchor) then
 								-- last line in line pool
 								self.textLineAnchor = linePredecessorRelativeTo;
@@ -2023,7 +2042,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 								-- re-anchor successor line
 								for successorLine in self.linePool:EnumerateActive() do
 									local successorLinePredecessorPoint, successorLinePredecessorRelativeTo, successorLinePredecessorRelativePoint, successorLinePredecessorXOfs, successorLinePredecessorYOfs = successorLine:GetPoint(1);
-
+									
 									if (successorLinePredecessorRelativeTo == line) then
 										local successorLineNumPoints = successorLine:GetNumPoints();
 										local successorLineLeftPoint, successorLineLeftRelativeTo, successorLineLeftRelativePoint, successorLineLeftXOfs, successorLineLeftYOfs = successorLine:GetPoint(2);
@@ -2032,7 +2051,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 											successorLineRightPoint, successorLineRightRelativeTo, successorLineRightRelativePoint, successorLineRightXOfs, successorLineRightYOfs = successorLine:GetPoint(3);
 										end
 										successorLinePredecessorRelativeTo = linePredecessorRelativeTo;
-
+										
 										successorLine:ClearAllPoints();
 										successorLine:SetPoint(successorLinePredecessorPoint, successorLinePredecessorRelativeTo, successorLinePredecessorRelativePoint, successorLinePredecessorXOfs, successorLinePredecessorYOfs);
 										successorLine:SetPoint(successorLineLeftPoint, successorLineLeftRelativeTo, successorLineLeftRelativePoint, successorLineLeftXOfs, successorLineLeftYOfs);
@@ -2043,12 +2062,12 @@ function LinkTypeFuncs:item(link, linkType, id)
 									end
 								end
 							end
-
+							
 							-- remove level from tip's line pool
 							self:SetHeight(self:GetHeight() - line:GetHeight() - linePadding);
 							line:ClearAllPoints();
 							self.linePool:Release(line);
-
+							
 							break;
 						end
 					end
@@ -2112,7 +2131,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	local showWeeklyRewardLevel = (weeklyRewardLevel and cfg.if_showKeystoneRewardLevel);
 	local showTimeLimit = (mapID and cfg.if_showKeystoneTimeLimit);
 	local showAffixInfo = cfg.if_showKeystoneAffixInfo;
-
+	
 	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
 		local tipName = self:GetName();
 		local infoColorMixin = CreateColor(cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], (cfg.if_infoColor[4] or 1));
@@ -2120,7 +2139,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		if (showId) then
 			self:AddLine(format("ItemID: %d", itemID), unpack(cfg.if_infoColor));
 		end
-
+		
 		if (cfg.if_modifyKeystoneTips) then
 			local textRight2 = _G[tipName.."TextRight2"];
 			if (not showRewardLevel and showWeeklyRewardLevel) then
@@ -2140,7 +2159,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				self:AddLine(format("RewardLevel: %d", endOfRunRewardLevel), unpack(cfg.if_infoColor));
 			end
 		end
-
+		
 		if (showTimeLimit) then
 			local name, id, timeLimit, texture, backgroundTexture = C_ChallengeMode.GetMapUIInfo(mapID);
 			if (timeLimit) then
@@ -2153,7 +2172,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				end
 			end
 		end
-
+		
 		if (showAffixInfo) then
 			for i = 1, select('#', ...) do
 				local modifierID = select(i, ...);
@@ -2166,7 +2185,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				end
 			end
 		end
-
+		
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
 end
@@ -2188,20 +2207,20 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 			end
 		end
 	end
-
+	
 	local isSpell = (not isAura);
 
 	-- Icon
 	if (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		self:ttSetIconTextureAndText(icon);
 	end
-
+	
 	-- Caster
 	local showAuraCaster = (cfg.if_showAuraCaster and UnitExists(source));
 	if (showAuraCaster) then
 		self:AddLine(format("Caster: %s", UnitName(source) or UNKNOWNOBJECT), unpack(cfg.if_infoColor));
 	end
-
+	
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID);
 	local showSpellIdAndRank = (((isSpell and cfg.if_showSpellIdAndRank) or (isAura and cfg.if_showAuraSpellIdAndRank)) and spellID and (spellID ~= 0));
@@ -2222,7 +2241,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
   	-- Colored Border
 	if (not self.IsEmbedded) and ((isSpell and cfg.if_spellColoredBorder) or (isAura and cfg.if_auraSpellColoredBorder)) then
 		local spellColor = nil;
-
+		
 		if (mawPowerID and spellID) then
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
@@ -2237,11 +2256,11 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 				end
 			end
 		end
-
+		
 		if (not spellColor) then
 			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
-
+		
 		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
 	end
 end
@@ -2252,7 +2271,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	if (mawPowerID and table_MawPower_by_MawPowerID[mawPowerID]) then
 		spellID = table_MawPower_by_MawPowerID[mawPowerID].spellID;
 	end
-
+	
 	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
@@ -2261,7 +2280,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		self:ttSetIconTextureAndText(icon);
 	end
-
+	
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
 	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID);
@@ -2279,7 +2298,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
   	-- Colored Border
 	if (cfg.if_spellColoredBorder) then
 		local spellColor = nil;
-
+		
 		if (mawPowerID and spellID) then
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
@@ -2294,11 +2313,11 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 				end
 			end
 		end
-
+		
 		if (not spellColor) then
 			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
-
+		
 		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
 	end
 end
@@ -2319,11 +2338,11 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 		end
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
-
+	
   	-- Difficulty Border
 	if (cfg.if_questDifficultyBorder) then
 		local difficultyColorMixin;
-
+		
 		if (C_QuestLog.IsWorldQuest and C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
 			local tagInfo = C_QuestLog.GetQuestTagInfo(questID);
 			local quality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
@@ -2332,7 +2351,7 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 			local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or GetQuestDifficultyColor(level);
 			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
 		end
-
+		
 		ttif:SetBackdropBorderColorLocked(self, true, difficultyColorMixin:GetRGBA());
 	end
 end
@@ -2343,7 +2362,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	local currencyInfo = nil;
 	local icon, quality;
 	local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer and C_CurrencyInfo.IsCurrencyContainer(currencyID, _quantity);
-
+	
 	if (isCurrencyContainer) then
 		currencyInfo = C_CurrencyInfo.GetCurrencyContainerInfo(currencyID, _quantity);
 		icon = currencyInfo.icon;
@@ -2353,7 +2372,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 		icon = currencyInfo.iconFileID;
 		quality = currencyInfo.quality;
 	end
-
+	
 	-- Icon
 	if (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType)) then
 		if (currencyInfo) then
@@ -2504,20 +2523,20 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 				-- remove level from tip
 				self:SetHeight(self:GetHeight() - self.Level:GetHeight() - linePadding);
 				self.Level:SetText(nil);
-
+				
 				-- re-anchor successor node
 				local levelPoint, levelRelativeTo, levelRelativePoint, levelXOfs, levelYOfs = self.Level:GetPoint();
 				local healthTexturePoint, healthTextureRelativeTo, healthTextureRelativePoint, healthTextureXOfs, healthTextureYOfs = self.HealthTexture:GetPoint();
 				healthTextureRelativeTo = levelRelativeTo;
-
+				
 				self.HealthTexture:ClearAllPoints();
 				self.HealthTexture:SetPoint(healthTexturePoint, healthTextureRelativeTo, healthTextureRelativePoint, healthTextureXOfs, healthTextureYOfs);
-
+				
 				-- remove level from tip's line pool
 				for line in self.linePool:EnumerateActive() do
 					if (line and (line:GetText() or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						local linePredecessorPoint, linePredecessorRelativeTo, linePredecessorRelativePoint, linePredecessorXOfs, linePredecessorYOfs = line:GetPoint(1);
-
+						
 						if (line == self.textLineAnchor) then
 							-- last line in line pool
 							self.textLineAnchor = linePredecessorRelativeTo;
@@ -2525,7 +2544,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 							-- re-anchor successor line
 							for successorLine in self.linePool:EnumerateActive() do
 								local successorLinePredecessorPoint, successorLinePredecessorRelativeTo, successorLinePredecessorRelativePoint, successorLinePredecessorXOfs, successorLinePredecessorYOfs = successorLine:GetPoint(1);
-
+								
 								if (successorLinePredecessorRelativeTo == line) then
 									local successorLineNumPoints = successorLine:GetNumPoints();
 									local successorLineLeftPoint, successorLineLeftRelativeTo, successorLineLeftRelativePoint, successorLineLeftXOfs, successorLineLeftYOfs = successorLine:GetPoint(2);
@@ -2534,7 +2553,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 										successorLineRightPoint, successorLineRightRelativeTo, successorLineRightRelativePoint, successorLineRightXOfs, successorLineRightYOfs = successorLine:GetPoint(3);
 									end
 									successorLinePredecessorRelativeTo = linePredecessorRelativeTo;
-
+									
 									successorLine:ClearAllPoints();
 									successorLine:SetPoint(successorLinePredecessorPoint, successorLinePredecessorRelativeTo, successorLinePredecessorRelativePoint, successorLinePredecessorXOfs, successorLinePredecessorYOfs);
 									successorLine:SetPoint(successorLineLeftPoint, successorLineLeftRelativeTo, successorLineLeftRelativePoint, successorLineLeftXOfs, successorLineLeftYOfs);
@@ -2545,12 +2564,12 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 								end
 							end
 						end
-
+						
 						-- remove level from tip's line pool
 						self:SetHeight(self:GetHeight() - line:GetHeight() - linePadding);
 						line:ClearAllPoints();
 						self.linePool:Release(line);
-
+						
 						break;
 					end
 				end
@@ -2564,7 +2583,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 				end
 			end
 		end
-
+		
 		if (not showLevel) then
 			self:AddLine(format("NPC ID: %d", tonumber(creatureID)), unpack(cfg.if_infoColor));
 		elseif (showId) then
@@ -2577,15 +2596,15 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 			self:Show();	-- call Show() to resize tip after adding lines. only necessary for pet tooltip in action bar.
 		end
 	end
-
+	
 	if (not showLevel) then
 		if (self == bptt or self == fbptt) then
 			-- re-anchor successor node if necessary
 			local healthTexturePoint, healthTextureRelativeTo, healthTextureRelativePoint, healthTextureXOfs, healthTextureYOfs = self.HealthTexture:GetPoint();
-
+			
 			if (healthTextureRelativeTo ~= self.Level) then
 				healthTextureRelativeTo = self.Level;
-
+				
 				self.HealthTexture:ClearAllPoints();
 				self.HealthTexture:SetPoint(healthTexturePoint, healthTextureRelativeTo, healthTextureRelativePoint, healthTextureXOfs, healthTextureYOfs);
 			end
@@ -2627,7 +2646,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	-- ItemLevel + ConduitID
 	local conduitCollectionData = C_Soulbinds.GetConduitCollectionData(conduitID);
 	local conduitItemLevel = (conduitCollectionData and conduitCollectionData.conduitItemLevel); -- conduitCollectionData is only available for own conduits
-
+	
 	local showLevel = (conduitItemLevel and cfg.if_showConduitItemLevel);
 	local showId = (conduitID and cfg.if_showConduitId);
 
@@ -2641,7 +2660,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 				end
 			end
 		end
-
+		
 		if (not showLevel) then
 			self:AddLine(format("ConduitID: %d", conduitID), unpack(cfg.if_infoColor));
 		elseif (showId) then
@@ -2699,7 +2718,7 @@ end
 -- transmog illusion
 function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
 	local illusionInfo = C_TransmogCollection.GetIllusionInfo(illusionID);
-
+	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
 		self:ttSetIconTextureAndText(illusionInfo.icon);
@@ -2727,7 +2746,7 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 	local waitingOnQuality = false;
 	local sourceQualityTable = {};
 	local primaryAppearances = C_TransmogSets.GetSetPrimaryAppearances(setID);
-
+	
 	for i, primaryAppearance in pairs(primaryAppearances) do
 		numTotalSlots = numTotalSlots + 1;
 		local sourceID = primaryAppearance.appearanceID;
@@ -2743,12 +2762,12 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 			end
 		end
 	end
-
+	
 	if (waitingOnQuality) then
 		tipDataAdded[self] = nil;
 		return;
 	end
-
+	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
 		local SetsDataProvider = CreateFromMixins(WardrobeSetsDataProviderMixin);
@@ -2773,7 +2792,7 @@ end
 -- azerite essence
 function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 	local essenceInfo = C_AzeriteEssence.GetEssenceInfo(essenceID);
-
+	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
 		self:ttSetIconTextureAndText(essenceInfo.icon);
@@ -2799,7 +2818,7 @@ end
 -- runeforge power
 function CustomTypeFuncs:runeforgePower(link, linkType, runeforgePowerID)
 	local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(runeforgePowerID);
-
+	
 	-- Icon
 	if (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType)) then
 		self:ttSetIconTextureAndText(powerInfo.iconFileID);
