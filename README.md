@@ -4,8 +4,10 @@
 &nbsp; 
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
-# TipTac
-WoW AddOn TipTac [DF] [SL] [WotLKC] [Classic Era]
+# TipTac Reborn
+WoW AddOn TipTac Reborn [DF] [SL] [WotLKC] [Classic Era]
+
+TipTac Reborn is a tooltip enchancement addon, it allows you to configure various aspects of the tooltip, such as moving where it's shown, the font, the scale of tips, plus a lot more. It's the successor of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac) (abandoned since Nov 2020) with massive modifications since then.
 
 * based on latest version v20.11.04 from Nov 4, 2020: https://www.curseforge.com/wow/addons/tip-tac
 * added fixes for wow patch ...
