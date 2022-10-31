@@ -2,7 +2,7 @@
 &nbsp; 
 [![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
 &nbsp; 
-[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20%28from%20curseforge.com%29&cmd=_s-xclick)
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 # TipTac Reborn
 WoW AddOn TipTac Reborn [DF] [WotLKC] [Classic Era]
