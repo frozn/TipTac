@@ -893,6 +893,10 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	tip.layoutTextureKit = nil;
 	tip.backdropInfo = nil;
 	
+	if (IsAddOnLoaded("ElvUI_MerathilisUI")) then -- workaround for addon MerathilisUI in ElvUI to prevent styling of frame
+		tip.__MERSkin = true;
+	end
+	
 	local tipName = tip:GetName();
 	
 	if (tipName) and (tipName:match("DropDownList(%d+)")) then
@@ -909,7 +913,10 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 			tip.template = "Default";
 			dropDownListBackdrop.template = "Default";
 			dropDownListMenuBackdrop.template = "Default";
-			dropDownListBackdrop.__MERSkin = true; -- workaround for addon MerathilisUI in ElvUI to prevent styling of frame
+		end
+		
+		if (IsAddOnLoaded("ElvUI_MerathilisUI")) then -- workaround for addon MerathilisUI in ElvUI to prevent styling of frame
+			dropDownListBackdrop.__MERSkin = true;
 			dropDownListMenuBackdrop.__MERSkin = true;
 		end
 	end
