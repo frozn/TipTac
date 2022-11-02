@@ -894,6 +894,7 @@ function tt:ApplyTipBackdrop(tip, calledFromEvent, resetBackdropColor)
 	tip.backdropInfo = nil;
 	
 	if (IsAddOnLoaded("ElvUI_MerathilisUI")) then -- workaround for addon MerathilisUI in ElvUI to prevent styling of frame
+		tip.__shadow = true;
 		tip.__MERSkin = true;
 	end
 	
