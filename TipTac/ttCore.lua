@@ -102,8 +102,8 @@ local TT_DefaultConfig = {
 	tipColor = { 0.1, 0.1, 0.2 },			-- UI Default: For most: (0.1,0.1,0.2), World Objects?: (0,0.2,0.35)
 	tipBorderColor = { 0.3, 0.3, 0.4 },		-- UI Default: (1,1,1,1)
 	gradientTip = true,
-	gradientHeight = 36,
-	gradientColor = { 0.8, 0.8, 0.8, 0.2 },
+	gradientHeight = 32,
+	gradientColor = { 0.8, 0.8, 0.8, 0.15 },
 
 	modifyFonts = false,
 	fontFace = "",	-- Set during VARIABLES_LOADED
@@ -624,7 +624,6 @@ end
 
 -- Setup Gradient Tip
 local function SetupGradientTip(tip)
-	if (isWoWRetail) then return; end -- df todo: function SetGradientAlpha() doesn't exist in df any more
 	local g = tip.ttGradient;
 	if (not cfg.enableBackdrop) or (not cfg.gradientTip) then
 		if (g) then
@@ -633,10 +632,12 @@ local function SetupGradientTip(tip)
 		return;
 	elseif (not g) then
 		g = tip:CreateTexture();
-		g:SetColorTexture(1, 1, 1, 1);
+		-- g:SetColorTexture(1, 1, 1, 1);  -- SetGradientAlpha() removed since df
+		g:SetTexture([[Interface\AddOns\TipTac\media\gradient]]);
 		tip.ttGradient = g;
 	end
-	g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, unpack(cfg.gradientColor));
+	-- g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, unpack(cfg.gradientColor)); -- SetGradientAlpha() removed since df
+	g:SetVertexColor(unpack(cfg.gradientColor));
 	local insets = ((cfg.pixelPerfectBackdrop and tt:GetNearestPixelSize(cfg.backdropInsets, true)) or cfg.backdropInsets);
 	g:SetPoint("TOPLEFT", insets, insets * -1);
 	g:SetPoint("BOTTOMRIGHT", tip, "TOPRIGHT", insets * -1, -cfg.gradientHeight);
