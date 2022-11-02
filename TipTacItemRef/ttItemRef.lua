@@ -753,9 +753,13 @@ end
 local function SetQuestPartyProgress_Hook(self, questID, omitTitle, ignoreActivePlayer)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local link = GetQuestLink(questID);
-		local level = link:match("H?%a+:%d+:(%d+)");
+		if (link) then
+			local level = link:match("H?%a+:%d+:(%d+)");
+			LinkTypeFuncs.quest(self, nil, "quest", questID, level);
+		else
+			LinkTypeFuncs.quest(self, nil, "quest", questID, nil);
+		end
 		tipDataAdded[self] = "quest";
-		LinkTypeFuncs.quest(self, nil, "quest", questID, level);
 	end
 end
 
@@ -1041,9 +1045,13 @@ local function QMLTB_OnEnter_Hook(self)
 		local info = C_QuestLog.GetInfo(self.questLogIndex);
 		local questID = info.questID;
 		local link = GetQuestLink(questID);
-		local level = link:match("H?%a+:%d+:(%d+)");
+		if (link) then
+			local level = link:match("H?%a+:%d+:(%d+)");
+			LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
+		else
+			LinkTypeFuncs.quest(gtt, nil, "quest", questID, nil);
+		end
 		tipDataAdded[gtt] = "quest";
-		LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
 	end
 end
 
@@ -1425,9 +1433,13 @@ local function WQTT_OnEnter_Hook(self)
 		local questID = self.questID;
 		if (questID) then
 			local link = GetQuestLink(questID);
-			local level = link:match("H?%a+:%d+:(%d+)");
+			if (link) then
+				local level = link:match("H?%a+:%d+:(%d+)");
+				LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
+			else
+				LinkTypeFuncs.quest(gtt, nil, "quest", questID, nil);
+			end
 			tipDataAdded[gtt] = "quest";
-			LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
 		end
 	end
 end
