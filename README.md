@@ -1,4 +1,4 @@
-![runs](https://img.shields.io/badge/runs-retail%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen)
+![runs](https://img.shields.io/badge/runs-retail%20%28df%29%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen)
 &nbsp; 
 [![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
 &nbsp; 
