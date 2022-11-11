@@ -632,12 +632,18 @@ local function SetupGradientTip(tip)
 		return;
 	elseif (not g) then
 		g = tip:CreateTexture();
-		-- g:SetColorTexture(1, 1, 1, 1);  -- SetGradientAlpha() removed since df
-		g:SetTexture([[Interface\AddOns\TipTac\media\gradient]]);
+		if (g.SetGradientAlpha) then -- before df
+			g:SetColorTexture(1, 1, 1, 1);
+		else -- since df
+			g:SetTexture([[Interface\AddOns\TipTac\media\gradient]]);
+		end
 		tip.ttGradient = g;
 	end
-	-- g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, unpack(cfg.gradientColor)); -- SetGradientAlpha() removed since df
-	g:SetVertexColor(unpack(cfg.gradientColor));
+	if (g.SetGradientAlpha) then -- before df
+		g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, unpack(cfg.gradientColor));
+	else -- since df
+		g:SetVertexColor(unpack(cfg.gradientColor));
+	end
 	local insets = ((cfg.pixelPerfectBackdrop and tt:GetNearestPixelSize(cfg.backdropInsets, true)) or cfg.backdropInsets);
 	g:SetPoint("TOPLEFT", insets, insets * -1);
 	g:SetPoint("BOTTOMRIGHT", tip, "TOPRIGHT", insets * -1, -cfg.gradientHeight);
