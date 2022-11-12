@@ -1538,7 +1538,9 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetAzeriteEssenceSlot", SetAzeriteEssenceSlot_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
-					hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
+					if (tip.SetCurrencyTokenByID) then -- removed since df 10.0.2
+						hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
+					end
 					hooksecurefunc(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
@@ -1546,8 +1548,21 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
 					hooksecurefunc(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
 				end
-				tip:HookScript("OnTooltipSetItem", OnTooltipSetItem);
-				tip:HookScript("OnTooltipSetSpell", OnTooltipSetSpell);
+				if (TooltipDataProcessor) then -- since df 10.0.2
+					TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
+						if (self == tip) then
+							OnTooltipSetItem(self, ...);
+						end
+					end);
+					TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(self, ...)
+						if (self == tip) then
+							OnTooltipSetSpell(self, ...);
+						end
+					end);
+				else -- before df 10.0.2
+					tip:HookScript("OnTooltipSetItem", OnTooltipSetItem);
+					tip:HookScript("OnTooltipSetSpell", OnTooltipSetSpell);
+				end
 				tip:HookScript("OnTooltipCleared", OnTooltipCleared);
 				if (tipName == "GameTooltip") then
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);

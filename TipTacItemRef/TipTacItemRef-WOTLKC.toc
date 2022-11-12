@@ -5,5 +5,5 @@
 ## Notes: Improved ItemRefTooltip
 ## OptionalDeps: TipTac
 embeds.xml
-LibItemString.lua
+
 ttItemRef.lua

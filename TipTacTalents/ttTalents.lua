@@ -245,7 +245,7 @@ function ttt:HookTip()
 	end);
 
 	-- HOOK: OnTooltipSetUnit -- Will schedule a delayed inspect request
-	gtt:HookScript("OnTooltipSetUnit",function(self,...)
+	local function OnTooltipSetUnit(self,...)
 		if not (cfg.t_showTalents) then
 			return;
 		end
@@ -277,7 +277,17 @@ function ttt:HookTip()
 		if (level >= 10 or level == -1) then
 			ttt:InitiateInspectRequest(unit,record);
 		end
-	end);
+	end
+	
+	if (TooltipDataProcessor) then -- since df 10.0.2
+		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(self, ...)
+			if (self == gtt) then
+				OnTooltipSetUnit(self, ...);
+			end
+		end);
+	else -- before df 10.0.2
+		gtt:HookScript("OnTooltipSetUnit", OnTooltipSetUnit);
+	end
 
 	-- Clear this function as it's not needed anymore
 	self.HookTips = nil;

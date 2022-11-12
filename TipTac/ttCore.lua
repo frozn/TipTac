@@ -1761,7 +1761,25 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 			
 			if (tip:GetObjectType() == "GameTooltip") then
 				for scriptName, hookFunc in next, gttScriptHooks do
-					tip:HookScript(scriptName, hookFunc);
+					if (TooltipDataProcessor) then -- since df 10.0.2
+						if (scriptName == "OnTooltipSetUnit") then
+							TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(self, ...)
+								if (self == tip) then
+									gttScriptHooks.OnTooltipSetUnit(self, ...);
+								end
+							end);
+						elseif (scriptName == "OnTooltipSetItem") then
+							TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
+								if (self == tip) then
+									gttScriptHooks.OnTooltipSetItem(self, ...);
+								end
+							end);
+						else
+							tip:HookScript(scriptName, hookFunc);
+						end
+					else -- before df 10.0.2
+						tip:HookScript(scriptName, hookFunc);
+					end
 				end
 
 				-- Post-Hook GameTooltip:SetUnit() to flag the tooltip that it is currently showing a unit
