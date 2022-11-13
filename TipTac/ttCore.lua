@@ -720,7 +720,7 @@ function tt:ApplySettings()
 			end
 			SetupGradientTip(tip);
 			SetScale(tip);
-			tt:ApplyTipBackdrop(tip);
+			tt:ApplyTipBackdrop(tip, "ApplySettings");
 		end
 	end
 
@@ -752,7 +752,7 @@ end
 local function STT_SetBackdropStyle(self, style, embedded)
 	for _, tip in ipairs(TT_TipsToModify) do
 		if (type(tip) == "table") and (type(tip.GetObjectType) == "function") and (tip == self) then
-			tt:ApplyTipBackdrop(self);
+			tt:ApplyTipBackdrop(self, "SharedTooltip_SetBackdropStyle");
 			break;
 		end
 	end
@@ -1316,6 +1316,9 @@ local FADE_BLOCK = 2;
 
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
+	-- reapply padding needed here since df
+	tt:SetPadding(self, "OnShow");
+
 	-- Anchor GTT to Mouse -- Az: Initial mouse anchoring is now being done in GTT_SetDefaultAnchor (remove if there are no issues)
 	-- Frozn45: Needed a.o. for the following issue:
 	-- 1. Set "Anchors->Frame Tip Type" to "Mouse Anchor"
@@ -1453,7 +1456,7 @@ end
 
 -- OnHide Script -- Used to default the background and border color -- Az: May cause issues with embedded tooltips, see GameTooltip.lua:396
 function gttScriptHooks:OnHide()
-	tt:ApplyTipBackdrop(self, nil, true);
+	tt:ApplyTipBackdrop(self, "OnHide", true);
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -2083,7 +2086,7 @@ function tt:AddModifiedTip(tip,noHooks)
 		
 		if (not noHooks) then
 			tip:HookScript("OnShow", function()
-				tt:ApplyTipBackdrop(tip);
+				tt:ApplyTipBackdrop(tip, "AddModifiedTip");
 			end);
 		end
 
