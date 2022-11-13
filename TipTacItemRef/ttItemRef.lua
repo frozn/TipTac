@@ -1085,21 +1085,21 @@ local function QPM_OnMouseEnter_Hook(self)
 	end
 end
 
--- HOOK: QuestBlobPinMixin:OnMouseEnter
-local function QBPM_OnMouseEnter_Hook(self)
-print("!!! drin");
-	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+-- HOOK: QuestBlobPinMixin:UpdateTooltip
+local function QBPM_UpdateTooltip_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) then
 		local mouseX, mouseY = self:GetMap():GetNormalizedCursorPosition();
 		local questID, numPOITooltips = self:UpdateMouseOverTooltip(mouseX, mouseY);
-		-- local questID = self.highlightedQuestPOI;
-		local link = GetQuestLink(questID);
-		if (link) then
-			local level = link:match("H?%a+:%d+:(%d+)");
-			LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
-		else
-			LinkTypeFuncs.quest(gtt, nil, "quest", questID, nil);
+		if (questID) then
+			local link = GetQuestLink(questID);
+			if (link) then
+				local level = link:match("H?%a+:%d+:(%d+)");
+				LinkTypeFuncs.quest(gtt, nil, "quest", questID, level);
+			else
+				LinkTypeFuncs.quest(gtt, nil, "quest", questID, nil);
+			end
+			tipDataAdded[gtt] = "quest";
 		end
-		tipDataAdded[gtt] = "quest";
 	end
 end
 
@@ -1594,7 +1594,9 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					if (isWoWSl) or (isWoWRetail) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
-						hooksecurefunc(QuestBlobPinMixin, "OnMouseEnter", QBPM_OnMouseEnter_Hook);
+						for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
+							hooksecurefunc(pin, "UpdateTooltip", QBPM_UpdateTooltip_Hook);
+						end
 						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
