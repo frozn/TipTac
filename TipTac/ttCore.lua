@@ -1540,7 +1540,12 @@ local function GTT_SetToyByItemID(self)
 end
 
 -- HOOK: QuestPinMixin:OnMouseEnter()
-local function QPM_OnMouseEnter(self)
+local function QPM_OnMouseEnter_Hook(self)
+	tt:ReApplyAnchorTypeForMouse(gtt);
+end
+
+-- HOOK: QuestBlobPinMixin:UpdateTooltip()
+local function QBPM_UpdateTooltip_Hook(self)
 	tt:ReApplyAnchorTypeForMouse(gtt);
 end
 
@@ -1806,13 +1811,18 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 					hooksecurefunc("SharedTooltip_SetBackdropStyle", STT_SetBackdropStyle);
 					
 					-- Post-Hook QuestPinMixin:OnMouseEnter() to re-anchor tooltip (e.g. quests on world map with numeric banner) if "Anchors->Frame Tip Type" = "Mouse Anchor"
-					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter);
+					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					
 					-- Post-Hook TaskPOI_OnEnter() to reapply padding if modified
 					-- commented out for embedded tooltips, see description in tt:SetPadding()
 					-- hooksecurefunc("TaskPOI_OnEnter", function(self)
 					  -- tt:SetPadding(gtt, "GameTooltip_AddQuestRewardsToTooltip");
 					-- end);
+					
+					-- Post-Hook QuestBlobPinMixin:UpdateTooltip() (OnMouseEnter() doesn't work) to re-anchor tooltip (blue area of quests) if "Anchors->Frame Tip Type" = "Mouse Anchor"
+					for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
+						hooksecurefunc(pin, "UpdateTooltip", QBPM_UpdateTooltip_Hook);
+					end
 					
 					-- Post-Hook GameTooltip_AddQuestRewardsToTooltip() to reapply padding if modified
 					-- commented out for embedded tooltips, see description in tt:SetPadding()
