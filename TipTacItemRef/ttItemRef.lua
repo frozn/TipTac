@@ -1423,9 +1423,9 @@ local function WCFSTFM_RefreshTooltip_Hook(self)
 	end
 end
 
--- HOOK: AchievementFrameMiniAchievement:OnEnter, see AchievementShield_OnEnter() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
-local function ABMA_OnEnter_Hook(self)
-	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
+-- HOOK: AchievementFrameAchievementsObjectives MiniAchievement:OnEnter, see MiniAchievementTemplate:OnEnter() in "Blizzard_AchievementUI/Blizzard_AchievementUI.xml"
+local function AFAOMA_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) then
 		local parent = self:GetParent(); -- see AchievementObjectives_DisplayProgressiveAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
 		if (parent) then
 			local achievementID = parent.id;
@@ -1705,19 +1705,17 @@ function ttif:ADDON_LOADED(event, addOnName)
 		return;
 	end
 	
-	-- now AchievementFrameMiniAchievement exists
+	-- now AchievementFrameAchievementsObjectives exists
 	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
-		if (isWoWSl) then -- df todo: function AchievementButton_GetMiniAchievement() doesn't exist in df.
-			local ABMAhooked = {}; -- see AchievementButton_GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
-			
-			hooksecurefunc("AchievementButton_GetMiniAchievement", function(index)
-				local frame = _G["AchievementFrameMiniAchievement"..index];
-				if (frame) and (not ABMAhooked[frame]) then
-					frame:HookScript("OnEnter", ABMA_OnEnter_Hook);
-					ABMAhooked[frame] = true;
-				end
-			end);
-		end
+		local AFAOMAhooked = {}; -- see AchievementsObjectivesMixin:GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
+		
+		hooksecurefunc(AchievementFrameAchievementsObjectives, "GetMiniAchievement", function(self, index)
+			local miniAchievement = self:GetElementAtIndex("MiniAchievementTemplate", self.miniAchivements, index, AchievementButton_LocalizeMiniAchievement);
+			if (not AFAOMAhooked[miniAchievement]) then
+				miniAchievement:HookScript("OnEnter", AFAOMA_OnEnter_Hook);
+				AFAOMAhooked[miniAchievement] = true;
+			end
+		end);
 		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_AchievementUI"] = true;
