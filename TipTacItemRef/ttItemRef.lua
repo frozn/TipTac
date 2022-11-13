@@ -1256,6 +1256,23 @@ local function DUODSM_OnEnter_Hook(self)
 	end
 end
 
+-- HOOK: TalentDisplayMixin:OnEnter
+local function TDM_OnEnter_Hook(self)
+	if (cfg.if_enable) and (not tipDataAdded[gtt]) then
+		local spellID = self:GetSpellID();
+		if (spellID) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (_spellID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.spell(gtt, false, nil, link, linkType, _spellID);
+				end
+			end
+		end
+	end
+end
+
 -- HOOK: PlayerChoicePowerChoiceTemplateMixin:OnEnter
 local function PCPCTM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -1581,6 +1598,9 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
+						if (isWoWRetail) then
+							hooksecurefunc(TalentDisplayMixin, "OnEnter", TDM_OnEnter_Hook);
+						end
 					end
 				end
 				tipHooked = true;
