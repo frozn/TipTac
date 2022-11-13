@@ -993,9 +993,9 @@ local function GetAnchorPosition(tooltip)
 	if (tooltip == gtt) then
 		 -- don't anchor GTT (frame tip type) in "Premade Groups->LFGList" to mouse if addon RaiderIO is loaded
 		if (var == "anchorFrameTip") and (ttAnchorType == "mouse") and (IsAddOnLoaded("RaiderIO")) and (IsInFrameChain(tooltip:GetOwner(), {
-					"LFGListSearchPanelScrollFrameButton(%d+)",
-					"LFGListApplicationViewerScrollFrameButton(%d+)"
-				}, 4)) then
+					LFGListFrame.SearchPanel.ScrollBox,
+					LFGListFrame.ApplicationViewer.ScrollBox
+				}, 6)) then
 			return "normal", "BOTTOMRIGHT";
 		end
 		
@@ -1241,8 +1241,8 @@ function tt:ApplyUnitAppearance(tip,first)
 	tt:SetPadding(tip);
 end
 
--- HOOK: CommunitiesFrame.MemberList.ListScrollFrame.buttons:OnEnter
-local function CFMLLSFB_OnEnter_Hook(self)
+-- HOOK: CommunitiesFrame.MemberList:OnEnter
+local function CFML_OnEnter_Hook(self)
 	if (cfg.classColoredBorder) and (gtt:IsShown()) then
 		local classColor = CLASS_COLORS["PRIEST"];
 		local memberInfo = self.memberInfo;
@@ -1277,8 +1277,8 @@ local function IRTT_DisplayDungeonScoreLink(link)
 	end
 end
 
--- HOOK: LFGListFrame.ApplicationViewer.ScrollFrame.buttons.Members:OnEnter respectively LFGListApplicantMember_OnEnter, see "LFGList.lua"
-local function LFGLFAVSFBM_OnEnter_Hook(self)
+-- HOOK: LFGListFrame.ApplicationViewer.ScrollBox:OnEnter respectively LFGListApplicantMember_OnEnter, see "LFGList.lua"
+local function LFGLFAVSB_OnEnter_Hook(self)
 	if (cfg.classColoredBorder) and (gtt:IsShown()) then
 		local applicantID = self:GetParent().applicantID;
 		local memberIdx = self.memberIdx;
@@ -1840,16 +1840,14 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 						-- Post-Hook RuneforgePowerBaseMixin:OnEnter() to re-anchor tooltip in adventure journal if "Anchors->Frame Tip Type" = "Mouse Anchor" and scrolling up and down, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 
-						-- Function to apply necessary hooks to LFGListFrame.ApplicationViewer.ScrollFrame.buttons to apply class colors
-						if (isWoWSl) then -- df todo: ScrollFrame doesn't exist in df. replaced with ScrollBox.
-							tt:ApplyHooksToLFGLFAVSFB();
-							
-							hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", function(button, applicantID)
-								tt:ApplyHooksToLFGLFAVSFB(button, applicantID);
-							end);
-							
-							hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSFBM_OnEnter_Hook);
-						end
+						-- Function to apply necessary hooks to LFGListFrame.ApplicationViewer to apply class colors
+						tt:ApplyHooksToLFGLFAVSB();
+						
+						hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", function(button, applicantID)
+							tt:ApplyHooksToLFGLFAVSB(button, applicantID);
+						end);
+						
+						hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSB_OnEnter_Hook);
 					end
 				elseif (tipName == "ItemRefTooltip") then
 					if (isWoWSl) or (isWoWRetail) then
@@ -1894,42 +1892,34 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 	end
 end
 
--- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame
-local CFMLLSFBhooked = {};
+-- Function to apply necessary hooks to LFGListFrame.ApplicationViewer.ScrollBox respectively LFGListApplicantMember_OnEnter()
+local LFGLFAVSBhooked = {};
 
-function tt:ApplyHooksToCFMLLSF()
-	for index, button in pairs(CommunitiesFrame.MemberList.ListScrollFrame.buttons) do -- see CommunitiesMemberListMixin:RefreshListDisplay() in "Blizzard_Communities/CommunitiesMemberList.lua"
-		if (not CFMLLSFBhooked[button]) then
-			button:HookScript("OnEnter", CFMLLSFB_OnEnter_Hook);
-			CFMLLSFBhooked[button] = true;
-		end
-	end
-end
-
--- Function to apply necessary hooks to LFGListFrame.ApplicationViewer.ScrollFrame.buttons respectively LFGListApplicantMember_OnEnter()
-local LFGLFAVSFBMhooked = {};
-
-local function ApplyHooksToLFGLFAVSFB(button, applicantID)
+local function ApplyHooksToLFGLFAVSB(button, applicantID)
 	local applicantInfo = C_LFGList.GetApplicantInfo(applicantID);
 	for i = 1, applicantInfo.numMembers do
 		local member = button.Members[i];
-		if (not LFGLFAVSFBMhooked[member]) then
-			member:HookScript("OnEnter", LFGLFAVSFBM_OnEnter_Hook);
-			LFGLFAVSFBMhooked[member] = true;
+		if (not LFGLFAVSBhooked[member]) then
+			member:HookScript("OnEnter", LFGLFAVSB_OnEnter_Hook);
+			LFGLFAVSBhooked[member] = true;
 		end
 	end
 end
 
-function tt:ApplyHooksToLFGLFAVSFB(button, applicantID)
+function tt:ApplyHooksToLFGLFAVSB(button, applicantID)
 	if (button) then
-		ApplyHooksToLFGLFAVSFB(button, applicantID); -- see LFGListApplicationViewer_UpdateApplicant() in "LFGList.lua"
+		ApplyHooksToLFGLFAVSB(button, applicantID); -- see LFGListApplicationViewer_UpdateApplicant() in "LFGList.lua"
 	else
-		local buttons = LFGListFrame.ApplicationViewer.ScrollFrame.buttons; -- see LFGListApplicationViewer_UpdateResults() in "LFGList.lua"
-		for i = 1, #buttons do
-			local button = buttons[i];
-			local _applicantID = button.applicantID;
-			if (_applicantID) then
-				ApplyHooksToLFGLFAVSFB(button, _applicantID);
+		local self = LFGListFrame.ApplicationViewer; -- see LFGListApplicationViewer_UpdateResults() + LFGListApplicationViewer_OnEvent() in "LFGList.lua"
+		if (self.applicants) then
+			for index = 1, #self.applicants do
+				local applicantID = self.applicants[index];
+				local frame = self.ScrollBox:FindFrameByPredicate(function(frame, elementData)
+					return elementData.id == applicantID;
+				end);
+				if frame then
+					ApplyHooksToLFGLFAVSB(button, applicantID);
+				end
 			end
 		end
 	end
@@ -1994,14 +1984,8 @@ function tt:ADDON_LOADED(event, addOnName)
 	end
 	-- now CommunitiesGuildNewsFrame exists
 	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities")) and (not TT_AddOnsLoaded['Blizzard_Communities'])) then
-		if (isWoWSl) then -- df todo: ListScrollFrame doesn't exist in df. replaced with ScrollBox.
-		-- Function to apply necessary hooks to CommunitiesFrame.MemberList.ListScrollFrame to apply class colors
-			tt:ApplyHooksToCFMLLSF();
-			
-			hooksecurefunc(CommunitiesFrame.MemberList, "RefreshLayout", function()
-				tt:ApplyHooksToCFMLLSF();
-			end);
-		end
+		-- Function to apply necessary hooks to CommunitiesFrame.MemberList to apply class colors
+		hooksecurefunc(CommunitiesMemberListEntryMixin, "OnEnter", CFML_OnEnter_Hook);
 		
 		if (addOnName == "TipTac") then
 			TT_AddOnsLoaded["Blizzard_Communities"] = true;
