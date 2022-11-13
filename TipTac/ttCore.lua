@@ -1364,6 +1364,8 @@ function gttScriptHooks:OnUpdate(elapsed)
 			elseif (self.ttLastUpdate > cfg.preFadeTime) then
 				self:SetAlpha(1 - (self.ttLastUpdate - cfg.preFadeTime) / cfg.fadeTime);
 			end
+		-- Do nothing if mouse button is down, because the following check for UnitExists("mouseover") incorrectly returns false if hovering over a world unit.
+		elseif (IsMouseButtonDown()) then
 		-- This is only really needed for worldframe unit tips, as when self.ttUnit.token == "mouseover", the GTT:FadeOut() function is not called
 		elseif (not UnitExists(self.ttUnit.token)) then
 			self:FadeOut();
