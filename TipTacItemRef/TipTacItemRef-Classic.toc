@@ -4,6 +4,9 @@
 ## Author: Aezay (Earthen Ring EU), Frozn45
 ## Notes: Improved ItemRefTooltip
 ## OptionalDeps: TipTac
+## X-Category: Tooltip
+## X-Website: https://www.curseforge.com/wow/addons/tiptac-reborn
+## X-Curse-Project-ID: 695153
 embeds.xml
 
 ttItemRef.lua
