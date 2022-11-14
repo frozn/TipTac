@@ -1729,15 +1729,17 @@ function ttif:ADDON_LOADED(event, addOnName)
 	
 	-- now AchievementFrameAchievementsObjectives exists
 	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
-		local AFAOMAhooked = {}; -- see AchievementsObjectivesMixin:GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
-		
-		hooksecurefunc(AchievementFrameAchievementsObjectives, "GetMiniAchievement", function(self, index)
-			local miniAchievement = self:GetElementAtIndex("MiniAchievementTemplate", self.miniAchivements, index, AchievementButton_LocalizeMiniAchievement);
-			if (not AFAOMAhooked[miniAchievement]) then
-				miniAchievement:HookScript("OnEnter", AFAOMA_OnEnter_Hook);
-				AFAOMAhooked[miniAchievement] = true;
-			end
-		end);
+		if (AchievementFrameAchievementsObjectives.GetMiniAchievement) then -- function GetMiniAchievement() doesn't exist in wotlkc
+			local AFAOMAhooked = {}; -- see AchievementsObjectivesMixin:GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
+			
+			hooksecurefunc(AchievementFrameAchievementsObjectives, "GetMiniAchievement", function(self, index)
+				local miniAchievement = self:GetElementAtIndex("MiniAchievementTemplate", self.miniAchivements, index, AchievementButton_LocalizeMiniAchievement);
+				if (not AFAOMAhooked[miniAchievement]) then
+					miniAchievement:HookScript("OnEnter", AFAOMA_OnEnter_Hook);
+					AFAOMAhooked[miniAchievement] = true;
+				end
+			end);
+		end
 		
 		if (addOnName == "TipTac") then
 			addOnsLoaded["Blizzard_AchievementUI"] = true;
