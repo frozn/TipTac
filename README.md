@@ -1,13 +1,15 @@
-![runs](https://img.shields.io/badge/runs-retail%20%28df%29%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen)
-&nbsp; 
-[![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
+<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen"></picture>
 &nbsp; 
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
-<img align="right" src="https://user-images.githubusercontent.com/5655881/201549356-2b64df1c-eece-4ac4-bb52-e5f6686e0edc.jpg">
+<picture><img align="right" alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/201549356-2b64df1c-eece-4ac4-bb52-e5f6686e0edc.jpg"></picture>
 
 [![Install](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
-&nbsp;
+&nbsp; 
+[![CurseForge all releases](https://cf.way2muchnoise.eu/short_695153_downloads.svg)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
+
 [![Install](https://img.shields.io/badge/install-github-24292f)](https://github.com/frozn/TipTac/releases)
+&nbsp; 
+[![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
 
 # TipTac Reborn
 WoW AddOn TipTac Reborn [DF] [WotLKC] [Classic Era]
