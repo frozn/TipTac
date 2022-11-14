@@ -98,5 +98,8 @@ After using many WoW addons in the last years I decided to give something back t
 
 ## Common issues
 
-#### error message: `Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint`
+#### Error message: `Font not set`
+**Solution:** Make sure both the `Font->Font Face`, as well as the `Bars->Font Face` are properly set to a valid font.
+
+#### Error message: `Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint`
 **Solution:** Delete file `World of Warcraft\__<Edition>__\WTF\<Account>\<Server>\<Character>\layout-local.txt`
