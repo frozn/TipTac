@@ -95,3 +95,8 @@ Donations are welcome to appreciate my work to keep this addon alive, but isn't 
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
 
 After using many WoW addons in the last years I decided to give something back to the mod/addon community and continued the one or other not longer supported/maintained projects (see [here](https://www.curseforge.com/members/frozn45/projects)) including TipTac.
+
+## Common issues
+
+#### error message: `Action[SetPoint] failed because[SetPoint would result in anchor family connection]: attempted from: GameTooltip:SetPoint`
+**Solution:** Delete file `World of Warcraft\__<Edition>__\WTF\<Account>\<Server>\<Character>\layout-local.txt`
