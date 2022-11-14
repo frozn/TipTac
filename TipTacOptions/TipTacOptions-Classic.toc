@@ -1,10 +1,11 @@
 ## Interface: 11403
-## Version: 22.11.04
+## Version: 22.11.14
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU), Frozn45
 ## Notes: Option Dialog for TipTac
 ## Dependencies: TipTac
 ## LoadOnDemand: 1
 embeds.xml
+
 ttLayouts.lua
 ttOptions.lua
