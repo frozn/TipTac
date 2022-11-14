@@ -184,6 +184,28 @@ local COLOR_INCOMPLETE = { 0.5, 0.5, 0.5 };
 local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
 
 --------------------------------------------------------------------------------------------------------
+--                                          Helper Functions                                          --
+--------------------------------------------------------------------------------------------------------
+
+-- Get displayed item
+function ttif:GetDisplayedItem(tooltip)
+	if (tooltip.GetItem) then
+		return tooltip:GetItem();
+	else
+		return TooltipUtil.GetDisplayedItem(tooltip);
+	end
+end
+
+-- Get displayed spell
+function ttif:GetDisplayedSpell(tooltip)
+	if (tooltip.GetSpell) then
+		return tooltip:GetSpell();
+	else
+		return TooltipUtil.GetDisplayedSpell(tooltip);
+	end
+end
+
+--------------------------------------------------------------------------------------------------------
 --                                         Create Tooltip Icon                                        --
 --------------------------------------------------------------------------------------------------------
 
@@ -339,7 +361,7 @@ end
 --                                       HOOK: Tooltip Functions                                      --
 --------------------------------------------------------------------------------------------------------
 
--- apply workaround for the following "bug": on first mouseover over toy or unit aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID(), SetAction(), SetUnitAura() or SetAzeriteEssence() (only approx. 0.2-1 second later), but on the next OnUpdate the GetItem() is set again.
+-- apply workaround for the following "bug": on first mouseover over toy or unit aura after starting the game the gtt will be cleared (OnTooltipCleared) and internally set again. There ist no immediately following SetToyByItemID(), SetAction(), SetUnitAura() or SetAzeriteEssence() (only approx. 0.2-1 second later), but on the next OnUpdate the GetItem() aka TooltipUtil.GetDisplayedItem() is set again.
 -- ttWorkaroundForFirstMouseoverStatus:
 -- nil = no hooks applied (uninitialized)
 -- 0   = hooks applied (initialized)
@@ -567,7 +589,7 @@ local function SetAction_Hook(self, slot)
 				CustomTypeFuncs.petAction(self, nil, "petAction", nil, icon);
 			end
 		elseif (actionType == "item") then
-			local _, link = self:GetItem();
+			local name, link = ttif:GetDisplayedItem(self);
 			if (link) then
 				local linkType, itemID = link:match("H?(%a+):(%d+)");
 				if (itemID) then
@@ -780,15 +802,15 @@ end
 -- HOOK: GameTooltip:SetToyByItemID
 local function SetToyByItemID_Hook(self, itemID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local _, link = self:GetItem();
+		local name, link = ttif:GetDisplayedItem(self);
 		if (link) then
-			local linkType, itemID = link:match("H?(%a+):(%d+)");
-			if (itemID) then
+			local linkType, _itemID = link:match("H?(%a+):(%d+)");
+			if (_itemID) then
 				tipDataAdded[self] = linkType;
-				LinkTypeFuncs.item(self, link, linkType, itemID);
+				LinkTypeFuncs.item(self, link, linkType, _itemID);
 				
 				-- apply workaround for first mouseover
-				ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
+				ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, _itemID);
 			end
 		end
 	end
@@ -1006,16 +1028,16 @@ end
 -- OnTooltipSetItem
 local function OnTooltipSetItem(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local _, link = self:GetItem();
+		local name, link = ttif:GetDisplayedItem(self);
 		if (link) then
-			local linkType, id = link:match("H?(%a+):(%d+)");
-			if (id) then
+			local linkType, itemID = link:match("H?(%a+):(%d+)");
+			if (itemID) then
 				tipDataAdded[self] = linkType;
 				if (linkType == "keystone") then
 					local refString = link:match("|H([^|]+)|h") or link;
 					LinkTypeFuncs.keystone(self, link, (":"):split(refString));
 				else
-					LinkTypeFuncs.item(self, link, linkType, id);
+					LinkTypeFuncs.item(self, link, linkType, itemID);
 				end
 			end
 		end
@@ -1025,7 +1047,7 @@ end
 -- OnTooltipSetSpell
 local function OnTooltipSetSpell(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local _, id = self:GetSpell();	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
+		local name, id = ttif:GetDisplayedSpell(self);	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
 		if (id) then
 			local link = GetSpellLink(id);
 			if (link) then

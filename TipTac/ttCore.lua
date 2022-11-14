@@ -343,6 +343,19 @@ function tt:CreatePushArray(optTable)
 end
 
 --------------------------------------------------------------------------------------------------------
+--                                          Helper Functions                                          --
+--------------------------------------------------------------------------------------------------------
+
+-- Get displayed unit
+function tt:GetDisplayedUnit(tooltip)
+	if (tooltip.GetUnit) then
+		return tooltip:GetUnit();
+	else
+		return TooltipUtil.GetDisplayedUnit(tooltip);
+	end
+end
+
+--------------------------------------------------------------------------------------------------------
 --                                         Elements Framework                                         --
 --------------------------------------------------------------------------------------------------------
 
@@ -1301,7 +1314,7 @@ end
 	This is apparently the order in which the GTT construsts unit tips
 	------------------------------------------------------------------
 	- GameTooltip_SetDefaultAnchor()    -- called e.g. for units and mailboxes. won't initially be called for buffs or vendor signs.
-	- GTT.OnTooltipSetUnit()			-- GetUnit() becomes valid here
+	- GTT.OnTooltipSetUnit()			-- GetUnit() aka TooltipUtil.GetDisplayedUnit() becomes valid here
 	- GTT:Show()						-- Will Resize the tip
 	- GTT.OnShow()						-- Event triggered in response to the Show() function. won't be called if tooltip of world unit isn't faded yet and moving mouse over it again or someone else.
 	- GTT.OnTooltipCleared()			-- Tooltip has been cleared and is ready to show new information, doesn't mean it's hidden
@@ -1330,7 +1343,7 @@ function gttScriptHooks:OnShow()
 
 	-- Ensures that default anchored world frame tips have the proper color, their internal function seems to set them to a dark blue color
 	-- Tooltips from world objects that change cursor seems to also require this. (Tested in 8.0/BfA)
-	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
+	-- if (self:IsOwned(UIParent)) and (not tt:GetDisplayedUnit(self)) then
 		-- tt:SetBackdropColorLocked(self, false, unpack(cfg.tipColor));
 	-- end
 end
@@ -1348,7 +1361,7 @@ function gttScriptHooks:OnUpdate(elapsed)
 	tt:ReApplyAnchorTypeForMouse(self, true, true);
 	
 	-- WoD: This background color reset, from OnShow(), has been copied down here. It seems resetting the color in OnShow() wasn't enough, as the color changes after the tip is being shown
-	-- if (self:IsOwned(UIParent)) and (not self:GetUnit()) then
+	-- if (self:IsOwned(UIParent)) and (not tt:GetDisplayedUnit(self)) then
 		-- tt:SetBackdropColorLocked(self, false, unpack(cfg.tipColor));
 	-- end
 
@@ -1391,9 +1404,9 @@ function gttScriptHooks:OnTooltipSetUnit()
 	
 	self.ttUnit = {};
 	
-	local _, unit = self:GetUnit();
+	local _, unit = tt:GetDisplayedUnit(self);
 
-	-- Concated unit tokens such as "targettarget" cannot be returned as the unit by GTT:GetUnit(),
+	-- Concated unit tokens such as "targettarget" cannot be returned as the unit by GTT:GetUnit() aka TooltipUtil.GetDisplayedUnit(GTT),
 	-- and it will return as "mouseover", but the "mouseover" unit is still invalid at this point for those unitframes!
 	-- To overcome this problem, we look if the mouse is over a unitframe, and if that unitframe has a unit attribute set?
 	if (not unit) then
