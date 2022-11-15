@@ -8,7 +8,7 @@
 [![CurseForge all releases](https://cf.way2muchnoise.eu/short_695153_downloads.svg)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)  
 [![Install](https://img.shields.io/badge/install-github-24292f)](https://github.com/frozn/TipTac/releases)
 &nbsp; 
-[![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total)](https://github.com/frozn/TipTac/releases)
+[![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total?label=github%20downloads&color=24292f)](https://github.com/frozn/TipTac/releases)
 
 # TipTac Reborn
 WoW AddOn TipTac Reborn [DF] [WotLKC] [Classic Era]
