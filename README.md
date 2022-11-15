@@ -18,7 +18,7 @@ TipTac Reborn is a tooltip enchancement addon, it allows you to configure variou
 It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac-reborn).
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
-* added fixes for wow patch ...
+* added fixes for WoW patch ...
   * 10.0.2 - Dragonflight [DF]
   * 3.4.0 - Wrath of the Lich King Classic [WotLKC]
   * 1.14.3 - Classic Era / Vanilla [Classic Era]
@@ -93,7 +93,7 @@ Classic Era: `\World of Warcraft\_classic_era_\Interface\AddOns`
 ## Buy me a coffee
 Donations are welcome to appreciate my work to keep this addon alive, but isn't required at all. If you would like to donate (as requested to me), you can do so down below:
 
-[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W)
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 After using many WoW addons in the last years I decided to give something back to the mod/addon community and continued the one or other not longer supported/maintained projects (see [here](https://www.curseforge.com/members/frozn45/projects)) including TipTac.
 
