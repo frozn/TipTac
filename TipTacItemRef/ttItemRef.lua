@@ -536,10 +536,32 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 	end
 end
 
--- HOOK: SetUnitAura
+-- HOOK: SetUnitAura + SetUnitBuff + SetUnitDebuff
 local function SetUnitAura_Hook(self, unit, index, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod =  UnitAura(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
+		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = UnitAura(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
+		if (spellID) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (_spellID) then
+					tipDataAdded[self] = linkType;
+					LinkTypeFuncs.spell(self, true, source, link, linkType, _spellID);
+
+					-- apply workaround for first mouseover
+					ttif:ApplyWorkaroundForFirstMouseover(self, true, source, link, linkType, _spellID);
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: SetUnitBuffByAuraInstanceID + SetUnitDebuffByAuraInstanceID
+local function SetUnitBuffByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, auraInstanceID);
+		local spellID = aura.spellId;
+		local source = aura.sourceUnit;
 		if (spellID) then
 			local link = GetSpellLink(spellID);
 			if (link) then
@@ -1597,6 +1619,10 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
 					hooksecurefunc(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
 					hooksecurefunc(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
+				end
+				if (isWoWRetail) then
+					hooksecurefunc(tip, "SetUnitBuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
+					hooksecurefunc(tip, "SetUnitDebuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
 				end
 				if (TooltipDataProcessor) then -- since df 10.0.2
 					TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
