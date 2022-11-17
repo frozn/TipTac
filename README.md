@@ -59,6 +59,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
+- added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
+- added option "Combat->Hide Tips" and "Combat->Hide Tips In Combat" to hide frame and/or world unit tips or all tips in or out of combat
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
