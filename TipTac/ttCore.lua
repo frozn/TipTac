@@ -176,8 +176,8 @@ local TT_DefaultConfig = {
 	mouseOffsetX = 0,
 	mouseOffsetY = 0,
 
-	hideUFTipsInCombat = false,
-	hideAllTipsInCombat = false,
+	hideTips = "none",
+	hideTipsInCombat = "none",
 	showHiddenTipsOnShift = false,
 };
 
@@ -1328,8 +1328,46 @@ local gttScriptHooks = {};
 local FADE_ENABLE = 1;
 local FADE_BLOCK = 2;
 
+-- Function to hide tooltip
+local function isHideTip(tooltip, calledFromEvent)
+	-- Hides the tip (in combat) if one of those options are set. Also checks if the Shift key is pressed, and cancels hiding of the tip (if that option is set, that is)
+	if (not cfg.showHiddenTipsOnShift) or (not IsShiftKeyDown()) then
+		local isInCombat = UnitAffectingCombat("player");
+		
+		if (cfg.hideTips == "all") or (cfg.hideTipsInCombat == "all") and (isInCombat) then
+			return true;
+		end
+		if (isInCombat) then
+			if (cfg.hideTipsInCombat == "all") then
+				return true;
+			end
+		end
+		
+		if (calledFromEvent == "OnTooltipSetUnit") then
+			local isUIParentOwner = (tooltip:GetOwner() == UIParent);
+			
+			if (cfg.hideTips == "fwu") or (cfg.hideTips == "fu") and (not isUIParentOwner) or (cfg.hideTips == "wu") and (isUIParentOwner) then
+				return true
+			end
+			
+			if (isInCombat) then
+				if (cfg.hideTipsInCombat == "fwu") or (cfg.hideTipsInCombat == "fu") and (not isUIParentOwner) or (cfg.hideTipsInCombat == "wu") and (isUIParentOwner) then
+					return true;
+				end
+			end
+		end
+	end
+	
+	return false;
+end
+
 -- EventHook: OnShow
 function gttScriptHooks:OnShow()
+	-- Check if tooltip has to be set hidden
+	if (isHideTip(self, "OnShow")) then
+		self:Hide();
+	end
+	
 	-- reapply padding needed here since df
 	tt:SetPadding(self, "OnShow");
 
@@ -1397,10 +1435,9 @@ end
 
 -- EventHook: OnTooltipSetUnit
 function gttScriptHooks:OnTooltipSetUnit()
-	-- Hides the tip in combat if one of those options are set. Also checks if the Shift key is pressed, and cancels hiding of the tip (if that option is set, that is)
-	if (cfg.hideAllTipsInCombat or cfg.hideUFTipsInCombat and self:GetOwner() ~= UIParent) and (not cfg.showHiddenTipsOnShift or not IsShiftKeyDown()) and (UnitAffectingCombat("player")) then
+	-- Check if tooltip has to be set hidden
+	if (isHideTip(self, "OnTooltipSetUnit")) then
 		self:Hide();
-		return;
 	end
 	
 	self.ttUnit = {};
@@ -1538,6 +1575,7 @@ end
 local function GTT_SetUnit(self)
 	-- "ttDisplayingUnit" will flag the tooltip that it is currently showing a unit
 	self.ttDisplayingUnit = true;
+	self.ttDisplayingAura = false;
 	
 	SetDefaultAnchor(self, self:GetOwner(), true);
 end
@@ -1546,6 +1584,7 @@ end
 local function GTT_SetUnitAura(self)
 	-- "ttDisplayingAura" will flag the tooltip that it is currently showing an aura
 	self.ttDisplayingAura = true;
+	self.ttDisplayingUnit = false;
 
 	tt:ReApplyAnchorTypeForMouse(self);
 end

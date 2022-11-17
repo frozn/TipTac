@@ -243,10 +243,9 @@ local options = {
 	-- Combat
 	{
 		[0] = "Combat",
-		{ type = "Check", var = "hideAllTipsInCombat", label = "Hide All Unit Tips in Combat", tip = "In combat, this option will prevent any unit tips from showing" },
-		{ type = "Check", var = "hideUFTipsInCombat", label = "Hide Unit Tips for Unit Frames in Combat", tip = "When you are in combat, this option will prevent tips from showing when you have the mouse over a unit frame" },
+		{ type = "DropDown", var = "hideTips", label = "Hide Tips", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["All Tips"] = "all", ["No Tips"] = "none" } },
+		{ type = "DropDown", var = "hideTipsInCombat", label = "Hide Tips in Combat", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["All Tips"] = "all", ["No Tips"] = "none" } },
 		{ type = "Check", var = "showHiddenTipsOnShift", label = "Still Show Hidden Tips when Holding Shift", tip = "When you have this option checked, and one of the above options, you can still force the tip to show, by holding down shift", y = 8 },
---		{ type = "DropDown", var = "hideCombatTip", label = "Hide Tips in Combat For", list = { ["Unit Frames"] = "uf", ["All Tips"] = "all", ["No Tips"] = "none" } },
 	},
 	-- Layouts
 	{
