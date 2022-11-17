@@ -189,10 +189,19 @@ local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
 
 -- Get displayed item
 function ttif:GetDisplayedItem(tooltip)
-	if (tooltip.GetItem) then
-		return tooltip:GetItem();
+	if (TooltipUtil) then
+		if (tooltip:IsTooltipType(Enum.TooltipDataType.Toy)) then -- see TooltipUtil.GetDisplayedItem() in "TooltipUtil.lua"
+			local tooltipData = tooltip:GetTooltipData();
+			local hyperlink = C_ToyBox.GetToyLink(tooltipData.id);
+			if (hyperlink) then
+				local name = GetItemInfo(hyperlink);
+				return name, hyperlink, tooltipData.id;
+			end
+		else
+			return TooltipUtil.GetDisplayedItem(tooltip);
+		end
 	else
-		return TooltipUtil.GetDisplayedItem(tooltip);
+		return tooltip:GetItem();
 	end
 end
 
@@ -373,14 +382,14 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 	
 	-- functions
 	local resetVarsFn = function(tooltip)
-		tooltip.ttWorkaroundForFirstMouseoverStatus = 0; -- initialized
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 0; -- 0 = initialized
 		tooltip.ttWorkaroundForFirstMouseoverID = nil;
 		tooltip.ttWorkaroundForFirstMouseoverRank = nil;
 		tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
 	end
 	
 	local initVarsFn = function(tooltip, id, rank, owner)
-		tooltip.ttWorkaroundForFirstMouseoverStatus = 1; -- armed, 1st stage
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 1; -- 1 = armed, 1st stage
 		tooltip.ttWorkaroundForFirstMouseoverID = id;
 		tooltip.ttWorkaroundForFirstMouseoverRank = rank;
 		tooltip.ttWorkaroundForFirstMouseoverOwner = owner;
@@ -400,19 +409,19 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 	-- apply hooks
 	if (not tooltip.ttWorkaroundForFirstMouseoverStatus) then -- nil = uninitialized
 		AceHook:SecureHookScript(tooltip, "OnTooltipCleared", function(tooltip)
-			if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then -- armed, 1st stage
+			if (tooltip.ttWorkaroundForFirstMouseoverStatus == 1) then -- 1 = armed, 1st stage
 				if (tooltip:GetOwner() ~= tooltip.ttWorkaroundForFirstMouseoverOwner) then
 					resetVarsFn(tooltip); -- 0 = initialized
 					return;
 				end
-				tooltip.ttWorkaroundForFirstMouseoverStatus = 2; -- armed, 2nd stage
+				tooltip.ttWorkaroundForFirstMouseoverStatus = 2; -- 2 = armed, 2nd stage
 			end
 		end);
 		
 		AceHook:SecureHookScript(tooltip, "OnUpdate", function(tooltip)
-			if (tooltip.ttWorkaroundForFirstMouseoverStatus == 2) then -- armed, 2nd stage
+			if (tooltip.ttWorkaroundForFirstMouseoverStatus == 2) then -- 2 = armed, 2nd stage
 				reapplyTooltipModificationFn(tooltip);
-				tooltip.ttWorkaroundForFirstMouseoverStatus = 3; -- triggered
+				tooltip.ttWorkaroundForFirstMouseoverStatus = 3; -- 3 = triggered
 			end
 		end);
 		
@@ -423,10 +432,12 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 		resetVarsFn(tooltip); -- 0 = initialized
 	end
 	
+	local owner = tooltip:GetOwner();
+	
 	if (tooltip.ttWorkaroundForFirstMouseoverStatus == 0) or (tooltip.ttWorkaroundForFirstMouseoverID ~= id) or (owner ~= tooltip.ttWorkaroundForFirstMouseoverOwner) then
-		initVarsFn(tooltip, id, rank, tooltip:GetOwner()); -- 1 = armed, 1st stage
+		initVarsFn(tooltip, id, rank, owner); -- 1 = armed, 1st stage
 	else
-		tooltip.ttWorkaroundForFirstMouseoverStatus = 3; -- triggered
+		tooltip.ttWorkaroundForFirstMouseoverStatus = 3; -- 3 = triggered
 	end
 end
 
