@@ -58,7 +58,6 @@ local options = {};
 local ttOptionsGeneral = {
 	{ type = "Check", var = "showUnitTip", label = "Enable TipTac Unit Tip Appearance", tip = "Will change the appearance of how unit tips look. Many options in TipTac only work with this setting enabled.\nNOTE: Using this options with a non English client may cause issues!" },
 	{ type = "Check", var = "showStatus", label = "Show DC, AFK and DND Status", tip = "Will show the <DC>, <AFK> and <DND> status after the player name", y = 8 },
-	{ type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title" },
 	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options '"..(isWoWRetail and "Game->Gameplay->Interface->Nameplates" or "Interface->Names").."') are evaluated instead." },
 	{ type = "Check", var = "showPlayerGender", label = "Show Player Gender", tip = "This will show the gender of the player. E.g. \"85 Female Blood Elf Paladin\"." },
 	{ type = "Check", var = "showCurrentUnitSpeed", label = "Show Current Unit Speed", tip = "This will show the current speed of the unit after race & class." }
@@ -72,6 +71,8 @@ ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType",
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["Do not show realm"] = "none", ["Show realm"] = "show", ["Show (*) instead"] = "asterisk" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["Do not show target"] = "none", ["First line"] = "first", ["Second line"] = "second", ["Last line"] = "last" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 16 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level", y = 16 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" }, y = 8 };
 
 local options = {
 	-- General

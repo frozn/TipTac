@@ -48,6 +48,7 @@ local TT_DefaultConfig = {
 	showUnitTip = true,
 	showStatus = true,
 	showGuildRank = false,
+	guildRankFormat = "both",
 	showTargetedBy = true,
 	showPlayerGender = false,
 	nameType = "title",
