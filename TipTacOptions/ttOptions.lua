@@ -230,7 +230,21 @@ local options = {
 		{ type = "DropDown", var = "anchorFrameTipPoint", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS },
 
 		{ type = "Header", label = "Anchor Overrides", tip = "Enable/Disable special anchor overrides", y = 12 },
-		{ type = "Check", var = "enableAnchorOverrideCF", label = "(Guild & Community) ChatFrame", tip = "This option will override the anchor for (Guild & Community) ChatFrame" },
+
+		{ type = "Check", var = "enableAnchorOverrideWorldUnitInCombat", label = "World Unit in combat", tip = "This option will override the anchor for World Unit in combat" },
+		{ type = "DropDown", var = "anchorWorldUnitTypeInCombat", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE },
+		{ type = "DropDown", var = "anchorWorldUnitPointInCombat", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
+		{ type = "Check", var = "enableAnchorOverrideWorldTipInCombat", label = "World Tip in combat", tip = "This option will override the anchor for World Tip in combat", y = 12 },
+		{ type = "DropDown", var = "anchorWorldTipTypeInCombat", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE },
+		{ type = "DropDown", var = "anchorWorldTipPointInCombat", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
+		{ type = "Check", var = "enableAnchorOverrideFrameUnitInCombat", label = "Frame Unit in combat", tip = "This option will override the anchor for Frame Unit in combat", y = 12 },
+		{ type = "DropDown", var = "anchorFrameUnitTypeInCombat", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE },
+		{ type = "DropDown", var = "anchorFrameUnitPointInCombat", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS },
+		{ type = "Check", var = "enableAnchorOverrideFrameTipInCombat", label = "Frame Tip in combat", tip = "This option will override the anchor for Frame Tip in combat", y = 12 },
+		{ type = "DropDown", var = "anchorFrameTipTypeInCombat", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE },
+		{ type = "DropDown", var = "anchorFrameTipPointInCombat", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS },
+
+		{ type = "Check", var = "enableAnchorOverrideCF", label = "(Guild & Community) ChatFrame", tip = "This option will override the anchor for (Guild & Community) ChatFrame", y = 12 },
 		{ type = "DropDown", var = "anchorOverrideCFType", label = "Tip Type", list = DROPDOWN_ANCHORTYPE },
 		{ type = "DropDown", var = "anchorOverrideCFPoint", label = "Tip Point", list = DROPDOWN_ANCHORPOS },
 	},
@@ -397,9 +411,10 @@ f.header:SetFont(GameFontNormal:GetFont(),22,"THICKOUTLINE");
 f.header:SetPoint("TOPLEFT",f.outline,"TOPRIGHT",10,-4);
 f.header:SetText(modName.." Options");
 
-f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormal");
-f.vers:SetPoint("TOPRIGHT",-20,-20);
-f.vers:SetText(GetAddOnMetadata(modName,"Version"));
+f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+f.vers:SetPoint("TOPRIGHT",-20,-15);
+local version, build = GetBuildInfo();
+f.vers:SetText("TipTac: " .. GetAddOnMetadata(modName, "Version") .. "\nWoW: " .. version .. " Build " .. build);
 f.vers:SetTextColor(1,1,0.5);
 
 f.btnAnchor = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
