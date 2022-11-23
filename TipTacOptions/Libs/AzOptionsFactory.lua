@@ -17,7 +17,7 @@
 	- added a header element
 	22.10.30 Rev 16 10.0.0/Dragonflight #frozn45
 	- replaced inheritsFrame "OptionsSliderTemplate" with "UISliderTemplateWithLabels" for slider
-	xx.xx.xx Rev 17 10.0.2/Dragonflight #frozn45
+	22.11.20 Rev 17 10.0.2/Dragonflight #frozn45
 	- left align text of check button and dropdown
 --]]
 

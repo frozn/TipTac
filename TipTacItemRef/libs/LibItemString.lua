@@ -28,7 +28,7 @@
 	## REV-02 (18.08.04) - 8.0/BfA ##
 	- Added LIS:GetFieldName() to get the field name from index
 	- Accessing the IS table using a negative index now works
-	## REV-03 (xx.xx.xx) - 10.0.2/DF ## #frozn45
+	## REV-03 (22.11.20) - 10.0.2/DF ## #frozn45
 	- Replaced hidden scanning tooltip with new C_TooltipInfo function for df
 --]]----------------------------------------------------
 
