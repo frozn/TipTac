@@ -413,9 +413,9 @@ f.header:SetPoint("TOPLEFT",f.outline,"TOPRIGHT",10,-4);
 f.header:SetText(modName.." Options");
 
 f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-f.vers:SetPoint("TOPRIGHT",-20,-15);
+f.vers:SetPoint("TOPRIGHT",-15,-15);
 local version, build = GetBuildInfo();
-f.vers:SetText("TipTac: " .. GetAddOnMetadata(modName, "Version") .. "\nWoW: " .. version .. " Build " .. build);
+f.vers:SetText("TipTac: " .. GetAddOnMetadata(modName, "Version") .. "\nWoW: " .. version);
 f.vers:SetTextColor(1,1,0.5);
 
 f.btnAnchor = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
