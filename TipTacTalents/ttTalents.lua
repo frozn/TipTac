@@ -163,7 +163,8 @@ function ttt:QueryAverageItemLevel(record)
 				local effectiveILvl = GetDetailedItemLevelInfo(itemLink);
 				local itemName, _itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemLink);
 				
-				if (itemRarity == 7) or (itemRarity == 8) then -- map Heirloom and WoWToken to Rare
+				 -- map Heirloom and WoWToken to Rare
+				if (itemRarity == 7) or (itemRarity == 8) then
 					itemRarity = 3;
 				end
 				
@@ -178,13 +179,30 @@ function ttt:QueryAverageItemLevel(record)
 						totalScore = totalScore + effectiveILvl;
 					end
 					
-					if (i ~= INVSLOT_TABARD) then -- ignore tabard for total item rarity
+					-- ignore tabard for total item rarity
+					if (i ~= INVSLOT_TABARD) then
 						totalItemsForRarity = totalItemsForRarity + 1;
 						totalItemRarity = totalItemRarity + (itemRarity or 0);
 					end
 				end
 			end
 		end
+	end
+	
+	-- Rescan if there aren't many items
+	if (totalItems < 7) and (not record.rescan) then
+		-- Make sure the mouseover unit is still our unit
+		-- Check IsInspectFrameOpen() again: Since if the user right-clicks a unit frame, and clicks inspect,
+		-- it could cause TTT to schedule an inspect, while the inspection window is open
+		if (UnitGUID("mouseover") == record.guid) and (not IsInspectFrameOpen()) then
+			record.rescan = true;
+			
+			lastInspectRequest = GetTime();
+			self:RegisterEvent("INSPECT_READY");
+			NotifyInspect(record.unit);
+		end
+		
+		return;
 	end
 	
 	if (totalItems > 0) then
@@ -433,15 +451,15 @@ end
 
 -- Inspect Ready -- Inspect data ready
 function ttt:INSPECT_READY(event, guid)
+	-- Cleanup
+	self:UnregisterEvent(event);
+	
 	if (guid == record.guid) then
 		local _, unit = ttt:GetDisplayedUnit(gtt); -- Perform the tasks needed, but only if tooltip is still showing the unit of our record.
 		if (unit) and (UnitGUID(unit) == record.guid) then
 			ttt:InspectDataAvailable(record);
 		end
 	end
-	
-	-- Cleanup
-	self:UnregisterEvent(event);
 end
 
 ttt:SetScript("OnEvent",function(self,event,...) self[event](self,event,...); end);
