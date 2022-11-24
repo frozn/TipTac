@@ -106,6 +106,9 @@ function ttt:QuerySpecialization(record)
 	else -- classic
 		-- Inspect functions will always use the active spec when not inspecting
 		local isInspect = (not record.isSelf);
+		if (isInspect) and (isWoWClassic) then
+			return;
+		end
 		local activeTalentGroup = ((type(GetActiveTalentGroup) == "function") and GetActiveTalentGroup(isInspect));
 		-- Get points per tree, and set "maxTree" to the tree with most points
 		local numTalentTabs = GetNumTalentTabs(isInspect);
@@ -190,7 +193,9 @@ function ttt:QueryAverageItemLevel(record)
 	end
 	
 	-- Rescan if there aren't many items
-	if (totalItems < 7) and (not record.rescan) then
+	local isInspect = (not record.isSelf);
+	
+	if (isInspect) and (totalItems < 7) and (not record.rescan) then
 		-- Make sure the mouseover unit is still our unit
 		-- Check IsInspectFrameOpen() again: Since if the user right-clicks a unit frame, and clicks inspect,
 		-- it could cause TTT to schedule an inspect, while the inspection window is open
@@ -315,7 +320,7 @@ function ttt:InitiateInspectRequest(unit,record)
 		self:Show();
 
 		if (not record.format) then
-			if (record.level >= 10 or record.level == -1) then -- Only need to display talents for players who has gotten a specialization
+			if (not isWoWClassic) and (record.level >= 10 or record.level == -1) then -- Only need to display talents for players who has gotten a specialization
 				record.format = TALENTS_LOADING;
 			end
 		end
