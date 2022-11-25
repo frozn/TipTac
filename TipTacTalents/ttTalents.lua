@@ -175,15 +175,16 @@ function ttt:QueryAverageItemLevel(record)
 					totalItems = totalItems + 1;
 					
 					if (i == INVSLOT_MAINHAND) and (not items[INVSLOT_OFFHAND]) then
-						if (itemEquipLoc == "INVTYPE_2HWEAPON") or (itemEquipLoc == "INVTYPE_RANGED") then
-							totalScore = totalScore + effectiveILvl;
+						if (itemEquipLoc == "INVTYPE_2HWEAPON") or (itemEquipLoc == "INVTYPE_RANGED") or (itemEquipLoc == "INVTYPE_RANGEDRIGHT") then
+							totalItems = totalItems + 1;
+							totalScore = totalScore + effectiveILvl * 2;
 						end
 					else
 						totalScore = totalScore + effectiveILvl;
 					end
 					
-					-- ignore tabard for total item rarity
-					if (i ~= INVSLOT_TABARD) then
+					-- ignore shirt and tabard for total item rarity
+					if (i ~= INVSLOT_BODY) and (i ~= INVSLOT_TABARD) then
 						totalItemsForRarity = totalItemsForRarity + 1;
 						totalItemRarity = totalItemRarity + (itemRarity or 0);
 					end
