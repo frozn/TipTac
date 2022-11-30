@@ -221,13 +221,9 @@ function ttt:UpdateTooltip(record)
 		if (record.specName) then
 			talentsText = record.specName;
 			
-			if (cfg.t_colorTalentsByClass) then
-				local applyColor = (record.specName ~= TALENTS_LOADING) and (record.specName ~= TALENTS_NONE) and (record.specName ~= TALENTS_NA);
-				
-				if (applyColor) then
-					local classColor = LibFroznFunctions:GetClassColor(record.classFile, "PRIEST");
-					talentsText = classColor:WrapTextInColorCode(talentsText);
-				end
+			if (cfg.t_colorTalentsByClass) and (record.specName ~= TALENTS_LOADING) and (record.specName ~= TALENTS_NONE) and (record.specName ~= TALENTS_NA) then
+				local classColor = LibFroznFunctions:GetClassColor(record.classFile, "PRIEST");
+				talentsText = classColor:WrapTextInColorCode(talentsText);
 			end
 			if (record.pointsSpent) then
 				talentsText = talentsText .. format(" |cffffff99(%s)|r", record.pointsSpent);
