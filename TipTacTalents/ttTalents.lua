@@ -1,20 +1,5 @@
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0", true);
 local gtt = GameTooltip;
-
--- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
-if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
-	isWoWClassic = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	isWoWBcc = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
-	isWoWWotlkc = true;
-else -- retail
-	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
-		isWoWSl = true;
-	else
-		isWoWRetail = true;
-	end
-end
 
 -- Addon
 local modName = ...;
@@ -22,7 +7,7 @@ local ttt = CreateFrame("Frame",modName,nil,BackdropTemplateMixin and "BackdropT
 ttt:Hide();
 
 -- String Constants
-local TALENTS_PREFIX = (((isWoWSl or isWoWRetail) and SPECIALIZATION) or TALENTS)..":|cffffffff "; -- MoP: Could be changed from TALENTS to SPECIALIZATION
+local TALENTS_PREFIX = (((LibFroznFunctions.isWoWFlavor.SL or LibFroznFunctions.isWoWFlavor.DF) and SPECIALIZATION) or TALENTS)..":|cffffffff "; -- MoP: Could be changed from TALENTS to SPECIALIZATION
 local TALENTS_NA = NOT_APPLICABLE:lower();
 local TALENTS_NONE = NONE_KEY; -- NO.." "..TALENTS
 local TALENTS_LOADING = SEARCH_LOADING_TEXT;
@@ -37,6 +22,7 @@ local TTT_DefaultConfig = {
 	t_showTalents = true,          -- Show talents
 	t_showAverageItemLevel = true, -- Show average item level (AIL)
 	t_talentOnlyInParty = false,   -- Only show talents/AIL for party/raid members
+	t_colorTalentsByClass = true,  -- Color talents by class color
 	t_talentFormat = 1,            -- Talent Format
 	t_talentCacheSize = 25,        -- Change cache size here (Default 25)
 
@@ -89,52 +75,60 @@ function ttt:QuerySpecialization(record)
 	if (record.level < 10 and record.level ~= -1) then -- No need to display talents for players who has not yet gotten a specialization
 		return;
 	end
-	if (isWoWSl) or (isWoWRetail) then -- retail
+	if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then -- retail
 		local spec = (not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization();
 		if (not spec or spec == 0) then
-			record.format = TALENTS_NONE;
+			record.specName = TALENTS_NONE;
+			record.pointsSpent = nil;
 		elseif (not record.isSelf) then
 			local _, specName = GetSpecializationInfoByID(spec);
 			--local _, specName = GetSpecializationInfoForClassID(spec,record.classID);
-			record.format = specName ~= "" and specName or TALENTS_NA;
+			record.specName = specName ~= "" and specName or TALENTS_NA;
+			record.pointsSpent = nil;
 		else
 			-- MoP Note: Is it no longer possible to query the different talent spec groups anymore?
 --			local group = GetActiveSpecGroup(isInspect) or 1;	-- Az: replaced with GetActiveSpecGroup(), but that does not support inspect?
 			local _, specName = GetSpecializationInfo(spec);
-			record.format = specName ~= "" and specName or TALENTS_NA;
+			record.specName = specName ~= "" and specName or TALENTS_NA;
+			record.pointsSpent = nil;
 		end
 	else -- classic
 		-- Inspect functions will always use the active spec when not inspecting
 		local isInspect = (not record.isSelf);
-		if (isInspect) and (isWoWClassic) then
+		if (isInspect) and (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- getting talents from other players isn't available in classic era
 			return;
 		end
 		local activeTalentGroup = ((type(GetActiveTalentGroup) == "function") and GetActiveTalentGroup(isInspect));
 		-- Get points per tree, and set "maxTree" to the tree with most points
 		local numTalentTabs = GetNumTalentTabs(isInspect);
 		if (not numTalentTabs) then
-			record.format = TALENTS_NONE;
-			return;
-		end
-		record.tree = {};
-		local maxTree = 1;
-		for tabIndex = 1, numTalentTabs do
-			_, _, record.tree[tabIndex] = GetTalentTabInfo(tabIndex, isInspect, nil, activeTalentGroup);
-			if (record.tree[tabIndex] > record.tree[maxTree]) then
-				maxTree = tabIndex;
+			record.specName = TALENTS_NONE;
+			record.pointsSpent = nil;
+		else
+			record.tree = {};
+			local maxTree = 1;
+			for tabIndex = 1, numTalentTabs do
+				_, _, record.tree[tabIndex] = GetTalentTabInfo(tabIndex, isInspect, nil, activeTalentGroup);
+				if (record.tree[tabIndex] > record.tree[maxTree]) then
+					maxTree = tabIndex;
+				end
 			end
-		end
-		record.maxTree = GetTalentTabInfo(maxTree, isInspect, nil, activeTalentGroup);
-		-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
-		local talentFormat = (cfg.t_talentFormat or 1);
-		if (record[maxTree] == 0) then
-			record.format = TALENTS_NONE;
-		elseif (talentFormat == 1) then
-			record.format = record.maxTree.." ("..table.concat(record.tree, "/")..")";
-		elseif (talentFormat == 2) then
-			record.format = record.maxTree;
-		elseif (talentFormat == 3) then
-			record.format = table.concat(record.tree, "/");
+			record.maxTree = GetTalentTabInfo(maxTree, isInspect, nil, activeTalentGroup);
+			-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
+			local talentFormat = (cfg.t_talentFormat or 1);
+			if (record[maxTree] == 0) then
+				record.specName = TALENTS_NONE;
+				record.pointsSpent = nil;
+			elseif (talentFormat == 1) then
+				record.specName = record.maxTree;
+				record.pointsSpent = table.concat(record.tree, "/");
+			elseif (talentFormat == 2) then
+				record.specName = record.maxTree;	
+				record.pointsSpent = nil;
+			elseif (talentFormat == 3) then
+				record.specName = nil;
+				record.pointsSpent = table.concat(record.tree, "/");
+			end
 		end
 	end
 end
@@ -221,18 +215,42 @@ end
 
 -- Update tooltip with the record format, but only if tooltip is still showing the unit of our record
 function ttt:UpdateTooltip(record)
-	if (self.tipLineIndexTalents) then
-		_G["GameTooltipTextLeft"..self.tipLineIndexTalents]:SetFormattedText("%s%s", TALENTS_PREFIX, record.format);
-	elseif (cfg.t_showTalents) and (record.format) then
-		gtt:AddLine(format("%s%s", TALENTS_PREFIX, record.format));
-		self.tipLineIndexTalents = gtt:NumLines();
+	if (record.specName) or (record.pointsSpent) then
+		local talentsText;
+		
+		if (record.specName) then
+			talentsText = record.specName;
+			
+			if (cfg.t_colorTalentsByClass) then
+				local applyColor = (record.specName ~= TALENTS_LOADING) and (record.specName ~= TALENTS_NONE) and (record.specName ~= TALENTS_NA);
+				
+				if (applyColor) then
+					local classColor = LibFroznFunctions:GetClassColor(record.classFile, "PRIEST");
+					talentsText = classColor:WrapTextInColorCode(talentsText);
+				end
+			end
+			if (record.pointsSpent) then
+				talentsText = talentsText .. format(" |cffffff99(%s)|r", record.pointsSpent);
+			end
+		else
+			talentsText = record.pointsSpent;
+		end
+		
+		if (self.tipLineIndexTalents) then
+			_G["GameTooltipTextLeft"..self.tipLineIndexTalents]:SetFormattedText("%s%s", TALENTS_PREFIX, talentsText);
+		elseif (cfg.t_showTalents) and ((record.specName) or (record.pointsSpent)) then
+			gtt:AddLine(format("%s%s", TALENTS_PREFIX, talentsText));
+			self.tipLineIndexTalents = gtt:NumLines();
+		end
 	end
 	
-	if (self.tipLineIndexAverageItemLevel) then
-		_G["GameTooltipTextLeft"..self.tipLineIndexAverageItemLevel]:SetFormattedText("%s%s", AIL_PREFIX, record.ail);
-	elseif (cfg.t_showAverageItemLevel) and (record.ail) then
-		gtt:AddLine(format("%s%s", AIL_PREFIX, record.ail));
-		self.tipLineIndexAverageItemLevel = gtt:NumLines();
+	if (record.ail) then
+		if (self.tipLineIndexAverageItemLevel) then
+			_G["GameTooltipTextLeft"..self.tipLineIndexAverageItemLevel]:SetFormattedText("%s%s", AIL_PREFIX, record.ail);
+		elseif (cfg.t_showAverageItemLevel) and (record.ail) then
+			gtt:AddLine(format("%s%s", AIL_PREFIX, record.ail));
+			self.tipLineIndexAverageItemLevel = gtt:NumLines();
+		end
 	end
 
 	-- If GTT is visible and not fading out, call Show() to force the tooltip to resize.
@@ -285,6 +303,7 @@ function ttt:InitiateInspectRequest(unit,record)
 	record.unit = unit;
 	record.name = UnitName(unit);
 	record.level = UnitLevel(unit);
+	record.classFile = select(2, UnitClass(unit));
 	record.guid = UnitGUID(unit);
 
 	-- invalidate lineindexes
@@ -301,7 +320,8 @@ function ttt:InitiateInspectRequest(unit,record)
 	-- Search cached record for this guid, and get the format from cache
 	for _, entry in ipairs(cache) do
 		if (record.guid == entry.guid) then
-			record.format = entry.format;
+			record.specName = entry.specName;
+			record.pointsSpent = entry.pointsSpent;
 			record.ail = entry.ail;
 			break;
 		end
@@ -310,7 +330,7 @@ function ttt:InitiateInspectRequest(unit,record)
 	-- Queue a delayed inspect request
 	local canInspect = ttt:GetValueOptionallyWithoutErrorSpeech(function()
 		return (CanInspect(unit)) and (not IsInspectFrameOpen());
-	end, (not isWoWSl) and (not isWoWRetail));
+	end, (not LibFroznFunctions.isWoWFlavor.SL) and (not LibFroznFunctions.isWoWFlavor.DF));
 	
 	if (canInspect) then
 		local delay = cfg.t_inspectDelay;
@@ -320,9 +340,10 @@ function ttt:InitiateInspectRequest(unit,record)
 		self.nextUpdate = (lastInspectTime > freq) and delay or (freq - lastInspectTime + delay);
 		self:Show();
 
-		if (not record.format) then
-			if (not isWoWClassic) and (record.level >= 10 or record.level == -1) then -- Only need to display talents for players who has gotten a specialization
-				record.format = TALENTS_LOADING;
+		if (not record.specName) then
+			if (not LibFroznFunctions.isWoWFlavor.ClassicEra) and (record.level >= 10 or record.level == -1) then -- Only need to display talents for players who has gotten a specialization
+				record.specName = TALENTS_LOADING;
+				record.pointsSpent = nil;
 			end
 		end
 		if (not record.ail) then
@@ -331,7 +352,7 @@ function ttt:InitiateInspectRequest(unit,record)
 	end
 
 	-- if we have something to show already, cached format/ail or loading text, update the tip
-	if (record.format) or (record.ail) then
+	if (record.specName) or (record.pointsSpent) or (record.ail) then
 		self:UpdateTooltip(record);
 	end
 end
