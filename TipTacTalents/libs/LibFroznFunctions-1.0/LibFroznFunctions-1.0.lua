@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------
 -- LibFroznFunctions-1.0
 --
--- Frozn's utility functions for wow development
+-- Frozn's utility functions for WoW development
 --
 -- Example:
 -- /run DevTools_Dump(LibStub:GetLibrary("LibFroznFunctions-1.0", true).isWoWFlavor)
@@ -30,12 +30,26 @@ end
 
 -- WoW flavor
 LibFroznFunctions.isWoWFlavor = {
-	["ClassicEra"] = (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) and true or false,
-	["BCC"] = (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) and true or false,
-	["WotLKC"] = (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) and true or false,
-	["SL"] = (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MAINLINE"]) and (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) and true or false,
-	["DF"] = (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MAINLINE"]) and (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_DRAGONFLIGHT"]) and true or false
+	["ClassicEra"] = false,
+	["BCC"] = false,
+	["WotLKC"] = false,
+	["SL"] = false,
+	["DF"] = false
 };
+
+if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
+	LibFroznFunctions.isWoWFlavor.ClassicEra = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
+	LibFroznFunctions.isWoWFlavor.BCC = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
+	LibFroznFunctions.isWoWFlavor.WotLKC = true;
+else -- retail
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+		LibFroznFunctions.isWoWFlavor.SL = true;
+	else
+		LibFroznFunctions.isWoWFlavor.DF = true;
+	end
+end
 
 -- create color from hex string
 LibFroznFunctions.CreateColorFromHexString = CreateColorFromHexString;
@@ -62,6 +76,6 @@ end
 -- class colors
 local CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS;
 
-function LibFroznFunctions.GetClassColor(classFile, alternateClassFile)
-	return CLASS_COLORS[classFile] or CLASS_COLORS[alternateClassFile];
+function LibFroznFunctions.GetClassColor(classFile, alternateClassFileIfNotFound)
+	return CLASS_COLORS[classFile] or CLASS_COLORS[alternateClassFileIfNotFound];
 end
