@@ -79,3 +79,26 @@ local CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS;
 function LibFroznFunctions.GetClassColor(classFile, alternateClassFileIfNotFound)
 	return CLASS_COLORS[classFile] or CLASS_COLORS[alternateClassFileIfNotFound];
 end
+
+----------------------------------------------------------------------------------------------------
+--                                             Icons                                              --
+----------------------------------------------------------------------------------------------------
+
+-- create markup for role icon
+function LibFroznFunctions.CreateMarkupForRoleIcon(roleIcon)
+	if (roleIcon == "TANK") then
+		return CreateAtlasMarkup("roleicon-tiny-tank");
+	elseif (roleIcon == "DAMAGER") then
+		return CreateAtlasMarkup("roleicon-tiny-dps");
+	elseif (roleIcon == "HEALER") then
+		return CreateAtlasMarkup("roleicon-tiny-healer");
+	else
+		return nil;
+	end
+end
+
+-- create markup for class icon
+function LibFroznFunctions.CreateMarkupForClassIcon(classIcon)
+	return CreateTextureMarkup(classIcon, 64, 64, nil, nil, 0.07, 0.93, 0.07, 0.93);
+end
+

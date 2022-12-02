@@ -18,16 +18,20 @@ local AIL_LOADING = SEARCH_LOADING_TEXT;
 -- Default Config
 local cfg;
 local TTT_DefaultConfig = {
-	t_enable = true,               -- "Main Switch", addon does nothing if false
-	t_showTalents = true,          -- Show talents
-	t_showAverageItemLevel = true, -- Show average item level (AIL)
-	t_talentOnlyInParty = false,   -- Only show talents/AIL for party/raid members
-	t_colorTalentsByClass = true,  -- Color talents by class color
-	t_talentFormat = 1,            -- Talent Format
-	t_talentCacheSize = 25,        -- Change cache size here (Default 25)
-
-	t_inspectDelay = 0.2,          -- The time delay for the scheduled inspection (default = 0.2)
-	t_inspectFreq = 2,             -- How soon after an inspection are we allowed to inspect again? (default = 2)
+	t_enable = true,                  -- "Main Switch", addon does nothing if false
+	t_showTalents = true,             -- Show talents
+	t_talentOnlyInParty = false,      -- Only show talents/AIL for party/raid members
+	t_showRoleIcon = true,            -- Show role icon
+	t_showTalentIcon = true,          -- Show talent icon
+	t_showTalentText = true,          -- Show talent text
+	t_colorTalentTextByClass = true,  -- Color specialization text by class color
+	t_talentFormat = 1,               -- Talent Format
+	
+	t_showAverageItemLevel = true,    -- Show average item level (AIL)
+	
+	t_talentCacheSize = 25,           -- Change cache size here (Default 25)
+	t_inspectDelay = 0.2,             -- The time delay for the scheduled inspection (default = 0.2)
+	t_inspectFreq = 2,                -- How soon after an inspection are we allowed to inspect again? (default = 2)
 }
 
 -- Variables
@@ -78,19 +82,84 @@ function ttt:QuerySpecialization(record)
 	if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then -- retail
 		local spec = (not record.isSelf) and GetInspectSpecialization(record.unit) or GetSpecialization();
 		if (not spec or spec == 0) then
-			record.specName = TALENTS_NONE;
-			record.pointsSpent = nil;
+			record.spec = {
+				["name"] = TALENTS_NONE
+			};
 		elseif (not record.isSelf) then
-			local _, specName = GetSpecializationInfoByID(spec);
-			--local _, specName = GetSpecializationInfoForClassID(spec,record.classID);
-			record.specName = specName ~= "" and specName or TALENTS_NA;
-			record.pointsSpent = nil;
+			local _, specName, _, icon, role = GetSpecializationInfoByID(spec);
+			--local _, specName, _, icon, role = GetSpecializationInfoForClassID(spec, record.classID);
+			record.spec = {
+				["name"] = specName ~= "" and specName or TALENTS_NA,
+				["role"] = role,
+				["icon"] = icon
+			};
+			local pointsSpent = {};
+			if (C_Traits.HasValidInspectData()) then
+				local configID = Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID;
+				local configInfo = C_Traits.GetConfigInfo(configID);
+				if (configInfo) and (configInfo.treeIDs) then
+					local treeID = configInfo.treeIDs[1];
+					if (treeID) then
+						local treeCurrencyInfo = C_Traits.GetTreeCurrencyInfo(configID, treeID, false);
+						
+						if (treeCurrencyInfo) then
+							for _, treeCurrencyInfoItem in ipairs(treeCurrencyInfo) do
+								if (treeCurrencyInfoItem.spent) then
+									pointsSpent[#pointsSpent + 1] = treeCurrencyInfoItem.spent;
+								end
+							end
+						end
+					end
+				end
+			end
+			-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
+			local talentFormat = (cfg.t_talentFormat or 1);
+			if (talentFormat == 1) and (#pointsSpent > 0) then
+				record.spec.pointsSpent = table.concat(pointsSpent, "/");
+			elseif (talentFormat == 3) then
+				record.spec.name = nil;
+				if (#pointsSpent > 0) then
+					record.spec.pointsSpent = table.concat(pointsSpent, "/");
+				end
+			end
 		else
 			-- MoP Note: Is it no longer possible to query the different talent spec groups anymore?
 --			local group = GetActiveSpecGroup(isInspect) or 1;	-- Az: replaced with GetActiveSpecGroup(), but that does not support inspect?
-			local _, specName = GetSpecializationInfo(spec);
-			record.specName = specName ~= "" and specName or TALENTS_NA;
-			record.pointsSpent = nil;
+			local _, specName, _, icon, role = GetSpecializationInfo(spec);
+			record.spec = {
+				["name"] = specName ~= "" and specName or TALENTS_NA,
+				["role"] = role,
+				["icon"] = icon
+			};
+			local pointsSpent = {};
+			if (C_SpecializationInfo.CanPlayerUseTalentSpecUI()) then
+				local activeConfigID = C_ClassTalents.GetActiveConfigID();
+				local configInfo = C_Traits.GetConfigInfo(activeConfigID);
+				if (configInfo) and (configInfo.treeIDs) then
+					local treeID = configInfo.treeIDs[1];
+					if (treeID) then
+						local treeCurrencyInfo = C_Traits.GetTreeCurrencyInfo(activeConfigID, treeID, false);
+						
+						if (treeCurrencyInfo) then
+							for _, treeCurrencyInfoItem in ipairs(treeCurrencyInfo) do
+								if (treeCurrencyInfoItem.spent) then
+									pointsSpent[#pointsSpent + 1] = treeCurrencyInfoItem.spent;
+								end
+							end
+						end
+					end
+				end
+			end
+			-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
+			local talentFormat = (cfg.t_talentFormat or 1);
+			if (talentFormat == 1) and (#pointsSpent > 0) then
+				record.spec.pointsSpent = table.concat(pointsSpent, "/");
+			elseif (talentFormat == 3) then
+				record.spec.name = nil;
+				if (#pointsSpent > 0) then
+					record.spec.pointsSpent = table.concat(pointsSpent, "/");
+				end
+			end
 		end
 	else -- classic
 		-- Inspect functions will always use the active spec when not inspecting
@@ -102,8 +171,9 @@ function ttt:QuerySpecialization(record)
 		-- Get points per tree, and set "maxTree" to the tree with most points
 		local numTalentTabs = GetNumTalentTabs(isInspect);
 		if (not numTalentTabs) then
-			record.specName = TALENTS_NONE;
-			record.pointsSpent = nil;
+			record.spec = {
+				["name"] = TALENTS_NONE
+			};
 		else
 			record.tree = {};
 			local maxTree = 1;
@@ -113,21 +183,34 @@ function ttt:QuerySpecialization(record)
 					maxTree = tabIndex;
 				end
 			end
-			record.maxTree = GetTalentTabInfo(maxTree, isInspect, nil, activeTalentGroup);
+			record.maxTree, record.icon = GetTalentTabInfo(maxTree, isInspect, nil, activeTalentGroup);
 			-- Customise output. Use TipTac setting if it exists, otherwise just use formatting style one.
 			local talentFormat = (cfg.t_talentFormat or 1);
 			if (record[maxTree] == 0) then
-				record.specName = TALENTS_NONE;
-				record.pointsSpent = nil;
+				record.spec = {
+					["name"] = TALENTS_NONE,
+					["icon"] = record.icon
+				};
 			elseif (talentFormat == 1) then
-				record.specName = record.maxTree;
-				record.pointsSpent = table.concat(record.tree, "/");
+				record.spec = {
+					["name"] = record.maxTree,
+					["icon"] = record.icon
+				};
+				if (#record.tree > 0) then
+					record.spec.pointsSpent = table.concat(record.tree, "/");
+				end
 			elseif (talentFormat == 2) then
-				record.specName = record.maxTree;	
-				record.pointsSpent = nil;
+				record.spec = {
+					["name"] = record.maxTree,
+					["icon"] = record.icon
+				};
 			elseif (talentFormat == 3) then
-				record.specName = nil;
-				record.pointsSpent = table.concat(record.tree, "/");
+				record.spec = {
+					["icon"] = record.icon
+				};
+				if (#record.tree > 0) then
+					record.spec.pointsSpent = table.concat(record.tree, "/");
+				end
 			end
 		end
 	end
@@ -215,27 +298,44 @@ end
 
 -- Update tooltip with the record format, but only if tooltip is still showing the unit of our record
 function ttt:UpdateTooltip(record)
-	if (record.specName) or (record.pointsSpent) then
-		local talentsText;
+	if (record.spec) then
+		local specText = "";
+		local spacer, color;
 		
-		if (record.specName) then
-			talentsText = record.specName;
-			
-			if (cfg.t_colorTalentsByClass) and (record.specName ~= TALENTS_LOADING) and (record.specName ~= TALENTS_NONE) and (record.specName ~= TALENTS_NA) then
+		if (cfg.t_showRoleIcon) and (record.spec.role) then
+			specText = specText .. LibFroznFunctions.CreateMarkupForRoleIcon(record.spec.role);
+		end
+		
+		if (cfg.t_showTalentIcon) and (record.spec.icon) then
+			specText = specText .. LibFroznFunctions.CreateMarkupForClassIcon(record.spec.icon);
+		end
+		
+		if (cfg.t_showTalentText) and (record.spec.name) then
+			spacer = (specText ~= "") and " " or "";
+
+			if (cfg.t_colorTalentTextByClass) and (record.spec.name ~= TALENTS_LOADING) and (record.spec.name ~= TALENTS_NONE) and (record.spec.name ~= TALENTS_NA) then
 				local classColor = LibFroznFunctions:GetClassColor(record.classFile, "PRIEST");
-				talentsText = classColor:WrapTextInColorCode(talentsText);
+				specText = specText .. spacer .. classColor:WrapTextInColorCode(record.spec.name);
+			else
+				specText = specText .. spacer .. record.spec.name;
 			end
-			if (record.pointsSpent) then
-				talentsText = talentsText .. format(" |cffffff99(%s)|r", record.pointsSpent);
+		end
+		
+		if (cfg.t_showTalentText) and (record.spec.pointsSpent) then
+			spacer = (specText ~= "") and " " or "";
+			color = LibFroznFunctions.CreateColorFromHexString("FFFFFF99");
+			
+			if (record.spec.name) then
+				specText = specText .. spacer .. color:WrapTextInColorCode("(" .. record.spec.pointsSpent .. ")");
+			else
+				specText = specText .. spacer .. color:WrapTextInColorCode(record.spec.pointsSpent);
 			end
-		else
-			talentsText = record.pointsSpent;
 		end
 		
 		if (self.tipLineIndexTalents) then
-			_G["GameTooltipTextLeft"..self.tipLineIndexTalents]:SetFormattedText("%s%s", TALENTS_PREFIX, talentsText);
-		elseif (cfg.t_showTalents) and ((record.specName) or (record.pointsSpent)) then
-			gtt:AddLine(format("%s%s", TALENTS_PREFIX, talentsText));
+			_G["GameTooltipTextLeft"..self.tipLineIndexTalents]:SetFormattedText("%s%s", TALENTS_PREFIX, specText);
+		elseif (cfg.t_showTalents) then
+			gtt:AddLine(format("%s%s", TALENTS_PREFIX, specText));
 			self.tipLineIndexTalents = gtt:NumLines();
 		end
 	end
@@ -243,7 +343,7 @@ function ttt:UpdateTooltip(record)
 	if (record.ail) then
 		if (self.tipLineIndexAverageItemLevel) then
 			_G["GameTooltipTextLeft"..self.tipLineIndexAverageItemLevel]:SetFormattedText("%s%s", AIL_PREFIX, record.ail);
-		elseif (cfg.t_showAverageItemLevel) and (record.ail) then
+		elseif (cfg.t_showAverageItemLevel) then
 			gtt:AddLine(format("%s%s", AIL_PREFIX, record.ail));
 			self.tipLineIndexAverageItemLevel = gtt:NumLines();
 		end
@@ -316,8 +416,7 @@ function ttt:InitiateInspectRequest(unit,record)
 	-- Search cached record for this guid, and get the format from cache
 	for _, entry in ipairs(cache) do
 		if (record.guid == entry.guid) then
-			record.specName = entry.specName;
-			record.pointsSpent = entry.pointsSpent;
+			record.spec = entry.spec;
 			record.ail = entry.ail;
 			break;
 		end
@@ -336,10 +435,11 @@ function ttt:InitiateInspectRequest(unit,record)
 		self.nextUpdate = (lastInspectTime > freq) and delay or (freq - lastInspectTime + delay);
 		self:Show();
 
-		if (not record.specName) then
+		if (not record.spec) then
 			if (not LibFroznFunctions.isWoWFlavor.ClassicEra) and (record.level >= 10 or record.level == -1) then -- Only need to display talents for players who has gotten a specialization
-				record.specName = TALENTS_LOADING;
-				record.pointsSpent = nil;
+				record.spec = {
+					["name"] = TALENTS_LOADING
+				};
 			end
 		end
 		if (not record.ail) then
@@ -348,7 +448,7 @@ function ttt:InitiateInspectRequest(unit,record)
 	end
 
 	-- if we have something to show already, cached format/ail or loading text, update the tip
-	if (record.specName) or (record.pointsSpent) or (record.ail) then
+	if (record.spec) or (record.ail) then
 		self:UpdateTooltip(record);
 	end
 end
