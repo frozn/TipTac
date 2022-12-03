@@ -279,7 +279,10 @@ if (TipTacTalents) then
 	};
 	
 	if (not isWoWClassic) then
-		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" };
+		if (not isWoWWotlkc) then
+			tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" };
+		end
+		
 		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showTalentIcon", label = "Show Talent Icon", tip = "This option makes the tip show the talent icon" };
 	end
 	
@@ -290,7 +293,7 @@ if (TipTacTalents) then
 		if (isWoWRetail) then
 			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (31/30)"] = 1, ["Elemental"] = 2, ["31/30"] = 3,}, y = 8 }; -- not supported with MoP changes
 		else
-			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (57/14/00)"] = 1, ["Elemental"] = 2, ["57/14/00"] = 3,}, y = 8 }; -- not supported with MoP changes
+			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (57/14/0)"] = 1, ["Elemental"] = 2, ["57/14/0"] = 3,}, y = 8 }; -- not supported with MoP changes
 		end
 	end
 	
