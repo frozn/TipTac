@@ -55,7 +55,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
 - fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
 - added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
-- added showing of role and talent/specialization icon, coloring talents by class color and average item level to TipTacTalents
+- added showing of role and talent/specialization icon, coloring talents by class color and average item level to TipTacTalents. scanning/inspecting of units completely rewritten.
+- scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
