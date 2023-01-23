@@ -1,7 +1,7 @@
 <picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen"></picture>
 &nbsp; 
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
-<picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/207884654-7db06767-707b-4e01-8e71-1beb8c88c7d9.jpg" align="right"></picture>
+<picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/214158645-99f10b68-ad55-411f-84e5-53320763eb0e.jpg" align="right"></picture>
 
 [![Install](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
 &nbsp; 
