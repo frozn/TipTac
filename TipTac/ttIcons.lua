@@ -1,11 +1,18 @@
-local gtt = GameTooltip;
+-- Addon
+local MOD_NAME = ...;
+
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- TipTac refs
-local tt = TipTac;
+local tt = _G[MOD_NAME];
 local cfg;
+local TT_CacheForFrames;
 
 -- element registration
-local ttIcons = tt:RegisterElement({},"Icons");
+local ttIcons = {};
+
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttIcons, "Icons");
 
 --ttIcons.icons = {};
 
@@ -13,27 +20,27 @@ local ttIcons = tt:RegisterElement({},"Icons");
 --                                                Misc                                                --
 --------------------------------------------------------------------------------------------------------
 
-function ttIcons:SetIcon(icon,u)
-	if (not UnitExists(u.token)) then
+function ttIcons:SetIcon(icon, unitRecord)
+	if (not UnitExists(unitRecord.id)) then
 		return;
 	end
 	
-	local raidIconIndex = GetRaidTargetIndex(u.token);
+	local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
 
 	if (cfg.iconRaid) and (raidIconIndex) then
 		icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
 		SetRaidTargetIconTexture(icon,raidIconIndex);
-	elseif (cfg.iconFaction) and (UnitIsPVPFreeForAll(u.token)) then
+	elseif (cfg.iconFaction) and (UnitIsPVPFreeForAll(unitRecord.id)) then
 		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
 		icon:SetTexCoord(0,0.62,0,0.62);
-	elseif (cfg.iconFaction) and (UnitIsPVP(u.token)) and (UnitFactionGroup(u.token)) then
-		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-"..UnitFactionGroup(u.token));
+	elseif (cfg.iconFaction) and (UnitIsPVP(unitRecord.id)) and (UnitFactionGroup(unitRecord.id)) then
+		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-"..UnitFactionGroup(unitRecord.id));
 		icon:SetTexCoord(0,0.62,0,0.62);
-	elseif (cfg.iconCombat) and (UnitAffectingCombat(u.token)) then
+	elseif (cfg.iconCombat) and (UnitAffectingCombat(unitRecord.id)) then
 		icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
 		icon:SetTexCoord(0.5,1,0,0.5);
-	elseif (u.isPlayer) and (cfg.iconClass) then
-		local texCoord = CLASS_ICON_TCOORDS[u.classFile];
+	elseif (unitRecord.isPlayer) and (cfg.iconClass) then
+		local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
 		if (texCoord) then
 			icon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
 			icon:SetTexCoord(unpack(texCoord));
@@ -49,33 +56,39 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttIcons:OnLoad()
-	cfg = TipTac_Config;
+function ttIcons:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+	TT_CacheForFrames = _TT_CacheForFrames;
+	cfg = _cfg;
 end
 
-function ttIcons:OnApplyConfig(cfg)
+function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg)
 	self.wantIcon = (cfg.iconRaid or cfg.iconFaction or cfg.iconCombat or cfg.iconClass);
 
 	if (self.wantIcon) then
 		if (not self.icon) then
-			self.icon = gtt:CreateTexture(nil,"BACKGROUND");
+			self.icon = GameTooltip:CreateTexture(nil,"BACKGROUND");
 		end
 		self.icon:SetSize(cfg.iconSize,cfg.iconSize);
 		self.icon:ClearAllPoints();
-		self.icon:SetPoint(tt.MirrorAnchors[cfg.iconAnchor],gtt,cfg.iconAnchor);
+		self.icon:SetPoint(LibFroznFunctions:MirrorAnchorPointVertically(cfg.iconAnchor),GameTooltip,cfg.iconAnchor);
 	elseif (self.icon) then
 		self.icon:Hide();
 	end
 end
 
-function ttIcons:OnPostStyleTip(tip,first)
-	if (self.wantIcon) then
-		self.icon:SetShown(self:SetIcon(self.icon,tip.ttUnit));
+function ttIcons:OnTipPostStyle(TT_CacheForFrames, tip, first)
+	if (not self.wantIcon) then
+		return;
 	end
+	
+	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
+	
+	-- show icon
+	self.icon:SetShown(self:SetIcon(self.icon, unitRecord));
 end
 
-function ttIcons:OnCleared(tip)
-	if (self.icon) and (gtt == tip) then
+function ttIcons:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
+	if (self.icon) and (tip == GameTooltip) then
 		self.icon:Hide();
 	end
 end

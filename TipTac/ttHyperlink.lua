@@ -1,17 +1,19 @@
 local AceHook = LibStub("AceHook-3.0");
-local gtt = GameTooltip;
-local bptt = BattlePetTooltip;
 
 -- Addon
-local modName = ...;
-local ttHyperlink = CreateFrame("Frame", modName);
+local MOD_NAME = ...;
+local ttHyperlink = CreateFrame("Frame", MOD_NAME .. "Hyperlink");
+
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- TipTac refs
-local tt = TipTac;
+local tt = _G[MOD_NAME];
 local cfg;
+local TT_CacheForFrames;
 
 -- element registration
-tt:RegisterElement(ttHyperlink, "Hyperlink");
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttHyperlink, "Hyperlink");
 
 -- Hyperlinks which are supported
 local supportedHyperLinks = {
@@ -38,7 +40,7 @@ local supportedHyperLinks = {
 };
 
 local addOnsLoaded = {
-	["TipTac"] = false,
+	[MOD_NAME] = false,
 	["Blizzard_Communities"] = false
 };
 
@@ -56,7 +58,7 @@ ttHyperlink:RegisterEvent("ADDON_LOADED");
 -- Variables Loaded [One-Time-Event]
 function ttHyperlink:VARIABLES_LOADED(event)
 	-- Re-Trigger event ADDON_LOADED for TipTac if config wasn't ready
-	self:ADDON_LOADED("ADDON_LOADED", "TipTac");
+	self:ADDON_LOADED("ADDON_LOADED", MOD_NAME);
 	
 	-- Cleanup
 	self:UnregisterEvent(event);
@@ -73,10 +75,10 @@ function ttHyperlink:ADDON_LOADED(event, addOnName)
 	end
 	
 	-- now CommunitiesGuildNewsFrame exists
-	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTac") and (IsAddOnLoaded("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
-		self:OnApplyConfig(cfg);
+	if (addOnName == "Blizzard_Communities") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
+		self:OnApplyConfig(TT_CacheForFrames, cfg);
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_Communities"] = true;
 		end
 	end
@@ -111,50 +113,60 @@ end
 local showingTooltip = false;
 
 local function OnHyperlinkEnter(self, refString, text)
+	if (not cfg.enableChatHoverTips) then
+		return;
+	end
+	
 	local linkToken = refString:match("^([^:]+)");
 	if (supportedHyperLinks[linkToken]) then
-		GameTooltip_SetDefaultAnchor(gtt, self);
+		-- set default anchor to tip
+		GameTooltip_SetDefaultAnchor(GameTooltip, self);
 		
 		if (linkToken == "battlepet") then
-			showingTooltip = bptt;
+			-- show tooltip
+			showingTooltip = BattlePetTooltip;
 			BattlePetToolTip_ShowLink(text);
+			LibFroznFunctions:FireGroupEvent(MOD_NAME, "SetDefaultAnchorHook", showingTooltip, self);
 		elseif (linkToken == "battlePetAbil") then
 			-- makes shure that PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-			if (not IsAddOnLoaded("Blizzard_Collections")) then
+			if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
 				LoadAddOn("Blizzard_Collections");
 			end
 			
 			-- show tooltip
 			local link, abilityID, maxHealth, power, speed = (":"):split(refString);
 			showingTooltip = PetJournalPrimaryAbilityTooltip;
-			PetJournal_ShowAbilityTooltip(gtt, tonumber(abilityID));
-			PetJournalPrimaryAbilityTooltip:ClearAllPoints();
-			PetJournalPrimaryAbilityTooltip:SetPoint(gtt:GetPoint());
+			PetJournal_ShowAbilityTooltip(GameTooltip, tonumber(abilityID));
+			showingTooltip:ClearAllPoints();
+			showingTooltip:SetPoint(GameTooltip:GetPoint());
+			LibFroznFunctions:FireGroupEvent(MOD_NAME, "SetDefaultAnchorHook", showingTooltip, self);
 		elseif (linkToken == "transmogappearance") then -- WardrobeItemsCollectionMixin:RefreshAppearanceTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 			local linkType, sourceID = (":"):split(refString);
 			local sourceInfo = C_TransmogCollection.GetSourceInfo(sourceID);
 			local name, nameColor = CollectionWardrobeUtil.GetAppearanceNameTextAndColor(sourceInfo);
-			GameTooltip_SetTitle(gtt, name, nameColor);
-			showingTooltip = gtt;
-			gtt:Show();
+			GameTooltip_SetTitle(GameTooltip, name, nameColor);
+			showingTooltip = GameTooltip;
+			GameTooltip:Show();
+			local TipTacItemRef = _G[MOD_NAME .. "ItemRef"];
 			if (TipTacItemRef) then
-				TipTacItemRef:SetHyperlink_Hook(gtt, refString);
+				TipTacItemRef:SetHyperlink_Hook(GameTooltip, refString);
 			end
 		elseif (linkToken == "transmogillusion") then -- see WardrobeItemsModelMixin:OnEnter() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 			local linkType, illusionID = (":"):split(refString);
 			local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
-			gtt:SetText(name);
+			GameTooltip:SetText(name);
 			if (sourceText) then
-				gtt:AddLine(sourceText, 1, 1, 1, 1);
+				GameTooltip:AddLine(sourceText, 1, 1, 1, 1);
 			end
-			showingTooltip = gtt;
-			gtt:Show();
+			showingTooltip = GameTooltip;
+			GameTooltip:Show();
+			local TipTacItemRef = _G[MOD_NAME .. "ItemRef"];
 			if (TipTacItemRef) then
-				TipTacItemRef:SetHyperlink_Hook(gtt, hyperlink);
+				TipTacItemRef:SetHyperlink_Hook(GameTooltip, hyperlink);
 			end
 		elseif (linkToken == "transmogset") then -- WardrobeSetsTransmogModelMixin:RefreshTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 			-- makes shure that WardrobeCollectionFrame exists
-			if (not IsAddOnLoaded("Blizzard_Collections")) then
+			if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
 				LoadAddOn("Blizzard_Collections");
 			end
 			
@@ -183,21 +195,22 @@ local function OnHyperlinkEnter(self, refString, text)
 				end
 			end
 			
-			showingTooltip = gtt;
+			showingTooltip = GameTooltip;
 			if (waitingOnQuality) then
-				gtt:SetText(RETRIEVING_ITEM_INFO, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+				GameTooltip:SetText(RETRIEVING_ITEM_INFO, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
 			else
 				local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
 				local color = ITEM_QUALITY_COLORS[setQuality];
 				local setInfo = C_TransmogSets.GetSetInfo(setID);
-				gtt:SetText(setInfo.name, color.r, color.g, color.b);
+				GameTooltip:SetText(setInfo.name, color.r, color.g, color.b);
 				if (setInfo.label) then
-					gtt:AddLine(setInfo.label);
-					gtt:Show();
+					GameTooltip:AddLine(setInfo.label);
+					GameTooltip:Show();
 				end
 			end
+			local TipTacItemRef = _G[MOD_NAME .. "ItemRef"];
 			if (TipTacItemRef) then
-				TipTacItemRef:SetHyperlink_Hook(gtt, refString);
+				TipTacItemRef:SetHyperlink_Hook(GameTooltip, refString);
 			end
 		elseif (linkToken == "dungeonScore") then -- GetDungeonScoreLink() + DisplayDungeonScoreLink() in "ItemRef.lua"
 			local splits = StringSplitIntoTable(":", refString);
@@ -213,7 +226,7 @@ local function OnHyperlinkEnter(self, refString, text)
 			local playerItemLevel = tonumber(splits[6]);
 			local playerLevel = tonumber(splits[7]);
 			local className, classFileName = GetClassInfo(playerClass);
-			local classColor = C_ClassColor.GetClassColor(classFileName);
+			local classColor = LibFroznFunctions:GetClassColor(playerClass, 5);
 			local runsThisSeason = tonumber(splits[8]);
 			
 			--Bad Link..
@@ -226,18 +239,18 @@ local function OnHyperlinkEnter(self, refString, text)
 				return;
 			end
 			
-			GameTooltip_SetTitle(gtt, classColor:WrapTextInColorCode(playerName));
-			GameTooltip_AddColoredLine(gtt, DUNGEON_SCORE_LINK_LEVEL_CLASS_FORMAT_STRING:format(playerLevel, className), HIGHLIGHT_FONT_COLOR);
-			GameTooltip_AddNormalLine(gtt, DUNGEON_SCORE_LINK_ITEM_LEVEL:format(playerItemLevel));
+			GameTooltip_SetTitle(GameTooltip, classColor:WrapTextInColorCode(playerName));
+			GameTooltip_AddColoredLine(GameTooltip, DUNGEON_SCORE_LINK_LEVEL_CLASS_FORMAT_STRING:format(playerLevel, className), HIGHLIGHT_FONT_COLOR);
+			GameTooltip_AddNormalLine(GameTooltip, DUNGEON_SCORE_LINK_ITEM_LEVEL:format(playerItemLevel));
 			
 			local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore);
 			if (not color) then
 				color = HIGHLIGHT_FONT_COLOR;
 			end
 			
-			GameTooltip_AddNormalLine(gtt, DUNGEON_SCORE_LINK_RATING:format(color:WrapTextInColorCode(dungeonScore)));
-			GameTooltip_AddNormalLine(gtt, DUNGEON_SCORE_LINK_RUNS_SEASON:format(runsThisSeason));
-			GameTooltip_AddBlankLineToTooltip(gtt);
+			GameTooltip_AddNormalLine(GameTooltip, DUNGEON_SCORE_LINK_RATING:format(color:WrapTextInColorCode(dungeonScore)));
+			GameTooltip_AddNormalLine(GameTooltip, DUNGEON_SCORE_LINK_RUNS_SEASON:format(runsThisSeason));
+			GameTooltip_AddBlankLineToTooltip(GameTooltip);
 			
 			local sortTable = { };
 			local DUNGEON_SCORE_LINK_INDEX_START = 9;
@@ -262,26 +275,30 @@ local function OnHyperlinkEnter(self, refString, text)
 			
 			for i = 1, #sortTable do
 				local textColor = sortTable[i].completedInTime and HIGHLIGHT_FONT_COLOR or GRAY_FONT_COLOR;
-				GameTooltip_AddColoredDoubleLine(gtt, DUNGEON_SCORE_LINK_TEXT1:format(sortTable[i].mapName), (sortTable[i].level > 0 and  DUNGEON_SCORE_LINK_TEXT2:format(sortTable[i].level) or DUNGEON_SCORE_LINK_NO_SCORE), NORMAL_FONT_COLOR, textColor);
+				GameTooltip_AddColoredDoubleLine(GameTooltip, DUNGEON_SCORE_LINK_TEXT1:format(sortTable[i].mapName), (sortTable[i].level > 0 and  DUNGEON_SCORE_LINK_TEXT2:format(sortTable[i].level) or DUNGEON_SCORE_LINK_NO_SCORE), NORMAL_FONT_COLOR, textColor);
 			end
 			
 			-- Backdrop Border Color: By Class
 			if (cfg.classColoredBorder) then
-				tt:SetBackdropBorderColorLocked(gtt, true, classColor.r, classColor.g, classColor.b);
+				tt:SetBackdropBorderColorLocked(GameTooltip, true, classColor.r, classColor.g, classColor.b);
 			end
 			
-			showingTooltip = gtt;
-			gtt:Show();
+			showingTooltip = GameTooltip;
+			GameTooltip:Show();
 		else
-			showingTooltip = gtt;
-			gtt:SetHyperlink(refString);
-			gtt:Show();
+			showingTooltip = GameTooltip;
+			GameTooltip:SetHyperlink(refString);
+			GameTooltip:Show();
 		end
 	end
 end
 
 -- ChatFrame:OnHyperlinkLeave
 local function OnHyperlinkLeave(self)
+	if (not cfg.enableChatHoverTips) then
+		return;
+	end
+	
 	if (showingTooltip) then
 		showingTooltip:Hide();
 	end
@@ -291,43 +308,26 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttHyperlink:OnLoad()
-	cfg = TipTac_Config;
+function ttHyperlink:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+	TT_CacheForFrames = _TT_CacheForFrames;
+	cfg = _cfg;
 end
 
-function ttHyperlink:OnApplyConfig(cfg)
+function ttHyperlink:OnApplyConfig(TT_CacheForFrames, cfg)
 	-- ChatFrame Hyperlink Hover -- Az: this may need some more testing, code seems wrong. e.g. why only on first window? -- Frozn45: completely rewritten.
-	if (cfg.enableChatHoverTips) then
-		if (not self.hookedHoverHyperlinks) then
-			for i = 1, NUM_CHAT_WINDOWS do
-				local chat = _G["ChatFrame"..i];
-				AceHook:SecureHookScript(chat, "OnHyperlinkEnter", OnHyperlinkEnter);
-				AceHook:SecureHookScript(chat, "OnHyperlinkLeave", OnHyperlinkLeave);
-			end
-			self.hookedHoverHyperlinks = true;
+	if (not self.hookedHoverHyperlinks) then
+		for i = 1, NUM_CHAT_WINDOWS do
+			local chat = _G["ChatFrame"..i];
+			AceHook:SecureHookScript(chat, "OnHyperlinkEnter", OnHyperlinkEnter);
+			AceHook:SecureHookScript(chat, "OnHyperlinkLeave", OnHyperlinkLeave);
 		end
-		if (not self.hookedHoverHyperlinksOnCFCMF) then
-			if (IsAddOnLoaded("Blizzard_Communities")) then
-				AceHook:SecureHookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter", OnHyperlinkEnter);
-				AceHook:SecureHookScript(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave", OnHyperlinkLeave);
-				self.hookedHoverHyperlinksOnCFCMF = true;
-			end
-		end
-	else
-		if (self.hookedHoverHyperlinks) then
-			for i = 1, NUM_CHAT_WINDOWS do
-				local chat = _G["ChatFrame"..i];
-				AceHook:Unhook(chat, "OnHyperlinkEnter");
-				AceHook:Unhook(chat, "OnHyperlinkLeave");
-			end
-			self.hookedHoverHyperlinks = false;
-		end
-		if (self.hookedHoverHyperlinksOnCFCMF) then
-			if (IsAddOnLoaded("Blizzard_Communities")) then
-				AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter");
-				AceHook:Unhook(CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave");
-				self.hookedHoverHyperlinksOnCFCMF = false;
-			end
+		self.hookedHoverHyperlinks = true;
+	end
+	if (not self.hookedHoverHyperlinksOnCFCMF) then
+		if (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities")) then
+			AceHook:SecureHookScript(_G.CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkEnter", OnHyperlinkEnter);
+			AceHook:SecureHookScript(_G.CommunitiesFrame.Chat.MessageFrame, "OnHyperlinkLeave", OnHyperlinkLeave);
+			self.hookedHoverHyperlinksOnCFCMF = true;
 		end
 	end
 end

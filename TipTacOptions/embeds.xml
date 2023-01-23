@@ -6,5 +6,6 @@
 
 <Script file="libs\AzDropDown.lua"/>
 <Script file="libs\AzOptionsFactory.lua"/>
+<Include file="libs\LibFroznFunctions-1.0\lib.xml"/>
 
 </Ui>

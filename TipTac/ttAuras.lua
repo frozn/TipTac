@@ -1,12 +1,19 @@
-local gtt = GameTooltip;
+-- Addon
+local MOD_NAME = ...;
+
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- TipTac refs
-local tt = TipTac;
+local tt = _G[MOD_NAME];
 local cfg;
+local TT_CacheForFrames;
 
 -- element registration
-local ttAuras = tt:RegisterElement({ auras = {} },"Auras");
+local ttAuras = { auras = {} };
 local auras = ttAuras.auras;
+
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttAuras, "Auras");
 
 -- Valid units to filter the auras in DisplayAuras() with the "cfg.selfAurasOnly" setting on
 local validSelfCasterUnits = {
@@ -48,7 +55,7 @@ local function CreateAuraFrame(parent)
 end
 
 -- querires auras of the specific auraType, and sets up the aura frame and anchors it in the desired place
-function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
+function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 
 	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2));	-- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = (auraType == "HELPFUL" and 1 or -1);				-- is +1 or -1 based on horz anchoring
@@ -58,15 +65,15 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 
 	-- anchor calculation based on "auraType" and "cfg.aurasAtBottom"
 	local horzAnchor1 = (auraType == "HELPFUL" and "LEFT" or "RIGHT");
-	local horzAnchor2 = tt.MirrorAnchors[horzAnchor1];
+	local horzAnchor2 = LibFroznFunctions:MirrorAnchorPointVertically(horzAnchor1);
 
 	local vertAnchor = (cfg.aurasAtBottom and "TOP" or "BOTTOM");
 	local anchor1 = vertAnchor..horzAnchor1;
-	local anchor2 = tt.MirrorAnchors[vertAnchor]..horzAnchor1;
+	local anchor2 = LibFroznFunctions:MirrorAnchorPointVertically(vertAnchor)..horzAnchor1;
 
 	-- query auras
 	while (true) do
-		local _, iconTexture, count, debuffType, duration, endTime, casterUnit = UnitAura(tip.ttUnit.token,queryIndex,auraType);	-- [18.07.19] 8.0/BfA: "dropped second parameter"
+		local _, iconTexture, count, debuffType, duration, endTime, casterUnit = UnitAura(unitRecord.id, queryIndex, auraType);	-- [18.07.19] 8.0/BfA: "dropped second parameter"
 		if (not iconTexture) or (auraFrameIndex / aurasPerRow > cfg.auraMaxRows) then
 			break;
 		end
@@ -118,14 +125,14 @@ function ttAuras:DisplayAuras(tip,auraType,startingAuraFrameIndex)
 end
 
 -- display buffs and debuffs and hide unused aura frames
-function ttAuras:SetupAuras(tip)
+function ttAuras:SetupAuras(tip, unitRecord)
 --printf("[%.2f] %-24s %d x %d",GetTime(),"SetupAuras",tip:GetWidth(),tip:GetHeight())
 	local auraCount = 0;
 	if (cfg.showBuffs) then
-		auraCount = auraCount + self:DisplayAuras(tip,"HELPFUL",auraCount + 1);
+		auraCount = auraCount + self:DisplayAuras(tip, unitRecord, "HELPFUL", auraCount + 1);
 	end
 	if (cfg.showDebuffs) then
-		auraCount = auraCount + self:DisplayAuras(tip,"HARMFUL",auraCount + 1);
+		auraCount = auraCount + self:DisplayAuras(tip, unitRecord, "HARMFUL", auraCount + 1);
 	end
 
 	-- Hide the Unused
@@ -138,11 +145,12 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttAuras:OnLoad()
-	cfg = TipTac_Config;
+function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+	TT_CacheForFrames = _TT_CacheForFrames;
+	cfg = _cfg;
 end
 
-function ttAuras:OnApplyConfig(cfg)
+function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg)
 	-- If disabled, hide auras, else set their size
 	local gameFont = GameFontNormal:GetFont();
 	for _, aura in ipairs(auras) do
@@ -157,21 +165,27 @@ function ttAuras:OnApplyConfig(cfg)
 end
 
 -- Auras - Has to be updated last because it depends on the tips new dimention
-function ttAuras:OnPostStyleTip(tip,first)
-	-- Check token, because if the GTT was hidden in OnShow (called in ApplyUnitAppearance),
-	-- it would be nil here due to "tip.ttUnit" being wiped in OnTooltipCleared()
-	if (tip.ttUnit.token) and (cfg.showBuffs or cfg.showDebuffs) then
-		self:SetupAuras(tip);
+function ttAuras:OnTipPostStyle(TT_CacheForFrames, tip, first)
+	if (not cfg.showBuffs) and (not cfg.showDebuffs) then
+		return;
 	end
+	
+	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
+	
+	-- setup auras
+	self:SetupAuras(tip, unitRecord);
 end
 
 --function ttAuras:OnShow(tip)
---	if (tip.ttUnit.token) and (cfg.showBuffs or cfg.showDebuffs) then
---		self:SetupAuras(tip);
+--	if (not cfg.showBuffs) and (not cfg.showDebuffs) then
+--		return;
 --	end
+--	
+--	-- setup auras
+--	self:SetupAuras(tip, unitRecord);
 --end
 
-function ttAuras:OnCleared(tip)
+function ttAuras:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
 	for _, aura in ipairs(auras) do
 		if (aura:GetParent() == tip) then
 			aura:Hide();

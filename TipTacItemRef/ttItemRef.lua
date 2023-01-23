@@ -9,33 +9,12 @@ local pjsatt = PetJournalSecondaryAbilityTooltip;
 local fpbatt = FloatingPetBattleAbilityTooltip;
 local ejtt = EncounterJournalTooltip;
 
--- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
-if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
-	isWoWClassic = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	isWoWBcc = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
-	isWoWWotlkc = true;
-else -- retail
-	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
-		isWoWSl = true;
-	else
-		isWoWRetail = true;
-	end
-end
-
-local CreateColorFromHexString = CreateColorFromHexString;
-
-if (not CreateColorFromHexString) then
-	CreateColorFromHexString = function(hexColor)
-		return CreateColor(tonumber(hexColor:sub(3, 4), 16) / 255, tonumber(hexColor:sub(5, 6), 16) / 255, tonumber(hexColor:sub(7, 8), 16) / 255, tonumber(hexColor:sub(1, 2), 16) / 255);
-	end
-end
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 local GetSpellLink = GetSpellLink;
 
-if (isWoWClassic) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
 	GetSpellLink = function(spellID)
 		local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
@@ -59,12 +38,14 @@ if (not C_QuestLog_GetSelectedQuest) then
 end
 
 -- Addon
-local modName = ...;
-local ttif = CreateFrame("Frame", modName);
+local MOD_NAME = ...;
+local PARENT_MOD_NAME = "TipTac";
+local ttif = CreateFrame("Frame", MOD_NAME);
 
 -- Register with TipTac core addon if available
+local TipTac = _G[PARENT_MOD_NAME];
 if (TipTac) then
-	TipTac:RegisterElement(ttif,"ItemRef");
+	LibFroznFunctions:RegisterForGroupEvents(PARENT_MOD_NAME, ttif, "ItemRef");
 end
 
 -- Default Config
@@ -131,10 +112,16 @@ local TTIF_DefaultConfig = {
 -- Tooltips to Hook into -- MUST be a GameTooltip widget -- If the main TipTac is installed, the TT_TipsToModify is used instead
 local tipsToModify = {
 	"GameTooltip",
+	"ShoppingTooltip1",
+	"ShoppingTooltip2",
 	"ItemRefTooltip",
+	"ItemRefShoppingTooltip1",
+	"ItemRefShoppingTooltip2",
+	"EmbeddedItemTooltip",
 	"NamePlateTooltip",
 	"BattlePetTooltip",
 	"FloatingBattlePetTooltip",
+	"FloatingPetBattleAbilityTooltip",
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
@@ -144,7 +131,7 @@ local tipsToModify = {
 };
 
 local addOnsLoaded = {
-	["TipTacItemRef"] = false,
+	[MOD_NAME] = false,
 	["Blizzard_AchievementUI"] = false,
 	["Blizzard_Collections"] = false,
 	["Blizzard_Communities"] = false,
@@ -165,9 +152,9 @@ local tipsToAddIcon = {
 	["ItemRefShoppingTooltip2"] = true,
 	["BattlePetTooltip"] = true,
 	["FloatingBattlePetTooltip"] = true,
+	["FloatingPetBattleAbilityTooltip"] = true,
 	["PetJournalPrimaryAbilityTooltip"] = true,
 	["PetJournalSecondaryAbilityTooltip"] = true,
-	["FloatingPetBattleAbilityTooltip"] = true,
 	--["EncounterJournalTooltip"] = true, -- commented out for embedded tooltips, see description in tt:SetPadding()
 };
 
@@ -183,37 +170,6 @@ local COLOR_INCOMPLETE = { 0.5, 0.5, 0.5 };
 
 -- Colored text string (red/green)
 local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
-
---------------------------------------------------------------------------------------------------------
---                                          Helper Functions                                          --
---------------------------------------------------------------------------------------------------------
-
--- Get displayed item
-function ttif:GetDisplayedItem(tooltip)
-	if (TooltipUtil) then
-		if (tooltip:IsTooltipType(Enum.TooltipDataType.Toy)) then -- see TooltipUtil.GetDisplayedItem() in "TooltipUtil.lua"
-			local tooltipData = tooltip:GetTooltipData();
-			local hyperlink = C_ToyBox.GetToyLink(tooltipData.id);
-			if (hyperlink) then
-				local name = GetItemInfo(hyperlink);
-				return name, hyperlink, tooltipData.id;
-			end
-		else
-			return TooltipUtil.GetDisplayedItem(tooltip);
-		end
-	else
-		return tooltip:GetItem();
-	end
-end
-
--- Get displayed spell
-function ttif:GetDisplayedSpell(tooltip)
-	if (tooltip.GetSpell) then
-		return tooltip:GetSpell();
-	else
-		return TooltipUtil.GetDisplayedSpell(tooltip);
-	end
-end
 
 --------------------------------------------------------------------------------------------------------
 --                                         Create Tooltip Icon                                        --
@@ -288,9 +244,11 @@ local function ResolveGlobalNamedObjects(tipTable)
 				tip = false;
 			elseif (tip) then
 				if (type(tip) == "table" and BackdropTemplateMixin and "BackdropTemplate") then
-					Mixin(tip, BackdropTemplateMixin);
+					-- Mixin(tip, BackdropTemplateMixin);
+					LibFroznFunctions:MixinDifferingObjects(tip, BackdropTemplateMixin);
 					if (tip.NineSlice) then
-						Mixin(tip.NineSlice, BackdropTemplateMixin);
+						-- Mixin(tip.NineSlice, BackdropTemplateMixin);
+						LibFroznFunctions:MixinDifferingObjects(tip.NineSlice, BackdropTemplateMixin);
 					end
 				end
 				resolved[tip] = index;
@@ -302,37 +260,6 @@ local function ResolveGlobalNamedObjects(tipTable)
 	end
 end
 
--- Chain config tables
-local function ChainConfigTables(config, defaults)
-	local config_metatable_org = getmetatable(config);
-	
-	return setmetatable(config, {
-		__index = function(tab, index)
-			local value = defaults[index];
-			
-			if (value) then
-				return value;
-			end
-			
-			if (not config_metatable_org) then
-				return nil;
-			end
-			
-			local config_metatable_org__index = config_metatable_org.__index;
-			
-			if (not config_metatable_org__index) then
-				return nil;
-			end
-			
-			if (type(config_metatable_org__index) == "table") then
-				return config_metatable_org__index[index];
-			end
-			
-			return config_metatable_org__index(tab, index);
-		end
-	});
-end
-
 -- Variables Loaded [One-Time-Event]
 function ttif:VARIABLES_LOADED(event)
 	-- What tipsToModify to use, TipTac's main addon, or our own?
@@ -342,7 +269,7 @@ function ttif:VARIABLES_LOADED(event)
 
 	-- Use TipTac settings if installed
 	if (TipTac_Config) then
-		cfg = ChainConfigTables(TipTac_Config, TTIF_DefaultConfig);
+		cfg = LibFroznFunctions:ChainTables(TipTac_Config, TTIF_DefaultConfig);
 	else
 		cfg = TTIF_DefaultConfig;
 	end
@@ -352,7 +279,7 @@ function ttif:VARIABLES_LOADED(event)
 	self:OnApplyConfig();
 	
 	-- Re-Trigger event ADDON_LOADED for TipTacItemRef if config wasn't ready
-	self:ADDON_LOADED("ADDON_LOADED", "TipTacItemRef");
+	self:ADDON_LOADED("ADDON_LOADED", MOD_NAME);
 	
 	-- Cleanup
 	self:UnregisterEvent(event);
@@ -581,18 +508,20 @@ end
 local function SetUnitBuffByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, auraInstanceID);
-		local spellID = aura.spellId;
-		local source = aura.sourceUnit;
-		if (spellID) then
-			local link = GetSpellLink(spellID);
-			if (link) then
-				local linkType, _spellID = link:match("H?(%a+):(%d+)");
-				if (_spellID) then
-					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, true, source, link, linkType, _spellID);
+		if (aura) then
+			local spellID = aura.spellId;
+			local source = aura.sourceUnit;
+			if (spellID) then
+				local link = GetSpellLink(spellID);
+				if (link) then
+					local linkType, _spellID = link:match("H?(%a+):(%d+)");
+					if (_spellID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.spell(self, true, source, link, linkType, _spellID);
 
-					-- apply workaround for first mouseover
-					ttif:ApplyWorkaroundForFirstMouseover(self, true, source, link, linkType, _spellID);
+						-- apply workaround for first mouseover
+						ttif:ApplyWorkaroundForFirstMouseover(self, true, source, link, linkType, _spellID);
+					end
 				end
 			end
 		end
@@ -643,7 +572,7 @@ local function SetAction_Hook(self, slot)
 				CustomTypeFuncs.petAction(self, nil, "petAction", nil, icon);
 			end
 		elseif (actionType == "item") then
-			local name, link = ttif:GetDisplayedItem(self);
+			local name, link = LibFroznFunctions:GetItemFromTooltip(self);
 			if (link) then
 				local linkType, itemID = link:match("H?(%a+):(%d+)");
 				if (itemID) then
@@ -856,7 +785,7 @@ end
 -- HOOK: GameTooltip:SetToyByItemID
 local function SetToyByItemID_Hook(self, itemID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, link = ttif:GetDisplayedItem(self);
+		local name, link = LibFroznFunctions:GetItemFromTooltip(self);
 		if (link) then
 			local linkType, _itemID = link:match("H?(%a+):(%d+)");
 			if (_itemID) then
@@ -1082,7 +1011,7 @@ end
 -- OnTooltipSetItem
 local function OnTooltipSetItem(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, link = ttif:GetDisplayedItem(self);
+		local name, link = LibFroznFunctions:GetItemFromTooltip(self);
 		if (link) then
 			local linkType, itemID = link:match("H?(%a+):(%d+)");
 			if (itemID) then
@@ -1101,7 +1030,7 @@ end
 -- OnTooltipSetSpell
 local function OnTooltipSetSpell(self,...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, id = ttif:GetDisplayedSpell(self);	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
+		local name, id = LibFroznFunctions:GetSpellFromTooltip(self);	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
 		if (id) then
 			local link = GetSpellLink(id);
 			if (link) then
@@ -1620,11 +1549,11 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
 				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
-				if (isWoWWotlkc) or (isWoWSl) or (isWoWRetail) then
+				if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
 					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
 				end
-				if (isWoWSl) or (isWoWRetail) then
+				if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetEnhancedConduit", SetConduit_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
@@ -1641,25 +1570,12 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
 					hooksecurefunc(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
 				end
-				if (isWoWRetail) then
+				if (LibFroznFunctions.isWoWFlavor.DF) then
 					hooksecurefunc(tip, "SetUnitBuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
 					hooksecurefunc(tip, "SetUnitDebuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
 				end
-				if (TooltipDataProcessor) then -- since df 10.0.2
-					TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
-						if (self == tip) then
-							OnTooltipSetItem(self, ...);
-						end
-					end);
-					TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(self, ...)
-						if (self == tip) then
-							OnTooltipSetSpell(self, ...);
-						end
-					end);
-				else -- before df 10.0.2
-					tip:HookScript("OnTooltipSetItem", OnTooltipSetItem);
-					tip:HookScript("OnTooltipSetSpell", OnTooltipSetSpell);
-				end
+				LibFroznFunctions:HookScriptOnTooltipSetItem(tip, OnTooltipSetItem);
+				LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, OnTooltipSetSpell);
 				tip:HookScript("OnTooltipCleared", OnTooltipCleared);
 				if (tipName == "GameTooltip") then
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
@@ -1671,7 +1587,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc("EmbeddedItemTooltip_SetCurrencyByID", EITT_SetCurrencyByID_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_Clear", EITT_Clear_Hook);
 					-- classic support
-					if (isWoWSl) or (isWoWRetail) then
+					if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
 						for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
@@ -1680,7 +1596,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
-						if (isWoWRetail) then
+						if (LibFroznFunctions.isWoWFlavor.DF) then
 							hooksecurefunc(TalentDisplayMixin, "OnEnter", TDM_OnEnter_Hook);
 						end
 					end
@@ -1696,7 +1612,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 						hooksecurefunc("FloatingBattlePet_Show", FBP_Show_Hook);
 						tip:HookScript("OnHide", FBPTT_OnHide_Hook);
 						tipHooked = true;
-					elseif (IsAddOnLoaded("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
+					elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
 						if (tipName == "PetJournalPrimaryAbilityTooltip") then
 							hooksecurefunc("PetJournal_ShowAbilityTooltip", PJ_ShowAbilityTooltip_Hook);
 							hooksecurefunc("PetJournal_ShowAbilityCompareTooltip", PJ_ShowAbilityCompareTooltip_Hook);
@@ -1719,7 +1635,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 							PJATT_EJTT_OnLoad_Hook(tip);
 						end
 						tipHooked = true;
-					elseif (IsAddOnLoaded("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
+					elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
 						hooksecurefunc("AdventureJournal_Reward_OnEnter", AJR_OnEnter_Hook);
 						tip:HookScript("OnHide", EJTT_OnHide_Hook);
 						-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
@@ -1786,7 +1702,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 	end
 	
 	-- now AchievementFrameAchievementsObjectives exists
-	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
+	if (addOnName == "Blizzard_AchievementUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_AchievementUI")) and (not addOnsLoaded['Blizzard_AchievementUI'])) then
 		if (AchievementFrameAchievementsObjectives.GetMiniAchievement) then -- function GetMiniAchievement() doesn't exist in wotlkc
 			local AFAOMAhooked = {}; -- see AchievementsObjectivesMixin:GetMiniAchievement() in "Blizzard_AchievementUI/Blizzard_AchievementUI.lua"
 			
@@ -1799,12 +1715,12 @@ function ttif:ADDON_LOADED(event, addOnName)
 			end);
 		end
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_AchievementUI"] = true;
 		end
 	end
 	-- now PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
-	if (addOnName == "Blizzard_Collections") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Collections")) and (not addOnsLoaded['Blizzard_Collections'])) then
+	if (addOnName == "Blizzard_Collections") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) and (not addOnsLoaded['Blizzard_Collections'])) then
 		pjpatt = PetJournalPrimaryAbilityTooltip;
 		pjsatt = PetJournalSecondaryAbilityTooltip;
 		
@@ -1850,27 +1766,31 @@ function ttif:ADDON_LOADED(event, addOnName)
 			hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
 		end
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_Collections"] = true;
 		end
 	end
 	-- now CommunitiesGuildNewsFrame exists
-	if (addOnName == "Blizzard_Communities") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
-		hooksecurefunc("CommunitiesGuildNewsButton_OnEnter", GNB_OnEnter_Hook);
-
+	if (addOnName == "Blizzard_Communities") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
+		if (CommunitiesGuildNewsButton_OnEnter) then
+			hooksecurefunc("CommunitiesGuildNewsButton_OnEnter", GNB_OnEnter_Hook);
+		end
+		
 		-- Function to apply necessary hooks to CommunitiesFrameGuildDetailsFrameInfo
-		ttif:ApplyHooksToCFGDFI();
-		
-		hooksecurefunc("CommunitiesGuildInfoFrame_UpdateChallenges", function()
+		if (CommunitiesGuildInfoFrame_UpdateChallenges) then
 			ttif:ApplyHooksToCFGDFI();
-		end);
+			
+			hooksecurefunc("CommunitiesGuildInfoFrame_UpdateChallenges", function()
+				ttif:ApplyHooksToCFGDFI();
+			end);
+		end
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_Communities"] = true;
 		end
 	end
 	-- now EncounterJournalTooltip exists
-	if (addOnName == "Blizzard_EncounterJournal") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_EncounterJournal")) and (not addOnsLoaded['Blizzard_EncounterJournal'])) then
+	if (addOnName == "Blizzard_EncounterJournal") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_EncounterJournal")) and (not addOnsLoaded['Blizzard_EncounterJournal'])) then
 		ejtt = EncounterJournalTooltip;
 		
 		-- Hook Tips & Apply Settings
@@ -1881,12 +1801,12 @@ function ttif:ADDON_LOADED(event, addOnName)
 
 		-- self:OnApplyConfig();
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_EncounterJournal"] = true;
 		end
 	end
 	-- now GuildNewsButton exists
-	if (addOnName == "Blizzard_GuildUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_GuildUI")) and (not addOnsLoaded['Blizzard_GuildUI'])) then
+	if (addOnName == "Blizzard_GuildUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_GuildUI")) and (not addOnsLoaded['Blizzard_GuildUI'])) then
 		hooksecurefunc("GuildNewsButton_OnEnter", GNB_OnEnter_Hook);
 		
 		-- Function to apply necessary hooks to GuildInfoFrameInfoChallenge
@@ -1896,20 +1816,20 @@ function ttif:ADDON_LOADED(event, addOnName)
 			ttif:ApplyHooksToGIFIC();
 		end);
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_GuildUI"] = true;
 		end
 	end
 	-- now PlayerChoiceTorghastOption exists
-	if (addOnName == "Blizzard_PlayerChoice") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PlayerChoice")) and (not addOnsLoaded['Blizzard_PlayerChoice'])) then
+	if (addOnName == "Blizzard_PlayerChoice") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_PlayerChoice")) and (not addOnsLoaded['Blizzard_PlayerChoice'])) then
 		hooksecurefunc(PlayerChoicePowerChoiceTemplateMixin, "OnEnter", PCPCTM_OnEnter_Hook);
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PlayerChoice"] = true;
 		end
 	end
 	-- now PVPRewardTemplate exists
-	if (addOnName == "Blizzard_PVPUI") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("Blizzard_PVPUI")) and (not addOnsLoaded['Blizzard_PVPUI'])) then
+	if (addOnName == "Blizzard_PVPUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_PVPUI")) and (not addOnsLoaded['Blizzard_PVPUI'])) then
 		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
 		local buttons = {
 			HonorFrame.BonusFrame.RandomBGButton,
@@ -1923,12 +1843,12 @@ function ttif:ADDON_LOADED(event, addOnName)
 			button.Reward.EnlistmentBonus:HookScript("OnEnter", HFBFB_OnEnter);
 		end
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PVPUI"] = true;
 		end
 	end
 	-- now WorldQuestTrackerAddon exists
-	if (addOnName == "WorldQuestTracker") or ((addOnName == "TipTacItemRef") and (IsAddOnLoaded("WorldQuestTracker")) and (not addOnsLoaded['WorldQuestTracker'])) then
+	if (addOnName == "WorldQuestTracker") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("WorldQuestTracker")) and (not addOnsLoaded['WorldQuestTracker'])) then
 		local WQTThooked = {}; -- see WorldQuestTracker.GetOrCreateTrackerWidget() in "WorldQuestTracker/WorldQuestTracker_Tracker.lua"
 		
 		hooksecurefunc(WorldQuestTrackerAddon, "GetOrCreateTrackerWidget", function(index)
@@ -1939,7 +1859,7 @@ function ttif:ADDON_LOADED(event, addOnName)
 			end
 		end);
 		
-		if (addOnName == "TipTac") then
+		if (addOnName == MOD_NAME) then
 			addOnsLoaded["WorldQuestTracker"] = true;
 		end
 	end
@@ -2081,19 +2001,28 @@ end
 --                                       Tip LinkType Functions                                       --
 --------------------------------------------------------------------------------------------------------
 
--- Sets backdrop border color
-function ttif:SetBackdropBorderColorLocked(tip, lockColor, r, g, b, a)
-	if (not lockColor) and (tip.ttBackdropBorderColorApplied) then
+-- set backdrop border color locked to tip
+--
+-- use isSettingBackdropBorderColor to prevent endless loop when calling LibFroznFunctions:FireGroupEvent() for "SetBackdropBorderColorLocked"
+local isSettingBackdropBorderColor = false;
+
+function ttif:SetBackdropBorderColorLocked(tip, r, g, b, a)
+	local aMultiplied = (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor[4]) or 1);
+	
+	if (TipTac) then
+		-- check if we're already setting backdrop border color locked
+		if (isSettingBackdropBorderColor) then
+			return;
+		end
+		
+		isSettingBackdropBorderColor = true;
+		LibFroznFunctions:FireGroupEvent(PARENT_MOD_NAME, "SetBackdropBorderColorLocked", tip, r, g, b, aMultiplied);
+		isSettingBackdropBorderColor = false;
+		
 		return;
 	end
 	
-	tip.ttSetBackdropBorderColorLocked = false;
-	tip:SetBackdropBorderColor(r, g, b, (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor[4]) or 1));
-	tip.ttSetBackdropBorderColorLocked = true;
-	
-	if (lockColor) then
-		tip.ttBackdropBorderColorApplied = true;
-	end
+	tip:SetBackdropBorderColor(r, g, b, aMultiplied);
 end
 
 -- instancelock
@@ -2101,7 +2030,7 @@ function LinkTypeFuncs:instancelock(link,linkType,guid,mapId,difficulty,encounte
 	--AzDump(guid,mapId,difficulty,encounterBits)
   	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
 --	if (cfg.if_itemQualityBorder) then
---      ttif:SetBackdropBorderColorLocked(self, true, 1, .5, 0, 1);
+--      ttif:SetBackdropBorderColorLocked(self, 1, .5, 0, 1);
 --	end
 end
 
@@ -2138,8 +2067,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 	
 	-- Quality Border
 	if (not self.IsEmbedded) and (cfg.if_itemQualityBorder) then
-		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
+		local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
+		ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
 	end
 
 	-- level + id -- Only alter the tip if we got either a valid "itemLevel" or "id"
@@ -2248,8 +2177,8 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	
 	-- Quality Border
 	if (cfg.if_itemQualityBorder) then
-		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
+		local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
+		ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
 	end
 
 	-- RewardLevel + WeeklyRewardLevel + ItemID + TimeLimit + AffixInfos
@@ -2333,7 +2262,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
 	local mawPowerID = nil;
-	if (isWoWSl) or (isWoWRetail) then
+	if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 		local linkMawPower = GetMawPowerLinkBySpellID(spellID);
 		if (linkMawPower) then
 			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");
@@ -2396,10 +2325,10 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		end
 		
 		if (not spellColor) then
-			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+			spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
 		
-		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
 end
 
@@ -2443,22 +2372,22 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
 				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(1)));
+					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(1)));
 				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-green") then
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(2)));
+					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(2)));
 				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-blue") then
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(3)));
+					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(3)));
 				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-purple") then
-					spellColor = CreateColorFromHexString(select(4, GetItemQualityColor(4)));
+					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(4)));
 				end
 			end
 		end
 		
 		if (not spellColor) then
-			spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+			spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
 		
-		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
 end
 
@@ -2492,7 +2421,7 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
 		end
 		
-		ttif:SetBackdropBorderColorLocked(self, true, difficultyColorMixin:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, difficultyColorMixin:GetRGBA());
 	end
 end
 
@@ -2532,8 +2461,8 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
   	-- Quality Border
 	if (not self.IsEmbedded) and (cfg.if_currencyQualityBorder) then
 		if (currencyInfo) then
-			local currencyQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(quality)));
-			ttif:SetBackdropBorderColorLocked(self, true, currencyQualityColor:GetRGBA());
+			local currencyQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(quality)));
+			ttif:SetBackdropBorderColorLocked(self, currencyQualityColor:GetRGBA());
 		end
 	end
 end
@@ -2636,8 +2565,8 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
   	--  Colored Border
 	if (cfg.if_achievmentColoredBorder) then
 		local achievementColor = ACHIEVEMENT_COLOR_CODE:match("|c(%x+)");
-		local achievementColorMixin = CreateColorFromHexString(achievementColor);
-		ttif:SetBackdropBorderColorLocked(self, true, achievementColorMixin:GetRGBA());
+		local achievementColorMixin = LibFroznFunctions:CreateColorFromHexString(achievementColor);
+		ttif:SetBackdropBorderColorLocked(self, achievementColorMixin:GetRGBA());
 	end
 end
 
@@ -2654,8 +2583,8 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 
 	-- Quality Border
 	if (cfg.if_battlePetQualityBorder) then
-		local battlePetQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(breedQuality or 0)));
-		ttif:SetBackdropBorderColorLocked(self, true, battlePetQualityColor:GetRGBA());
+		local battlePetQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(breedQuality or 0)));
+		ttif:SetBackdropBorderColorLocked(self, battlePetQualityColor:GetRGBA());
 	end
 
 	-- level + creatureID -- Only alter the tip if we got either a valid "level" or "creatureID"
@@ -2777,8 +2706,8 @@ function LinkTypeFuncs:battlePetAbil(link, linkType, abilityID, speciesID, petID
 
 	-- Colored Border
 	if (cfg.if_battlePetAbilityColoredBorder) then
-		local abilityColor = CreateColorFromHexString("FF4E96F7"); -- see GetBattlePetAbilityHyperlink() in "ItemRef.lua"
-		ttif:SetBackdropBorderColorLocked(self, true, abilityColor:GetRGBA());
+		local abilityColor = LibFroznFunctions:CreateColorFromHexString("FF4E96F7"); -- see GetBattlePetAbilityHyperlink() in "ItemRef.lua"
+		ttif:SetBackdropBorderColorLocked(self, abilityColor:GetRGBA());
 	end
 end
 
@@ -2824,8 +2753,8 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
   	-- Quality Border
 	if (cfg.if_conduitQualityBorder) then
 		local conduitQuality = C_Soulbinds.GetConduitQuality(conduitID, conduitRank);
-		local conduitQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(conduitQuality or 0)));
-		ttif:SetBackdropBorderColorLocked(self, true, conduitQualityColor:GetRGBA());
+		local conduitQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(conduitQuality or 0)));
+		ttif:SetBackdropBorderColorLocked(self, conduitQualityColor:GetRGBA());
 	end
 end
 
@@ -2866,8 +2795,8 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 	
 	-- Quality Border
 	if (cfg.if_transmogAppearanceItemQualityBorder) then
-		local itemQualityColor = CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColorLocked(self, true, itemQualityColor:GetRGBA());
+		local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(itemRarity or 0)));
+		ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
 	end
 end
 
@@ -2892,8 +2821,8 @@ function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
 	if (cfg.if_transmogIllusionColoredBorder) then
 		local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
 		local illusionColor = hyperlink:match("|c(%x+)");
-		local illusionColorMixin = CreateColorFromHexString(illusionColor);
-		ttif:SetBackdropBorderColorLocked(self, true, illusionColorMixin:GetRGBA());
+		local illusionColorMixin = LibFroznFunctions:CreateColorFromHexString(illusionColor);
+		ttif:SetBackdropBorderColorLocked(self, illusionColorMixin:GetRGBA());
 	end
 end
 
@@ -2944,8 +2873,8 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
   	-- Quality Border
 	if (cfg.if_transmogSetQualityBorder) then
 		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
-		local setColor = CreateColorFromHexString(select(4, GetItemQualityColor(setQuality)));
-		ttif:SetBackdropBorderColorLocked(self, true, setColor:GetRGBA());
+		local setColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(setQuality)));
+		ttif:SetBackdropBorderColorLocked(self, setColor:GetRGBA());
 	end
 end
 
@@ -2968,8 +2897,8 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 
   	-- Quality Border
 	if (cfg.if_azeriteEssenceQualityBorder) then
-		local essenceColor = CreateColorFromHexString(select(4, GetItemQualityColor(essenceRank + 1)));
-		ttif:SetBackdropBorderColorLocked(self, true, essenceColor:GetRGBA());
+		local essenceColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(essenceRank + 1)));
+		ttif:SetBackdropBorderColorLocked(self, essenceColor:GetRGBA());
 	end
 end
 
@@ -2997,7 +2926,7 @@ function CustomTypeFuncs:runeforgePower(link, linkType, runeforgePowerID)
   	-- Colored Border
 	if (cfg.if_runeforgePowerColoredBorder) then
 		local runeforgePowerColor = CreateColor(LEGENDARY_ORANGE_COLOR.r, LEGENDARY_ORANGE_COLOR.g, LEGENDARY_ORANGE_COLOR.b, 1); -- see RuneforgePowerBaseMixin:OnEnter() in "RuneforgeUtil.lua"
-		ttif:SetBackdropBorderColorLocked(self, true, runeforgePowerColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, runeforgePowerColor:GetRGBA());
 	end
 end
 
@@ -3006,7 +2935,7 @@ function CustomTypeFuncs:guildChallenge(link, linkType)
   	-- Colored Border
 	if (cfg.if_questDifficultyBorder) then
 		local guildChallengeColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see CommunitiesGuildChallengeTemplate:OnEnter() / GuildChallengeTemplate:OnEnter() in "Blizzard_Communities/GuildInfo.xml" / "Blizzard_GuildUI/Blizzard_GuildInfo.xml"
-		ttif:SetBackdropBorderColorLocked(self, true, guildChallengeColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, guildChallengeColor:GetRGBA());
 	end
 end
 
@@ -3015,7 +2944,7 @@ function CustomTypeFuncs:pvpEnlistmentBonus(link, linkType)
   	-- Colored Border
 	if (cfg.if_itemQualityBorder) then
 		local pvpEnlistmentBonusColor = CreateColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1); -- see PVPRewardEnlistmentBonus_OnEnter() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
-		ttif:SetBackdropBorderColorLocked(self, true, pvpEnlistmentBonusColor:GetRGBA());
+		ttif:SetBackdropBorderColorLocked(self, pvpEnlistmentBonusColor:GetRGBA());
 	end
 end
 
@@ -3036,8 +2965,8 @@ function CustomTypeFuncs:flyout(link, linkType, flyoutID, icon)
 
   	-- Colored Border
 	if (cfg.if_flyoutColoredBorder) then
-		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
-		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
+		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
 end
 
@@ -3058,7 +2987,7 @@ function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
 
   	-- Colored Border
 	if (cfg.if_petActionColoredBorder) then
-		local spellColor = CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
-		ttif:SetBackdropBorderColorLocked(self, true, spellColor:GetRGBA());
+		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
 end

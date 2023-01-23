@@ -2,5 +2,6 @@
 
 <Script file="libs\LibStub\LibStub.lua"/>
 <Include file="libs\AceHook-3.0\AceHook-3.0.xml"/>
+<Include file="libs\LibFroznFunctions-1.0\lib.xml"/>
 
 </Ui>

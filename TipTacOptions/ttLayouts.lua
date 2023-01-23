@@ -22,9 +22,9 @@ local layout_presets = {
 
 		reactColoredBackdrop = false,
 
-		colSameGuild = "|cffff32ff",
-		colRace = "|cffffffff",
-		colLevel = "|cffc0c0c0",
+		colorSameGuild = { 1, 0.2, 1, 1 },
+		colorRace = { 1, 1, 1, 1},
+		colorLevel = { 0.75, 0.75, 0.75, 1},
 
 		colorNameByClass = false,
 		classColoredBorder = false,
@@ -70,9 +70,9 @@ local layout_presets = {
 		tipBorderColor = { 0.3, 0.3, 0.4, 1.0 },
 		gradientTip = false,
 
-		colSameGuild = "|cffff32ff",
-		colRace = "|cffffffff",
-		colLevel = "|cffc0c0c0",
+		colorSameGuild = { 1, 0.2, 1, 1 },
+		colorRace = { 1, 1, 1, 1},
+		colorLevel = { 0.75, 0.75, 0.75, 1},
 
 		colorNameByClass = false,
 		classColoredBorder = false,
@@ -112,9 +112,9 @@ local layout_presets = {
 
 		reactColoredBackdrop = false,
 
-		colSameGuild = "|cffff32ff",
-		colRace = "|cffffffff",
-		colLevel = "|cffc0c0c0",
+		colorSameGuild = { 1, 0.2, 1, 1 },
+		colorRace = { 1, 1, 1, 1},
+		colorLevel = { 0.75, 0.75, 0.75, 1},
 
 		colorNameByClass = false,
 		classColoredBorder = false,
@@ -151,8 +151,8 @@ local layout_presets = {
 
 		reactColoredBackdrop = true,
 
-		colRace = "|cffddeeaa",
-		colLevel = "|cffffcc00",
+		colorRace = { 0.87, 0.93, 1, 0.67},
+		colorLevel = { 1, 0.8, 0, 1},
 
 		classification_minus = "Level -%s",
 		classification_trivial = "Level ~%s",
@@ -187,9 +187,9 @@ local layout_presets = {
 	-- Solid Border Layout
 	["Blizzard"] = {
 		colorGuildByReaction = true,
-		colSameGuild = "|cffff32ff",
-		colRace = "|cffffffff",
-		colLevel = "|cffc0c0c0",
+		colorSameGuild = { 1, 0.2, 1, 1 },
+		colorRace = { 1, 1, 1, 1},
+		colorLevel = { 0.75, 0.75, 0.75, 1},
 		colorNameByClass = false,
 		classColoredBorder = false,
 
@@ -231,7 +231,8 @@ local function LoadLayout_SelectValue(dropDown,entry,index)
 	for name, value in next, layout_presets[entry.value] do
 		cfg[name] = value;
 	end
-	TipTac:ApplySettings();
+	local TipTac = _G[PARENT_MOD_NAME];
+	TipTac:ApplyConfig();
 	dropDown:SetText("|cff80ff80Layout Loaded");
 end
 

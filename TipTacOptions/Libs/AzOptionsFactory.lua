@@ -19,9 +19,15 @@
 	- replaced inheritsFrame "OptionsSliderTemplate" with "UISliderTemplateWithLabels" for slider
 	22.11.20 Rev 17 10.0.2/Dragonflight #frozn45
 	- left align text of check button and dropdown
+	23.01.23 Rev 18 10.0.2/Dragonflight #frozn45
+	- added library LibFroznFunctions-1.0
+	- removed extended funtion SetFromHexColorMarkup() from color object
+	- adjusted x offsets of Slider, CheckButton, ColorButton, DropDown and TextEdit
+	- added a TextOnly element
 --]]
 
-local REVISION = 17;
+-- create new library
+local REVISION = 18; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -36,38 +42,16 @@ azof.__index = azof;
 
 azof.objects = {};
 
-local ReturnZeroMeta = { __index = function() return 0; end };
+local PARENT_MOD_NAME = "TipTac";
 
--- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
-if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
-	isWoWClassic = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	isWoWBcc = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
-	isWoWWotlkc = true;
-else -- retail
-	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
-		isWoWSl = true;
-	else
-		isWoWRetail = true;
-	end
-end
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 --------------------------------------------------------------------------------------------------------
 --                                          Helper Functions                                          --
 --------------------------------------------------------------------------------------------------------
 
--- Converts hex string colors to RGBA
-local function SetFromHexColorMarkup(self,string)
-	local ha, hr, hg, hb = string:match("^|c(..)(..)(..)(..)");
-	self:SetRGBA(
-		format("%d","0x"..hr) / 255,
-		format("%d","0x"..hg) / 255,
-		format("%d","0x"..hb) / 255,
-		format("%d","0x"..ha) / 255
-	);
-end
+local ReturnZeroMeta = { __index = function() return 0; end };
 
 -- Generate Unique Object Name
 local function GenerateObjectName(type)
@@ -80,7 +64,8 @@ function azof:GetObject(type)
 	-- verify the object type is valid
 	local obj = self.objects[type];
 	if (not obj) then
-		AzMsg("|2<ERROR>|r Invalid factory object type!");
+		local TipTac = _G[PARENT_MOD_NAME];
+		TipTac:AddMessageToChatFrame(PARENT_MOD_NAME .. ": {error:Invalid factory object type {highlight:[%s]}!}");
 		return;
 	end
 
@@ -201,7 +186,7 @@ end
 
 -- create slider
 azof.objects.Slider = {
-	xOffset = 18,
+	xOffset = 15,
 	yOffset = 4,
 	Init = function(self,option,cfgValue)
 		self.slider:SetMinMaxValues(option.min,option.max);
@@ -214,7 +199,7 @@ azof.objects.Slider = {
 	end,
 	CreateNew = function(self)
 		local f = CreateFrame("Frame",nil,self.owner);
-		f:SetSize(292,32);
+		f:SetSize(296,32);
 
 		f.edit = CreateFrame("EditBox",GenerateObjectName("EditBox"),f,"InputBoxTemplate");
 		f.edit:SetSize(45,21);
@@ -226,8 +211,8 @@ azof.objects.Slider = {
 
 		local sliderName = GenerateObjectName("Slider");
 
-		f.slider = CreateFrame("Slider",sliderName,f,isWoWRetail and "UISliderTemplateWithLabels" or "OptionsSliderTemplate");
-		if (isWoWRetail and BackdropTemplateMixin and "BackdropTemplate") then
+		f.slider = CreateFrame("Slider", sliderName, f, LibFroznFunctions.isWoWFlavor.DF and "UISliderTemplateWithLabels" or "OptionsSliderTemplate");
+		if (LibFroznFunctions.isWoWFlavor.DF and BackdropTemplateMixin and "BackdropTemplate") then
 			Mixin(f.slider, BackdropTemplateMixin);
 			f.slider.backdropInfo = BACKDROP_SLIDER_8_8;
 			f.slider:ApplyBackdrop();
@@ -277,7 +262,7 @@ azof.objects.Header = {
 	yOffset = 0,
 	CreateNew = function(self)
 		local f = CreateFrame("Frame", nil, self.owner);
-		f:SetSize(302, 18);
+		f:SetSize(301, 18);
 		
 		f.text = f:CreateFontString("ARTWORK", nil, "GameFontNormalSmall");
 		f.text:SetPoint("TOP");
@@ -330,7 +315,7 @@ end
 
 -- New CheckButton
 azof.objects.Check = {
-	xOffset = 10,
+	xOffset = 7,
 	yOffset = -4,
 	Init = function(self,option,cfgValue)
 		self:SetHitRectInsets(0,self.text:GetWidth() * -1,0,0);
@@ -455,12 +440,18 @@ end
 
 -- New ColorButton
 azof.objects.Color = {
-	xOffset = 14,
+	xOffset = 10,
 	yOffset = 5,
 	Init = function(self,option,cfgValue)
 		self:SetHitRectInsets(0,self.text:GetWidth() * -1,0,0);
 		if (option.subType == 2) then
-			self.color:SetFromHexColorMarkup(cfgValue);
+			local ha, hr, hg, hb = cfgValue:match("^|c(..)(..)(..)(..)");
+			self.color:SetRGBA(
+				format("%d","0x"..hr) / 255,
+				format("%d","0x"..hg) / 255,
+				format("%d","0x"..hb) / 255,
+				format("%d","0x"..ha) / 255
+			);
 		else
 			self.color:SetRGBA(unpack(cfgValue));
 		end
@@ -488,7 +479,6 @@ azof.objects.Color = {
 		f.text:SetPoint("LEFT",f,"RIGHT",4,-1);
 
 		f.color = CreateColor();
-		f.color.SetFromHexColorMarkup = SetFromHexColorMarkup;	-- extended the color object
 
 		return f;
 	end,
@@ -614,7 +604,7 @@ end
 
 -- New DropDown
 azof.objects.DropDown = {
-	xOffset = 136,
+	xOffset = 131,
 	yOffset = 2,
 	Init = function(self,option,cfgValue)
 		self.initFunc = (option.init or option.media and SharedMediaLib_Init or Default_Init);
@@ -641,7 +631,7 @@ end
 
 -- New Text Edit
 azof.objects.Text = {
-	xOffset = 136,
+	xOffset = 131,
 	yOffset = 0,
 	backdrop = {
 		bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -668,6 +658,27 @@ azof.objects.Text = {
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 		f.text:SetPoint("LEFT",-120,-1);
+
+		return f;
+	end,
+};
+
+--------------------------------------------------------------------------------------------------------
+--                                             Text Only                                              --
+--------------------------------------------------------------------------------------------------------
+
+-- New Text Only
+azof.objects.TextOnly = {
+	xOffset = 10,
+	yOffset = 0,
+	CreateNew = function(self)
+		local f = CreateFrame("Frame", nil, self.owner);
+		f:SetSize(301, 18);
+
+		f.text = f:CreateFontString("ARTWORK", nil, "GameFontNormalSmall");
+		f.text:SetPoint("LEFT");
+		f.text:SetPoint("RIGHT");
+		f.text:SetJustifyH("LEFT");
 
 		return f;
 	end,

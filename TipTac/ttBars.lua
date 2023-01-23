@@ -1,17 +1,26 @@
+-- Addon
+local MOD_NAME = ...;
+
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
+
 -- TipTac refs
-local tt = TipTac;
+local tt = _G[MOD_NAME];
 local cfg;
+local TT_CacheForFrames;
 
 -- element registration
-local ttBars = tt:RegisterElement({ bars = {} },"Bars");
+local ttBars = { bars = {} };
 local bars = ttBars.bars;
+
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttBars, "Bars");
 
 -- Constants
 local BAR_MARGIN_X = 8;
 local BAR_MARGIN_Y = 9;
-local BAR_SPACING = 5;
+local BAR_SPACING = 7;
 
-local CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS;
+local TT_GTT_MINIMUM_WIDTH_FOR_BARS = 110; -- minimum width for bars, so that numbers are not out of bounds
 
 --------------------------------------------------------------------------------------------------------
 --                                         Mixin: Health Bar                                          --
@@ -19,14 +28,14 @@ local CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS;
 
 local HealthBarMixin = {};
 
-function HealthBarMixin:GetVisibility(u)
+function HealthBarMixin:GetVisibility(unitRecord)
 	return cfg.healthBar;
 end
 
-function HealthBarMixin:GetColor(u)
-	if (u.isPlayer) and (cfg.healthBarClassColor) then
-		local color = CLASS_COLORS[u.classFile] or CLASS_COLORS["PRIEST"];
-		return color.r, color.g, color.b;
+function HealthBarMixin:GetColor(unitRecord)
+	if (unitRecord.isPlayer) and (cfg.healthBarClassColor) then
+		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5);
+		return classColor:GetRGBA();
 	else
 		return unpack(cfg.healthBarColor);
 	end
@@ -34,18 +43,20 @@ end
 
 if (RealMobHealth) then
 	local RMH = RealMobHealth;
-	function HealthBarMixin:GetValueParams(u)
-		local val, max = RMH.GetUnitHealth(u.token);
+	function HealthBarMixin:GetValueParams(unitRecord)
+		local val, max = RMH.GetUnitHealth(unitRecord.id);
 		if (not val) or (not max) then
-			val = UnitHealth(u.token);
-			max = UnitHealthMax(u.token);
+			val = unitRecord.health;
+			max = unitRecord.healthMax;
 		end
+		
 		return val, max, cfg.healthBarText;
 	end
 else
-	function HealthBarMixin:GetValueParams(u)
-		local val = UnitHealth(u.token);
-		local max = UnitHealthMax(u.token);
+	function HealthBarMixin:GetValueParams(unitRecord)
+		local val = unitRecord.health;
+		local max = unitRecord.healthMax;
+		
 		return val, max, cfg.healthBarText;
 	end
 end
@@ -56,31 +67,28 @@ end
 
 local PowerBarMixin = {};
 
-function PowerBarMixin:GetVisibility(u)
-	u.powerType = UnitPowerType(u.token);
-	return (UnitPowerMax(u.token,u.powerType) ~= 0) and (cfg.manaBar and u.powerType == 0 or cfg.powerBar and u.powerType ~= 0);
+function PowerBarMixin:GetVisibility(unitRecord)
+	return (unitRecord.powerMax ~= 0) and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
 end
 
-function PowerBarMixin:GetColor(u)
-	if (u.powerType == 0) then
+function PowerBarMixin:GetColor(unitRecord)
+	if (unitRecord.powerType == 0) then
 		return unpack(cfg.manaBarColor);
-	else
-		local powerColor = PowerBarColor[u.powerType or 5];
-		return powerColor.r, powerColor.g, powerColor.b;
 	end
+	
+	local powerColor = LibFroznFunctions:GetPowerColor(unitRecord.powerType, Enum.PowerType.Runes);
+	
+	return powerColor:GetRGBA();
 end
 
-function PowerBarMixin:GetValueParams(u)
+function PowerBarMixin:GetValueParams(unitRecord)
 	-- verify unit is still using the same power type, if not, update the bar color
-	local newPowerType = UnitPowerType(u.token);
-	if (newPowerType ~= u.powerType) then
-		u.powerType = newPowerType;
-		self:SetStatusBarColor(self:GetColor(u));
-	end
-
-	local val = UnitPower(u.token,u.powerType);
-	local max = UnitPowerMax(u.token,u.powerType);
-	local fmt = (u.powerType == 0 and cfg.manaBarText) or (cfg.powerBarText);
+	self:SetStatusBarColor(self:GetColor(unitRecord));
+	
+	local val = unitRecord.power;
+	local max = unitRecord.powerMax;
+	local fmt = (unitRecord.powerType == 0 and cfg.manaBarText) or (cfg.powerBarText);
+	
 	return val, max, fmt;
 end
 
@@ -91,10 +99,10 @@ end
 --[[
 local CastBarMixin = {};
 
-function CastBarMixin:GetVisibility(u)
-	if (UnitCastingInfo(u.token)) then
+function CastBarMixin:GetVisibility(unitRecord)
+	if (UnitCastingInfo(unitRecord.id)) then
 		self.castType = "cast";
-	elseif (UnitCastingInfo(u.token)) then
+	elseif (UnitCastingInfo(unitRecord.id)) then
 		self.castType = "channel";
 	else
 		self.castType = nil;
@@ -102,17 +110,17 @@ function CastBarMixin:GetVisibility(u)
 	return (self.castType ~= nil);
 end
 
-function CastBarMixin:GetColor(u)
+function CastBarMixin:GetColor(unitRecord)
 	return CastingBarFrame.startChannelColor:GetRGBA();
 end
 
-function CastBarMixin:GetValueParams(u)
+function CastBarMixin:GetValueParams(unitRecord)
 	local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible;
 	local castID, notInterruptible, spellId;
 	if (self.castType == "cast") then
-		name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible = UnitCastingInfo(u.token);
+		name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible = UnitCastingInfo(unitRecord.id);
 	elseif (self.castType == "channel") then
-		name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitChannelInfo(u.token);
+		name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitChannelInfo(unitRecord.id);
 	end
 
 	if (not name) then
@@ -185,19 +193,33 @@ function ttBars:CreateBar(parent,tblMixin)
 	return Mixin(bar,tblMixin);
 end
 
--- Initializes the anchoring position and color for each bar
-function ttBars:SetupBars(tip)
+-- setup bars. initializes the anchoring position and color for each bar.
+function ttBars:SetupBars(TT_CacheForFrames, tip, unitRecord)
+	-- get frame parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	-- setup bars
+	local offsetY = BAR_MARGIN_Y;
+	
+	frameParams.currentDisplayParams.extraPaddingBottomForBars = 0;
+	
 	for index, bar in ipairs(bars) do
 		bar:ClearAllPoints();
-
-		if (bar:GetVisibility(tip.ttUnit)) then
-			bar:SetPoint("BOTTOMLEFT", tt.padding.right + BAR_MARGIN_X, tt.padding.bottom + BAR_MARGIN_Y);
-			bar:SetPoint("BOTTOMRIGHT", -tt.padding.left - BAR_MARGIN_X, tt.padding.bottom + BAR_MARGIN_Y);
-
-			bar:SetStatusBarColor(bar:GetColor(tip.ttUnit));
-
-			tt.padding.bottom = (tt.padding.bottom + cfg.barHeight + BAR_SPACING);
-
+		
+		if (bar:GetVisibility(unitRecord)) then
+			bar:SetPoint("BOTTOMLEFT", tip.Center, BAR_MARGIN_X, offsetY);
+			bar:SetPoint("BOTTOMRIGHT", tip.Center, -BAR_MARGIN_X, offsetY);
+			
+			bar:SetStatusBarColor(bar:GetColor(unitRecord));
+			
+			offsetY = offsetY + cfg.barHeight + BAR_SPACING;
+			
+			frameParams.currentDisplayParams.extraPaddingBottomForBars = frameParams.currentDisplayParams.extraPaddingBottomForBars + cfg.barHeight + BAR_SPACING;
+			
 			bar:Show();
 		else
 			bar:Hide();
@@ -209,8 +231,9 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttBars:OnLoad()
-	cfg = TipTac_Config;
+function ttBars:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+	TT_CacheForFrames = _TT_CacheForFrames;
+	cfg = _cfg;
 
 	-- Make two bars: Health & Power
 	local tip = GameTooltip;
@@ -221,31 +244,42 @@ function ttBars:OnLoad()
 	end
 end
 
-function ttBars:OnApplyConfig(cfg)
+function ttBars:OnApplyConfig(TT_CacheForFrames, cfg)
 	GameTooltipStatusBar:SetStatusBarTexture(cfg.barTexture);
 	GameTooltipStatusBar:GetStatusBarTexture():SetHorizTile(false);	-- Az: 3.3.3 fix
 	GameTooltipStatusBar:GetStatusBarTexture():SetVertTile(false);	-- Az: 3.3.3 fix
 	GameTooltipStatusBar:SetHeight(cfg.barHeight);
 
 	for _, bar in ipairs(bars) do
+		-- set default texture if texture in config is not valid
+		if (not LibFroznFunctions:TextureExists(cfg.barTexture)) then
+			cfg.barTexture = nil;
+			tt:AddMessageToChatFrame(MOD_NAME .. ": {error:No valid texture set in option tab {highlight:Bars}. Switching to default texture.}");
+		end
+		
+		-- set texture
 		bar:SetStatusBarTexture(cfg.barTexture);
 		bar:GetStatusBarTexture():SetHorizTile(false);	-- Az: 3.3.3 fix
 		bar:GetStatusBarTexture():SetVertTile(false);	-- Az: 3.3.3 fix
 		bar:SetHeight(cfg.barHeight);
-		bar.text:SetFont(cfg.barFontFace,cfg.barFontSize,cfg.barFontFlags);
 		
-		-- Set default font if font in config is not valid
-		if (not bar.text:GetFont()) then
-			bar.text:SetFont(NumberFontNormal:GetFont());
-			AzMsg("TipTac: |3Please set a valid font in option tab |1Bars|r. Using default font instead.|r");
+		-- set default font if font in config is not valid
+		if (not LibFroznFunctions:FontExists(cfg.barFontFace)) then
+			cfg.barFontFace = nil;
+			tt:AddMessageToChatFrame(MOD_NAME .. ": {error:No valid Font set in option tab {highlight:Bars}. Switching to default Font.}");
 		end
+		
+		-- set font
+		bar.text:SetFont(cfg.barFontFace, cfg.barFontSize, cfg.barFontFlags);
 	end
 end
 
-function ttBars:OnPreStyleTip(tip,first)
+function ttBars:OnTipPreStyle(TT_CacheForFrames, tip, first)
+	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
+	
 	-- for the first time styling, we want to initialize the bars
 	if (first) then
-		self:SetupBars(tip);
+		self:SetupBars(TT_CacheForFrames, tip, unitRecord);
 
 		-- Hide GTT Status bar, we have our own, which is prettier!
 		if (cfg.hideDefaultBar) then
@@ -256,7 +290,8 @@ function ttBars:OnPreStyleTip(tip,first)
 	-- update each shown bar
 	for _, bar in ipairs(bars) do
 		if (bar:IsShown()) then
-			local val, max, fmt = bar:GetValueParams(tip.ttUnit);
+			local val, max, fmt = bar:GetValueParams(unitRecord);
+			
 			bar:SetMinMaxValues(0,max);
 			bar:SetValue(val);
 			bar:SetFormattedBarValues(val,max,fmt);
@@ -264,7 +299,22 @@ function ttBars:OnPreStyleTip(tip,first)
 	end
 end
 
-function ttBars:OnCleared(tip)
+function ttBars:OnTipResize(TT_CacheForFrames, tip, first)
+	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
+	
+	-- set minimum width for bars, so that numbers are not out of bounds
+	for index, bar in ipairs(bars) do
+		if (bar:GetVisibility(unitRecord)) then
+			if (tip:GetWidth() < TT_GTT_MINIMUM_WIDTH_FOR_BARS) then
+				tip:SetMinimumWidth(TT_GTT_MINIMUM_WIDTH_FOR_BARS);
+			end
+			
+			break;
+		end
+	end
+end
+
+function ttBars:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip)
 	for _, bar in ipairs(bars) do
 		if (bar:GetParent() == tip) then
 			bar:Hide();

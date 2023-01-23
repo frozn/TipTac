@@ -1,21 +1,9 @@
 local cfg = TipTac_Config;
-local modName = "TipTac";
+local MOD_NAME = ...;
+local PARENT_MOD_NAME = "TipTac";
 
--- classic support
-local isWoWClassic, isWoWBcc, isWoWWotlkc, isWoWSl, isWoWRetail = false, false, false, false, false;
-if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
-	isWoWClassic = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	isWoWBcc = true;
-elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
-	isWoWWotlkc = true;
-else -- retail
-	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
-		isWoWSl = true;
-	else
-		isWoWRetail = true;
-	end
-end
+-- get libs
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- DropDown Lists
 local DROPDOWN_FONTFLAGS = {
@@ -58,7 +46,7 @@ local options = {};
 local ttOptionsGeneral = {
 	{ type = "Check", var = "showUnitTip", label = "Enable TipTac Unit Tip Appearance", tip = "Will change the appearance of how unit tips look. Many options in TipTac only work with this setting enabled.\nNOTE: Using this options with a non English client may cause issues!" },
 	{ type = "Check", var = "showStatus", label = "Show DC, AFK and DND Status", tip = "Will show the <DC>, <AFK> and <DND> status after the player name", y = 8 },
-	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options '"..(isWoWRetail and "Game->Gameplay->Interface->Nameplates" or "Interface->Names").."') are evaluated instead." },
+	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options '"..(LibFroznFunctions.isWoWFlavor.DF and "Game->Gameplay->Interface->Nameplates" or "Interface->Names").."') are evaluated instead." },
 	{ type = "Check", var = "showPlayerGender", label = "Show Player Gender", tip = "This will show the gender of the player. E.g. \"85 Female Blood Elf Paladin\"." },
 	{ type = "Check", var = "showCurrentUnitSpeed", label = "Show Current Unit Speed", tip = "This will show the current speed of the unit after race & class." }
 };
@@ -89,43 +77,50 @@ local options = {
 		{ type = "Check", var = "enableChatHoverTips", label = "Enable ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the chatframe, show the tooltip without having to click on it", y = 24 },
 		{ type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip", y = 10 },
 		{ type = "Check", var = "hideFactionText", label = "Hide Faction Text", tip = "Strips the Alliance or Horde faction text from the tooltip", x = 170 },
-		{ type = "Check", var = "hideRealmText", label = "Hide Coalesced Realm Text", tip = "Strips the Coalesced Realm text from the tooltip" },
  	},
 	-- Colors
 	{
 		[0] = "Colors",
 		{ type = "Check", var = "colorGuildByReaction", label = "Color Guild by Reaction", tip = "Guild color will have the same color as the reacion" },
-		{ type = "Color", subType = 2, var = "colGuild", label = "Guild Color", tip = "Color of the guild name, when not using the option to make it the same as reaction color", y = 8 },
-		{ type = "Color", subType = 2, var = "colSameGuild", label = "Your Guild Color", tip = "To better recognise players from your guild, you can configure the color of your guild name individually", x = 120 },
-		{ type = "Color", subType = 2, var = "colRace", label = "Race & Creature Type Color", tip = "The color of the race and creature type text", y = 8 },
-		{ type = "Color", subType = 2, var = "colLevel", label = "Neutral Level Color", tip = "Units you cannot attack will have their level text shown in this color" },
+		{ type = "Color", var = "colorGuild", label = "Guild Color", tip = "Color of the guild name, when not using the option to make it the same as reaction color", y = 8 },
+		{ type = "Color", var = "colorSameGuild", label = "Your Guild Color", tip = "To better recognise players from your guild, you can configure the color of your guild name individually", x = 120 },
+		{ type = "Color", var = "colorRace", label = "Race & Creature Type Color", tip = "The color of the race and creature type text", y = 8 },
+		{ type = "Color", var = "colorLevel", label = "Neutral Level Color", tip = "Units you cannot attack will have their level text shown in this color" },
 		{ type = "Check", var = "colorNameByClass", label = "Color Player Names by Class Color", tip = "With this option on, player names are colored by their class color, otherwise they will be colored by reaction", y = 12 },
-		{ type = "Check", var = "classColoredBorder", label = "Color Tip Border by Class Color", tip = "For players, the border color will be colored to match the color of their class\nNOTE: This option is overridden by reaction colored border" },
+		{ type = "Check", var = "classColoredBorder", label = "Color Tip Border by Class Color", tip = "For players, the border color will be colored to match the color of their class\nNOTE: This option overrides reaction colored border" },
 	},
 	-- Reactions
 	{
 		[0] = "Reactions",
+		{ type = "Check", var = "reactColoredBorder", label = "Color border based on the unit's reaction", tip = "Same as the above option, just for the border\nNOTE: This option is overridden by class colored border" },
 		{ type = "Check", var = "reactText", label = "Show the unit's reaction as text", tip = "With this option on, the reaction of the unit will be shown as text on the last line" },
-		{ type = "Color", subType = 2, var = "colReactText1", label = "Tapped Color", y = 42 },
-		{ type = "Color", subType = 2, var = "colReactText2", label = "Hostile Color" },
-		{ type = "Color", subType = 2, var = "colReactText3", label = "Caution Color" },
-		{ type = "Color", subType = 2, var = "colReactText4", label = "Neutral Color" },
-		{ type = "Color", subType = 2, var = "colReactText5", label = "Friendly NPC or PvP Player Color" },
-		{ type = "Color", subType = 2, var = "colReactText6", label = "Friendly Player Color" },
-		{ type = "Color", subType = 2, var = "colReactText7", label = "Dead Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.tapped, label = "Tapped Color", y = 20 },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.hostile, label = "Hostile Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.caution, label = "Caution Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.neutral, label = "Neutral Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.friendlyPlayer, label = "Friendly Player Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.friendlyPvPPlayer, label = "Friendly PvP Player Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.friendlyNPC, label = "Friendly NPC Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.honoredNPC, label = "Honored NPC Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.reveredNPC, label = "Revered NPC Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.exaltedNPC, label = "Exalted NPC Color" },
+		{ type = "Color", var = "colorReactText" .. LFF_UNIT_REACTION_INDEX.dead, label = "Dead Color" },
 	},
 	-- BG Color
 	{
 		[0] = "BG Color",
 		{ type = "Check", var = "reactColoredBackdrop", label = "Color backdrop based on the unit's reaction", tip = "If you want the tip's background color to be determined by the unit's reaction towards you, enable this. With the option off, the background color will be the one selected on the 'Backdrop' page" },
-		{ type = "Check", var = "reactColoredBorder", label = "Color border based on the unit's reaction", tip = "Same as the above option, just for the border\nNOTE: This option overrides class colored border" },
-		{ type = "Color", var = "colReactBack1", label = "Tapped Color", y = 20 },
-		{ type = "Color", var = "colReactBack2", label = "Hostile Color" },
-		{ type = "Color", var = "colReactBack3", label = "Caution Color" },
-		{ type = "Color", var = "colReactBack4", label = "Neutral Color" },
-		{ type = "Color", var = "colReactBack5", label = "Friendly NPC or PvP Player Color" },
-		{ type = "Color", var = "colReactBack6", label = "Friendly Player Color" },
-		{ type = "Color", var = "colReactBack7", label = "Dead Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.tapped, label = "Tapped Color", y = 20 },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.hostile, label = "Hostile Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.caution, label = "Caution Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.neutral, label = "Neutral Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.friendlyPlayer, label = "Friendly Player Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.friendlyPvPPlayer, label = "Friendly PvP Player Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.friendlyNPC, label = "Friendly NPC Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.honoredNPC, label = "Honored NPC Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.reveredNPC, label = "Revered NPC Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.exaltedNPC, label = "Exalted NPC Color" },
+		{ type = "Color", var = "colorReactBack" .. LFF_UNIT_REACTION_INDEX.dead, label = "Dead Color" },
 	},
 	-- Backdrop
 	{
@@ -166,8 +161,8 @@ local options = {
 	-- Fading
 	{
 		[0] = "Fading",
-		{ type = "Check", var = "overrideFade", label = "Override Default GameTooltip Fade", tip = "Overrides the default fadeout function of the GameTooltip. If you are seeing problems regarding fadeout, please disable." },
-		{ type = "Slider", var = "preFadeTime", label = "Prefade Time", min = 0, max = 5, step = 0.05, y = 16 },
+		{ type = "Check", var = "overrideFade", label = "Override Default GameTooltip Fade for Units", tip = "Overrides the default fadeout function of the GameTooltip for units. If you are seeing problems regarding fadeout, please disable." },
+		{ type = "Slider", var = "preFadeTime", label = "Prefade Time", min = 0, max = 5, step = 0.05, y = 8 },
 		{ type = "Slider", var = "fadeTime", label = "Fadeout Time", min = 0, max = 5, step = 0.05 },
 		{ type = "Check", var = "hideWorldTips", label = "Instantly Hide World Frame Tips", tip = "This option will make most tips which appear from objects in the world disappear instantly when you take the mouse off the object. Examples such as mailboxes, herbs or chests.\nNOTE: Does not work for all world objects.", y = 16 },
 	},
@@ -192,8 +187,8 @@ local options = {
 		{ type = "Check", var = "manaBar", label = "Show Mana Bar", tip = "If the unit has mana, a mana bar will be shown.", y = 12 },
 		{ type = "DropDown", var = "manaBarText", label = "Mana Bar Text", list = DROPDOWN_BARTEXTFORMAT },
 		{ type = "Color", var = "manaBarColor", label = "Mana Bar Color", tip = "The color of the mana bar" },
-		{ type = "Check", var = "powerBar", label = "Show Energy, Rage, Runic Power or Focus Bar", tip = "If the unit uses either energy, rage, runic power or focus, a bar for that will be shown.", y = 12 },
-		{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = DROPDOWN_BARTEXTFORMAT },
+		{ type = "Check", var = "powerBar", label = "Show Bar for other Power Types\n(e.g. Energy, Rage, Runic Power or Focus)", tip = "If the unit uses other power types than mana (e.g. energy, rage, runic power or focus), a bar for that will be shown.", y = 12 },
+		{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = DROPDOWN_BARTEXTFORMAT, y = 6 },
 	},
 	-- Auras
 	{
@@ -257,9 +252,31 @@ local options = {
 	-- Combat
 	{
 		[0] = "Combat",
-		{ type = "DropDown", var = "hideTips", label = "Hide Tips", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["Spells"] = "spells", ["All Tips"] = "all", ["No Tips"] = "none" } },
-		{ type = "DropDown", var = "hideTipsInCombat", label = "Hide Tips in Combat", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["Spells"] = "spells", ["All Tips"] = "all", ["No Tips"] = "none" } },
-		{ type = "Check", var = "showHiddenTipsOnShift", label = "Still Show Hidden Tips when Holding Shift", tip = "When you have this option checked, and one of the above options, you can still force the tip to show, by holding down shift", y = 8 },
+		{ type = "Header", label = "Hide Tips Out Of Combat" },
+		{ type = "Check", var = "hideTipsWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden." },
+		{ type = "Check", var = "hideTipsFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden.", x = 160 },
+		{ type = "Check", var = "hideTipsWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden." },
+		{ type = "Check", var = "hideTipsFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden.", x = 160 },
+		
+		{ type = "Check", var = "hideTipsUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden.", y = 10 },
+		{ type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160 },
+		{ type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden." },
+		{ type = "Check", var = "hideTipsActionTips", label = "Hide Other Action Bar Tips", tip = "When you have this option checked, other Action Bar Tips will be hidden." },
+		
+		{ type = "Header", label = "Hide Tips In Combat", y = 12 },
+		{ type = "Check", var = "hideTipsInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden in combat." },
+		{ type = "Check", var = "hideTipsInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden in combat.", x = 160 },
+		{ type = "Check", var = "hideTipsInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden in combat." },
+		{ type = "Check", var = "hideTipsInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden in combat.", x = 160 },
+		
+		{ type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10 },
+		{ type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160 },
+		{ type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat." },
+		{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Other Action Bar Tips", tip = "When you have this option checked, other Action Bar Tips will be hidden in combat." },
+		
+		{ type = "Header", label = "Others", y = 12 },
+		{ type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["None"] = "none" }, y = 8 },
+		{ type = "TextOnly", label = "", y = -14 }, -- spacer for multi-line label above
 	},
 	-- Layouts
 	{
@@ -271,16 +288,18 @@ local options = {
 };
 
 -- TipTacTalents Support
+local TipTacTalents = _G[PARENT_MOD_NAME .. "Talents"];
+
 if (TipTacTalents) then
 	local tttOptions = {
 		{ type = "Check", var = "t_enable", label = "Enable TipTacTalents", tip = "Turns on or off all features of the TipTacTalents addon" },
 		{ type = "Header", label = "Talents", y = 12 },
 		{ type = "Check", var = "t_showTalents", label = "Show Talents", tip = "This option makes the tip show the talent specialization of other players" },
-		{ type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown" },
+		{ type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown", y = 12 }
 	};
 	
-	if (not isWoWClassic) then
-		if (not isWoWWotlkc) then
+	if (not LibFroznFunctions.isWoWFlavor.ClassicEra) then
+		if (not LibFroznFunctions.isWoWFlavor.WotLKC) then
 			tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" };
 		end
 		
@@ -290,8 +309,8 @@ if (TipTacTalents) then
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 12 };
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorTalentTextByClass", label = "Color Talent Text by Class Color", tip = "With this option on, talent text is colored by their class color" };
 	
-	if (not isWoWSl) then
-		if (isWoWRetail) then
+	if (not LibFroznFunctions.isWoWFlavor.SL) then
+		if (LibFroznFunctions.isWoWFlavor.DF) then
 			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (31/30)"] = 1, ["Elemental"] = 2, ["31/30"] = 3,}, y = 8 }; -- not supported with MoP changes
 		else
 			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (57/14/0)"] = 1, ["Elemental"] = 2, ["57/14/0"] = 3,}, y = 8 }; -- not supported with MoP changes
@@ -300,6 +319,7 @@ if (TipTacTalents) then
 	
 	tttOptions[#tttOptions + 1] = { type = "Header", label = "Average Item Level", y = 12 };
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players" };
+	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorAILTextByQuality", label = "Color Average Item Level Text by Quality Color", tip = "With this option on, average item level text is colored by the average quality of the items" };
 	
 	options[#options + 1] = {
 		[0] = "Talents/AIL",
@@ -308,6 +328,8 @@ if (TipTacTalents) then
 end
 
 -- TipTacItemRef Support -- Az: this category page is full -- Frozn45: added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
+local TipTacItemRef = _G[PARENT_MOD_NAME .. "ItemRef"];
+
 if (TipTacItemRef) then
 	options[#options + 1] = {
 		[0] = "ItemRef",
@@ -390,7 +412,7 @@ end
 --                                          Initialize Frame                                          --
 --------------------------------------------------------------------------------------------------------
 
-local f = CreateFrame("Frame",modName.."Options",UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
+local f = CreateFrame("Frame",MOD_NAME,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
 UISpecialFrames[#UISpecialFrames + 1] = f:GetName();
 
@@ -427,18 +449,19 @@ end
 
 f.header = f:CreateFontString(nil,"ARTWORK","GameFontHighlight");
 f.header:SetFont(GameFontNormal:GetFont(),22,"THICKOUTLINE");
-f.header:SetPoint("TOPLEFT",f.outline,"TOPRIGHT",10,-4);
-f.header:SetText(modName.." Options");
+f.header:SetPoint("TOPLEFT",f.outline,"TOPRIGHT",9,-4);
+f.header:SetText(PARENT_MOD_NAME.." Options");
 
 f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 f.vers:SetPoint("TOPRIGHT",-15,-15);
 local version, build = GetBuildInfo();
-f.vers:SetText("TipTac: " .. GetAddOnMetadata(modName, "Version") .. "\nWoW: " .. version);
+f.vers:SetText(PARENT_MOD_NAME .. ": " .. GetAddOnMetadata(PARENT_MOD_NAME, "Version") .. "\nWoW: " .. version);
 f.vers:SetTextColor(1,1,0.5);
 
 f.btnAnchor = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnAnchor:SetSize(75,24);
 f.btnAnchor:SetPoint("BOTTOMLEFT",f.outline,"BOTTOMRIGHT",12,2);
+local TipTac = _G[PARENT_MOD_NAME];
 f.btnAnchor:SetScript("OnClick",function() TipTac:SetShown(not TipTac:IsShown()) end);
 f.btnAnchor:SetText("Anchor");
 
@@ -448,7 +471,7 @@ local function Reset_OnClick(self)
 			cfg[option.var] = nil;	-- when cleared, they will read the default value from the metatable
 		end
 	end
-	TipTac:ApplySettings();
+	TipTac:ApplyConfig();
 	f:BuildCategoryPage();
 end
 
@@ -648,7 +671,8 @@ end
 local function SetConfigValue(self,var,value)
 	if (not self.isBuildingOptions) then
 		cfg[var] = value;
-		TipTac:ApplySettings();
+		local TipTac = _G[PARENT_MOD_NAME];
+		TipTac:ApplyConfig();
 	end
 end
 
