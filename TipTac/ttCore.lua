@@ -2168,18 +2168,18 @@ function tt:SetUnitRecordFromTip(tip)
 		if (msp) then
 			local field = "NA"; -- Name
 			
-			msp:Request(name, field);
+			msp:Request(unitRecord.name, field);
 			
-			if (msp.char[name] ~= nil) and (msp.char[playername].field[field] ~= "") then
-				unitRecord.rpName = msp.char[name].field[field];
+			if (msp.char[unitRecord.name] ~= nil) and (msp.char[unitRecord.name].field[field] ~= "") then
+				unitRecord.rpName = msp.char[unitRecord.name].field[field];
 			end
 		elseif (msptrp) then
 			local field = "NA"; -- Name
 			
-			msptrp:Request(name, field);
+			msptrp:Request(unitRecord.name, field);
 			
-			if (msptrp.char[name] ~= nil) and (msptrp.char[playername].field[field] ~= "") then
-				unitRecord.rpName = msptrp.char[name].field[field];
+			if (msptrp.char[unitRecord.name] ~= nil) and (msptrp.char[unitRecord.name].field[field] ~= "") then
+				unitRecord.rpName = msptrp.char[unitRecord.name].field[field];
 			end
 		end
 	end
