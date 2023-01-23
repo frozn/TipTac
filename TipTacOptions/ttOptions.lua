@@ -257,8 +257,8 @@ local options = {
 	-- Combat
 	{
 		[0] = "Combat",
-		{ type = "DropDown", var = "hideTips", label = "Hide Tips", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["All Tips"] = "all", ["No Tips"] = "none" } },
-		{ type = "DropDown", var = "hideTipsInCombat", label = "Hide Tips in Combat", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["All Tips"] = "all", ["No Tips"] = "none" } },
+		{ type = "DropDown", var = "hideTips", label = "Hide Tips", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["Spells"] = "spells", ["All Tips"] = "all", ["No Tips"] = "none" } },
+		{ type = "DropDown", var = "hideTipsInCombat", label = "Hide Tips in Combat", list = { ["Frame Units"] = "fu", ["World Units"] = "wu", ["Frame + World Units"] = "fwu", ["Spells"] = "spells", ["All Tips"] = "all", ["No Tips"] = "none" } },
 		{ type = "Check", var = "showHiddenTipsOnShift", label = "Still Show Hidden Tips when Holding Shift", tip = "When you have this option checked, and one of the above options, you can still force the tip to show, by holding down shift", y = 8 },
 	},
 	-- Layouts

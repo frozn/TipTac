@@ -1395,6 +1395,18 @@ local function isHideTip(tooltip, calledFromEvent)
 				end
 			end
 		end
+
+		if (calledFromEvent == "OnTooltipSetSpell") then
+			if (cfg.hideTips == "spells") then
+				return true
+			end
+
+			if (isInCombat) then
+				if (cfg.hideTipsInCombat == "spells") then
+					return true;
+				end
+			end
+		end
 	end
 	
 	return false;
@@ -1514,6 +1526,14 @@ function gttScriptHooks:OnTooltipSetUnit()
 	-- We're done, apply appearance
 	self.ttUnit.token = unit;
 	tt:ApplyUnitAppearance(self,true);	-- called with "first" arg to true
+end
+
+-- EventHook: OnTooltipSetSpell
+function gttScriptHooks:OnTooltipSetSpell()
+	-- Check if tooltip has to be set hidden
+	if (isHideTip(self, "OnTooltipSetSpell")) then
+		self:Hide();
+	end
 end
 
 -- EventHook: OnTooltipCleared -- This will clean up auras, bars, raid icon and vars for the gtt when we aren't showing a unit
@@ -1874,6 +1894,12 @@ function tt:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 							TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
 								if (self == tip) then
 									gttScriptHooks.OnTooltipSetItem(self, ...);
+								end
+							end);
+						elseif (scriptName == "OnTooltipSetSpell") then
+							TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
+								if (self == tip) then
+									gttScriptHooks.OnTooltipSetSpell(self, ...);
 								end
 							end);
 						else
