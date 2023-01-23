@@ -56,6 +56,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
 - added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
 - added showing of role and talent/specialization icon, coloring talents by class color and average item level to TipTacTalents. scanning/inspecting of units completely rewritten.
+- completely rewritten ttCore. also applied necessary changes to ttStyle, ttBars, ttAuras and ttIcons.
 - scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
@@ -67,6 +68,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
+- added unit reaction for honored, revered and exalted NPCs
 - classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic era: added missing styling of auras
 - classic era: reactivated talent format option
