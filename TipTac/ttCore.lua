@@ -309,7 +309,7 @@ local TT_Config_TipsToModify = {
 			["PlaterNamePlateAuraTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
 		},
 		hookFnForAddOn = function(TT_CacheForFrames)
-			-- LibQTip-1.0
+			-- LibQTip-1.0, e.g. used by addon Broker_Location
 			local LibQTip = LibStub("LibQTip-1.0", true);
 			
 			if (LibQTip) then
@@ -321,6 +321,72 @@ local TT_Config_TipsToModify = {
 					tt:AddModifiedTip(tooltip, true);
 					
 					return tooltip;
+				end
+			end
+			
+			-- LibDropdown-1.0, e.g used by addon Recount
+			local LibDropdown = LibStub("LibDropdown-1.0", true);
+			
+			if (LibDropdown) then
+				local oldLibDropdownOpenAce3Menu = LibDropdown.OpenAce3Menu;
+				
+				LibDropdown.OpenAce3Menu = function(self, t, parent, ...)
+					local openMenu = oldLibDropdownOpenAce3Menu(self, t, parent, ...);
+					
+					if (openMenu) then
+						local function hookLibDropdownButtons(frame)
+							for _, button in ipairs(frame.buttons) do
+								button:HookScript("OnEnter", function(button)
+									local frame = button.groupFrame;
+									
+									if (not frame) then
+										return;
+									end
+									
+									tt:AddModifiedTip(frame);
+									hookLibDropdownButtons(frame);
+								end);
+							end
+						end
+						
+						tt:AddModifiedTip(openMenu);
+						hookLibDropdownButtons(openMenu);
+					end
+					
+					return openMenu;
+				end
+			end
+			
+			-- LibDropdownMC-1.0, e.g used by addon Outfitter
+			local LibDropdownMC = LibStub("LibDropdownMC-1.0", true);
+			
+			if (LibDropdownMC) then
+				local oldLibDropdownMCOpenAce3Menu = LibDropdownMC.OpenAce3Menu;
+				
+				LibDropdownMC.OpenAce3Menu = function(self, t, parent, ...)
+					local openMenu = oldLibDropdownMCOpenAce3Menu(self, t, parent, ...);
+					
+					if (openMenu) then
+						local function hookLibDropdownMCButtons(frame)
+							for _, button in ipairs(frame.buttons) do
+								button:HookScript("OnEnter", function(button)
+									local frame = button.groupFrame;
+									
+									if (not frame) then
+										return;
+									end
+									
+									tt:AddModifiedTip(frame);
+									hookLibDropdownMCButtons(frame);
+								end);
+							end
+						end
+						
+						tt:AddModifiedTip(openMenu);
+						hookLibDropdownMCButtons(openMenu);
+					end
+					
+					return openMenu;
 				end
 			end
 			
@@ -2168,18 +2234,18 @@ function tt:SetUnitRecordFromTip(tip)
 		if (msp) then
 			local field = "NA"; -- Name
 			
-			msp:Request(unitRecord.name, field);
+			msp:Request(name, field);
 			
-			if (msp.char[unitRecord.name] ~= nil) and (msp.char[unitRecord.name].field[field] ~= "") then
-				unitRecord.rpName = msp.char[unitRecord.name].field[field];
+			if (msp.char[name] ~= nil) and (msp.char[playername].field[field] ~= "") then
+				unitRecord.rpName = msp.char[name].field[field];
 			end
 		elseif (msptrp) then
 			local field = "NA"; -- Name
 			
-			msptrp:Request(unitRecord.name, field);
+			msptrp:Request(name, field);
 			
-			if (msptrp.char[unitRecord.name] ~= nil) and (msptrp.char[unitRecord.name].field[field] ~= "") then
-				unitRecord.rpName = msptrp.char[unitRecord.name].field[field];
+			if (msptrp.char[name] ~= nil) and (msptrp.char[playername].field[field] ~= "") then
+				unitRecord.rpName = msptrp.char[name].field[field];
 			end
 		end
 	end
