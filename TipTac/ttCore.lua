@@ -2041,7 +2041,7 @@ function tt:SetAnchorToTip(tip)
 		end
 	end
 	
-	-- refresh anchoring of shopping tooltips after re-anchoring of tip
+	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 	LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 end
 
@@ -2088,7 +2088,7 @@ function tt:AnchorTipToMouse(tip)
 		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + TT_MouseOffsetX), (y / effScale + TT_MouseOffsetY));
 	end
 	
-	-- refresh anchoring of shopping tooltips after re-anchoring of tip
+	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 	LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 end
 
@@ -2198,6 +2198,12 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- HOOK: GameTooltip_SetDefaultAnchor() for re-anchoring
 		hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tip, parent)
 			tt:SetDefaultAnchorHook(tip, parent);
+		end);
+		
+		-- HOOK: GameTooltip_ShowCompareItem() to refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+		hooksecurefunc("GameTooltip_ShowCompareItem", function(self, anchorFrame)
+			-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+			LibFroznFunctions:RefreshAnchorShoppingTooltips(self);
 		end);
 	end,
 	SetDefaultAnchorHook = function(self, tip, parent)
