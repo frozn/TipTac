@@ -19,14 +19,14 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 10.0.2 - Dragonflight [DF]
+  * 10.0.5 - Dragonflight [DF]
   * 3.4.0 - Wrath of the Lich King Classic [WotLKC]
   * 1.14.3 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
 
-- lua errors regarding setBackdropColor(), setBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
+- lua errors regarding SetBackdropColor(), SetBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
 - background colors
 - border colors, also based on unit class or item quality. Additionally the border colors are now "non sticky" if you move your mouse e.g. over items and then over spells.
 - backdrop of compare item tooltips, item links and other addons using tiptac to modify tooltips or frames.
@@ -36,7 +36,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), LibQTip, LibDBIcon, auras from addon Plater, tooltips from addon RaiderIO, queue status frame (e.g. for lfg/lfr)
+- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), LibQTip, LibDBIcon, LibDropdown, LibDropdownMC, auras from addon Plater, tooltips from addon RaiderIO, queue status frame (e.g. for lfg/lfr)
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
@@ -65,6 +65,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
 - added option "Combat->Hide Tips" and "Combat->Hide Tips In Combat" to hide frame and/or world unit tips or all tips in or out of combat
 - added option in "ItemRef" to show stack count of items in tooltip
+- added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
