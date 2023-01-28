@@ -329,6 +329,7 @@ local TT_Config_TipsToModify = {
 			
 			if (LibDropdown) then
 				local oldLibDropdownOpenAce3Menu = LibDropdown.OpenAce3Menu;
+				local LDDOAMBhooked = {};
 				
 				LibDropdown.OpenAce3Menu = function(self, t, parent, ...)
 					local openMenu = oldLibDropdownOpenAce3Menu(self, t, parent, ...);
@@ -336,16 +337,20 @@ local TT_Config_TipsToModify = {
 					if (openMenu) then
 						local function hookLibDropdownButtons(frame)
 							for _, button in ipairs(frame.buttons) do
-								button:HookScript("OnEnter", function(button)
-									local frame = button.groupFrame;
+								if (not LDDOAMBhooked[button]) then
+									button:HookScript("OnEnter", function(button)
+										local frame = button.groupFrame;
+										
+										if (not frame) then
+											return;
+										end
+										
+										tt:AddModifiedTip(frame);
+										hookLibDropdownButtons(frame);
+									end);
 									
-									if (not frame) then
-										return;
-									end
-									
-									tt:AddModifiedTip(frame);
-									hookLibDropdownButtons(frame);
-								end);
+									LDDOAMBhooked[button] = true;
+								end
 							end
 						end
 						
@@ -362,6 +367,7 @@ local TT_Config_TipsToModify = {
 			
 			if (LibDropdownMC) then
 				local oldLibDropdownMCOpenAce3Menu = LibDropdownMC.OpenAce3Menu;
+				local LDDMCOAMBhooked = {};
 				
 				LibDropdownMC.OpenAce3Menu = function(self, t, parent, ...)
 					local openMenu = oldLibDropdownMCOpenAce3Menu(self, t, parent, ...);
@@ -369,16 +375,20 @@ local TT_Config_TipsToModify = {
 					if (openMenu) then
 						local function hookLibDropdownMCButtons(frame)
 							for _, button in ipairs(frame.buttons) do
-								button:HookScript("OnEnter", function(button)
-									local frame = button.groupFrame;
+								if (not LDDMCOAMBhooked[button]) then
+									button:HookScript("OnEnter", function(button)
+										local frame = button.groupFrame;
+										
+										if (not frame) then
+											return;
+										end
+										
+										tt:AddModifiedTip(frame);
+										hookLibDropdownMCButtons(frame);
+									end);
 									
-									if (not frame) then
-										return;
-									end
-									
-									tt:AddModifiedTip(frame);
-									hookLibDropdownMCButtons(frame);
-								end);
+									LDDMCOAMBhooked[button] = true;
+								end
 							end
 						end
 						
