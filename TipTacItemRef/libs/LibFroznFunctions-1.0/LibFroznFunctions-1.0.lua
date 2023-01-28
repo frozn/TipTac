@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 2;
+local LIB_MINOR = 3; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -800,7 +800,7 @@ end
 local LFF_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS; -- see "ColorUtil.lua"
 
 function LibFroznFunctions:GetClassColor(classID, alternateClassIDIfNotFound)
-	local classInfo = C_CreatureInfo.GetClassInfo(classID) or C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound);
+	local classInfo = (classID and C_CreatureInfo.GetClassInfo(classID)) or (alternateClassIDIfNotFound and C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound));
 	
 	return classInfo and LFF_CLASS_COLORS[classInfo.classFile];
 end
