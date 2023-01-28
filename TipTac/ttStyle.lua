@@ -301,14 +301,13 @@ end
 -- NPC Styling
 function ttStyle:GenerateNpcLines(currentDisplayParams, unitRecord, first)
 	-- name
-	local nameColor = (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
-	lineName:Push(nameColor:WrapTextInColorCode(unitRecord.name));
+	lineName:Push(unitRecord.nameColor:WrapTextInColorCode(unitRecord.name));
 
 	-- guild/title -- since WoD, npc title can be a single space character
 	if (unitRecord.battlePetOrNPCTitle) and (unitRecord.battlePetOrNPCTitle ~= " ") then
 		-- Az: this doesn't work with "Mini Diablo" or "Mini Thor", which has the format: 1) Mini Diablo 2) Lord of Terror 3) Player's Pet 4) Level 1 Non-combat Pet
 		local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
-		gttLine:SetText(nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
+		gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
 		lineLevel.Index = (lineLevel.Index + 1);
 	end
 
