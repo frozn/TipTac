@@ -227,8 +227,12 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 		end
 	end
 	-- race
+	local race = UnitRace(unitRecord.id);
+	if (not race) or (race == TT_NotSpecified) then
+		race = TT_Unknown;
+	end
 	lineLevel:Push(" ");
-	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(UnitRace(unitRecord.id)));
+	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 	-- class
 	local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5);
 	lineLevel:Push(" ");
@@ -281,7 +285,7 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 
 	if (unitRecord.isWildBattlePet) then
 		local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
-		if (not race or race == TT_NotSpecified) then
+		if (not race) or (race == TT_NotSpecified) then
 			race = TT_Unknown;
 		end
 		lineLevel:Push(" ");
@@ -319,7 +323,7 @@ function ttStyle:GenerateNpcLines(currentDisplayParams, unitRecord, first)
 
 	-- race
 	local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
-	if (not race or race == TT_NotSpecified) then
+	if (not race) or (race == TT_NotSpecified) then
 		race = TT_Unknown;
 	end
 	lineLevel:Push(" ");
