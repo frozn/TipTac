@@ -866,7 +866,7 @@ function tt:UpdatePixelPerfectScale()
 	TT_PhysicalScreenWidth, TT_PhysicalScreenHeight = GetPhysicalScreenSize();
 	TT_UIUnitFactor = 768.0 / TT_PhysicalScreenHeight;
 	TT_UIScale = UIParent:GetEffectiveScale();
-	TT_MouseOffsetX, TT_MouseOffsetY = self:GetNearestPixelSize(currentConfig.mouseOffsetX), self:GetNearestPixelSize(currentConfig.mouseOffsetX);
+	TT_MouseOffsetX, TT_MouseOffsetY = self:GetNearestPixelSize(currentConfig.mouseOffsetX), self:GetNearestPixelSize(currentConfig.mouseOffsetY);
 end
 
 tt:UpdatePixelPerfectScale();
