@@ -587,6 +587,7 @@ local TT_TipsToModifyFromOtherMods = {};
 -- extraPaddingBottomForBars                 value for extra padding bottom to fit health/power bars, nil otherwise.
 --
 -- defaultAnchored                           true if tip is default anchored, false otherwise.
+-- defaultAnchoredParentFrame                tip's parent frame if default anchored, nil otherwise.
 -- anchorFrameName                           anchor frame name of tip, values "WorldUnit", "WorldTip", "FrameUnit", "FrameTip"
 -- anchorType                                anchor type for tip
 -- anchorPoint                               anchor point for tip
@@ -1982,12 +1983,14 @@ function tt:SetAnchorToTip(tip)
 	end
 	
 	-- tip not default anchored
-	if (not frameParams.currentDisplayParams.defaultAnchored) then
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	if (not currentDisplayParams.defaultAnchored) then
 		return;
 	end
 	
 	-- set anchor type and anchor point
-	local anchorFrameName, anchorType, anchorPoint = frameParams.currentDisplayParams.anchorFrameName, frameParams.currentDisplayParams.anchorType or TT_Config_Default_Anchor_Type, frameParams.currentDisplayParams.anchorPoint or TT_Config_Default_Anchor_Point;
+	local anchorFrameName, anchorType, anchorPoint = currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType or TT_Config_Default_Anchor_Type, currentDisplayParams.anchorPoint or TT_Config_Default_Anchor_Point;
 	
 	-- set anchor to tip
 	if (tip:GetObjectType() == "GameTooltip") then
@@ -2018,7 +2021,7 @@ function tt:SetAnchorToTip(tip)
 	elseif (anchorType == "parent") then
 		tip:ClearAllPoints();
 		
-		local parentFrame = tip:GetOwner();
+		local parentFrame = currentDisplayParams.defaultAnchoredParentFrame;
 		
 		if (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
@@ -2134,6 +2137,7 @@ function tt:SetDefaultAnchorHook(tip, parent)
 	
 	-- set current display params for anchoring
 	frameParams.currentDisplayParams.defaultAnchored = true;
+	frameParams.currentDisplayParams.defaultAnchoredParentFrame = parent;
 	
 	-- set anchor to tip
 	tt:SetAnchorToTip(tip);
@@ -2190,6 +2194,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- reset current display params for anchoring
 		if (not tip:IsShown()) then
 			currentDisplayParams.defaultAnchored = false;
+			currentDisplayParams.defaultAnchoredParentFrame = nil;
 		end
 		
 		currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType, currentDisplayParams.anchorPoint = nil, nil, nil;
