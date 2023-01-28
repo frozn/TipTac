@@ -1446,6 +1446,8 @@ function tt:SetBackdropToTip(tip)
 		return;
 	end
 	
+	isSettingBackdropToTip = false;
+	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -1534,6 +1536,8 @@ function tt:SetBackdropAndBackdropBorderColorToTip(tip)
 		return;
 	end
 	
+	isSettingBackdropAndBackdropBorderColorToTip = false;
+	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -1568,6 +1572,8 @@ function tt:SetPaddingToTip(tip)
 	if (isSettingPaddingToTip) then
 		return;
 	end
+	
+	isSettingPaddingToTip = false;
 	
 	-- SetPadding() isn't available for e.g. BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip, EncounterJournalTooltip and DropDownList
 	if (tip:GetObjectType() ~= "GameTooltip") then
@@ -1631,20 +1637,12 @@ end
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg)
-		-- HOOK: NineSliceUtil.ApplyLayout() and SharedTooltip_SetBackdropStyle() to reapply backdrop and padding if necessary (e.g. needed for OnTooltipSetItem() or AreaPOIPinMixin:OnMouseEnter() on world map (e.g. Torghast) or VignettePin on world map (e.g. weekly event in Maw))
-		hooksecurefunc(NineSliceUtil, "ApplyLayout", function(container, userLayout, textureKit)
-			for tip, frameParams in pairs(TT_CacheForFrames) do
-				if ((tip == container) or (tip.NineSlice == container)) then
-					tt:SetBackdropToTip(tip);
-				end
-			end
-		end);
-
+		-- HOOK: SharedTooltip_SetBackdropStyle() to reapply backdrop and padding if necessary (e.g. needed for OnTooltipSetItem() or AreaPOIPinMixin:OnMouseEnter() on world map (e.g. Torghast) or VignettePin on world map (e.g. weekly event in Maw))
 		hooksecurefunc("SharedTooltip_SetBackdropStyle", function(self, style, embedded)
 			for tip, frameParams in pairs(TT_CacheForFrames) do
 				if (tip == self) then
-					-- set padding to tip
-					tt:SetPaddingToTip(tip);
+					-- set backdrop to tip
+					tt:SetBackdropToTip(tip);
 				end
 			end
 		end);
@@ -1834,6 +1832,8 @@ function tt:SetBackdropLocked(tip, backdropInfo)
 		return;
 	end
 	
+	isSettingBackdropLocked = false;
+	
 	-- set backdrop locked
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -1857,6 +1857,8 @@ function tt:SetBackdropColorLocked(tip, r, g, b, a)
 	if (isSettingBackdropColorLocked) then
 		return;
 	end
+	
+	isSettingBackdropColorLocked = false;
 	
 	-- set backdrop color locked
 	local frameParams = TT_CacheForFrames[tip];
@@ -1885,6 +1887,8 @@ function tt:SetBackdropBorderColorLocked(tip, r, g, b, a)
 		return;
 	end
 	
+	isSettingBackdropBorderColorLocked = false;
+	
 	-- set backdrop border color locked
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -1912,6 +1916,8 @@ function tt:SetCenterColorLocked(tip, r, g, b, a)
 		return;
 	end
 	
+	isSettingCenterColorLocked = false;
+	
 	-- set center color locked
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -1938,6 +1944,8 @@ function tt:SetBorderColorLocked(tip, r, g, b, a)
 	if (isSettingBorderColorLocked) then
 		return;
 	end
+	
+	isSettingBorderColorLocked = false;
 	
 	-- set border color locked
 	local frameParams = TT_CacheForFrames[tip];
@@ -2033,7 +2041,7 @@ function tt:SetAnchorToTip(tip)
 		end
 	end
 	
-	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+	-- refresh anchoring of shopping tooltips after re-anchoring of tip
 	LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 end
 
@@ -2080,7 +2088,7 @@ function tt:AnchorTipToMouse(tip)
 		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + TT_MouseOffsetX), (y / effScale + TT_MouseOffsetY));
 	end
 	
-	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+	-- refresh anchoring of shopping tooltips after re-anchoring of tip
 	LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 end
 
@@ -2292,11 +2300,6 @@ end
 
 -- set unit appearance to tip
 function tt:SetUnitAppearanceToTip(tip, first)
-	-- check if we're already setting unit appearance to tip
-	if (isSettingUnitAppearanceToTip) then
-		return;
-	end
-	
 	-- get frame parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
