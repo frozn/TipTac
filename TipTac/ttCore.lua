@@ -2005,7 +2005,7 @@ function tt:SetAnchorToTip(tip)
 	elseif (anchorType == "parent") then
 		tip:ClearAllPoints();
 		
-		local parentFrame = tip:GetParent();
+		local parentFrame = tip:GetOwner();
 		
 		if (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
