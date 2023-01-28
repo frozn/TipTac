@@ -353,8 +353,10 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	
 	-- Reaction Text
 	if (cfg.reactText) then
+		local reactTextColor = (cfg.reactColoredText and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorReactText));
+		
 		lineLevel:Push("\n");
-		lineLevel:Push(unitRecord.reactionColor:WrapTextInColorCode(TT_Reaction[unitRecord.reactionIndex]));
+		lineLevel:Push(reactTextColor:WrapTextInColorCode(TT_Reaction[unitRecord.reactionIndex]));
 	end
 
 	-- Mythic+ Dungeon Score

@@ -41,15 +41,22 @@ local TT_DefaultConfig = {
 	hidePvpText = true,
 	hideFactionText = false,
 	
-	colorGuildByReaction = true,
+	-- colors
 	colorGuild = { 0, 0.5, 0.8, 1 },
 	colorSameGuild = { 1, 0.2, 1, 1 },
+	colorGuildByReaction = true,
 	colorRace = { 1, 1, 1, 1},
 	colorLevel = { 0.75, 0.75, 0.75, 1},
 	colorNameByClass = false,
 	classColoredBorder = true,
 	
+	-- reactions
+	reactColoredBorder = false,
+	
 	reactText = false,
+	colorReactText = { 1, 1, 1, 1},
+	reactColoredText = true,
+	
 	["colorReactText" .. LFF_UNIT_REACTION_INDEX.tapped] = { 0.75, 0.75, 0.75, 1},
 	["colorReactText" .. LFF_UNIT_REACTION_INDEX.hostile] = { 1, 0, 0, 1},
 	["colorReactText" .. LFF_UNIT_REACTION_INDEX.caution] = { 1, 0.5, 0, 1 },
@@ -62,8 +69,9 @@ local TT_DefaultConfig = {
 	["colorReactText" .. LFF_UNIT_REACTION_INDEX.exaltedNPC] = { 0.6, 0.2, 0.9, 1},
 	["colorReactText" .. LFF_UNIT_REACTION_INDEX.dead] = { 0.5, 0.5, 0.5, 1 },
 	
+	-- bg color
 	reactColoredBackdrop = false,
-	reactColoredBorder = false,
+	
 	["colorReactBack" .. LFF_UNIT_REACTION_INDEX.tapped] = { 0.2, 0.2, 0.2, 1 },
 	["colorReactBack" .. LFF_UNIT_REACTION_INDEX.hostile] = { 0.3, 0, 0, 1 },
 	["colorReactBack" .. LFF_UNIT_REACTION_INDEX.caution] = { 0.3, 0.15, 0, 1 },
