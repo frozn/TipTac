@@ -24,6 +24,8 @@ local lineTargetedBy = LibFroznFunctions:CreatePushArray();
 local TT_LevelMatch = "^"..TOOLTIP_UNIT_LEVEL:gsub("%%[^s ]*s",".+"); -- Was changed to match other localizations properly, used to match: "^"..LEVEL.." .+" -- Doesn't actually match the level line on the russian client! [14.02.24] Doesn't match for Italian client either. [18.07.27] changed the pattern, might match non-english clients now
 local TT_LevelMatchPet = "^"..TOOLTIP_WILDBATTLEPET_LEVEL_CLASS:gsub("%%[^s ]*s",".+");	-- "^Pet Level .+ .+"
 local TT_NotSpecified = "Not specified";
+local TT_Unknown = UNKNOWN; -- Unknown
+local TT_UnknownObject = UNKNOWNOBJECT; -- Unknown
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = "Targeted by";
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
@@ -163,7 +165,7 @@ end
 function ttStyle:GenerateTargetLines(unitRecord, method)
 	local target = unitRecord.id .."target";
 	local targetName = UnitName(target);
-	if (targetName) and (targetName ~= UNKNOWNOBJECT and targetName ~= "" or UnitExists(target)) then
+	if (targetName) and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
 		if (method == "first") then
 			lineName:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(" : "));
 			AddTarget(lineName,target,targetName);
@@ -278,8 +280,12 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(_G["BATTLE_PET_NAME_"..petType]));
 
 	if (unitRecord.isWildBattlePet) then
+		local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
+		if (not race or race == TT_NotSpecified) then
+			race = TT_Unknown;
+		end
 		lineLevel:Push(" ");
-		lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id)));
+		lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 	else
 		if not (currentDisplayParams.petLineLevelIndex) then
 			for i = 2, GameTooltip:NumLines() do
@@ -311,13 +317,13 @@ function ttStyle:GenerateNpcLines(currentDisplayParams, unitRecord, first)
 		lineLevel.Index = (lineLevel.Index + 1);
 	end
 
-	-- class
-	local class = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
-	if (not class or class == TT_NotSpecified) then
-		class = UNKNOWN;
+	-- race
+	local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
+	if (not race or race == TT_NotSpecified) then
+		race = TT_Unknown;
 	end
 	lineLevel:Push(" ");
-	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(class));
+	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 end
 
 -- Modify Tooltip Lines (name + info)
