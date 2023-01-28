@@ -240,7 +240,7 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 			name = name .. " (*)";
 		end
 	end
-	local nameColor = (cfg.colorNameByClass and classColor) or (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
+	local nameColor = (cfg.colorNameByClass and classColor) or unitRecord.nameColor;
 	lineName:Push(nameColor:WrapTextInColorCode(name));
 	-- dc, afk or dnd
 	if (cfg.showStatus) then
@@ -272,8 +272,7 @@ end
 
 -- PET Styling
 function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
-	local nameColor = (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
-	lineName:Push(nameColor:WrapTextInColorCode(unitRecord.name));
+	lineName:Push(unitRecord.nameColor:WrapTextInColorCode(unitRecord.name));
 	lineLevel:Push(" ");
 	local petType = UnitBattlePetType(unitRecord.id) or 5;
 	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(_G["BATTLE_PET_NAME_"..petType]));
@@ -294,7 +293,7 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 		lineLevel.Index = currentDisplayParams.petLineLevelIndex or 2;
 		local expectedLine = 3 + (unitRecord.isColorBlind and 1 or 0);
 		if (lineLevel.Index > expectedLine) then
-			GameTooltipTextLeft2:SetText(nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
+			GameTooltipTextLeft2:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
 		end
 	end
 end
@@ -326,6 +325,7 @@ end
 function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	-- obtain unit properties
 	unitRecord.reactionColor = CreateColor(unpack(cfg["colorReactText" .. unitRecord.reactionIndex]));
+	unitRecord.nameColor = (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
 
 	-- this is the line index where the level and unit type info is
 	lineLevel.Index = 2 + (unitRecord.isColorBlind and UnitIsVisible(unitRecord.id) and 1 or 0);
