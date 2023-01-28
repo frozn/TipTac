@@ -240,7 +240,8 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 			name = name .. " (*)";
 		end
 	end
-	lineName:Push(cfg.colorNameByClass and classColor:WrapTextInColorCode(name) or unitRecord.reactionColor:WrapTextInColorCode(name));
+	local nameColor = (cfg.colorNameByClass and classColor) or (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
+	lineName:Push(nameColor:WrapTextInColorCode(name));
 	-- dc, afk or dnd
 	if (cfg.showStatus) then
 		local status = (not UnitIsConnected(unitRecord.id) and " <DC>") or (UnitIsAFK(unitRecord.id) and " <AFK>") or (UnitIsDND(unitRecord.id) and " <DND>");
@@ -271,7 +272,8 @@ end
 
 -- PET Styling
 function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
-	lineName:Push(unitRecord.reactionColor:WrapTextInColorCode(unitRecord.name));
+	local nameColor = (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
+	lineName:Push(nameColor:WrapTextInColorCode(unitRecord.name));
 	lineLevel:Push(" ");
 	local petType = UnitBattlePetType(unitRecord.id) or 5;
 	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(_G["BATTLE_PET_NAME_"..petType]));
@@ -292,7 +294,7 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 		lineLevel.Index = currentDisplayParams.petLineLevelIndex or 2;
 		local expectedLine = 3 + (unitRecord.isColorBlind and 1 or 0);
 		if (lineLevel.Index > expectedLine) then
-			GameTooltipTextLeft2:SetText(unitRecord.reactionColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
+			GameTooltipTextLeft2:SetText(nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
 		end
 	end
 end
@@ -300,13 +302,14 @@ end
 -- NPC Styling
 function ttStyle:GenerateNpcLines(currentDisplayParams, unitRecord, first)
 	-- name
-	lineName:Push(unitRecord.reactionColor:WrapTextInColorCode(unitRecord.name));
+	local nameColor = (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
+	lineName:Push(nameColor:WrapTextInColorCode(unitRecord.name));
 
 	-- guild/title -- since WoD, npc title can be a single space character
 	if (unitRecord.battlePetOrNPCTitle) and (unitRecord.battlePetOrNPCTitle ~= " ") then
 		-- Az: this doesn't work with "Mini Diablo" or "Mini Thor", which has the format: 1) Mini Diablo 2) Lord of Terror 3) Player's Pet 4) Level 1 Non-combat Pet
 		local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
-		gttLine:SetText(unitRecord.reactionColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
+		gttLine:SetText(nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
 		lineLevel.Index = (lineLevel.Index + 1);
 	end
 

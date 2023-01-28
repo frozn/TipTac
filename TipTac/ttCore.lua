@@ -42,12 +42,17 @@ local TT_DefaultConfig = {
 	hideFactionText = false,
 	
 	-- colors
+	colorName = { 1, 1, 1, 1 },
+	colorNameByReaction = true,
+	colorNameByClass = false,
+	
 	colorGuild = { 0, 0.5, 0.8, 1 },
 	colorSameGuild = { 1, 0.2, 1, 1 },
 	colorGuildByReaction = true,
+	
 	colorRace = { 1, 1, 1, 1 },
 	colorLevel = { 0.75, 0.75, 0.75, 1 },
-	colorNameByClass = false,
+	
 	classColoredBorder = true,
 	
 	-- reactions
