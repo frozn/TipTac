@@ -207,6 +207,140 @@ function LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, callback)
 	end
 end
 
+-- refresh anchor shopping tooltips
+--
+-- modded copy of TooltipComparisonManager:AnchorShoppingTooltips() in "TooltipComparisonManager.lua" (since df 10.0.2) aka GameTooltip_AnchorComparisonTooltips in "GameTooltip.lua" (before df 10.0.2) for:
+-- 1. consider scaling to choose left or right side
+-- 2. calling ClearAllPoints() to refresh anchoring of shopping tooltips after re-anchoring of tip
+function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
+	-- refresh anchoring of shopping tooltips
+	local primaryTooltip = ShoppingTooltip1;
+	local secondaryTooltip = ShoppingTooltip2;
+	local self;
+	
+	if (TooltipComparisonManager) then -- since df 10.0.2
+		self = TooltipComparisonManager;
+	else -- before df 10.0.2
+		self = { 
+			tooltip = primaryTooltip:GetOwner(),
+			anchorFrame = (primaryTooltip:GetNumPoints() >= 1) and select(2, primaryTooltip:GetPoint(1)) or primaryTooltip:GetOwner(),
+			comparisonItem = (primaryTooltip:IsShown())
+		};
+	end
+	
+	-- not the affected tip or no comparison item
+	if (self.tooltip ~= tip) or (not self.comparisonItem) then
+		return;
+	end
+	
+	-- start of original TooltipComparisonManager:AnchorShoppingTooltips()
+	local tooltip = self.tooltip;
+	-- local primaryTooltip = tooltip.shoppingTooltips[1]; -- removed
+	-- local secondaryTooltip = tooltip.shoppingTooltips[2]; -- removed
+	local primaryShown = primaryTooltip:IsShown(); -- added
+	local secondaryShown = secondaryTooltip:IsShown(); -- added
+	
+	local sideAnchorFrame = self.anchorFrame;
+	if self.anchorFrame.IsEmbedded then
+		sideAnchorFrame = self.anchorFrame:GetParent():GetParent();
+	end
+	
+	-- local leftPos = sideAnchorFrame:GetLeft(); -- removed
+	-- local rightPos = sideAnchorFrame:GetRight(); -- removed
+	local leftPos = sideAnchorFrame:GetLeft() * sideAnchorFrame:GetEffectiveScale(); -- added
+	local rightPos = sideAnchorFrame:GetRight() * sideAnchorFrame:GetEffectiveScale(); -- added
+	
+	-- local selfLeftPos = tooltip:GetLeft(); -- removed
+	-- local selfRightPos = tooltip:GetRight(); -- removed
+	local selfLeftPos = tooltip:GetLeft() * tooltip:GetEffectiveScale(); -- added
+	local selfRightPos = tooltip:GetRight() * tooltip:GetEffectiveScale(); -- added
+	
+	-- if we get the Left, we have the Right
+	if leftPos and selfLeftPos then
+		leftPos = math.min(selfLeftPos, leftPos);-- get the left most bound
+		rightPos = math.max(selfRightPos, rightPos);-- get the right most bound
+	else
+		leftPos = leftPos or selfLeftPos or 0;
+		rightPos = rightPos or selfRightPos or 0;
+	end
+	
+	-- sometimes the sideAnchorFrame is an actual tooltip, and sometimes it's a script region, so make sure we're getting the actual anchor type
+	local anchorType = sideAnchorFrame.GetAnchorType and sideAnchorFrame:GetAnchorType() or tooltip:GetAnchorType();
+	
+	local totalWidth = 0;
+	if primaryShown then
+		totalWidth = totalWidth + primaryTooltip:GetWidth();
+	end
+	if secondaryShown then
+		totalWidth = totalWidth + secondaryTooltip:GetWidth();
+	end
+	
+	local rightDist = 0;
+	-- local screenWidth = GetScreenWidth(); -- removed
+	local screenWidth = GetScreenWidth() * UIParent:GetEffectiveScale(); -- added
+	rightDist = screenWidth - rightPos;
+	
+	-- find correct side
+	local side;
+	if anchorType and (totalWidth < leftPos) and (anchorType == "ANCHOR_LEFT" or anchorType == "ANCHOR_TOPLEFT" or anchorType == "ANCHOR_BOTTOMLEFT") then
+		side = "left";
+	elseif anchorType and (totalWidth < rightDist) and (anchorType == "ANCHOR_RIGHT" or anchorType == "ANCHOR_TOPRIGHT" or anchorType == "ANCHOR_BOTTOMRIGHT") then
+		side = "right";
+	elseif rightDist < leftPos then
+		side = "left";
+	else
+		side = "right";
+	end
+	
+	-- see if we should slide the tooltip
+	if totalWidth > 0 and (anchorType and anchorType ~= "ANCHOR_PRESERVE") then --we never slide a tooltip with a preserved anchor
+		local slideAmount = 0;
+		if ( (side == "left") and (totalWidth > leftPos) ) then
+			slideAmount = totalWidth - leftPos;
+		elseif ( (side == "right") and (rightPos + totalWidth) >  screenWidth ) then
+			slideAmount = screenWidth - (rightPos + totalWidth);
+		end
+
+		if slideAmount ~= 0 then -- if we calculated a slideAmount, we need to slide
+			if sideAnchorFrame.SetAnchorType then
+				sideAnchorFrame:SetAnchorType(anchorType, slideAmount, 0);
+			else
+				tooltip:SetAnchorType(anchorType, slideAmount, 0);
+			end
+		end
+	end
+	
+	primaryTooltip:ClearAllPoints(); -- added
+	
+	if secondaryShown then
+		secondaryTooltip:ClearAllPoints(); -- added
+		
+		primaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
+		secondaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
+		if side and side == "left" then
+			primaryTooltip:SetPoint("RIGHT", sideAnchorFrame, "LEFT");
+		else
+			secondaryTooltip:SetPoint("LEFT", sideAnchorFrame, "RIGHT");
+		end
+		
+		if side and side == "left" then
+			secondaryTooltip:SetPoint("TOPRIGHT", primaryTooltip, "TOPLEFT");
+		else
+			primaryTooltip:SetPoint("TOPLEFT", secondaryTooltip, "TOPRIGHT");
+		end
+	else
+		primaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
+		if side and side == "left" then
+			primaryTooltip:SetPoint("RIGHT", sideAnchorFrame, "LEFT");
+		else
+			primaryTooltip:SetPoint("LEFT", sideAnchorFrame, "RIGHT");
+		end
+	end
+	
+	-- primaryTooltip:SetShown(primaryShown); -- removed
+	-- secondaryTooltip:SetShown(secondaryShown); -- removed
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
 ----------------------------------------------------------------------------------------------------

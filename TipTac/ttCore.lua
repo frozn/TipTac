@@ -2032,46 +2032,9 @@ function tt:SetAnchorToTip(tip)
 			tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
 		end
 	end
-end
-
--- get anchor position
-function tt:GetAnchorPosition(tip)
-	local frameParams = TT_CacheForFrames[tip];
 	
-	local isUnit;
-	
-	if (frameParams) then
-		if (frameParams.currentDisplayParams.tipContent == TT_TIP_CONTENT.unit) then
-			isUnit = true;
-		elseif (frameParams.currentDisplayParams.tipContent == TT_TIP_CONTENT.aura) then
-			isUnit = false;
-		end
-	end
-	
-	local mouseFocus = GetMouseFocus();
-	
-	if (isUnit == nil) then
-		isUnit = (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")); -- GetAttribute("unit") here is bad, as that will find things like buff frames too.
-	end
-	
-	local anchorFrameName = (mouseFocus == WorldFrame and "World" or "Frame") .. (isUnit and "Unit" or "Tip");
-	local var = "anchor" .. anchorFrameName;
-	local anchorOverrideInCombat = (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"] and UnitAffectingCombat("player") and "InCombat" or "");
-	
-	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverrideInCombat], cfg[var .. "Point" .. anchorOverrideInCombat];
-	
-	-- check for GameTooltip anchor overrides
-	if (tip == GameTooltip) then
-		-- override GameTooltip anchor for (Guild & Community) ChatFrame
-		if (cfg.enableAnchorOverrideCF) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
-					"ChatFrame(%d+)",
-					(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
-				}, 1)) then
-			return cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
-		end
-	end
-	
-	return anchorFrameName, anchorType, anchorPoint;
+	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+	LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 end
 
 -- anchor tip to mouse position
@@ -2116,6 +2079,49 @@ function tt:AnchorTipToMouse(tip)
 		tip:ClearAllPoints();
 		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + TT_MouseOffsetX), (y / effScale + TT_MouseOffsetY));
 	end
+	
+	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+	LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
+end
+
+-- get anchor position
+function tt:GetAnchorPosition(tip)
+	local frameParams = TT_CacheForFrames[tip];
+	
+	local isUnit;
+	
+	if (frameParams) then
+		if (frameParams.currentDisplayParams.tipContent == TT_TIP_CONTENT.unit) then
+			isUnit = true;
+		elseif (frameParams.currentDisplayParams.tipContent == TT_TIP_CONTENT.aura) then
+			isUnit = false;
+		end
+	end
+	
+	local mouseFocus = GetMouseFocus();
+	
+	if (isUnit == nil) then
+		isUnit = (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")); -- GetAttribute("unit") here is bad, as that will find things like buff frames too.
+	end
+	
+	local anchorFrameName = (mouseFocus == WorldFrame and "World" or "Frame") .. (isUnit and "Unit" or "Tip");
+	local var = "anchor" .. anchorFrameName;
+	local anchorOverrideInCombat = (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"] and UnitAffectingCombat("player") and "InCombat" or "");
+	
+	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverrideInCombat], cfg[var .. "Point" .. anchorOverrideInCombat];
+	
+	-- check for GameTooltip anchor overrides
+	if (tip == GameTooltip) then
+		-- override GameTooltip anchor for (Guild & Community) ChatFrame
+		if (cfg.enableAnchorOverrideCF) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
+					"ChatFrame(%d+)",
+					(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
+				}, 1)) then
+			return anchorFrameName, cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
+		end
+	end
+	
+	return anchorFrameName, anchorType, anchorPoint;
 end
 
 -- HOOK: tip's OnUpdate for anchoring to mouse

@@ -272,7 +272,12 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 			end
 		end
 		GameTooltipTextLeft2:SetText(text);
-		lineLevel.Index = (lineLevel.Index + 1);
+		if (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- no separate line for guild name in classic era. merge with level line.
+			unitRecord.mergeLevelLineWithGuildName = true;
+		else
+			unitRecord.mergeLevelLineWithGuildName = false;
+			lineLevel.Index = (lineLevel.Index + 1);
+		end
 	end
 end
 
@@ -416,7 +421,15 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	-- 8.2 made the default XML template have only 2 lines, so it's possible to get here without the desired line existing (yet?)
 	-- Frozn45: The problem showed up in classic. Fixed it with adding the missing lines (see for-loop with GameTooltip:AddLine() above).
 	if (gttLine) then
-		gttLine:SetText(TT_COLOR.text.default:WrapTextInColorCode(lineLevel:Concat()));
+		local tipLineLevelText = TT_COLOR.text.default:WrapTextInColorCode(lineLevel:Concat());
+		
+		if (unitRecord.mergeLevelLineWithGuildName) then
+			local gttLineText = gttLine:GetText();
+			
+			gttLine:SetText((gttLineText ~= " ") and (gttLineText .. "\n" .. tipLineLevelText) or tipLineLevelText);
+		else
+			gttLine:SetText(tipLineLevelText);
+		end
 	end
 
 	lineLevel:Clear();
