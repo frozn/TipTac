@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 3; -- bump on changes
+local LIB_MINOR = 4; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1275,7 +1275,7 @@ end
 --
 -- @param  fontFile  path to a font file
 -- @return true if font exists, false otherwise.
-local fontExistsFrame, fontExistsFontString;
+local fontExistsFont;
 
 function LibFroznFunctions:FontExists(fontFile)
 	-- invalid font file
@@ -1283,20 +1283,15 @@ function LibFroznFunctions:FontExists(fontFile)
 		return false;
 	end
 	
-	-- create frame
-	if (not fontExistsFrame) then
-		fontExistsFrame = CreateFrame("Frame");
-	end
-	
-	-- create font string
-	if (not fontExistsFontString) then
-		fontExistsFontString = fontExistsFrame:CreateFontString();
+	-- create font
+	if (not fontExistsFont) then
+		fontExistsFont = CreateFont(LIB_NAME .. "FontExists");
 	end
 	
 	-- check if font exists
-	fontExistsFontString:SetFont(fontFile, 10, "");
+	fontExistsFont:SetFont(fontFile, 10, "");
 	
-	return (not not fontExistsFontString:GetFont());
+	return (not not fontExistsFont:GetFont());
 end
 
 ----------------------------------------------------------------------------------------------------
