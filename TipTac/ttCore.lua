@@ -301,21 +301,23 @@ local TT_Config_TipsToModify = {
 					end
 					
 					-- HOOK: ItemRefTooltipMixin:ItemRefSetHyperlink() to adjust padding for close button if needed. also considering TextRight1 here.
-					hooksecurefunc(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
-						local titleLeft = _G[self:GetName() .. "TextLeft1"];
-						local titleRight = _G[self:GetName() .. "TextRight1"];
-						
-						if (titleRight) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
-							local paddingRight, paddingBottom, paddingLeft, paddingTop = self:GetPadding();
-							paddingLeft = paddingLeft or 0;
-							paddingTop = paddingTop or 0;
+					if (ItemRefTooltip.ItemRefSetHyperlink) then
+						hooksecurefunc(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
+							local titleLeft = _G[self:GetName() .. "TextLeft1"];
+							local titleRight = _G[self:GetName() .. "TextRight1"];
 							
-							local xPadding = 16;
-							paddingRight = paddingRight + xPadding;
-							
-							self:SetPadding(paddingRight, paddingBottom, paddingLeft, paddingTop);
-						end
-					end);
+							if (titleRight) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
+								local paddingRight, paddingBottom, paddingLeft, paddingTop = self:GetPadding();
+								paddingLeft = paddingLeft or 0;
+								paddingTop = paddingTop or 0;
+								
+								local xPadding = 16;
+								paddingRight = paddingRight + xPadding;
+								
+								self:SetPadding(paddingRight, paddingBottom, paddingLeft, paddingTop);
+							end
+						end);
+					end
 				end
 			},
 			["ItemRefShoppingTooltip1"] = { applyAppearance = true, applyScaling = true, applyAnchor = false },
