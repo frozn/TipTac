@@ -300,21 +300,28 @@ local TT_Config_TipsToModify = {
 						end);
 					end
 					
-					-- HOOK: ItemRefTooltipMixin:ItemRefSetHyperlink() to adjust padding for close button if needed. also considering TextRight1 here.
+					-- HOOK: ItemRefTooltipMixin:ItemRefSetHyperlink() to adjust padding for close button if needed. additionally considering TextRight1 here.
 					if (ItemRefTooltip.ItemRefSetHyperlink) then
 						hooksecurefunc(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
-							local titleLeft = _G[self:GetName() .. "TextLeft1"];
-							local titleRight = _G[self:GetName() .. "TextRight1"];
+							-- get current display parameters
+							local frameParams = TT_CacheForFrames[self];
 							
-							if (titleRight) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
-								local paddingRight, paddingBottom, paddingLeft, paddingTop = self:GetPadding();
-								paddingLeft = paddingLeft or 0;
-								paddingTop = paddingTop or 0;
-								
+							if (not frameParams) then
+								return;
+							end
+							
+							local currentDisplayParams = frameParams.currentDisplayParams;
+							
+							-- adjust padding for close button if needed. additionally considering TextRight1 here.
+							local titleRight = _G[self:GetName() .. "TextRight1"];
+							local titleLeft = _G[self:GetName() .. "TextLeft1"];
+							
+							if (titleRight) and (titleRight:GetText()) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
 								local xPadding = 16;
-								paddingRight = paddingRight + xPadding;
+								currentDisplayParams.extraPaddingRightForCloseButton = xPadding;
 								
-								self:SetPadding(paddingRight, paddingBottom, paddingLeft, paddingTop);
+								-- set padding to tip
+								tt:SetPaddingToTip(self);
 							end
 						end);
 					end
@@ -606,6 +613,7 @@ local TT_TipsToModifyFromOtherMods = {};
 -- lockedBackdropColor                       locked backdrop color, nil otherwise.
 -- lockedBackdropBorderColor                 locked backdrop border color, nil otherwise.
 --
+-- extraPaddingRightForCloseButton           value for extra padding right to fit close button, nil otherwise.
 -- extraPaddingBottomForBars                 value for extra padding bottom to fit health/power bars, nil otherwise.
 --
 -- defaultAnchored                           true if tip is default anchored, false otherwise.
@@ -1211,6 +1219,10 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 				end);
 				
 				tip:HookScript("OnTooltipCleared", function(tip)
+					if (tip:IsShown()) and (tip:GetObjectType() == "GameTooltip") and (tip.shouldRefreshData) then
+						return;
+					end
+					
 					tt:ResetCurrentDisplayParams(tip);
 					
 					if (tip:IsShown()) then
@@ -1649,6 +1661,7 @@ function tt:SetPaddingToTip(tip)
 	
 	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = newPaddingRight + TT_Config_TipPaddingForGameTooltip.right, newPaddingBottom + TT_Config_TipPaddingForGameTooltip.bottom, newPaddingLeft + TT_Config_TipPaddingForGameTooltip.left, newPaddingTop + TT_Config_TipPaddingForGameTooltip.top;
 	
+	newPaddingRight = newPaddingRight + (frameParams.currentDisplayParams.extraPaddingRightForCloseButton or 0);
 	newPaddingBottom = newPaddingBottom + (frameParams.currentDisplayParams.extraPaddingBottomForBars or 0);
 	
 	if (math.abs(newPaddingRight - oldPaddingRight) <= 0.5) and (math.abs(newPaddingBottom - oldPaddingBottom) <= 0.5) and (math.abs(newPaddingLeft - oldPaddingLeft) <= 0.5) and (math.abs(newPaddingTop - oldPaddingTop) <= 0.5) then
@@ -1712,6 +1725,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		end
 		
 		-- reset current display parameters for padding
+		currentDisplayParams.extraPaddingRightForCloseButton = nil;
 		currentDisplayParams.extraPaddingBottomForBars = nil;
 	end,
 	OnTipPostResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
