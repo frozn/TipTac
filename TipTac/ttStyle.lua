@@ -308,7 +308,7 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 		lineLevel.Index = currentDisplayParams.petLineLevelIndex or 2;
 		local expectedLine = 3 + (unitRecord.isColorBlind and 1 or 0);
 		if (lineLevel.Index > expectedLine) then
-			GameTooltipTextLeft2:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
+			GameTooltipTextLeft2:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
 		end
 	end
 end
@@ -319,10 +319,10 @@ function ttStyle:GenerateNpcLines(currentDisplayParams, unitRecord, first)
 	lineName:Push(unitRecord.nameColor:WrapTextInColorCode(unitRecord.name));
 
 	-- guild/title -- since WoD, npc title can be a single space character
-	if (unitRecord.battlePetOrNPCTitle) and (unitRecord.battlePetOrNPCTitle ~= " ") then
+	if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then
 		-- Az: this doesn't work with "Mini Diablo" or "Mini Thor", which has the format: 1) Mini Diablo 2) Lord of Terror 3) Player's Pet 4) Level 1 Non-combat Pet
 		local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
-		gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.battlePetOrNPCTitle)));
+		gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
 		lineLevel.Index = (lineLevel.Index + 1);
 	end
 
@@ -485,11 +485,11 @@ function ttStyle:OnTipStyle(TT_CacheForFrames, tip, first)
 	
 	-- some things only need to be done once initially when the tip is first displayed
 	if (first) then
-		-- find battle pet or NPC title
-		if (unitRecord.isBattlePet) or (unitRecord.isNPC) then
-			unitRecord.battlePetOrNPCTitle = (unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2):GetText();
-			if (unitRecord.battlePetOrNPCTitle) and (unitRecord.battlePetOrNPCTitle:find(TT_LevelMatch)) then
-				unitRecord.battlePetOrNPCTitle = nil;
+		-- find pet, battle pet or NPC title
+		if (unitRecord.isPet) or (unitRecord.isBattlePet) or (unitRecord.isNPC) then
+			unitRecord.petOrBattlePetOrNPCTitle = (unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2):GetText();
+			if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle:find(TT_LevelMatch)) then
+				unitRecord.petOrBattlePetOrNPCTitle = nil;
 			end
 		end
 	end
