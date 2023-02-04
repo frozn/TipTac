@@ -331,10 +331,13 @@ local TT_Config_TipsToModify = {
 				LibQTip.Acquire = function(self, key, ...)
 					local tooltip = oldLibQTipAcquire(self, key, ...);
 					
-					tt:AddModifiedTip(tooltip, true);
+					tt:AddModifiedTip(tooltip);
 					
 					return tooltip;
 				end
+				
+				-- disable error message on HookScript()
+				LibQTip.tipPrototype.HookScript = nil;
 			end
 			
 			-- LibDropdown-1.0, e.g used by addon Recount
@@ -1340,8 +1343,13 @@ function tt:SetScaleToTip(tip)
 	end
 	
 	-- set scale to tip
-	tip:SetScale(cfg.gttScale * TT_UIScale);
-	tip:SetIgnoreParentScale(true);
+	local gttEffectiveScale = cfg.gttScale * TT_UIScale;
+	
+	tip:SetScale(cfg.gttScale);
+	
+	if (tip:GetEffectiveScale() ~= gttEffectiveScale) then -- consider applied SetIgnoreParentScale() on GameTooltip regarding scaling of the tip
+		tip:SetScale(tip:GetScale() * gttEffectiveScale / tip:GetEffectiveScale());
+	end
 end
 
 -- set gradient to tip
@@ -1430,6 +1438,14 @@ function tt:AddModifiedTipExtended(tipNameOrFrame, tipParams)
 	-- apply config
 	self:ApplyConfig();
 end
+
+-- register for group events
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnTipSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
+		-- reapply scale to tip
+		tt:SetScaleToTip(tip);
+	end
+}, MOD_NAME .. " - Apply Config");
 
 ----------------------------------------------------------------------------------------------------
 --                                        Tooltip Backdrop                                        --
