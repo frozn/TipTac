@@ -211,8 +211,8 @@ function ttBars:SetupBars(TT_CacheForFrames, tip, unitRecord)
 		bar:ClearAllPoints();
 		
 		if (bar:GetVisibility(unitRecord)) then
-			bar:SetPoint("BOTTOMLEFT", tip.Center, BAR_MARGIN_X, offsetY);
-			bar:SetPoint("BOTTOMRIGHT", tip.Center, -BAR_MARGIN_X, offsetY);
+			bar:SetPoint("BOTTOMLEFT", tip.NineSlice.Center, BAR_MARGIN_X, offsetY);
+			bar:SetPoint("BOTTOMRIGHT", tip.NineSlice.Center, -BAR_MARGIN_X, offsetY);
 			
 			bar:SetStatusBarColor(bar:GetColor(unitRecord));
 			
