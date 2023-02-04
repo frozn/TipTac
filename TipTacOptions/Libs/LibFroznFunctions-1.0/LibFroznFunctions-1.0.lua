@@ -213,6 +213,11 @@ end
 -- 1. consider scaling to choose left or right side
 -- 2. calling ClearAllPoints() to refresh anchoring of shopping tooltips after re-anchoring of tip
 function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
+	-- tip not shown
+	if (not tip:IsShown()) then
+		return;
+	end
+	
 	-- refresh anchoring of shopping tooltips
 	local primaryTooltip = ShoppingTooltip1;
 	local secondaryTooltip = ShoppingTooltip2;
@@ -239,6 +244,10 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	-- local secondaryTooltip = tooltip.shoppingTooltips[2]; -- removed
 	local primaryShown = primaryTooltip:IsShown(); -- added
 	local secondaryShown = secondaryTooltip:IsShown(); -- added
+	
+	if (not primaryShown) and (not secondaryShown) then -- added
+		return; -- added
+	end -- added
 	
 	local sideAnchorFrame = self.anchorFrame;
 	if self.anchorFrame.IsEmbedded then
