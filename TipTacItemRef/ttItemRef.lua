@@ -738,11 +738,11 @@ local function SetQuestCurrency_Hook(self, _type, index)
 end
 
 -- HOOK: GameTooltip:SetQuestLogCurrency
-local function SetQuestLogCurrency_Hook(self, _type, index)
+local function SetQuestLogCurrency_Hook(self, _type, index, questID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local questID = C_QuestLog_GetSelectedQuest(); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
+		local _questID = questID or C_QuestLog_GetSelectedQuest(); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		local isChoice = (_type == "choice");
-		local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(index, questID, isChoice);
+		local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(index, _questID, isChoice);
 		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
