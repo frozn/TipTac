@@ -156,6 +156,7 @@ local TT_DefaultConfig = {
 	iconAnchor = "TOPLEFT",
 	iconSize = 24,
 	
+	enableAnchor = true,
 	anchorWorldUnitType = "normal",
 	anchorWorldUnitPoint = "BOTTOMRIGHT",
 	anchorWorldTipType = "normal",
@@ -2002,7 +2003,7 @@ function tt:SetAnchorToTip(tip)
 	local tipParams = frameParams.config;
 	
 	-- set anchor to tip not possible
-	if (not tipParams.applyAnchor) then
+	if (not cfg.enableAnchor) or (not tipParams.applyAnchor) then
 		return;
 	end
 	
@@ -2069,14 +2070,23 @@ function tt:AnchorTipToMouse(tip)
 	if (not frameParams) then
 		return;
 	end
+
+	local tipParams = frameParams.config;
+	
+	-- set anchor to tip not possible
+	if (not cfg.enableAnchor) or (not tipParams.applyAnchor) then
+		return;
+	end
 	
 	-- tip not default anchored
-	if (not frameParams.currentDisplayParams.defaultAnchored) then
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	if (not currentDisplayParams.defaultAnchored) then
 		return;
 	end
 	
 	-- set anchor type and anchor point
-	local anchorFrameName, anchorType, anchorPoint = frameParams.currentDisplayParams.anchorFrameName, frameParams.currentDisplayParams.anchorType or TT_Config_Default_Anchor_Type, frameParams.currentDisplayParams.anchorPoint or TT_Config_Default_Anchor_Point;
+	local anchorFrameName, anchorType, anchorPoint = currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType or TT_Config_Default_Anchor_Type, currentDisplayParams.anchorPoint or TT_Config_Default_Anchor_Point;
 	
 	-- set anchor to tip
 	if (tip:GetObjectType() == "GameTooltip") then

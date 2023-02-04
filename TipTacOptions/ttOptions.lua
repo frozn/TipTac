@@ -225,7 +225,8 @@ local options = {
 	-- Anchors
 	{
 		[0] = "Anchors",
-		{ type = "DropDown", var = "anchorWorldUnitType", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE },
+		{ type = "Check", var = "enableAnchor", label = "Enable Anchor Modifications", tip = "Turns on or off all modifications of the anchor" },
+		{ type = "DropDown", var = "anchorWorldUnitType", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE, y = 12 },
 		{ type = "DropDown", var = "anchorWorldUnitPoint", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
 		{ type = "DropDown", var = "anchorWorldTipType", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE, y = 12 },
 		{ type = "DropDown", var = "anchorWorldTipPoint", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
