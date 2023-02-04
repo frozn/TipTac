@@ -306,7 +306,7 @@ local TT_Config_TipsToModify = {
 							local titleLeft = _G[self:GetName() .. "TextLeft1"];
 							local titleRight = _G[self:GetName() .. "TextRight1"];
 							
-							if (titleRight) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
+							if (titleRight) and (titleRight:GetText()) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
 								local paddingRight, paddingBottom, paddingLeft, paddingTop = self:GetPadding();
 								paddingLeft = paddingLeft or 0;
 								paddingTop = paddingTop or 0;
