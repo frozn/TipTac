@@ -98,6 +98,7 @@ local options = {
 	{
 		[0] = "Reactions",
 		{ type = "Check", var = "reactColoredBorder", label = "Color border based on the unit's reaction", tip = "Same as the above option, just for the border\nNOTE: This option is overridden by class colored border" },
+		{ type = "Check", var = "reactIcon", label = "Show the unit's reaction as icon", tip = "This option makes the tip show the unit's reaction as an icon right behind the level" },
 		
 		{ type = "Check", var = "reactText", label = "Show the unit's reaction as text", tip = "With this option on, the reaction of the unit will be shown as text on the last line", y = 12 },
 		{ type = "Color", var = "colorReactText", label = "Color of unit's reaction as text", tip = "Color of the unit's reaction as text, when not using the option to make it the same as reaction color", y = 8 },

@@ -57,6 +57,7 @@ local TT_DefaultConfig = {
 	
 	-- reactions
 	reactColoredBorder = false,
+	reactIcon = false,
 	
 	reactText = false,
 	colorReactText = { 1, 1, 1, 1 },
