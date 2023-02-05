@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 4; -- bump on changes
+local LIB_MINOR = 5; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -213,14 +213,17 @@ end
 -- 1. consider scaling to choose left or right side
 -- 2. calling ClearAllPoints() to refresh anchoring of shopping tooltips after re-anchoring of tip
 function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
-	-- tip not shown
-	if (not tip:IsShown()) then
+	local primaryTooltip = ShoppingTooltip1;
+	local secondaryTooltip = ShoppingTooltip2;
+	local primaryShown = primaryTooltip:IsShown();
+	local secondaryShown = secondaryTooltip:IsShown();
+	
+	-- no shopping tooltip visible
+	if (not primaryShown) and (not secondaryShown) then
 		return;
 	end
 	
-	-- refresh anchoring of shopping tooltips
-	local primaryTooltip = ShoppingTooltip1;
-	local secondaryTooltip = ShoppingTooltip2;
+	-- refresh anchor of shopping tooltips
 	local self;
 	
 	if (TooltipComparisonManager) then -- since df 10.0.2
@@ -242,10 +245,8 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	local tooltip = self.tooltip;
 	-- local primaryTooltip = tooltip.shoppingTooltips[1]; -- removed
 	-- local secondaryTooltip = tooltip.shoppingTooltips[2]; -- removed
-	local primaryShown = primaryTooltip:IsShown(); -- added
-	local secondaryShown = secondaryTooltip:IsShown(); -- added
 	
-	if (not primaryShown) and (not secondaryShown) then -- added
+	if (tooltip:GetNumPoints() == 0) then -- added
 		return; -- added
 	end -- added
 	
@@ -253,6 +254,10 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	if self.anchorFrame.IsEmbedded then
 		sideAnchorFrame = self.anchorFrame:GetParent():GetParent();
 	end
+	
+	if (sideAnchorFrame:GetNumPoints() == 0) then -- added
+		return; -- added
+	end -- added
 	
 	-- local leftPos = sideAnchorFrame:GetLeft(); -- removed
 	-- local rightPos = sideAnchorFrame:GetRight(); -- removed
