@@ -1,5 +1,5 @@
 ## Interface: 30401
-## Version: 23.02.05
+## Version: 23.02.06
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU), Frozn45
 ## Notes: Option Dialog for TipTac
