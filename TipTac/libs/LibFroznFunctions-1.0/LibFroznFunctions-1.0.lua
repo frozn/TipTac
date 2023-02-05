@@ -230,9 +230,12 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	if (TooltipComparisonManager) then -- since df 10.0.2
 		self = TooltipComparisonManager;
 	else -- before df 10.0.2
+		local primaryTooltipPoint1 = (primaryTooltip:GetNumPoints() >= 1) and select(2, primaryTooltip:GetPoint(1));
+		local secondaryTooltipPoint1 = (secondaryTooltip:GetNumPoints() >= 1) and select(2, secondaryTooltip:GetPoint(1));
+		
 		self = { 
 			tooltip = primaryTooltip:GetOwner(),
-			anchorFrame = (primaryTooltip:GetNumPoints() >= 1) and select(2, primaryTooltip:GetPoint(1)) or primaryTooltip:GetOwner(),
+			anchorFrame = (primaryTooltipPoint1 ~= secondaryTooltip) and primaryTooltipPoint1 or (primaryTooltipPoint1 == secondaryTooltip) and secondaryTooltipPoint1 or primaryTooltip:GetOwner(),
 			comparisonItem = (primaryTooltip:IsShown())
 		};
 	end
