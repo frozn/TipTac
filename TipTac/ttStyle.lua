@@ -413,6 +413,25 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		end
 	end
 
+	-- Mount
+	if (unitRecord.isPlayer) and (cfg.showMount) then
+		local index = 1
+		local name, _, _, _, _, _, _, _, _, spellId = UnitAura(unitRecord.id, index, 'HELPFUL')
+		while name do
+			local mountId = mount_ids[spellId]
+			if mountId then
+				if (lineInfo:GetCount() > 0) then
+					lineInfo:Push("\n");
+				end
+				lineInfo:Push(format('%s: ', _G.MOUNT) .. TT_COLOR.text.mount:WrapTextInColorCode(name))
+				break
+			else
+				index = index + 1
+				name, _, _, _, _, _, _, _, _, spellId = UnitAura(unitRecord.id, index, 'HELPFUL')
+			end
+		end
+	end
+
 	-- Target
 	if (cfg.showTarget ~= "none") then
 		self:GenerateTargetLines(unitRecord, cfg.showTarget);
