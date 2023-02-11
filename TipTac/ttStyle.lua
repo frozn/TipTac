@@ -363,7 +363,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	
 	-- Reaction Icon
 	if (cfg.reactIcon) and (TT_ReactionIcon[unitRecord.reactionIndex]) then
-		lineLevel:Push(" " .. CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\" .. TT_ReactionIcon[unitRecord.reactionIndex] .. ".tga", 32, 32, nil, nil, 0.219, 0.844, 0.219, 0.844));
+		lineLevel:Push(" " .. LibFroznFunctions:CreateTextureMarkupWithVertexColor("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\" .. TT_ReactionIcon[unitRecord.reactionIndex] .. ".tga", 32, 32, nil, nil, 0.219, 0.75, 0.219, 0.75, nil, nil, unitRecord.reactionColor:GetRGB()));
 	end
 	
 	-- Generate Line Modification

@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 5; -- bump on changes
+local LIB_MINOR = 6; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1343,6 +1343,33 @@ function LibFroznFunctions:TextureExists(textureFile)
 	textureExistsTexture:SetTexture(textureFile);
 	
 	return (textureExistsTexture:GetTexture() ~= "?");
+end
+
+-- create texture markup with vertex color
+--
+-- @param  textureFile    path to a texture (usually in Interface\\) or a FileDataID
+-- @param  textureWidth   width of the source image in pixels
+-- @param  textureHeight  height of the source image in pixels
+-- @param  width          width in pixels
+-- @param  height         height in pixels
+-- @param  leftTexel      coordinate that identifies the left edge in pixels
+-- @param  rightTexel     coordinate that identifies the right edge in pixels
+-- @param  topTexel       coordinate that identifies the top edge in pixels
+-- @param  bottomTexel    coordinate that identifies the bottom edge in pixels
+-- @param  xOffset        x offset for the rendered image in pixels
+-- @param  yOffset        y offset for the rendered image in pixels (< 0 = move top, >0 = move bottom)
+-- @param  rVertexColor   optional. R color value in the range 0-1 that is used to tint the texture
+-- @param  gVertexColor   optional. G color value in the range 0-1 that is used to tint the texture
+-- @param  bVertexColor   optional. B color value in the range 0-1 that is used to tint the texture
+-- @return texture markup with vertex color
+function LibFroznFunctions:CreateTextureMarkupWithVertexColor(textureFile, textureWidth, textureHeight, width, height, leftTexel, rightTexel, topTexel, bottomTexel, xOffset, yOffset, rVertexColor, gVertexColor, bVertexColor)
+	local textureMarkup = CreateTextureMarkup(textureFile, textureWidth, textureHeight, width, height, leftTexel, rightTexel, topTexel, bottomTexel, xOffset, yOffset);
+	
+	if (rVertexColor) or (gVertexColor) or (bVertexColor) then
+		textureMarkup = format(textureMarkup:sub(1, -3) .. ":%d:%d:%d|t", (rVertexColor or 0) * 255, (gVertexColor or 0) * 255, (bVertexColor or 0) * 255);
+	end
+	
+	return textureMarkup;
 end
 
 ----------------------------------------------------------------------------------------------------
