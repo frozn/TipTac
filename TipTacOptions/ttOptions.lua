@@ -55,6 +55,7 @@ if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
 	ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMythicPlusDungeonScore", label = "Show Mythic+ Dungeon Score", tip = "This will show the mythic+ dungeon score of the player." };
 end
 
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player." };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType", label = "Name & Title", list = { ["Name only"] = "normal", ["Name + title"] = "title", ["Copy from original tip"] = "original", ["Mary Sue Protocol"] = "marysueprot" }, y = 16 };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["Do not show realm"] = "none", ["Show realm"] = "show", ["Show (*) instead"] = "asterisk" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["Do not show target"] = "none", ["First line"] = "first", ["Second line"] = "second", ["Last line"] = "last" } };

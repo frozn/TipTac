@@ -29,6 +29,7 @@ local TT_UnknownObject = UNKNOWNOBJECT; -- Unknown
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = "Targeted by";
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
+local TT_Mount = RENOWN_REWARD_MOUNT_NAME_FORMAT; -- "Mount"
 local TT_ReactionIcon = {
 	[LFF_UNIT_REACTION_INDEX.hostile] = "unit_reaction_hostile",             -- Hostile
 	[LFF_UNIT_REACTION_INDEX.caution] = "unit_reaction_caution",             -- Unfriendly
@@ -61,7 +62,8 @@ local TT_COLOR = {
 		targeting = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 		targetedBy = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 		guildRank = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-		unitSpeed = CreateColor(0.8, 0.8, 0.8, 1) -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
+		unitSpeed = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
+		mount = CreateColor(0.8, 0.8, 0.8, 1) -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 	}
 };
 
@@ -409,6 +411,25 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				end
 				lineInfo:Push("|cffffd100");
 				lineInfo:Push(TT_MythicPlusDungeonScore:format(C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore):WrapTextInColorCode(mythicPlusDungeonScore) .. (mythicPlusBestRunLevel and " |cffffff99(+" .. mythicPlusBestRunLevel .. ")|r" or "")));
+			end
+		end
+	end
+
+	-- Mount
+	if (unitRecord.isPlayer) and (cfg.showMount) then
+		local index = 1
+		local name, _, _, _, _, _, _, _, _, spellId = UnitAura(unitRecord.id, index, 'HELPFUL')
+		while name do
+			local mountId = mount_ids[spellId]
+			if mountId then
+				if (lineInfo:GetCount() > 0) then
+					lineInfo:Push("\n");
+				end
+				lineInfo:Push(TT_Mount:format(TT_COLOR.text.mount:WrapTextInColorCode(name)))
+				break
+			else
+				index = index + 1
+				name, _, _, _, _, _, _, _, _, spellId = UnitAura(unitRecord.id, index, 'HELPFUL')
 			end
 		end
 	end

@@ -33,6 +33,7 @@ local TT_DefaultConfig = {
 	targetYouText = "<<YOU>>",
 	showCurrentUnitSpeed = false,
 	showMythicPlusDungeonScore = true,
+	showMount = false,
 	
 	showBattlePetTip = true,
 	gttScale = 1,
@@ -566,6 +567,8 @@ end
 ----------------------------------------------------------------------------------------------------
 --                                           Variables                                            --
 ----------------------------------------------------------------------------------------------------
+-- mounts
+mount_ids = {}
 
 -- colors
 local TT_COLOR = {
@@ -779,7 +782,13 @@ function tt:PLAYER_LOGIN(event)
 	
 	-- inform group that the tooltip's appearance and hooking needs to be applied
 	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnApplyTipAppearanceAndHooking", TT_CacheForFrames, cfg);
-	
+
+	-- generate mount ids
+	for _, mountId in next, C_MountJournal.GetMountIDs() do
+		local _, spellId =  C_MountJournal.GetMountInfoByID(mountId)
+		mount_ids[spellId] = mountId
+	end
+
 	-- cleanup
 	self:UnregisterEvent(event);
 	self[event] = nil;
