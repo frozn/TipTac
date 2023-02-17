@@ -1400,6 +1400,19 @@ function tt:SetScaleToTip(tip)
 	if (tip:GetEffectiveScale() ~= gttEffectiveScale) then -- consider applied SetIgnoreParentScale() on GameTooltip regarding scaling of the tip
 		tip:SetScale(tip:GetScale() * gttEffectiveScale / tip:GetEffectiveScale());
 	end
+	
+	-- reduce scale if tip exceeds UIParent width/height
+	local tipWidth = tip:GetWidth() * tip:GetEffectiveScale();
+	local tipHeight = tip:GetHeight() * tip:GetEffectiveScale();
+	
+	local UIParentWidth = UIParent:GetWidth() * UIParent:GetEffectiveScale();
+	local UIParentHeight = UIParent:GetHeight() * UIParent:GetEffectiveScale();
+	
+	if (tipWidth > UIParentWidth) or (tipHeight > UIParentHeight) then
+        local reducedScale = tip:GetScale() / math.max(tipWidth / UIParentWidth, tipHeight / UIParentHeight) * 0.95;
+		
+		tip:SetScale(reducedScale);
+	end
 end
 
 -- set gradient to tip

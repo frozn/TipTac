@@ -1190,10 +1190,10 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	
 	local totalWidth = 0;
 	if primaryShown then
-		totalWidth = totalWidth + primaryTooltip:GetWidth();
+		totalWidth = totalWidth + primaryTooltip:GetWidth() * primaryTooltip:GetEffectiveScale();
 	end
 	if secondaryShown then
-		totalWidth = totalWidth + secondaryTooltip:GetWidth();
+		totalWidth = totalWidth + secondaryTooltip:GetWidth() * primaryTooltip:GetEffectiveScale();
 	end
 	
 	local rightDist = 0;
