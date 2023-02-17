@@ -1,5 +1,8 @@
-TipTacLayouts = {};
 local cfg = TipTac_Config;
+local MOD_NAME = ...;
+local PARENT_MOD_NAME = "TipTac";
+
+TipTacLayouts = {};
 
 --------------------------------------------------------------------------------------------------------
 --                                           Layout Presets                                           --
