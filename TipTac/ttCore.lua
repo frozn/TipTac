@@ -34,6 +34,9 @@ local TT_DefaultConfig = {
 	showCurrentUnitSpeed = true,
 	showMythicPlusDungeonScore = true,
 	showMount = true,
+	showMountIcon = true,
+	showMountText = true,
+	showMountSpeed = true,
 	
 	showBattlePetTip = true,
 	gttScale = 1,

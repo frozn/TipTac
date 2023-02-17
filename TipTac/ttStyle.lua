@@ -64,7 +64,8 @@ local TT_COLOR = {
 		targetedBy = HIGHLIGHT_FONT_COLOR, -- white
 		guildRank = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 		unitSpeed = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-		mount = HIGHLIGHT_FONT_COLOR -- white
+		mountName = HIGHLIGHT_FONT_COLOR, -- white
+		mountSpeed = LIGHTYELLOW_FONT_COLOR
 	}
 };
 
@@ -430,20 +431,51 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				local mountID = LibFroznFunctions:GetMountFromSpell(spellID);
 				
 				if (mountID) then
-					local auraDescription = LibFroznFunctions:GetAuraDescription(unitID, index, filter);
-					local speeds = LibFroznFunctions:CreatePushArray();
+					local mountText = LibFroznFunctions:CreatePushArray();
+					local spacer;
+					local mountNameAdded = false;
 					
-					if (auraDescription) then
-						for speed in auraDescription:gmatch("(%d+)%%") do
-							speeds:Push(speed);
+					if (cfg.showMountIcon) and (unitAuraInfo.icon) then
+						mountText:Push(CreateTextureMarkup(unitAuraInfo.icon, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93));
+					end
+					
+					if (cfg.showMountText) and (unitAuraInfo.name) then
+						spacer = (mountText:GetCount() > 0) and " " or "";
+						
+						mountText:Push(spacer .. TT_COLOR.text.mountName:WrapTextInColorCode(unitAuraInfo.name));
+						
+						mountNameAdded = true;
+					end
+					
+					if (cfg.showMountSpeed) then
+						spacer = (mountText:GetCount() > 0) and " " or "";
+						
+						local auraDescription = LibFroznFunctions:GetAuraDescription(unitID, index, filter);
+						local mountSpeeds = LibFroznFunctions:CreatePushArray();
+						
+						if (auraDescription) then
+							for mountSpeed in auraDescription:gmatch("(%d+)%%") do
+								mountSpeeds:Push(mountSpeed);
+							end
+						end
+						
+						if (mountSpeeds:GetCount() > 0) then
+							if (mountNameAdded) then
+								mountText:Push(spacer .. TT_COLOR.text.mountSpeed:WrapTextInColorCode("(" .. mountSpeeds:Concat("/") .. "%)"));
+							else
+								mountText:Push(spacer .. TT_COLOR.text.mountSpeed:WrapTextInColorCode(mountSpeeds:Concat("/") .. "%"));
+							end
 						end
 					end
 					
-					if (lineInfo:GetCount() > 0) then
-						lineInfo:Push("\n");
+					-- show mount text
+					if (mountText:GetCount() > 0) then
+						if (lineInfo:GetCount() > 0) then
+							lineInfo:Push("\n");
+						end
+						
+						lineInfo:Push(TT_Mount:format(mountText:Concat()));
 					end
-					
-					lineInfo:Push(TT_Mount:format(CreateTextureMarkup(unitAuraInfo.icon, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93) .. " " .. TT_COLOR.text.mount:WrapTextInColorCode(unitAuraInfo.name) .. ((speeds:GetCount() > 0) and " |cffffff99(" .. speeds:Concat("/") .. "%)|r" or "")));
 					
 					return true;
 				end
