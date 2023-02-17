@@ -10,6 +10,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 -- TipTac refs
 local tt = _G[MOD_NAME];
 local cfg;
+local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
 -- element registration
@@ -76,7 +77,7 @@ function ttHyperlink:ADDON_LOADED(event, addOnName)
 	
 	-- now CommunitiesGuildNewsFrame exists
 	if (addOnName == "Blizzard_Communities") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities")) and (not addOnsLoaded['Blizzard_Communities'])) then
-		self:OnApplyConfig(TT_CacheForFrames, cfg);
+		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_Communities"] = true;
@@ -308,12 +309,13 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttHyperlink:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+function ttHyperlink:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
-function ttHyperlink:OnApplyConfig(TT_CacheForFrames, cfg)
+function ttHyperlink:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	-- ChatFrame Hyperlink Hover -- Az: this may need some more testing, code seems wrong. e.g. why only on first window? -- Frozn45: completely rewritten.
 	if (not self.hookedHoverHyperlinks) then
 		for i = 1, NUM_CHAT_WINDOWS do

@@ -66,6 +66,7 @@ local TTIF_DefaultConfig = {
 	if_auraSpellColoredBorder = true,
 	if_showAuraSpellIdAndRank = false,
 	if_showMawPowerId = false,
+	if_showMountId = false,
 	if_showAuraCaster = true,
 	if_questDifficultyBorder = true,
 	if_showQuestLevel = false,
@@ -528,6 +529,22 @@ local function SetUnitBuffByAuraInstanceID_Hook(self, unit, auraInstanceID, filt
 	end
 end
 
+-- HOOK: GameTooltip:SetMountBySpellID
+local function SetMountBySpellID_Hook(self, spellID)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		if (spellID) then
+			local link = GetSpellLink(spellID);
+			if (link) then
+				local linkType, _spellID = link:match("H?(%a+):(%d+)");
+				if (_spellID) then
+					tipDataAdded[self] = linkType;
+					LinkTypeFuncs.spell(self, false, source, link, linkType, _spellID);
+				end
+			end
+		end
+	end
+end
+
 -- HOOK: GameTooltip:SetCompanionPet
 local function SetCompanionPet_Hook(self, petID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
@@ -585,6 +602,21 @@ local function SetAction_Hook(self, slot)
 						
 						if (_itemID) then
 							ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
+						end
+					end
+				end
+			end
+		elseif (actionType == "summonmount") then
+			local name, mountID = LibFroznFunctions:GetMountFromTooltip(self);
+			if (mountID) then
+				local spellID = C_MountJournal.GetMountInfoByID(mountID);
+				if (spellID) then
+					local link = GetSpellLink(spellID);
+					if (link) then
+						local linkType, _spellID = link:match("H?(%a+):(%d+)");
+						if (_spellID) then
+							tipDataAdded[self] = linkType;
+							LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
 						end
 					end
 				end
@@ -1566,6 +1598,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
 					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
+					hooksecurefunc(tip, "SetMountBySpellID", SetMountBySpellID_Hook);
 					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
 					hooksecurefunc(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
 					hooksecurefunc(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
@@ -1931,6 +1964,9 @@ local function SmartIconEvaluation(tip,linkType)
 			if (owner.ActiveTexture and ownerParent.icon) then -- mount tooltip in mount journal list
 				return false;
 			end
+			if (owner.spellID and ownerParent.pageMount) then -- classic: mount tooltip in mount tab
+				return false;
+			end
 			if (ownerParent.Artwork) then -- player choice torghast option
 				return false;
 			end
@@ -2048,7 +2084,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 	if (trueItemLevel) then
 		itemLevel = trueItemLevel;
 	end
-
+	
+	local mountID = (C_MountJournal) and (C_MountJournal.GetMountFromItem) and C_MountJournal.GetMountFromItem(id);
+	
 	-- Icon
 	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
@@ -2074,6 +2112,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	-- level + id -- Only alter the tip if we got either a valid "itemLevel" or "id"
 	local showLevel = (itemLevel and cfg.if_showItemLevel);
 	local showId = (id and cfg.if_showItemId);
+	local showMountID = (cfg.if_showMountId and mountID);
 	local linePadding = 2;
 
 	if (showLevel or showId) then
@@ -2149,6 +2188,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 		else
 			targetTooltip:AddLine(format("ItemLevel: %d",itemLevel),unpack(cfg.if_infoColor));
 		end
+	end
+	if (showMountID) then
+		self:AddLine(format("MountID: %d", mountID), unpack(cfg.if_infoColor));
 	end
 	
 	targetTooltip:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
@@ -2273,6 +2315,8 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		end
 	end
 	
+	local mountID = LibFroznFunctions:GetMountFromSpell(spellID);
+	
 	local isSpell = (not isAura);
 
 	-- Icon
@@ -2291,6 +2335,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID);
 	local showSpellIdAndRank = (((isSpell and cfg.if_showSpellIdAndRank) or (isAura and cfg.if_showAuraSpellIdAndRank)) and spellID and (spellID ~= 0));
+	local showMountID = (cfg.if_showMountId and mountID);
 	if (showMawPowerID or showSpellIdAndRank) then
 		if (not showMawPowerID) then
 			self:AddLine(format("SpellID: %d", spellID)..rank, unpack(cfg.if_infoColor));
@@ -2300,8 +2345,11 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 			self:AddLine(format("MawPowerID: %d", mawPowerID), unpack(cfg.if_infoColor));
 		end
 	end
+	if (showMountID) then
+		self:AddLine(format("MountID: %d", mountID), unpack(cfg.if_infoColor));
+	end
 
-	if (showAuraCaster or showMawPowerID or showSpellIdAndRank) then
+	if (showAuraCaster or showMawPowerID or showSpellIdAndRank or showMountID) then
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
 

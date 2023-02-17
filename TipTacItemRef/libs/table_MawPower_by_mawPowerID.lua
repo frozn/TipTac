@@ -1,4 +1,4 @@
--- table MawPower from https://wow.tools/dbc/?dbc=mawpower&build=10.0.2.46092
+-- table MawPower from https://wow.tools/dbc/?dbc=mawpower&build=10.0.5.47660
 -- converted to lua dictionary table by mawPowerID with https://thdoan.github.io/mr-data-converter/
 
 table_MawPower_by_MawPowerID = {

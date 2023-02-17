@@ -7,6 +7,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 -- TipTac refs
 local tt = _G[MOD_NAME];
 local cfg;
+local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
 -- element registration
@@ -16,8 +17,8 @@ local bars = ttBars.bars;
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttBars, "Bars");
 
 -- Constants
-local BAR_MARGIN_X = 8;
-local BAR_MARGIN_Y = 9;
+local BAR_MARGIN_X = ((LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC)) and 5 or 7;
+local BAR_MARGIN_Y = ((LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC)) and 6 or 8;
 local BAR_SPACING = 7;
 
 local TT_GTT_MINIMUM_WIDTH_FOR_BARS = 110; -- minimum width for bars, so that numbers are not out of bounds
@@ -211,8 +212,8 @@ function ttBars:SetupBars(TT_CacheForFrames, tip, unitRecord)
 		bar:ClearAllPoints();
 		
 		if (bar:GetVisibility(unitRecord)) then
-			bar:SetPoint("BOTTOMLEFT", tip.NineSlice.Center, BAR_MARGIN_X, offsetY);
-			bar:SetPoint("BOTTOMRIGHT", tip.NineSlice.Center, -BAR_MARGIN_X, offsetY);
+			bar:SetPoint("BOTTOMLEFT", tip.NineSlice.Center, TT_ExtendedConfig.tipPaddingForGameTooltip.left + BAR_MARGIN_X, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom + offsetY);
+			bar:SetPoint("BOTTOMRIGHT", tip.NineSlice.Center, -TT_ExtendedConfig.tipPaddingForGameTooltip.right + -BAR_MARGIN_X, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom + offsetY);
 			
 			bar:SetStatusBarColor(bar:GetColor(unitRecord));
 			
@@ -231,9 +232,10 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttBars:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+function ttBars:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
 
 	-- Make two bars: Health & Power
 	local tip = GameTooltip;
@@ -244,7 +246,7 @@ function ttBars:OnConfigLoaded(_TT_CacheForFrames, _cfg)
 	end
 end
 
-function ttBars:OnApplyConfig(TT_CacheForFrames, cfg)
+function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	GameTooltipStatusBar:SetStatusBarTexture(cfg.barTexture);
 	GameTooltipStatusBar:GetStatusBarTexture():SetHorizTile(false);	-- Az: 3.3.3 fix
 	GameTooltipStatusBar:GetStatusBarTexture():SetVertTile(false);	-- Az: 3.3.3 fix

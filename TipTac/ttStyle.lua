@@ -7,6 +7,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 -- TipTac refs
 local tt = _G[MOD_NAME];
 local cfg;
+local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
 -- element registration
@@ -24,12 +25,12 @@ local lineTargetedBy = LibFroznFunctions:CreatePushArray();
 local TT_LevelMatch = "^"..TOOLTIP_UNIT_LEVEL:gsub("%%[^s ]*s",".+"); -- Was changed to match other localizations properly, used to match: "^"..LEVEL.." .+" -- Doesn't actually match the level line on the russian client! [14.02.24] Doesn't match for Italian client either. [18.07.27] changed the pattern, might match non-english clients now
 local TT_LevelMatchPet = "^"..TOOLTIP_WILDBATTLEPET_LEVEL_CLASS:gsub("%%[^s ]*s",".+");	-- "^Pet Level .+ .+"
 local TT_NotSpecified = "Not specified";
-local TT_Unknown = UNKNOWN; -- Unknown
-local TT_UnknownObject = UNKNOWNOBJECT; -- Unknown
+local TT_Unknown = UNKNOWN; -- "Unknown"
+local TT_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = "Targeted by";
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
-local TT_Mount = RENOWN_REWARD_MOUNT_NAME_FORMAT; -- "Mount"
+local TT_Mount = RENOWN_REWARD_MOUNT_NAME_FORMAT or "Mount: %s"; -- "Mount: %s"
 local TT_ReactionIcon = {
 	[LFF_UNIT_REACTION_INDEX.hostile] = "unit_reaction_hostile",             -- Hostile
 	[LFF_UNIT_REACTION_INDEX.caution] = "unit_reaction_caution",             -- Unfriendly
@@ -59,11 +60,11 @@ local TT_ReactionText = {
 local TT_COLOR = {
 	text = {
 		default = HIGHLIGHT_FONT_COLOR, -- white
-		targeting = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-		targetedBy = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
+		targeting = HIGHLIGHT_FONT_COLOR, -- white
+		targetedBy = HIGHLIGHT_FONT_COLOR, -- white
 		guildRank = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 		unitSpeed = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-		mount = CreateColor(0.8, 0.8, 0.8, 1) -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
+		mount = HIGHLIGHT_FONT_COLOR -- white
 	}
 };
 
@@ -417,21 +418,37 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 
 	-- Mount
 	if (unitRecord.isPlayer) and (cfg.showMount) then
-		local index = 1
-		local name, _, _, _, _, _, _, _, _, spellId = UnitAura(unitRecord.id, index, 'HELPFUL')
-		while name do
-			local mountId = mount_ids[spellId]
-			if mountId then
-				if (lineInfo:GetCount() > 0) then
-					lineInfo:Push("\n");
+		local unitID, filter = unitRecord.id, LFF_AURA_FILTERS.Helpful;
+		local index = 0;
+		
+		LibFroznFunctions:ForEachAura(unitID, filter, nil, function(unitAuraInfo)
+			index = index + 1;
+			
+			local spellID = unitAuraInfo.spellId;
+			
+			if (spellID) then
+				local mountID = LibFroznFunctions:GetMountFromSpell(spellID);
+				
+				if (mountID) then
+					local auraDescription = LibFroznFunctions:GetAuraDescription(unitID, index, filter);
+					local speeds = LibFroznFunctions:CreatePushArray();
+					
+					if (auraDescription) then
+						for speed in auraDescription:gmatch("(%d+)%%") do
+							speeds:Push(speed);
+						end
+					end
+					
+					if (lineInfo:GetCount() > 0) then
+						lineInfo:Push("\n");
+					end
+					
+					lineInfo:Push(TT_Mount:format(CreateTextureMarkup(unitAuraInfo.icon, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93) .. " " .. TT_COLOR.text.mount:WrapTextInColorCode(unitAuraInfo.name) .. ((speeds:GetCount() > 0) and " |cffffff99(" .. speeds:Concat("/") .. "%)|r" or "")));
+					
+					return true;
 				end
-				lineInfo:Push(TT_Mount:format(TT_COLOR.text.mount:WrapTextInColorCode(name)))
-				break
-			else
-				index = index + 1
-				name, _, _, _, _, _, _, _, _, spellId = UnitAura(unitRecord.id, index, 'HELPFUL')
 			end
-		end
+		end, true);
 	end
 
 	-- Target
@@ -504,9 +521,10 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttStyle:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+function ttStyle:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
 function ttStyle:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams, tipContent)

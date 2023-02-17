@@ -2,6 +2,7 @@
 ..\FrameXML\UI.xsd">
 
 	<Script file="LibStub\LibStub.lua" />
+	<Script file="LFF_SPELLID_TO_MOUNTID_LOOKUP.lua"/>
 	<Script file="LibFroznFunctions-1.0.lua"/>
 
 </Ui>

@@ -7,6 +7,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 -- TipTac refs
 local tt = _G[MOD_NAME];
 local cfg;
+local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
 -- element registration
@@ -145,12 +146,13 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
-function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg)
+function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	-- If disabled, hide auras, else set their size
 	local gameFont = GameFontNormal:GetFont();
 	for _, aura in ipairs(auras) do

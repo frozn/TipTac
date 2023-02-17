@@ -52,8 +52,12 @@ local TTT_TEXT = {
 
 -- colors
 local TTT_COLOR = {
-	text = HIGHLIGHT_FONT_COLOR, -- white
-	pointsSpent = LIGHTYELLOW_FONT_COLOR
+	text = {
+		default = HIGHLIGHT_FONT_COLOR, -- white
+		spec = HIGHLIGHT_FONT_COLOR, -- white
+		ail = HIGHLIGHT_FONT_COLOR, -- white
+		pointsSpent = LIGHTYELLOW_FONT_COLOR
+	}
 };
 
 ----------------------------------------------------------------------------------------------------
@@ -229,9 +233,9 @@ function TTT_UpdateTooltip(unitCacheRecord)
 				spacer = (specText:GetCount() > 0) and " " or "";
 				
 				if (specNameAdded) then
-					specText:Push(spacer .. TTT_COLOR.pointsSpent:WrapTextInColorCode("(" .. table.concat(unitCacheRecord.talents.pointsSpent, "/") .. ")"));
+					specText:Push(spacer .. TTT_COLOR.text.pointsSpent:WrapTextInColorCode("(" .. table.concat(unitCacheRecord.talents.pointsSpent, "/") .. ")"));
 				else
-					specText:Push(spacer .. TTT_COLOR.pointsSpent:WrapTextInColorCode(table.concat(unitCacheRecord.talents.pointsSpent, "/")));
+					specText:Push(spacer .. TTT_COLOR.text.pointsSpent:WrapTextInColorCode(table.concat(unitCacheRecord.talents.pointsSpent, "/")));
 				end
 			end
 		end
@@ -240,7 +244,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 		if (specText:GetCount() > 0) then
 			local tipLineTextTalents = LibFroznFunctions:FormatText("{prefix}: {specText}", {
 				prefix = TTT_TEXT.talentsPrefix,
-				specText = TTT_COLOR.text:WrapTextInColorCode(specText:Concat())
+				specText = TTT_COLOR.text.spec:WrapTextInColorCode(specText:Concat())
 			});
 			
 			if (tttTipLineIndexTalents) then
@@ -285,7 +289,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 		if (ailText) then
 			local tipLineTextAverageItemLevel = LibFroznFunctions:FormatText("{prefix}: {averageItemLevel}", {
 				prefix = TTT_TEXT.ailPrefix,
-				averageItemLevel = TTT_COLOR.text:WrapTextInColorCode(ailText)
+				averageItemLevel = TTT_COLOR.text.ail:WrapTextInColorCode(ailText)
 			});
 			
 			if (tttTipLineIndexAverageItemLevel) then
