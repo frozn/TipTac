@@ -2452,6 +2452,52 @@ function tt:SetUnitAppearanceToTip(tip, first)
 	self:SetPaddingToTip(tip);
 end
 
+-- update unit appearance to tip
+function tt:UpdateUnitAppearanceToTip(tip)
+	-- get frame parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	-- no unit appearance
+	local timestampStartUnitAppearance = frameParams.currentDisplayParams.timestampStartUnitAppearance;
+	
+	if (not timestampStartUnitAppearance) then
+		return;
+	end
+	
+	-- no unit record
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	local unitRecord = currentDisplayParams.unitRecord;
+	
+	if (not unitRecord) then
+		return;
+	end
+	
+	-- consider update interval
+	if (GetTime() - timestampStartUnitAppearance < cfg.updateFreq) then
+		return;
+	end
+	
+	-- inform group that the tip has to be checked if it needs to be hidden
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, currentDisplayParams.tipContent);
+	
+	-- tip will be hidden
+	if (currentDisplayParams.hideTip) then
+		tt:HideTip(tip);
+		return;
+	end
+	
+	-- update unit record
+	LibFroznFunctions:UpdateUnitRecord(unitRecord);
+	
+	-- set unit appearance to tip
+	tt:SetUnitAppearanceToTip(tip);
+	currentDisplayParams.timestampStartUnitAppearance = GetTime();
+end
+
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
@@ -2477,48 +2523,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- HOOK: tip's OnUpdate to update unit appearance
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
 			tip:HookScript("OnUpdate", function(tip)
-				-- get frame parameters
-				local frameParams = TT_CacheForFrames[tip];
-				
-				if (not frameParams) then
-					return;
-				end
-				
-				-- no unit appearance
-				local timestampStartUnitAppearance = frameParams.currentDisplayParams.timestampStartUnitAppearance;
-				
-				if (not timestampStartUnitAppearance) then
-					return;
-				end
-				
-				-- no unit record
-				local currentDisplayParams = frameParams.currentDisplayParams;
-				local unitRecord = currentDisplayParams.unitRecord;
-				
-				if (not unitRecord) then
-					return;
-				end
-				
-				-- consider update interval
-				if (GetTime() - timestampStartUnitAppearance < cfg.updateFreq) then
-					return;
-				end
-				
-				-- inform group that the tip has to be checked if it needs to be hidden
-				LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, currentDisplayParams.tipContent);
-				
-				-- tip will be hidden
-				if (currentDisplayParams.hideTip) then
-					tt:HideTip(tip);
-					return;
-				end
-				
-				-- update unit record
-				LibFroznFunctions:UpdateUnitRecord(unitRecord);
-				
-				-- set unit appearance to tip
-				tt:SetUnitAppearanceToTip(tip);
-				currentDisplayParams.timestampStartUnitAppearance = GetTime();
+				tt:UpdateUnitAppearanceToTip(tip);
 			end);
 		end);
 	end,
