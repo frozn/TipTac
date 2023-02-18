@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 6; -- bump on changes
+local LIB_MINOR = 7; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1391,6 +1391,7 @@ function LibFroznFunctions:GetAuraDescription(unitID, index, filter)
 	-- get aura description from tooltip
 	getAuraDescriptionFromTooltipScanTip:ClearLines();
 	getAuraDescriptionFromTooltipScanTip:SetUnitAura(unitID, index, filter);
+	getAuraDescriptionFromTooltipScanTip:Hide();
 	
 	-- line 1 is aura name. line 2 is aura description.
 	local leftText2 = _G[scanTipName .. "TextLeft2"];
@@ -2377,6 +2378,7 @@ end
 -- @return .value         average item level
 --         .qualityColor  ColorMixin with total quality color
 --         .totalItems    total items
+--         .gearScore     GearScore
 --         returns "LFF_AVERAGE_ITEM_LEVEL.available" if average item level is available
 --         returns "LFF_AVERAGE_ITEM_LEVEL.none" if no average item level has been found.
 --         returns nil if unit id is missing or not a player
@@ -2465,13 +2467,14 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		return LFF_AVERAGE_ITEM_LEVEL.none;
 	end
 	
-	-- calculate average item level
+	-- calculate average item level and GearScore
 	local totalScore = 0;
 	local totalItems = 0;
 	local totalQuality = 0;
 	local totalItemsForQuality = 0;
 	local averageItemLevel;
 	local totalQualityColor;
+	local gearScore = 0;
 	
 	local ignoreInventorySlots = {
 		[INVSLOT_BODY] = true, -- shirt
@@ -2483,6 +2486,23 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		[Enum.InventoryType.IndexRangedType] = true,
 		[Enum.InventoryType.IndexRangedrightType] = true,
 		[Enum.InventoryType.Index2HweaponType] = true
+	};
+	
+	local slotModForGearScore = {
+		[Enum.InventoryType.IndexNeckType] = 0.5625,
+		[Enum.InventoryType.IndexShoulderType] = 0.75,
+		[Enum.InventoryType.IndexBodyType] = 0,
+		[Enum.InventoryType.IndexWaistType] = 0.75,
+		[Enum.InventoryType.IndexFeetType] = 0.75,
+		[Enum.InventoryType.IndexWristType] = 0.5625,
+		[Enum.InventoryType.IndexHandType] = 0.75,
+		[Enum.InventoryType.IndexFingerType] = 0.5625,
+		[Enum.InventoryType.IndexTrinketType] = 0.5625,
+		[Enum.InventoryType.IndexRangedType] = 0.3164,
+		[Enum.InventoryType.IndexCloakType] = 0.5625,
+		[Enum.InventoryType.IndexThrownType] = 0.3164,
+		[Enum.InventoryType.IndexRangedrightType] = 0.3164,
+		[Enum.InventoryType.IndexRelicType] = 0.3164
 	};
 	
 	-- to check if main hand only
@@ -2498,7 +2518,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	local isOffHandArtifact = (itemOffHand) and (itemOffHand.quality == Enum.ItemQuality.Artifact);
 	local itemOffHandEffectiveILvl = (itemOffHand) and (itemOffHand.effectiveILvl);
 	
-	-- calculate average item level
+	-- calculate average item level and GearScore
 	for i, item in pairs(items) do
 		-- map Heirloom and WoWToken to Rare
 		local quality = item.quality;
@@ -2508,33 +2528,42 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		end
 		
 		if (not ignoreInventorySlots[i]) then -- ignore shirt, tabard and ranged
+			local iLvlToAdd;
+			
 			totalItems = totalItems + 1;
 			
 			if (i == INVSLOT_MAINHAND) or (i == INVSLOT_OFFHAND) then -- handle main and off hand
 				if (isMainHandOnly) then -- main hand only
 					if (twoHandedInventoryTypes[item.inventoryType]) then -- two handed
+						iLvlToAdd = item.effectiveILvl * 2;
 						totalItems = totalItems + 1;
-						totalScore = totalScore + item.effectiveILvl * 2;
 					else -- one handed
-						totalScore = totalScore + item.effectiveILvl;
+						iLvlToAdd = item.effectiveILvl;
 					end
 				else -- main and/or off hand
 					if (isMainHandArtifact) or (isOffHandArtifact) then -- main or off hand is artifact
 						if (itemMainHandEffectiveILvl > itemOffHandEffectiveILvl) then
-							totalScore = totalScore + itemMainHandEffectiveILvl;
+							iLvlToAdd = itemMainHandEffectiveILvl;
 						else
-							totalScore = totalScore + itemOffHandEffectiveILvl;
+							iLvlToAdd = itemOffHandEffectiveILvl;
 						end
 					else -- main and off hand are non-artifacts
-						totalScore = totalScore + item.effectiveILvl;
+						iLvlToAdd = item.effectiveILvl;
 					end
 				end
 			else -- other items
-				totalScore = totalScore + item.effectiveILvl;
+				iLvlToAdd = item.effectiveILvl;
 			end
 			
+			totalScore = totalScore + iLvlToAdd;
 			totalItemsForQuality = totalItemsForQuality + 1;
 			totalQuality = totalQuality + quality;
+			
+			-- TipTac's own way to simply calculate the GearScore:
+			-- 1. modify item level regarding inventory type (weighted item level by inventory type)
+			-- 2. modify item level regarding item quality   (weighted item level by item quality)
+			-- 3. sum it all up
+			gearScore = gearScore + iLvlToAdd * (slotModForGearScore[item.inventoryType] or 1) * (LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1);
 		end
 	end
 	
@@ -2552,7 +2581,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	if (isSelf) and (GetAverageItemLevel) then
 		local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvP = GetAverageItemLevel();
 		
-		averageItemLevel = floor(avgItemLevelEquipped);
+		averageItemLevel = math.floor(avgItemLevelEquipped);
 		
 		if (GetItemLevelColor) then
 			totalQualityColor = LibFroznFunctions:CreateColorSmart(GetItemLevelColor());
@@ -2562,17 +2591,21 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	end
 	
 	if (not averageItemLevel) or (averageItemLevel == 0) then
-		averageItemLevel = floor(totalScore / 16);
+		averageItemLevel = math.floor(totalScore / 16);
 	end
 	
 	if (not totalQualityColor) then
-		totalQualityColor = LibFroznFunctions:GetItemQualityColor(floor(totalQuality / totalItemsForQuality + 0.5), Enum.ItemQuality.Common);
+		totalQualityColor = LibFroznFunctions:GetItemQualityColor(math.floor(totalQuality / totalItemsForQuality + 0.5), Enum.ItemQuality.Common);
 	end
+	
+	-- set GearScore
+	gearScore = math.floor(gearScore);
 	
 	local returnAverageItemLevel = {
 		value = averageItemLevel,
 		qualityColor = totalQualityColor,
-		totalItems = totalItemsForQuality
+		totalItems = totalItemsForQuality,
+		gearScore = gearScore
 	};
 	
 	if (callbackForItemData) then
