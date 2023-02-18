@@ -336,7 +336,7 @@ if (TipTacTalents) then
 	
 	tttOptions[#tttOptions + 1] = { type = "Header", label = "Average Item Level", y = 12 };
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players" };
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show the GearScore of other players.\nNOTE: TipTac's own way to simply calculate the GearScore is used here. This is the sum of all item levels weighted by inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." };
+	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show the GearScore of other players.\nNOTE: TipTac's own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." };
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the average quality of the items" };
 	
 	options[#options + 1] = {

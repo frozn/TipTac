@@ -2559,7 +2559,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 			totalItemsForQuality = totalItemsForQuality + 1;
 			totalQuality = totalQuality + quality;
 			
-			-- TipTac's own way to simply calculate the GearScore:
+			-- TipTac's own implementation to simply calculate the GearScore:
 			-- 1. modify item level regarding inventory type (weighted item level by inventory type)
 			-- 2. modify item level regarding item quality   (weighted item level by item quality)
 			-- 3. sum it all up
