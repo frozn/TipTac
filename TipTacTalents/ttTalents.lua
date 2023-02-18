@@ -262,7 +262,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 	-- average item level and GearScore
 	if ((cfg.t_showAverageItemLevel) or (cfg.t_showGearScore)) and (unitCacheRecord.averageItemLevel) then
 		local ailAndGSText = LibFroznFunctions:CreatePushArray();
-		local ailAdded = false;
+		local useOnlyGSPrefix = false;
 		
 		-- average item level available or no item data
 		if (unitCacheRecord.averageItemLevel == LFF_AVERAGE_ITEM_LEVEL.available) then
@@ -291,13 +291,15 @@ function TTT_UpdateTooltip(unitCacheRecord)
 				else
 					ailAndGSText:Push(unitCacheRecord.averageItemLevel.value);
 				end
-				
-				ailAdded = true;
 			end
 			
 			-- GearScore
 			if (cfg.t_showGearScore) then
 				spacer = (ailAndGSText:GetCount() > 0) and ("  " .. TTT_COLOR.text.inlineGSPrefix:WrapTextInColorCode("GS: ")) or "";
+				
+				if (ailAndGSText:GetCount() == 0) then
+					useOnlyGSPrefix = true;
+				end
 				
 				if (cfg.t_colorAILAndGSTextByQuality) then
 					ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.gearScore));
@@ -310,7 +312,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 		-- show ail and GS text
 		if (ailAndGSText) then
 			local tipLineTextAverageItemLevel = LibFroznFunctions:FormatText("{prefix}: {averageItemLevelAndGearScore}", {
-				prefix = ailAdded and TTT_TEXT.ailAndGSPrefix or TTT_TEXT.onlyGSPrefix,
+				prefix = useOnlyGSPrefix and TTT_TEXT.onlyGSPrefix or TTT_TEXT.ailAndGSPrefix,
 				averageItemLevelAndGearScore = TTT_COLOR.text.ail:WrapTextInColorCode(ailAndGSText:Concat())
 			});
 			
