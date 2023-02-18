@@ -33,7 +33,7 @@ local TTT_DefaultConfig = {
 	t_talentFormat = 1,                   -- talent Format
 	
 	t_showAverageItemLevel = true,        -- show average item level (AIL)
-	t_showGearScore = true,               -- show GearScore
+	t_showGearScore = false,              -- show GearScore
 	t_colorAILAndGSTextByQuality = true   -- color average item level and GearScore text by average quality
 };
 
