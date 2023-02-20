@@ -278,6 +278,7 @@ TT_ExtendedConfig.defaultAnchorPoint = "BOTTOMRIGHT";
 -- noHooks                        optional. true if no hooks should be applied to the frame directly, false/nil otherwise.
 -- hookFnForFrame                 optional. individual function for hooking for frame, nil otherwise. parameters: TT_CacheForFrames, tip
 -- waitSecondsForHooking          optional. float with number of seconds to wait before hooking for frame, nil otherwise.
+-- isFromLibQTip                  optional. true if frame belongs to LibQTip, false/nil otherwise.
 --
 -- hint: determined frames will be added to TT_CacheForFrames with key as resolved real frame. The params will be added under ".config", the frame name under ".frameName".
 TT_ExtendedConfig.tipsToModify = {
@@ -365,7 +366,13 @@ TT_ExtendedConfig.tipsToModify = {
 				LibQTip.Acquire = function(self, key, ...)
 					local tooltip = oldLibQTipAcquire(self, key, ...);
 					
-					tt:AddModifiedTip(tooltip);
+					tt:AddModifiedTipExtended(tooltip, {
+						applyAppearance = true,
+						applyScaling = true,
+						applyAnchor = false,
+						noHooks = noHooks,
+						isFromLibQTip = true
+					});
 					
 					return tooltip;
 				end
@@ -1402,6 +1409,14 @@ function tt:SetScaleToTip(tip)
 	end
 	
 	-- reduce scale if tip exceeds UIParent width/height
+	if (tipParams.isFromLibQTip) then
+		local LibQTip = LibStub("LibQTip-1.0", true);
+		
+		if (LibQTip) then
+			LibQTip.layoutCleaner:CleanupLayouts();
+		end
+	end
+	
 	local tipWidth = tip:GetWidth() * tip:GetEffectiveScale();
 	local tipHeight = tip:GetHeight() * tip:GetEffectiveScale();
 	
