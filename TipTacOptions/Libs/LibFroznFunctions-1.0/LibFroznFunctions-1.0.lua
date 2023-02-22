@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 7; -- bump on changes
+local LIB_MINOR = 8; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1391,7 +1391,6 @@ function LibFroznFunctions:GetAuraDescription(unitID, index, filter)
 	-- get aura description from tooltip
 	getAuraDescriptionFromTooltipScanTip:ClearLines();
 	getAuraDescriptionFromTooltipScanTip:SetUnitAura(unitID, index, filter);
-	getAuraDescriptionFromTooltipScanTip:Hide();
 	
 	-- line 1 is aura name. line 2 is aura description.
 	local leftText2 = _G[scanTipName .. "TextLeft2"];
