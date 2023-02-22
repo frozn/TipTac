@@ -1,4 +1,4 @@
-<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen"></picture>
+<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20classic%20(wotlkc)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
 &nbsp; 
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 <picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/219820911-344b64c3-8aab-43e3-abbc-6bf79c6d85b7.jpg" align="right"></picture>
