@@ -16,8 +16,6 @@ local ttStyle = {};
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttStyle, "Style");
 
 -- vars
-local locale = GetLocale();
-
 local lineName = LibFroznFunctions:CreatePushArray();
 local lineLevel = LibFroznFunctions:CreatePushArray();
 local lineInfo = LibFroznFunctions:CreatePushArray();
@@ -32,19 +30,7 @@ local TT_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = "Targeted by";
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
-local TT_Mount = RENOWN_REWARD_MOUNT_NAME_FORMAT or -- "Mount: %s"
-	LibFroznFunctions:ExistsInTable(locale, { "enUS", "enGB" }) and "Mount: %s" or -- df 10.0.5 build 48069
-	(locale == "koKR") and "탈것: %s" or
-	(locale == "frFR") and "Monture : %s" or
-	(locale == "deDE") and "Reittier: %s" or
-	(locale == "zhCN") and "坐骑：%s" or
-	(locale == "esES") and "Montura: %s" or
-	(locale == "zhTW") and "坐騎：%s" or
-	(locale == "esMX") and "Montura: %s" or
-	(locale == "ruRU") and "Транспорт: %s" or
-	(locale == "ptBR") and "Montaria: %s" or
-	(locale == "itIT") and "Cavalcatura: %s" or
-	"Mount: %s";
+local TT_Mount = LibFroznFunctions:GetGlobalString("RENOWN_REWARD_MOUNT_NAME_FORMAT") or "Mount: %s"; -- "Mount: %s"
 local TT_ReactionIcon = {
 	[LFF_UNIT_REACTION_INDEX.hostile] = "unit_reaction_hostile",             -- Hostile
 	[LFF_UNIT_REACTION_INDEX.caution] = "unit_reaction_caution",             -- Unfriendly

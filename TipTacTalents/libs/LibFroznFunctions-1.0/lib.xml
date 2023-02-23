@@ -2,7 +2,18 @@
 ..\FrameXML\UI.xsd">
 
 	<Script file="LibStub\LibStub.lua" />
-	<Script file="LFF_SPELLID_TO_MOUNTID_LOOKUP.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.enUS.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.koKR.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.frFR.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.deDE.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.zhCN.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.esES.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.zhTW.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.esMX.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.ruRU.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.ptBR.lua"/>
+	<Script file="tables\LFF_GLOBAL_STRINGS.itIT.lua"/>
+	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.lua"/>
 	<Script file="LibFroznFunctions-1.0.lua"/>
 
 </Ui>

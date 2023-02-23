@@ -126,6 +126,21 @@ function LibFroznFunctions:CreateColorFromHexString(hexColor)
 	end
 end
 
+-- get global string
+--
+-- @param  str  name of localized global string constant
+-- @return localized global string constant, false/nil otherwise.
+function LibFroznFunctions:GetGlobalString(str)
+	if (_G[str]) then
+		return _G[str];
+	end
+	
+	-- fallback if global string doesn't exist in classic
+	local locale = GetLocale();
+	
+	return LFF_GLOBAL_STRINGS[locale] and LFF_GLOBAL_STRINGS[locale][str];
+end
+
 -- get unit from tooltip
 --
 -- @param  tooltip  tooltip
