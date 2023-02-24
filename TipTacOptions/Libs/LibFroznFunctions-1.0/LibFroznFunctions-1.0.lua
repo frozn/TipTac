@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 8; -- bump on changes
+local LIB_MINOR = 7; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -21,6 +21,33 @@ local LibFroznFunctions = LibStub:NewLibrary(LIB_NAME, LIB_MINOR);
 
 if (not LibFroznFunctions) then
 	return;
+end
+
+----------------------------------------------------------------------------------------------------
+--                                           Table API                                            --
+----------------------------------------------------------------------------------------------------
+
+LibFroznFunctions.TableRegistry = LibFroznFunctions.TableRegistry or {};
+
+-- register table version
+--
+-- @param name     table name
+-- @param version  table version
+function LibFroznFunctions:RegisterTableVersion(name, version)
+	local oldVersion = LibFroznFunctions.TableRegistry[name];
+	
+	if (oldVersion) and (oldVersion >= version) then
+		return;
+	end
+	
+	LibFroznFunctions.TableRegistry[name] = version;
+end
+
+-- get table version
+--
+-- @param name  table name
+function LibFroznFunctions:GetTableVersion(name)
+	return LibFroznFunctions.TableRegistry[name];
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -2437,6 +2464,12 @@ function LibFroznFunctions:GetAverageItemLevel(unitID, callbackForItemData)
 end
 
 -- get average item level from item data
+LFF_BASE_LEVEL_FOR_GEAR_SCORE =
+	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)
+	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
+	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
+	LibFroznFunctions.isWoWFlavor.DF         and 395;   -- Lost Landcaller's Robes (Druid, Tier 23)
+
 function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGUID)
 	-- check if unit guid from unit id is still the same if waiting for item data
 	if (callbackForItemData) and (unitGUID) then
@@ -2542,6 +2575,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		end
 		
 		if (not ignoreInventorySlots[i]) then -- ignore shirt, tabard and ranged
+			local twoHandedMainHandOnly = false;
 			local iLvlToAdd;
 			
 			totalItems = totalItems + 1;
@@ -2551,6 +2585,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 					if (twoHandedInventoryTypes[item.inventoryType]) then -- two handed
 						iLvlToAdd = item.effectiveILvl * 2;
 						totalItems = totalItems + 1;
+						twoHandedMainHandOnly = true;
 					else -- one handed
 						iLvlToAdd = item.effectiveILvl;
 					end
@@ -2574,10 +2609,14 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 			totalQuality = totalQuality + quality;
 			
 			-- TipTac's own implementation to simply calculate the GearScore:
-			-- 1. modify item level regarding inventory type (weighted item level by inventory type)
-			-- 2. modify item level regarding item quality   (weighted item level by item quality)
-			-- 3. sum it all up
-			gearScore = gearScore + iLvlToAdd * (slotModForGearScore[item.inventoryType] or 1) * (LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1);
+			-- 1. weighted item level by performance per item level above/below base level of first tier set of current expansion
+			-- 2. weighted item level by inventory type
+			-- 3. weighted item level by item quality
+			-- 4. sum it all up
+			local performancePerILvlForGearScore = LFF_BASE_LEVEL_FOR_GEAR_SCORE and math.pow(1.01, (twoHandedMainHandOnly and (iLvlToAdd / 2) or iLvlToAdd) - LFF_BASE_LEVEL_FOR_GEAR_SCORE) or 1; -- +1 iLvl = +1% performance, source: https://www.wowhead.com/news/gear-inflation-on-target-1-item-level-should-result-in-roughly-1-increased-322062
+			local qualityModForGearScore = LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1;
+			
+			gearScore = gearScore + (LFF_BASE_LEVEL_FOR_GEAR_SCORE or iLvlToAdd) * performancePerILvlForGearScore * (slotModForGearScore[item.inventoryType] or 1) * (LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1);
 		end
 	end
 	

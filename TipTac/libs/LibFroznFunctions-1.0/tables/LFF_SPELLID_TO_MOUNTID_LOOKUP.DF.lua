@@ -1,5 +1,19 @@
--- df 10.0.5 build 48069
-LFF_SPELLID_TO_MOUNTID_LOOKUP = {
+-- df 10.0.5 build 48069, loop over C_MountJournal.GetMountIDs() and calling C_MountJournal.GetMountInfoByID(mountID)
+
+-- define table
+local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
+local TABLE_MINOR = 1; -- bump on changes
+
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
+
+if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
+	return;
+end
+
+-- create table
+LFF_SPELLID_TO_MOUNTID_LOOKUP = {};
+
+LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[163024] = 593,
 	[124659] = 468,
 	[163025] = 594,
@@ -1051,5 +1065,5 @@ LFF_SPELLID_TO_MOUNTID_LOOKUP = {
 	[6653] = 19,
 	[59788] = 255,
 	[270560] = 1045,
-	[88742] = 395,
-}
+	[88742] = 395
+});
