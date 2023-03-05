@@ -2001,7 +2001,7 @@ end
 -- create record in unit cache
 function frameForDelayedInspection:CreateUnitCacheRecord(unitID, unitGUID)
 	unitCache[unitGUID] = LibFroznFunctions:CreateUnitRecord(unitID, unitGUID);
-	unitCacheRecord = unitCache[unitGUID];
+	local unitCacheRecord = unitCache[unitGUID];
 	
 	unitCacheRecord.needsInspect = false;
 	unitCacheRecord.canInspect = nil;
@@ -2290,7 +2290,7 @@ function LibFroznFunctions:GetTalents(unitID)
 	local isSelf = UnitIsUnit(unitID, "player");
 	
 	if (GetSpecialization) then -- retail
-		local specializationName, specializationIcon, role;
+		local specializationName, specializationIcon, role, _;
 		
 		if (isSelf) then -- player
 			local specIndex = GetSpecialization();
@@ -2359,7 +2359,7 @@ function LibFroznFunctions:GetTalents(unitID)
 		local maxPointsSpent;
 		
 		for tabIndex = 1, numTalentTabs do
-			_talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
+			local _talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
 			pointsSpent[#pointsSpent + 1] = _pointsSpent;
 			
 			if (not maxPointsSpent) or (_pointsSpent > maxPointsSpent) then
