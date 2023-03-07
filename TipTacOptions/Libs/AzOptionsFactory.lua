@@ -24,7 +24,7 @@
 	- removed extended funtion SetFromHexColorMarkup() from color object
 	- adjusted x offsets of Slider, CheckButton, ColorButton, DropDown and TextEdit
 	- added a TextOnly element
-	23.02.xx Rev 19 10.0.5/Dragonflight #frozn45
+	23.03.07 Rev 19 10.0.5/Dragonflight #frozn45
 	- put option in new line also if last x offset has been lower than the current x offset
 --]]
 
