@@ -598,7 +598,7 @@ local function SetAction_Hook(self, slot)
 					
 					-- apply workaround for first mouseover if item is a toy
 					if (C_ToyBox) then
-						_itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
+						local _itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
 						
 						if (_itemID) then
 							ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
