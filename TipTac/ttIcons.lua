@@ -7,6 +7,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 -- TipTac refs
 local tt = _G[MOD_NAME];
 local cfg;
+local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
 -- element registration
@@ -56,12 +57,13 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttIcons:OnConfigLoaded(_TT_CacheForFrames, _cfg)
+function ttIcons:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
-function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg)
+function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	self.wantIcon = (cfg.iconRaid or cfg.iconFaction or cfg.iconCombat or cfg.iconClass);
 
 	if (self.wantIcon) then

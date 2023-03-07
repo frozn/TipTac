@@ -55,9 +55,14 @@ if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
 	ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMythicPlusDungeonScore", label = "Show Mythic+ Dungeon Score", tip = "This will show the mythic+ dungeon score of the player." };
 end
 
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player.", y = 16 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", x = 100 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountText", label = "Text", tip = "This option makes the tip show the mount text.", x = 165 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", x = 230 };
+
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType", label = "Name & Title", list = { ["Name only"] = "normal", ["Name + title"] = "title", ["Copy from original tip"] = "original", ["Mary Sue Protocol"] = "marysueprot" }, y = 16 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["Do not show realm"] = "none", ["Show realm"] = "show", ["Show (*) instead"] = "asterisk" } };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["Do not show target"] = "none", ["First line"] = "first", ["Second line"] = "second", ["Last line"] = "last" } };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show (*) instead"] = "asterisk" } };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["|cffffa0a0Do not show target"] = "none", ["First line"] = "first", ["Second line"] = "second", ["Last line"] = "last" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 16 };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level", y = 16 };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" }, y = 8 };
@@ -287,7 +292,7 @@ local options = {
 		{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Other Action Bar Tips", tip = "When you have this option checked, other Action Bar Tips will be hidden in combat." },
 		
 		{ type = "Header", label = "Others", y = 12 },
-		{ type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["None"] = "none" }, y = 8 },
+		{ type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" }, y = 8 },
 		{ type = "TextOnly", label = "", y = -14 }, -- spacer for multi-line label above
 	},
 	-- Layouts
@@ -331,7 +336,8 @@ if (TipTacTalents) then
 	
 	tttOptions[#tttOptions + 1] = { type = "Header", label = "Average Item Level", y = 12 };
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players" };
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorAILTextByQuality", label = "Color Average Item Level Text by Quality Color", tip = "With this option on, average item level text is colored by the average quality of the items" };
+	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showGearScore", label = "Show TipTac's GearScore", tip = "This option makes the tip show TipTac's GearScore of other players.\nNOTE: TipTac's own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." };
+	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the average quality of the items" };
 	
 	options[#options + 1] = {
 		[0] = "Talents/AIL",
@@ -364,6 +370,7 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura" },
 		{ type = "Check", var = "if_casterClassColor", label = "Use Class Color for Aura Caster", tip = "Use the class color for the caster of the aura" },
 		{ type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" },
+		{ type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For spell and aura tooltips, show their mountID" },
 
 		{ type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", y = 12 },
 		{ type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)" },
@@ -412,7 +419,7 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showIconId", label = "Show Icon ID", tip = "Show the iconID in the tooltip", y = 12 },
 		{ type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown" },
 		{ type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" },
-		{ type = "DropDown", var = "if_stackCountToTooltip", label = "Show Stack Count in\nTooltip", list = { ["Do not show"] = "none", ["Always"] = "always", ["Only if icon is not shown"] = "noicon" }, y = 8 },
+		{ type = "DropDown", var = "if_stackCountToTooltip", label = "Show Stack Count in\nTooltip", list = { ["|cffffa0a0Do not show"] = "none", ["Always"] = "always", ["Only if icon is not shown"] = "noicon" }, y = 8 },
 		{ type = "Check", var = "if_borderlessIcons", label = "Borderless Icons", tip = "Turn off the border on icons", y = 8 },
 		{ type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 },
 		{ type = "DropDown", var = "if_iconAnchor", label = "Icon Anchor", tip = "The anchor of the icon", list = DROPDOWN_ANCHORPOS },

@@ -1,7 +1,5 @@
-<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20wotlkc%20%2B%20classic%20era-brightgreen"></picture>
-&nbsp; 
-[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
-<picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/214158645-99f10b68-ad55-411f-84e5-53320763eb0e.jpg" align="right"></picture>
+<picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/219820911-344b64c3-8aab-43e3-abbc-6bf79c6d85b7.jpg" align="right"></picture>
+<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20classic%20(wotlkc)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
 
 [![Install](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
 &nbsp; 
@@ -9,6 +7,8 @@
 [![Install](https://img.shields.io/badge/install-github-24292f)](https://github.com/frozn/TipTac/releases)
 &nbsp; 
 [![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total?label=github%20downloads&color=24292f)](https://github.com/frozn/TipTac/releases)
+
+[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 # TipTac Reborn
 WoW AddOn TipTac Reborn [DF] [WotLKC] [Classic Era]
@@ -20,7 +20,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
   * 10.0.5 - Dragonflight [DF]
-  * 3.4.0 - Wrath of the Lich King Classic [WotLKC]
+  * 3.4.1 - Wrath of the Lich King Classic [WotLKC]
   * 1.14.3 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
@@ -60,15 +60,19 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
+- added option "Combat->Hide Tips" and "Combat->Hide Tips In Combat" to hide frame and/or world unit tips or all tips in or out of combat
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
 - added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
-- added option "Combat->Hide Tips" and "Combat->Hide Tips In Combat" to hide frame and/or world unit tips or all tips in or out of combat
+- added option "General->Show Mount" to show the player's mount icon/name/speed
+- added option "ItemRef->Show Mount ID" to show the mount id
 - added option in "ItemRef" to show stack count of items in tooltip
 - added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 - considered debuff border for aura positions
 - splitted options for auras from spells
+- automatically reduce tip's scale if its size exceeds UIParent width/height
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
+- added option "Reactions->Show the unit's reaction as icon"
 - added unit reaction for honored, revered and exalted NPCs
 - classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic era: added missing styling of auras

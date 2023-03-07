@@ -21,19 +21,20 @@ local cfg;
 
 -- default config
 local TTT_DefaultConfig = {
-	t_enable = true,                 -- "main switch", addon does nothing if false
-	t_showTalents = true,            -- show talents
-	t_talentOnlyInParty = false,     -- only show talents/AIL for party/raid members
+	t_enable = true,                      -- "main switch", addon does nothing if false
+	t_showTalents = true,                 -- show talents
+	t_talentOnlyInParty = false,          -- only show talents/AIL for party/raid members
 	
-	t_showRoleIcon = true,           -- show role icon
-	t_showTalentIcon = true,         -- show talent icon
+	t_showRoleIcon = true,                -- show role icon
+	t_showTalentIcon = true,              -- show talent icon
 	
-	t_showTalentText = true,         -- show talent text
-	t_colorTalentTextByClass = true, -- color specialization text by class color
-	t_talentFormat = 1,              -- talent Format
+	t_showTalentText = true,              -- show talent text
+	t_colorTalentTextByClass = true,      -- color specialization text by class color
+	t_talentFormat = 1,                   -- talent Format
 	
-	t_showAverageItemLevel = true,   -- show average item level (AIL)
-	t_colorAILTextByQuality = true   -- color average item level text by average quality
+	t_showAverageItemLevel = true,        -- show average item level (AIL)
+	t_showGearScore = false,              -- show GearScore
+	t_colorAILAndGSTextByQuality = true   -- color average item level and GearScore text by average quality
 };
 
 ----------------------------------------------------------------------------------------------------
@@ -43,7 +44,8 @@ local TTT_DefaultConfig = {
 -- text constants
 local TTT_TEXT = {
 	talentsPrefix = ((LibFroznFunctions.isWoWFlavor.SL or LibFroznFunctions.isWoWFlavor.DF) and SPECIALIZATION or TALENTS), -- MoP: Could be changed from TALENTS (Talents) to SPECIALIZATION (Specialization)
-	ailPrefix = STAT_AVERAGE_ITEM_LEVEL, -- Item Level
+	ailAndGSPrefix = STAT_AVERAGE_ITEM_LEVEL, -- Item Level
+	onlyGSPrefix = "GearScore",
 	loading = SEARCH_LOADING_TEXT, -- Loading...
 	outOfRange = ERR_SPELL_OUT_OF_RANGE:sub(1, -2), -- Out of range.
 	none = NONE_KEY, -- None
@@ -52,8 +54,13 @@ local TTT_TEXT = {
 
 -- colors
 local TTT_COLOR = {
-	text = HIGHLIGHT_FONT_COLOR, -- white
-	pointsSpent = LIGHTYELLOW_FONT_COLOR
+	text = {
+		default = HIGHLIGHT_FONT_COLOR, -- white
+		spec = HIGHLIGHT_FONT_COLOR, -- white
+		pointsSpent = LIGHTYELLOW_FONT_COLOR,
+		ail = HIGHLIGHT_FONT_COLOR, -- white
+		inlineGSPrefix = LIGHTYELLOW_FONT_COLOR
+	}
 };
 
 ----------------------------------------------------------------------------------------------------
@@ -100,7 +107,7 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- HOOK: GameTooltip's OnTooltipSetUnit -- will schedule a delayed inspect request
-local tttTipLineIndexTalents, tttTipLineIndexAverageItemLevel;
+local tttTipLineIndexTalents, tttTipLineIndexAILAndGS;
 
 local function GTT_OnTooltipSetUnit(self, ...)
 	-- exit if "main switch" isn't enabled
@@ -130,7 +137,7 @@ local function GTT_OnTooltipSetUnit(self, ...)
 	
 	-- invalidate line indexes
 	tttTipLineIndexTalents = nil;
-	tttTipLineIndexAverageItemLevel = nil;
+	tttTipLineIndexAILAndGS = nil;
 	
 	-- inspect unit
 	local unitCacheRecord = LibFroznFunctions:InspectUnit(unitID, TTT_UpdateTooltip, true);
@@ -229,9 +236,9 @@ function TTT_UpdateTooltip(unitCacheRecord)
 				spacer = (specText:GetCount() > 0) and " " or "";
 				
 				if (specNameAdded) then
-					specText:Push(spacer .. TTT_COLOR.pointsSpent:WrapTextInColorCode("(" .. table.concat(unitCacheRecord.talents.pointsSpent, "/") .. ")"));
+					specText:Push(spacer .. TTT_COLOR.text.pointsSpent:WrapTextInColorCode("(" .. table.concat(unitCacheRecord.talents.pointsSpent, "/") .. ")"));
 				else
-					specText:Push(spacer .. TTT_COLOR.pointsSpent:WrapTextInColorCode(table.concat(unitCacheRecord.talents.pointsSpent, "/")));
+					specText:Push(spacer .. TTT_COLOR.text.pointsSpent:WrapTextInColorCode(table.concat(unitCacheRecord.talents.pointsSpent, "/")));
 				end
 			end
 		end
@@ -240,7 +247,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 		if (specText:GetCount() > 0) then
 			local tipLineTextTalents = LibFroznFunctions:FormatText("{prefix}: {specText}", {
 				prefix = TTT_TEXT.talentsPrefix,
-				specText = TTT_COLOR.text:WrapTextInColorCode(specText:Concat())
+				specText = TTT_COLOR.text.spec:WrapTextInColorCode(specText:Concat())
 			});
 			
 			if (tttTipLineIndexTalents) then
@@ -252,47 +259,68 @@ function TTT_UpdateTooltip(unitCacheRecord)
 		end
 	end
 	
-	-- average item level
-	if (cfg.t_showAverageItemLevel) and (unitCacheRecord.averageItemLevel) then
-		local ailText;
+	-- average item level and GearScore
+	if ((cfg.t_showAverageItemLevel) or (cfg.t_showGearScore)) and (unitCacheRecord.averageItemLevel) then
+		local ailAndGSText = LibFroznFunctions:CreatePushArray();
+		local useOnlyGSPrefix = false;
 		
 		-- average item level available or no item data
 		if (unitCacheRecord.averageItemLevel == LFF_AVERAGE_ITEM_LEVEL.available) then
 			if (unitCacheRecord.canInspect) then
-				ailText = TTT_TEXT.loading;
+				ailAndGSText:Push(TTT_TEXT.loading);
 			else
-				ailText = TTT_TEXT.outOfRange;
+				ailAndGSText:Push(TTT_TEXT.outOfRange);
 			end
 		
 		-- no average item level available
 		elseif (unitCacheRecord.averageItemLevel == LFF_AVERAGE_ITEM_LEVEL.na) then
-			ailText = nil;
+			ailAndGSText:Clear();
 		
 		-- no average item level found
 		elseif (unitCacheRecord.averageItemLevel == LFF_AVERAGE_ITEM_LEVEL.none) then
-			ailText = TTT_TEXT.none;
+			ailAndGSText:Push(TTT_TEXT.none);
 		
 		-- average item level found
-		else
-			if (cfg.t_colorAILTextByQuality) then
-				ailText = unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.value);
-			else
-				ailText = unitCacheRecord.averageItemLevel.value;
+		elseif (unitCacheRecord.averageItemLevel) then
+			local spacer;
+			
+			-- average item level
+			if (cfg.t_showAverageItemLevel) then
+				if (cfg.t_colorAILAndGSTextByQuality) then
+					ailAndGSText:Push(unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.value));
+				else
+					ailAndGSText:Push(unitCacheRecord.averageItemLevel.value);
+				end
+			end
+			
+			-- GearScore
+			if (cfg.t_showGearScore) then
+				spacer = (ailAndGSText:GetCount() > 0) and ("  " .. TTT_COLOR.text.inlineGSPrefix:WrapTextInColorCode("GS: ")) or "";
+				
+				if (ailAndGSText:GetCount() == 0) then
+					useOnlyGSPrefix = true;
+				end
+				
+				if (cfg.t_colorAILAndGSTextByQuality) then
+					ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.gearScore));
+				else
+					ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.gearScore);
+				end
 			end
 		end
 		
-		-- show ail test
-		if (ailText) then
-			local tipLineTextAverageItemLevel = LibFroznFunctions:FormatText("{prefix}: {averageItemLevel}", {
-				prefix = TTT_TEXT.ailPrefix,
-				averageItemLevel = TTT_COLOR.text:WrapTextInColorCode(ailText)
+		-- show ail and GS text
+		if (ailAndGSText) then
+			local tipLineTextAverageItemLevel = LibFroznFunctions:FormatText("{prefix}: {averageItemLevelAndGearScore}", {
+				prefix = useOnlyGSPrefix and TTT_TEXT.onlyGSPrefix or TTT_TEXT.ailAndGSPrefix,
+				averageItemLevelAndGearScore = TTT_COLOR.text.ail:WrapTextInColorCode(ailAndGSText:Concat())
 			});
 			
-			if (tttTipLineIndexAverageItemLevel) then
-				_G["GameTooltipTextLeft" .. tttTipLineIndexAverageItemLevel]:SetText(tipLineTextAverageItemLevel);
+			if (tttTipLineIndexAILAndGS) then
+				_G["GameTooltipTextLeft" .. tttTipLineIndexAILAndGS]:SetText(tipLineTextAverageItemLevel);
 			else
 				GameTooltip:AddLine(tipLineTextAverageItemLevel);
-				tttTipLineIndexAverageItemLevel = GameTooltip:NumLines();
+				tttTipLineIndexAILAndGS = GameTooltip:NumLines();
 			end
 		end
 	end

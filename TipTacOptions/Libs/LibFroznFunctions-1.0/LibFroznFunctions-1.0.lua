@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 6; -- bump on changes
+local LIB_MINOR = 7; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -21,6 +21,33 @@ local LibFroznFunctions = LibStub:NewLibrary(LIB_NAME, LIB_MINOR);
 
 if (not LibFroznFunctions) then
 	return;
+end
+
+----------------------------------------------------------------------------------------------------
+--                                           Table API                                            --
+----------------------------------------------------------------------------------------------------
+
+LibFroznFunctions.TableRegistry = LibFroznFunctions.TableRegistry or {};
+
+-- register table version
+--
+-- @param name     table name
+-- @param version  table version
+function LibFroznFunctions:RegisterTableVersion(name, version)
+	local oldVersion = LibFroznFunctions.TableRegistry[name];
+	
+	if (oldVersion) and (oldVersion >= version) then
+		return;
+	end
+	
+	LibFroznFunctions.TableRegistry[name] = version;
+end
+
+-- get table version
+--
+-- @param name  table name
+function LibFroznFunctions:GetTableVersion(name)
+	return LibFroznFunctions.TableRegistry[name];
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -55,6 +82,18 @@ else -- retail
 		LibFroznFunctions.isWoWFlavor.DF = true;
 	end
 end
+
+-- aura filters, see "AuraUtil.lua"
+LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
+	Helpful = "HELPFUL",
+	Harmful = "HARMFUL",
+	Raid = "RAID",
+	IncludeNameplateOnly = "INCLUDE_NAME_PLATE_ONLY",
+	Player = "PLAYER",
+	Cancelable = "CANCELABLE",
+	NotCancelable = "NOT_CANCELABLE",
+	Maw = "MAW",
+};
 
 -- is unit a battle pet
 --
@@ -114,16 +153,33 @@ function LibFroznFunctions:CreateColorFromHexString(hexColor)
 	end
 end
 
+-- get global string
+--
+-- @param  str  name of localized global string constant
+-- @return localized global string constant, false/nil otherwise.
+function LibFroznFunctions:GetGlobalString(str)
+	if (_G[str]) then
+		return _G[str];
+	end
+	
+	-- fallback if global string doesn't exist in classic
+	local locale = GetLocale();
+	
+	return LFF_GLOBAL_STRINGS[locale] and LFF_GLOBAL_STRINGS[locale][str];
+end
+
 -- get unit from tooltip
 --
 -- @param  tooltip  tooltip
 -- @return name, unit id[, unit guid]
 function LibFroznFunctions:GetUnitFromTooltip(tooltip)
+	-- since df 10.0.2
 	if (TooltipUtil) then
 		return TooltipUtil.GetDisplayedUnit(tooltip);
-	else
-		return tooltip:GetUnit();
 	end
+	
+	-- before df 10.0.2
+	return tooltip:GetUnit();
 end
 
 -- hook tooltip's OnTooltipSetUnit
@@ -131,15 +187,19 @@ end
 -- @param tip       tooltip
 -- @param callback  callback function. parameters: self, ... (additional payload)
 function LibFroznFunctions:HookScriptOnTooltipSetUnit(tip, callback)
-	if (TooltipDataProcessor) then -- since df 10.0.2
+	-- since df 10.0.2
+	if (TooltipDataProcessor) then
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(self, ...)
 			if (self == tip) then
 				callback(self, ...);
 			end
 		end);
-	else -- before df 10.0.2
-		tip:HookScript("OnTooltipSetUnit", callback);
+		
+		return;
 	end
+	
+	-- before df 10.0.2
+	tip:HookScript("OnTooltipSetUnit", callback);
 end
 
 -- get item from tooltip
@@ -147,6 +207,7 @@ end
 -- @param  tooltip  tooltip
 -- @return itemName, itemLink[, item id]
 function LibFroznFunctions:GetItemFromTooltip(tooltip)
+	-- since df 10.0.2
 	if (TooltipUtil) then
 		if (tooltip:IsTooltipType(Enum.TooltipDataType.Toy)) then -- see TooltipUtil.GetDisplayedItem() in "TooltipUtil.lua"
 			local tooltipData = tooltip:GetTooltipData();
@@ -155,12 +216,13 @@ function LibFroznFunctions:GetItemFromTooltip(tooltip)
 				local name = GetItemInfo(itemLink);
 				return name, itemLink, tooltipData.id;
 			end
-		else
-			return TooltipUtil.GetDisplayedItem(tooltip);
 		end
-	else
-		return tooltip:GetItem();
+		
+		return TooltipUtil.GetDisplayedItem(tooltip);
 	end
+	
+	-- before df 10.0.2
+	return tooltip:GetItem();
 end
 
 -- hook tooltip's OnTooltipSetItem
@@ -168,15 +230,19 @@ end
 -- @param tip       tooltip
 -- @param callback  callback function. parameters: self, ... (additional payload)
 function LibFroznFunctions:HookScriptOnTooltipSetItem(tip, callback)
-	if (TooltipDataProcessor) then -- since df 10.0.2
+	-- since df 10.0.2
+	if (TooltipDataProcessor) then
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
 			if (self == tip) then
 				callback(self, ...);
 			end
 		end);
-	else -- before df 10.0.2
-		tip:HookScript("OnTooltipSetItem", callback);
+		
+		return;
 	end
+	
+	-- before df 10.0.2
+	tip:HookScript("OnTooltipSetItem", callback);
 end
 
 -- get spell from tooltip
@@ -184,11 +250,13 @@ end
 -- @param  tooltip  tooltip
 -- @return spellName, spellID
 function LibFroznFunctions:GetSpellFromTooltip(tooltip)
+	-- since df 10.0.2
 	if (TooltipUtil) then
 		return TooltipUtil.GetDisplayedSpell(tooltip);
-	else
-		return tooltip:GetSpell();
 	end
+	
+	-- before df 10.0.2
+	return tooltip:GetSpell();
 end
 
 -- hook tooltip's OnTooltipSetSpell
@@ -196,167 +264,57 @@ end
 -- @param tip       tooltip
 -- @param callback  callback function. parameters: self, ... (additional payload)
 function LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, callback)
-	if (TooltipDataProcessor) then -- since df 10.0.2
+	-- since df 10.0.2
+	if (TooltipDataProcessor) then
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(self, ...)
 			if (self == tip) then
 				callback(self, ...);
 			end
 		end);
-	else -- before df 10.0.2
-		tip:HookScript("OnTooltipSetSpell", callback);
+		
+		return;
 	end
+	
+	-- before df 10.0.2
+	tip:HookScript("OnTooltipSetSpell", callback);
 end
 
--- refresh anchor shopping tooltips
+-- get mount from tooltip
 --
--- modded copy of TooltipComparisonManager:AnchorShoppingTooltips() in "TooltipComparisonManager.lua" (since df 10.0.2) aka GameTooltip_AnchorComparisonTooltips in "GameTooltip.lua" (before df 10.0.2) for:
--- 1. consider scaling to choose left or right side
--- 2. calling ClearAllPoints() to refresh anchoring of shopping tooltips after re-anchoring of tip
-function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
-	local primaryTooltip = ShoppingTooltip1;
-	local secondaryTooltip = ShoppingTooltip2;
-	
-	local primaryShown = primaryTooltip:IsShown();
-	local secondaryShown = secondaryTooltip:IsShown();
-	
-	-- no shopping tooltip visible
-	if (not primaryShown) and (not secondaryShown) then
-		return;
-	end
-	
-	-- refresh anchor of shopping tooltips
-	local self;
-	
-	if (TooltipComparisonManager) then -- since df 10.0.2
-		self = TooltipComparisonManager;
-	else -- before df 10.0.2
-		local primaryTooltipPoint1 = (primaryTooltip:GetNumPoints() >= 1) and select(2, primaryTooltip:GetPoint(1));
-		local secondaryTooltipPoint1 = (secondaryTooltip:GetNumPoints() >= 1) and select(2, secondaryTooltip:GetPoint(1));
-		
-		self = { 
-			tooltip = primaryTooltip:GetOwner(),
-			anchorFrame = (primaryTooltipPoint1 ~= secondaryTooltip) and primaryTooltipPoint1 or (primaryTooltipPoint1 == secondaryTooltip) and secondaryTooltipPoint1 or primaryTooltip:GetOwner(),
-			comparisonItem = (primaryTooltip:IsShown())
-		};
-	end
-	
-	-- not the affected tip or no comparison item
-	if (self.tooltip ~= tip) or (not self.comparisonItem) then
-		return;
-	end
-	
-	-- start of original TooltipComparisonManager:AnchorShoppingTooltips()
-	local tooltip = self.tooltip;
-	-- local primaryTooltip = tooltip.shoppingTooltips[1]; -- removed
-	-- local secondaryTooltip = tooltip.shoppingTooltips[2]; -- removed
-	
-	if (tooltip:GetNumPoints() == 0) then -- added
-		return; -- added
-	end -- added
-	
-	local sideAnchorFrame = self.anchorFrame;
-	if self.anchorFrame.IsEmbedded then
-		sideAnchorFrame = self.anchorFrame:GetParent():GetParent();
-	end
-	
-	if (sideAnchorFrame:GetNumPoints() == 0) then -- added
-		return; -- added
-	end -- added
-	
-	-- local leftPos = sideAnchorFrame:GetLeft(); -- removed
-	-- local rightPos = sideAnchorFrame:GetRight(); -- removed
-	local leftPos = sideAnchorFrame:GetLeft() * sideAnchorFrame:GetEffectiveScale(); -- added
-	local rightPos = sideAnchorFrame:GetRight() * sideAnchorFrame:GetEffectiveScale(); -- added
-	
-	-- local selfLeftPos = tooltip:GetLeft(); -- removed
-	-- local selfRightPos = tooltip:GetRight(); -- removed
-	local selfLeftPos = tooltip:GetLeft() * tooltip:GetEffectiveScale(); -- added
-	local selfRightPos = tooltip:GetRight() * tooltip:GetEffectiveScale(); -- added
-	
-	-- if we get the Left, we have the Right
-	if leftPos and selfLeftPos then
-		leftPos = math.min(selfLeftPos, leftPos);-- get the left most bound
-		rightPos = math.max(selfRightPos, rightPos);-- get the right most bound
-	else
-		leftPos = leftPos or selfLeftPos or 0;
-		rightPos = rightPos or selfRightPos or 0;
-	end
-	
-	-- sometimes the sideAnchorFrame is an actual tooltip, and sometimes it's a script region, so make sure we're getting the actual anchor type
-	local anchorType = sideAnchorFrame.GetAnchorType and sideAnchorFrame:GetAnchorType() or tooltip:GetAnchorType();
-	
-	local totalWidth = 0;
-	if primaryShown then
-		totalWidth = totalWidth + primaryTooltip:GetWidth();
-	end
-	if secondaryShown then
-		totalWidth = totalWidth + secondaryTooltip:GetWidth();
-	end
-	
-	local rightDist = 0;
-	-- local screenWidth = GetScreenWidth(); -- removed
-	local screenWidth = GetScreenWidth() * UIParent:GetEffectiveScale(); -- added
-	rightDist = screenWidth - rightPos;
-	
-	-- find correct side
-	local side;
-	if anchorType and (totalWidth < leftPos) and (anchorType == "ANCHOR_LEFT" or anchorType == "ANCHOR_TOPLEFT" or anchorType == "ANCHOR_BOTTOMLEFT") then
-		side = "left";
-	elseif anchorType and (totalWidth < rightDist) and (anchorType == "ANCHOR_RIGHT" or anchorType == "ANCHOR_TOPRIGHT" or anchorType == "ANCHOR_BOTTOMRIGHT") then
-		side = "right";
-	elseif rightDist < leftPos then
-		side = "left";
-	else
-		side = "right";
-	end
-	
-	-- see if we should slide the tooltip
-	if totalWidth > 0 and (anchorType and anchorType ~= "ANCHOR_PRESERVE") then --we never slide a tooltip with a preserved anchor
-		local slideAmount = 0;
-		if ( (side == "left") and (totalWidth > leftPos) ) then
-			slideAmount = totalWidth - leftPos;
-		elseif ( (side == "right") and (rightPos + totalWidth) >  screenWidth ) then
-			slideAmount = screenWidth - (rightPos + totalWidth);
+-- @param  tooltip  tooltip
+-- @return mountName, mountID
+function LibFroznFunctions:GetMountFromTooltip(tooltip)
+	-- since df 10.0.2
+	if (TooltipUtil) then
+		if tooltip:IsTooltipType(Enum.TooltipDataType.Mount) then -- see TooltipUtil.GetDisplayedSpell() in "TooltipUtil.lua"
+			local tooltipData = tooltip:GetTooltipData();
+			local id = tooltipData.id;
+			local name = C_MountJournal.GetMountInfoByID(id);
+			return name, id;
 		end
+		
+		return;
+	end
+	
+	-- before df 10.0.2
+	local spellName, spellID = tooltip:GetSpell();
+	local mountID = LibFroznFunctions:GetMountFromSpell(spellID);
+	
+	return spellName, mountID;
+end
 
-		if slideAmount ~= 0 then -- if we calculated a slideAmount, we need to slide
-			if sideAnchorFrame.SetAnchorType then
-				sideAnchorFrame:SetAnchorType(anchorType, slideAmount, 0);
-			else
-				tooltip:SetAnchorType(anchorType, slideAmount, 0);
-			end
-		end
+-- get mount from spell
+--
+-- @param  spellID  spell id
+-- @return mountID  mount id
+function LibFroznFunctions:GetMountFromSpell(spellID)
+	-- since BfA 8.0.1
+	if (C_MountJournal) and (C_MountJournal.GetMountFromSpell) then
+		return C_MountJournal.GetMountFromSpell(spellID);
 	end
 	
-	primaryTooltip:ClearAllPoints(); -- added
-	
-	if secondaryShown then
-		secondaryTooltip:ClearAllPoints(); -- added
-		
-		primaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
-		secondaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
-		if side and side == "left" then
-			primaryTooltip:SetPoint("RIGHT", sideAnchorFrame, "LEFT");
-		else
-			secondaryTooltip:SetPoint("LEFT", sideAnchorFrame, "RIGHT");
-		end
-		
-		if side and side == "left" then
-			secondaryTooltip:SetPoint("TOPRIGHT", primaryTooltip, "TOPLEFT");
-		else
-			primaryTooltip:SetPoint("TOPLEFT", secondaryTooltip, "TOPRIGHT");
-		end
-	else
-		primaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
-		if side and side == "left" then
-			primaryTooltip:SetPoint("RIGHT", sideAnchorFrame, "LEFT");
-		else
-			primaryTooltip:SetPoint("LEFT", sideAnchorFrame, "RIGHT");
-		end
-	end
-	
-	-- primaryTooltip:SetShown(primaryShown); -- removed
-	-- secondaryTooltip:SetShown(secondaryShown); -- removed
+	-- before BfA 8.0.1
+	return LFF_SPELLID_TO_MOUNTID_LOOKUP[tonumber(spellID)];
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1202,6 +1160,150 @@ function LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, anchorFrame, ta
 	return nil, nil;
 end
 
+-- refresh anchor shopping tooltips
+--
+-- modded copy of TooltipComparisonManager:AnchorShoppingTooltips() in "TooltipComparisonManager.lua" (since df 10.0.2) aka GameTooltip_AnchorComparisonTooltips in "GameTooltip.lua" (before df 10.0.2) for:
+-- 1. consider scaling to choose left or right side
+-- 2. calling ClearAllPoints() to refresh anchoring of shopping tooltips after re-anchoring of tip
+function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
+	local primaryTooltip = ShoppingTooltip1;
+	local secondaryTooltip = ShoppingTooltip2;
+	
+	local primaryShown = primaryTooltip:IsShown();
+	local secondaryShown = secondaryTooltip:IsShown();
+	
+	-- no shopping tooltip visible
+	if (not primaryShown) and (not secondaryShown) then
+		return;
+	end
+	
+	-- refresh anchor of shopping tooltips
+	local self;
+	
+	if (TooltipComparisonManager) then -- since df 10.0.2
+		self = TooltipComparisonManager;
+	else -- before df 10.0.2
+		local primaryTooltipPoint1 = (primaryTooltip:GetNumPoints() >= 1) and select(2, primaryTooltip:GetPoint(1));
+		local secondaryTooltipPoint1 = (secondaryTooltip:GetNumPoints() >= 1) and select(2, secondaryTooltip:GetPoint(1));
+		
+		self = { 
+			tooltip = primaryTooltip:GetOwner(),
+			anchorFrame = (primaryTooltipPoint1 ~= secondaryTooltip) and primaryTooltipPoint1 or (primaryTooltipPoint1 == secondaryTooltip) and secondaryTooltipPoint1 or primaryTooltip:GetOwner(),
+			comparisonItem = (primaryTooltip:IsShown())
+		};
+	end
+	
+	-- not the affected tip or no comparison item
+	if (self.tooltip ~= tip) or (not self.comparisonItem) then
+		return;
+	end
+	
+	-- start of original TooltipComparisonManager:AnchorShoppingTooltips()
+	local tooltip = self.tooltip;
+	-- local primaryTooltip = tooltip.shoppingTooltips[1]; -- removed
+	-- local secondaryTooltip = tooltip.shoppingTooltips[2]; -- removed
+	
+	local sideAnchorFrame = self.anchorFrame;
+	if self.anchorFrame.IsEmbedded then
+		sideAnchorFrame = self.anchorFrame:GetParent():GetParent();
+	end
+	
+	-- local leftPos = sideAnchorFrame:GetLeft(); -- removed
+	-- local rightPos = sideAnchorFrame:GetRight(); -- removed
+	local leftPos = (sideAnchorFrame:GetLeft() ~= nil) and (sideAnchorFrame:GetLeft() * sideAnchorFrame:GetEffectiveScale()); -- added
+	local rightPos = (sideAnchorFrame:GetRight() ~= nil) and (sideAnchorFrame:GetRight() * sideAnchorFrame:GetEffectiveScale()); -- added
+	
+	-- local selfLeftPos = tooltip:GetLeft(); -- removed
+	-- local selfRightPos = tooltip:GetRight(); -- removed
+	local selfLeftPos = (tooltip:GetLeft() ~= nil) and (tooltip:GetLeft() * tooltip:GetEffectiveScale()); -- added
+	local selfRightPos = (tooltip:GetRight() ~= nil) and (tooltip:GetRight() * tooltip:GetEffectiveScale()); -- added
+	
+	-- if we get the Left, we have the Right
+	if leftPos and selfLeftPos then
+		leftPos = math.min(selfLeftPos, leftPos);-- get the left most bound
+		rightPos = math.max(selfRightPos, rightPos);-- get the right most bound
+	else
+		leftPos = leftPos or selfLeftPos or 0;
+		rightPos = rightPos or selfRightPos or 0;
+	end
+	
+	-- sometimes the sideAnchorFrame is an actual tooltip, and sometimes it's a script region, so make sure we're getting the actual anchor type
+	local anchorType = sideAnchorFrame.GetAnchorType and sideAnchorFrame:GetAnchorType() or tooltip:GetAnchorType();
+	
+	local totalWidth = 0;
+	if primaryShown then
+		totalWidth = totalWidth + primaryTooltip:GetWidth() * primaryTooltip:GetEffectiveScale();
+	end
+	if secondaryShown then
+		totalWidth = totalWidth + secondaryTooltip:GetWidth() * primaryTooltip:GetEffectiveScale();
+	end
+	
+	local rightDist = 0;
+	-- local screenWidth = GetScreenWidth(); -- removed
+	local screenWidth = GetScreenWidth() * UIParent:GetEffectiveScale(); -- added
+	rightDist = screenWidth - rightPos;
+	
+	-- find correct side
+	local side;
+	if anchorType and (totalWidth < leftPos) and (anchorType == "ANCHOR_LEFT" or anchorType == "ANCHOR_TOPLEFT" or anchorType == "ANCHOR_BOTTOMLEFT") then
+		side = "left";
+	elseif anchorType and (totalWidth < rightDist) and (anchorType == "ANCHOR_RIGHT" or anchorType == "ANCHOR_TOPRIGHT" or anchorType == "ANCHOR_BOTTOMRIGHT") then
+		side = "right";
+	elseif rightDist < leftPos then
+		side = "left";
+	else
+		side = "right";
+	end
+	
+	-- see if we should slide the tooltip
+	if totalWidth > 0 and (anchorType and anchorType ~= "ANCHOR_PRESERVE") then --we never slide a tooltip with a preserved anchor
+		local slideAmount = 0;
+		if ( (side == "left") and (totalWidth > leftPos) ) then
+			slideAmount = totalWidth - leftPos;
+		elseif ( (side == "right") and (rightPos + totalWidth) >  screenWidth ) then
+			slideAmount = screenWidth - (rightPos + totalWidth);
+		end
+
+		if slideAmount ~= 0 then -- if we calculated a slideAmount, we need to slide
+			if sideAnchorFrame.SetAnchorType then
+				sideAnchorFrame:SetAnchorType(anchorType, slideAmount, 0);
+			else
+				tooltip:SetAnchorType(anchorType, slideAmount, 0);
+			end
+		end
+	end
+	
+	primaryTooltip:ClearAllPoints(); -- added
+	
+	if secondaryShown then
+		secondaryTooltip:ClearAllPoints(); -- added
+		
+		primaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
+		secondaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
+		if side and side == "left" then
+			primaryTooltip:SetPoint("RIGHT", sideAnchorFrame, "LEFT");
+		else
+			secondaryTooltip:SetPoint("LEFT", sideAnchorFrame, "RIGHT");
+		end
+		
+		if side and side == "left" then
+			secondaryTooltip:SetPoint("TOPRIGHT", primaryTooltip, "TOPLEFT");
+		else
+			primaryTooltip:SetPoint("TOPLEFT", secondaryTooltip, "TOPRIGHT");
+		end
+	else
+		primaryTooltip:SetPoint("TOP", self.anchorFrame, 0, -10);
+		if side and side == "left" then
+			primaryTooltip:SetPoint("RIGHT", sideAnchorFrame, "LEFT");
+		else
+			primaryTooltip:SetPoint("LEFT", sideAnchorFrame, "RIGHT");
+		end
+	end
+	
+	-- primaryTooltip:SetShown(primaryShown); -- removed
+	-- secondaryTooltip:SetShown(secondaryShown); -- removed
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                             Frames                                             --
 ----------------------------------------------------------------------------------------------------
@@ -1274,6 +1376,10 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 	return false;
 end
 
+----------------------------------------------------------------------------------------------------
+--                                            Tooltips                                            --
+----------------------------------------------------------------------------------------------------
+
 -- recalculate size of GameTooltip
 --
 -- @param tip  GameTooltip
@@ -1283,6 +1389,59 @@ function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
 	end
 	
 	tip:SetPadding(tip:GetPadding());
+end
+
+-- get aura description from tooltip
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @param  index   index of an aura to query
+-- @param  filter  a list of filters, separated by pipe chars or spaces, see LFF_AURA_FILTERS
+-- @return aura description, nil otherwise.
+local getAuraDescriptionFromTooltipScanTip;
+
+function LibFroznFunctions:GetAuraDescription(unitID, index, filter)
+	-- since df 10.0.2
+	if (C_TooltipInfo) then
+		local tooltipData = C_TooltipInfo.GetUnitAura(unitID, index, filter);
+		
+		if (tooltipData) then
+			TooltipUtil.SurfaceArgs(tooltipData);
+			
+			-- line 1 is aura name. line 2 is aura description.
+			local line = tooltipData.lines[2];
+			
+			if (line) then
+				TooltipUtil.SurfaceArgs(line);
+				
+				return line.leftText;
+			end
+		end
+		
+		return;
+	end
+	
+	-- before df 10.0.2
+	
+	-- create scanning tooltip
+	local scanTipName = LIB_NAME .. "_GetAuraDescription";
+	
+	if (not getAuraDescriptionFromTooltipScanTip) then
+		getAuraDescriptionFromTooltipScanTip = CreateFrame("GameTooltip", scanTipName, nil, "GameTooltipTemplate");
+		getAuraDescriptionFromTooltipScanTip:SetOwner(UIParent, "ANCHOR_NONE");
+	end
+	
+	-- get aura description from tooltip
+	getAuraDescriptionFromTooltipScanTip:ClearLines();
+	getAuraDescriptionFromTooltipScanTip:SetUnitAura(unitID, index, filter);
+	
+	-- line 1 is aura name. line 2 is aura description.
+	local leftText2 = _G[scanTipName .. "TextLeft2"];
+	
+	if (not leftText2) then
+		return;
+	end
+	
+	return leftText2:GetText();
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1609,15 +1768,22 @@ function LibFroznFunctions:CreateUnitRecord(unitID, unitGUID)
 	return unitRecord;
 end
 
-function LibFroznFunctions:UpdateUnitRecord(unitRecord)
+-- update unit record
+--
+-- @param  unitRecord  see LibFroznFunctions:CreateUnitRecord()
+-- @param  newUnitID   optional. new unit id, e.g. "player", "target" or "mouseover".
+-- @return unitRecord, see LibFroznFunctions:CreateUnitRecord()
+function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	-- no valid unit any more e.g. during fading out
-	local unitID = unitRecord.id;
+	local unitID = newUnitID or unitRecord.id;
 	
 	if (not UnitGUID(unitID)) then
 		return;
 	end
 	
 	-- update unit record
+	unitRecord.id = unitID;
+	
 	unitRecord.level = unitRecord.isBattlePet and UnitBattlePetLevel(unitID) or UnitLevel(unitID) or -1;
 	unitRecord.reactionIndex = LibFroznFunctions:GetUnitReactionIndex(unitID);
 	
@@ -1627,6 +1793,87 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord)
 	unitRecord.powerType = UnitPowerType(unitID);
 	unitRecord.power = UnitPower(unitID);
 	unitRecord.powerMax = UnitPowerMax(unitID);
+end
+
+-- iterate through unit's auras
+--
+-- @param unitID        unit id, e.g. "player", "target" or "mouseover"
+-- @param filter        a list of filters, separated by pipe chars or spaces, see LFF_AURA_FILTERS
+-- @param maxCount      optional. max count of auras to iterate through.
+-- @param func          callback function for each aura. iteration of unit's auras cancelable with returning true.
+-- @param usePackedAura optional. if true, aura infos will be passed to callback function "func" as a table of type UnitAuraInfo. otherwise aura infos from UnitAuraBySlot() / UnitAura() will be passed as multiple return values.
+function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePackedAura)
+	-- see SecureAuraHeader_Update() in "SecureGroupHeaders.lua"
+	
+	-- since df 10.0.0
+	if (AuraUtil) and (AuraUtil.ForEachAura) then
+		AuraUtil.ForEachAura(unitID, filter, maxCount, func, usePackedAura);
+		return;
+	end
+	
+	-- before df 10.0.0
+	if (maxCount) and (maxCount <= 0) then
+		return;
+	end
+	
+	local index = 0;
+	
+	while (true) do
+		index = index + 1;
+		
+		local unitAura = { UnitAura(unitID, index, filter) };
+		
+		-- no more auras available
+		local name = unitAura[1];
+		
+		if (not name) then
+			break;
+		end
+		
+		-- call func
+		local done = false;
+		
+		if (usePackedAura) then
+			done = func({
+				name = unitAura[1],
+				icon = unitAura[2],
+				applications = unitAura[3],
+				dispelName = unitAura[4],
+				duration = unitAura[5],
+				expirationTime = unitAura[6],
+				sourceUnit = unitAura[7],
+				isStealable = unitAura[8],
+				nameplateShowPersonal = unitAura[9],
+				spellId = unitAura[10],
+				canApplyAura = unitAura[11],
+				isBossAura = unitAura[12],
+				isFromPlayerOrPlayerPet = unitAura[13],
+				nameplateShowAll = unitAura[14],
+				timeMod = unitAura[15],
+				points = { select(16, unitAura) },
+				
+				-- not available
+				auraInstanceID = nil,
+				isHarmful = nil,
+				isHelpful = nil,
+				isNameplateOnly = nil,
+				isRaid = nil,
+				charges = nil,
+				maxCharges = nil
+			});
+		else
+			done = func(unpack(unitAura));
+		end
+		
+		if (done) then
+			break;
+		end
+		
+		-- max count of auras reached
+		if (maxCount) and (index == maxCount) then
+			return;
+		end
+	end
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1745,7 +1992,7 @@ function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
 	
 	-- update record in unit cache if a valid unit id is available
 	if (unitCacheRecord) and (isValidUnitID) then
-		unitCacheRecord.level = UnitLevel(unitID);
+		LibFroznFunctions:UpdateUnitRecord(unitCacheRecord, unitID);
 	end
 	
 	return unitCacheRecord;
@@ -1754,7 +2001,7 @@ end
 -- create record in unit cache
 function frameForDelayedInspection:CreateUnitCacheRecord(unitID, unitGUID)
 	unitCache[unitGUID] = LibFroznFunctions:CreateUnitRecord(unitID, unitGUID);
-	unitCacheRecord = unitCache[unitGUID];
+	local unitCacheRecord = unitCache[unitGUID];
 	
 	unitCacheRecord.needsInspect = false;
 	unitCacheRecord.canInspect = nil;
@@ -2043,7 +2290,7 @@ function LibFroznFunctions:GetTalents(unitID)
 	local isSelf = UnitIsUnit(unitID, "player");
 	
 	if (GetSpecialization) then -- retail
-		local specializationName, specializationIcon, role;
+		local specializationName, specializationIcon, role, _;
 		
 		if (isSelf) then -- player
 			local specIndex = GetSpecialization();
@@ -2112,7 +2359,7 @@ function LibFroznFunctions:GetTalents(unitID)
 		local maxPointsSpent;
 		
 		for tabIndex = 1, numTalentTabs do
-			_talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
+			local _talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
 			pointsSpent[#pointsSpent + 1] = _pointsSpent;
 			
 			if (not maxPointsSpent) or (_pointsSpent > maxPointsSpent) then
@@ -2172,6 +2419,7 @@ end
 -- @return .value         average item level
 --         .qualityColor  ColorMixin with total quality color
 --         .totalItems    total items
+--         .gearScore     GearScore
 --         returns "LFF_AVERAGE_ITEM_LEVEL.available" if average item level is available
 --         returns "LFF_AVERAGE_ITEM_LEVEL.none" if no average item level has been found.
 --         returns nil if unit id is missing or not a player
@@ -2216,6 +2464,12 @@ function LibFroznFunctions:GetAverageItemLevel(unitID, callbackForItemData)
 end
 
 -- get average item level from item data
+LFF_BASE_LEVEL_FOR_GEAR_SCORE =
+	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)
+	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
+	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
+	LibFroznFunctions.isWoWFlavor.DF         and 395;   -- Lost Landcaller's Robes (Druid, Tier 23)
+
 function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGUID)
 	-- check if unit guid from unit id is still the same if waiting for item data
 	if (callbackForItemData) and (unitGUID) then
@@ -2260,13 +2514,14 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		return LFF_AVERAGE_ITEM_LEVEL.none;
 	end
 	
-	-- calculate average item level
+	-- calculate average item level and GearScore
 	local totalScore = 0;
 	local totalItems = 0;
 	local totalQuality = 0;
 	local totalItemsForQuality = 0;
 	local averageItemLevel;
 	local totalQualityColor;
+	local gearScore = 0;
 	
 	local ignoreInventorySlots = {
 		[INVSLOT_BODY] = true, -- shirt
@@ -2278,6 +2533,23 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		[Enum.InventoryType.IndexRangedType] = true,
 		[Enum.InventoryType.IndexRangedrightType] = true,
 		[Enum.InventoryType.Index2HweaponType] = true
+	};
+	
+	local slotModForGearScore = {
+		[Enum.InventoryType.IndexNeckType] = 0.5625,
+		[Enum.InventoryType.IndexShoulderType] = 0.75,
+		[Enum.InventoryType.IndexBodyType] = 0,
+		[Enum.InventoryType.IndexWaistType] = 0.75,
+		[Enum.InventoryType.IndexFeetType] = 0.75,
+		[Enum.InventoryType.IndexWristType] = 0.5625,
+		[Enum.InventoryType.IndexHandType] = 0.75,
+		[Enum.InventoryType.IndexFingerType] = 0.5625,
+		[Enum.InventoryType.IndexTrinketType] = 0.5625,
+		[Enum.InventoryType.IndexRangedType] = 0.3164,
+		[Enum.InventoryType.IndexCloakType] = 0.5625,
+		[Enum.InventoryType.IndexThrownType] = 0.3164,
+		[Enum.InventoryType.IndexRangedrightType] = 0.3164,
+		[Enum.InventoryType.IndexRelicType] = 0.3164
 	};
 	
 	-- to check if main hand only
@@ -2293,7 +2565,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	local isOffHandArtifact = (itemOffHand) and (itemOffHand.quality == Enum.ItemQuality.Artifact);
 	local itemOffHandEffectiveILvl = (itemOffHand) and (itemOffHand.effectiveILvl);
 	
-	-- calculate average item level
+	-- calculate average item level and GearScore
 	for i, item in pairs(items) do
 		-- map Heirloom and WoWToken to Rare
 		local quality = item.quality;
@@ -2303,33 +2575,48 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		end
 		
 		if (not ignoreInventorySlots[i]) then -- ignore shirt, tabard and ranged
+			local twoHandedMainHandOnly = false;
+			local iLvlToAdd;
+			
 			totalItems = totalItems + 1;
 			
 			if (i == INVSLOT_MAINHAND) or (i == INVSLOT_OFFHAND) then -- handle main and off hand
 				if (isMainHandOnly) then -- main hand only
 					if (twoHandedInventoryTypes[item.inventoryType]) then -- two handed
+						iLvlToAdd = item.effectiveILvl * 2;
 						totalItems = totalItems + 1;
-						totalScore = totalScore + item.effectiveILvl * 2;
+						twoHandedMainHandOnly = true;
 					else -- one handed
-						totalScore = totalScore + item.effectiveILvl;
+						iLvlToAdd = item.effectiveILvl;
 					end
 				else -- main and/or off hand
 					if (isMainHandArtifact) or (isOffHandArtifact) then -- main or off hand is artifact
 						if (itemMainHandEffectiveILvl > itemOffHandEffectiveILvl) then
-							totalScore = totalScore + itemMainHandEffectiveILvl;
+							iLvlToAdd = itemMainHandEffectiveILvl;
 						else
-							totalScore = totalScore + itemOffHandEffectiveILvl;
+							iLvlToAdd = itemOffHandEffectiveILvl;
 						end
 					else -- main and off hand are non-artifacts
-						totalScore = totalScore + item.effectiveILvl;
+						iLvlToAdd = item.effectiveILvl;
 					end
 				end
 			else -- other items
-				totalScore = totalScore + item.effectiveILvl;
+				iLvlToAdd = item.effectiveILvl;
 			end
 			
+			totalScore = totalScore + iLvlToAdd;
 			totalItemsForQuality = totalItemsForQuality + 1;
 			totalQuality = totalQuality + quality;
+			
+			-- TipTac's own implementation to simply calculate the GearScore:
+			-- 1. weighted item level by performance per item level above/below base level of first tier set of current expansion
+			-- 2. weighted item level by inventory type
+			-- 3. weighted item level by item quality
+			-- 4. sum it all up
+			local performancePerILvlForGearScore = LFF_BASE_LEVEL_FOR_GEAR_SCORE and math.pow(1.01, (twoHandedMainHandOnly and (iLvlToAdd / 2) or iLvlToAdd) - LFF_BASE_LEVEL_FOR_GEAR_SCORE) or 1; -- +1 iLvl = +1% performance, source: https://www.wowhead.com/news/gear-inflation-on-target-1-item-level-should-result-in-roughly-1-increased-322062
+			local qualityModForGearScore = LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1;
+			
+			gearScore = gearScore + (LFF_BASE_LEVEL_FOR_GEAR_SCORE or iLvlToAdd) * performancePerILvlForGearScore * (slotModForGearScore[item.inventoryType] or 1) * (LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1);
 		end
 	end
 	
@@ -2347,7 +2634,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	if (isSelf) and (GetAverageItemLevel) then
 		local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvP = GetAverageItemLevel();
 		
-		averageItemLevel = floor(avgItemLevelEquipped);
+		averageItemLevel = math.floor(avgItemLevelEquipped);
 		
 		if (GetItemLevelColor) then
 			totalQualityColor = LibFroznFunctions:CreateColorSmart(GetItemLevelColor());
@@ -2357,17 +2644,21 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	end
 	
 	if (not averageItemLevel) or (averageItemLevel == 0) then
-		averageItemLevel = floor(totalScore / 16);
+		averageItemLevel = math.floor(totalScore / 16);
 	end
 	
 	if (not totalQualityColor) then
-		totalQualityColor = LibFroznFunctions:GetItemQualityColor(floor(totalQuality / totalItemsForQuality + 0.5), Enum.ItemQuality.Common);
+		totalQualityColor = LibFroznFunctions:GetItemQualityColor(math.floor(totalQuality / totalItemsForQuality + 0.5), Enum.ItemQuality.Common);
 	end
+	
+	-- set GearScore
+	gearScore = math.floor(gearScore);
 	
 	local returnAverageItemLevel = {
 		value = averageItemLevel,
 		qualityColor = totalQualityColor,
-		totalItems = totalItemsForQuality
+		totalItems = totalItemsForQuality,
+		gearScore = gearScore
 	};
 	
 	if (callbackForItemData) then
