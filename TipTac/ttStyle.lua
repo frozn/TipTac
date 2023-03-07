@@ -435,6 +435,18 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 					local spacer;
 					local mountNameAdded = false;
 					
+					if (cfg.showMountCollected) then
+						local isCollected = LibFroznFunctions:IsMountCollected(mountID);
+						
+						if (isCollected) then
+							-- mountText:Push(CreateAtlasMarkup("common-icon-checkmark")); -- available in DF, not available in WotLKC
+							mountText:Push(CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\CommonIcons", 64, 64, 0, 0, 0.000488281, 0.125488, 0.504883, 0.754883));
+						else
+							-- mountText:Push(CreateAtlasMarkup("common-icon-redx")); -- available in DF, not available in WotLKC
+							mountText:Push(CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\CommonIcons", 64, 64, 0, 0, 0.126465, 0.251465, 0.504883, 0.754883));
+						end
+					end
+					
 					if (cfg.showMountIcon) and (unitAuraInfo.icon) then
 						mountText:Push(CreateTextureMarkup(unitAuraInfo.icon, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93));
 					end

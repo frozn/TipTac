@@ -307,14 +307,86 @@ end
 --
 -- @param  spellID  spell id
 -- @return mountID  mount id
+--                  returns 0 if the spell/aura is from a mount, but there is not specific mount, e.g. "Running Wild" for worgen.
+--                  returns nil if spell/aura doesn't belong to a mount.
 function LibFroznFunctions:GetMountFromSpell(spellID)
 	-- since BfA 8.0.1
 	if (C_MountJournal) and (C_MountJournal.GetMountFromSpell) then
-		return C_MountJournal.GetMountFromSpell(spellID);
+		return C_MountJournal.GetMountFromSpell(spellID) or LFF_SPELLID_TO_MOUNTID_LOOKUP[tonumber(spellID)]; -- also check LFF_SPELLID_TO_MOUNTID_LOOKUP, because some mounted auras doesn't belong to a mount, e.g. "Running Wild" for worgen
 	end
 	
 	-- before BfA 8.0.1
 	return LFF_SPELLID_TO_MOUNTID_LOOKUP[tonumber(spellID)];
+end
+
+-- get mount from item
+--
+-- @param  itemID  item id
+-- @return mountID  mount id
+--                  returns 0 if the spell/aura is from a mount, but there is not specific mount, e.g. "Running Wild" for worgen.
+--                  returns nil if spell/aura doesn't belong to a mount.
+function LibFroznFunctions:GetMountFromItem(itemID)
+	-- since BfA 8.1.0
+	if (C_MountJournal) and (C_MountJournal.GetMountFromItem) then
+		return C_MountJournal.GetMountFromItem(itemID) or LFF_ITEMID_TO_MOUNTID_LOOKUP[tonumber(itemID)]; -- also check LFF_ITEMID_TO_MOUNTID_LOOKUP, because some mount items doesn't belong to a mount, e.g. "Clutch of Ha-Li" (ItemID 173887)
+	end
+	
+	-- before BfA 8.1.0
+	return LFF_ITEMID_TO_MOUNTID_LOOKUP[tonumber(itemID)];
+end
+
+-- check if mount is collected
+--
+-- @param  mountID  mount id
+-- @return true if mount is collected, false otherwise. returns nil if it can't be determined if the mount is collected.
+function LibFroznFunctions:IsMountCollected(mountID)
+	-- since Legion 7.0.3
+	if (C_MountJournal) and (C_MountJournal.GetMountInfoByID) then
+		return select(11, C_MountJournal.GetMountInfoByID(mountID));
+	end
+	
+	-- before Legion 7.0.3
+	if (GetNumCompanions) then
+		for index = 1, GetNumCompanions("MOUNT") do
+			local creatureID = GetCompanionInfo("MOUNT", index);
+			
+			if (creatureID == mountID) then
+				return true;
+			end
+		end
+		
+		return false;
+	end
+	
+	-- before WotLK 3.0.2
+	if (GetContainerNumSlots) then
+		local lastBankBagSlot = ITEM_INVENTORY_BANK_BAG_OFFSET + NUM_BANKBAGSLOTS;
+		local firstReagentBagSlot, lastReagentBagSlot = NUM_BAG_SLOTS + 1, ITEM_INVENTORY_BANK_BAG_OFFSET;
+		
+		for bagID = BANK_CONTAINER, lastBankBagSlot do
+			if (bagID <= firstReagentBagSlot) or (bagID >= lastReagentBagSlot) then -- ignore reagent bags
+				local numSlots = GetContainerNumSlots(bagID);
+				
+				for slotIndex = 1, numSlots do
+					local itemLink = GetContainerItemLink(bagID, slotIndex);
+					
+					if (itemLink) then
+						local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
+						
+						if (itemID) then
+							local mountIDFromItem = LibFroznFunctions:GetMountFromItem(itemID);
+							
+							if (mountIDFromItem == mountID) then
+								return true;
+							end
+						end
+					end
+				end
+			end
+		end
+		
+		return false;
+	end
 end
 
 ----------------------------------------------------------------------------------------------------

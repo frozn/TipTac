@@ -34,6 +34,7 @@ local TT_DefaultConfig = {
 	showCurrentUnitSpeed = true,
 	showMythicPlusDungeonScore = true,
 	showMount = true,
+	showMountCollected = true,
 	showMountIcon = true,
 	showMountText = true,
 	showMountSpeed = true,
@@ -273,7 +274,6 @@ TT_ExtendedConfig.defaultAnchorPoint = "BOTTOMRIGHT";
 -- applyAppearance                true if appearance should be applied, false/nil otherwise.
 -- applyScaling                   true if scaling should be applied, false/nil otherwise.
 -- applyAnchor                    true if anchoring should be applied, false/nil otherwise.
--- scalingFactor                  optional. optional scaling factor if "applyScaling = true", nil otherwise. #test: not used yet
 -- waitSecondsForLookupFrameName  optional. float with number of seconds to wait before looking up frame name, nil otherwise.
 -- noHooks                        optional. true if no hooks should be applied to the frame directly, false/nil otherwise.
 -- hookFnForFrame                 optional. individual function for hooking for frame, nil otherwise. parameters: TT_CacheForFrames, tip
@@ -1187,6 +1187,9 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 		
 		if (not tipParams.noHooks) then
 			LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+				-- tip:HookScript("OnSizeChanged", function(tip, ...)
+					-- tip.OnBackdropSizeChanged(tip, ...);
+				-- end);
 				tip:HookScript("OnSizeChanged", tip.OnBackdropSizeChanged);
 			end);
 		end

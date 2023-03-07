@@ -56,9 +56,10 @@ if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
 end
 
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player.", y = 16 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", x = 100 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountText", label = "Text", tip = "This option makes the tip show the mount text.", x = 165 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", x = 230 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountCollected", label = "Collected", tip = "This option makes the tip show an icon indicating if you already have collected the mount.", x = 122 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", x = 210 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountText", label = "Text", tip = "This option makes the tip show the mount text.", x = 122 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", x = 210 };
 
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType", label = "Name & Title", list = { ["Name only"] = "normal", ["Name + title"] = "title", ["Copy from original tip"] = "original", ["Mary Sue Protocol"] = "marysueprot" }, y = 16 };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show (*) instead"] = "asterisk" } };
@@ -87,7 +88,7 @@ local options = {
 	{
 		[0] = "Colors",
 		{ type = "Color", var = "colorName", label = "Name Color", tip = "Color of the name, when not using the option to make it the same as reaction color" },
-		{ type = "Check", var = "colorNameByReaction", label = "Color Name by Reaction", tip = "Name color will have the same color as the reacion\nNOTE: This option is overridden by class colored name for players" },
+		{ type = "Check", var = "colorNameByReaction", label = "Color Name by Reaction", tip = "Name color will have the same color as the reaction\nNOTE: This option is overridden by class colored name for players" },
 		{ type = "Check", var = "colorNameByClass", label = "Color Player Names by Class Color", tip = "With this option on, player names are colored by their class color\nNOTE: This option overrides reaction colored name for players" },
 		
 		{ type = "Color", var = "colorGuild", label = "Guild Color", tip = "Color of the guild name, when not using the option to make it the same as reaction color", y = 20 },
@@ -367,10 +368,13 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showSpellIdAndRank", label = "Show Spell ID & Rank", tip = "For spell tooltips, show their spellID and spellRank" },
 		{ type = "Check", var = "if_auraSpellColoredBorder", label = "Show Aura Tips with Colored Border", tip = "When enabled and the tip is showing a buff or debuff, the tip border will have the standard spell color" },
 		{ type = "Check", var = "if_showAuraSpellIdAndRank", label = "Show Aura Spell ID & Rank", tip = "For buff and debuff tooltips, show their spellID and spellRank" },
-		{ type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura" },
-		{ type = "Check", var = "if_casterClassColor", label = "Use Class Color for Aura Caster", tip = "Use the class color for the caster of the aura" },
 		{ type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" },
-		{ type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For spell and aura tooltips, show their mountID" },
+		
+		{ type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura", y = 12 },
+		{ type = "Check", var = "if_colorAuraCasterByReaction", label = "Color Aura Tooltip Caster by Reaction", tip = "Aura tooltip caster color will have the same color as the reaction\nNOTE: This option is overridden by class colored aura tooltip caster for players" },
+		{ type = "Check", var = "if_colorAuraCasterByClass", label = "Color Aura Tooltip Caster for Player by Class Color", tip = "With this option on, color aura tooltip caster for players are colored by their class color\nNOTE: This option overrides reaction colored aura tooltip caster for players" },
+		
+		{ type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For item, spell and aura tooltips, show their mountID", y = 12 },
 
 		{ type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", y = 12 },
 		{ type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)" },
@@ -416,10 +420,10 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showPetActionId", label = "Show Pet Action ID", tip = "For flyout tooltips, show their petActionID" },
 
 		{ type = "Header", label = "Icon", tip = "Settings about tooltip icon", y = 12 },
-		{ type = "Check", var = "if_showIconId", label = "Show Icon ID", tip = "Show the iconID in the tooltip", y = 12 },
 		{ type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown" },
 		{ type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" },
 		{ type = "DropDown", var = "if_stackCountToTooltip", label = "Show Stack Count in\nTooltip", list = { ["|cffffa0a0Do not show"] = "none", ["Always"] = "always", ["Only if icon is not shown"] = "noicon" }, y = 8 },
+		{ type = "Check", var = "if_showIconId", label = "Show Icon ID", tip = "For tooltips with icon, show their iconID" },
 		{ type = "Check", var = "if_borderlessIcons", label = "Borderless Icons", tip = "Turn off the border on icons", y = 8 },
 		{ type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 },
 		{ type = "DropDown", var = "if_iconAnchor", label = "Icon Anchor", tip = "The anchor of the icon", list = DROPDOWN_ANCHORPOS },

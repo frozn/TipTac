@@ -24,10 +24,12 @@
 	- removed extended funtion SetFromHexColorMarkup() from color object
 	- adjusted x offsets of Slider, CheckButton, ColorButton, DropDown and TextEdit
 	- added a TextOnly element
+	23.02.xx Rev 19 10.0.5/Dragonflight #frozn45
+	- put option in new line also if last x offset has been lower than the current x offset
 --]]
 
 -- create new library
-local REVISION = 18; -- bump on changes
+local REVISION = 19; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -117,6 +119,7 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 	self:ResetObjectUse();
 	AzDropDown:HideMenu();
 
+	local lastXOffset = 0;
 	local lastHeight = 0;
 
 	for index, option in ipairs(options) do
@@ -141,7 +144,7 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 			obj:ClearAllPoints();
 
 			local xOffset = (option.x or 0);
-			if (xOffset == 0) then
+			if (xOffset <= lastXOffset) then
 				top = (top + lastHeight);
 			end
 
@@ -153,6 +156,7 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 
 			obj:SetPoint("TOPLEFT",anchor,"TOPLEFT",xFinal,-yFinal);
 
+			lastXOffset = xOffset;
 			lastHeight = (obj:GetHeight() + self.objects[option.type].yOffset);
 
 			-- Show
