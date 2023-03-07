@@ -68,6 +68,7 @@ local TTIF_DefaultConfig = {
 	if_showMawPowerId = false,
 	if_showMountId = false,
 	if_showAuraCaster = true,
+    if_casterClassColor = true,
 	if_questDifficultyBorder = true,
 	if_showQuestLevel = false,
 	if_showQuestId = false,
@@ -99,6 +100,7 @@ local TTIF_DefaultConfig = {
 	if_petActionColoredBorder = true,
 	if_showPetActionId = false,
 
+    if_showIconId = true,
 	if_showIcon = true,
 	if_smartIcons = true,
 	if_stackCountToTooltip = "none",
@@ -2193,7 +2195,12 @@ function LinkTypeFuncs:item(link, linkType, id)
 		self:AddLine(format("MountID: %d", mountID), unpack(cfg.if_infoColor));
 	end
 	
-	targetTooltip:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
+	-- Icon ID
+    if cfg.if_showIconId and itemTexture then
+        targetTooltip:AddLine(format("IconID: %d", itemTexture), unpack(cfg.if_infoColor))
+    end
+	
+	targetTooltip:Show(); -- call Show() to resize tip after adding lines. only necessary for items in toy box.
 end
 
 -- keystone
@@ -2292,9 +2299,14 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				end
 			end
 		end
-	end
+
+		-- Icon ID
+		if cfg.if_showIconId and itemTexture then
+			self:AddLine(format("IconID: %d", itemTexture), unpack(cfg.if_infoColor))
+		end
 	
-	self:Show();	-- call Show() to resize tip after adding lines
+		self:Show(); -- call Show() to resize tip after adding lines
+	end
 end
 
 -- spell
@@ -2325,13 +2337,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	if (showIcon) then
 		self:ttSetIconTextureAndText(icon);
 	end
-	
-	-- Caster
-	local showAuraCaster = (cfg.if_showAuraCaster and UnitExists(source));
-	if (showAuraCaster) then
-		self:AddLine(format("Caster: %s", UnitName(source) or UNKNOWNOBJECT), unpack(cfg.if_infoColor));
-	end
-	
+		
 	-- MawPowerID and SpellID + Rank -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID);
 	local showSpellIdAndRank = (((isSpell and cfg.if_showSpellIdAndRank) or (isAura and cfg.if_showAuraSpellIdAndRank)) and spellID and (spellID ~= 0));
@@ -2349,7 +2355,25 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		self:AddLine(format("MountID: %d", mountID), unpack(cfg.if_infoColor));
 	end
 
-	if (showAuraCaster or showMawPowerID or showSpellIdAndRank or showMountID) then
+  -- Icon ID
+	local showIconId = (cfg.if_showIconId and icon)
+	if showIconId then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor))
+	end
+
+	-- Caster
+	local showAuraCaster = (cfg.if_showAuraCaster and UnitExists(source));
+	if (showAuraCaster) then
+		self:AddLine(" ");
+		if (cfg.if_casterClassColor) then
+			local _, classFile = UnitClass(source)
+			self:AddLine(format("Caster: %s", UnitName(source) or UNKNOWNOBJECT), RAID_CLASS_COLORS[classFile]:GetRGB())
+		else
+			self:AddLine(format("Caster: %s", UnitName(source) or UNKNOWNOBJECT), unpack(cfg.if_infoColor))
+		end
+	end
+
+	if (showAuraCaster or showMawPowerID or showSpellIdAndRank or showMountID or showIconId) then
 		self:Show();	-- call Show() to resize tip after adding lines
 	end
 
@@ -2412,6 +2436,11 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		-- self:Show();	-- call Show() to resize tip after adding lines
 	end
 
+	-- Icon ID
+	if (cfg.if_showIconId and icon) then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor))
+	end
+
   	-- Colored Border
 	if (cfg.if_spellColoredBorder) then
 		local spellColor = nil;
@@ -2437,6 +2466,8 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
+
+	self:Show();
 end
 
 -- quest
@@ -2503,7 +2534,11 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 	-- CurrencyID
 	if (cfg.if_showCurrencyId) then
 		self:AddLine(format("CurrencyID: %d", currencyID), unpack(cfg.if_infoColor));
-		self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+	-- Icon ID
+	if (cfg.if_showIconId and icon) then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor))
 	end
 
   	-- Quality Border
@@ -2513,6 +2548,8 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 			ttif:SetBackdropBorderColorLocked(self, currencyQualityColor:GetRGBA());
 		end
 	end
+
+	self:Show();
 end
 
 -- achievement
@@ -2719,6 +2756,11 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 			self:Show();	-- call Show() to resize tip after adding lines. only necessary for pet tooltip in action bar.
 		end
 	end
+
+	-- Icon ID
+	if cfg.if_showIconId and speciesIcon then
+		self:AddLine(format("IconID: %d", speciesIcon), unpack(cfg.if_infoColor))
+	end
 	
 	if (not showLevel) then
 		if (self == bptt or self == fbptt) then
@@ -2733,6 +2775,8 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 			end
 		end
 	end
+
+	self:Show();
 end
 
 -- battle pet ability
@@ -2748,8 +2792,12 @@ function LinkTypeFuncs:battlePetAbil(link, linkType, abilityID, speciesID, petID
 
 	-- AbilityID
 	if (cfg.if_showBattlePetAbilityId) then
-		self:AddLine("AbilityID: "..abilityID, unpack(cfg.if_infoColor));
-		-- self:Show();	-- call Show() to resize tip after adding lines
+		self:AddLine("AbilityID: " .. abilityID, unpack(cfg.if_infoColor));
+	end
+
+	-- Icon ID
+	if cfg.if_showIconId and abilityIcon then
+		self:AddLine(format("IconID: %d", abilityIcon), unpack(cfg.if_infoColor))
 	end
 
 	-- Colored Border
@@ -2757,6 +2805,8 @@ function LinkTypeFuncs:battlePetAbil(link, linkType, abilityID, speciesID, petID
 		local abilityColor = LibFroznFunctions:CreateColorFromHexString("FF4E96F7"); -- see GetBattlePetAbilityHyperlink() in "ItemRef.lua"
 		ttif:SetBackdropBorderColorLocked(self, abilityColor:GetRGBA());
 	end
+
+	self:Show();
 end
 
 -- conduit -- Thanks to hobulian for code example
@@ -2795,7 +2845,11 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 		else
 			self:AddLine(format("ItemLevel: %d", conduitItemLevel), unpack(cfg.if_infoColor));
 		end
-		-- self:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
+	end
+
+	-- Icon ID
+	if (cfg.if_showIconId and icon) then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor))
 	end
 
   	-- Quality Border
@@ -2804,6 +2858,8 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 		local conduitQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(conduitQuality or 0)));
 		ttif:SetBackdropBorderColorLocked(self, conduitQualityColor:GetRGBA());
 	end
+
+	self:Show();
 end
 
 -- transmog appearance (see WardrobeCollectionFrameMixin:GetAppearanceItemHyperlink() + WardrobeItemsModelMixin:OnMouseDown() in "Blizzard_Collections/Blizzard_Wardrobe.lua")
@@ -2940,7 +2996,11 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 	-- EssenceID
 	if (cfg.if_showAzeriteEssenceId) then
 		self:AddLine(format("EssenceID: %d", essenceID), unpack(cfg.if_infoColor));
-		self:Show();	-- call Show() to resize tip after adding lines.
+	end
+
+	-- Icon ID
+	if cfg.if_showIconId and essenceInfo.icon then
+		self:AddLine(format("IconID: %d", essenceInfo.icon), unpack(cfg.if_infoColor))
 	end
 
   	-- Quality Border
@@ -2948,6 +3008,8 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 		local essenceColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(essenceRank + 1)));
 		ttif:SetBackdropBorderColorLocked(self, essenceColor:GetRGBA());
 	end
+
+	self:Show();
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -2968,7 +3030,11 @@ function CustomTypeFuncs:runeforgePower(link, linkType, runeforgePowerID)
 	-- RuneforgePowerID
 	if (cfg.if_showRuneforgePowerId) then
 		self:AddLine(format("RuneforgePowerID: %d", runeforgePowerID), unpack(cfg.if_infoColor));
-		self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+	-- Icon ID
+	if cfg.if_showIconId and powerInfo.iconFileID then
+		self:AddLine(format("IconID: %d", powerInfo.iconFileID), unpack(cfg.if_infoColor))
 	end
 
   	-- Colored Border
@@ -2976,6 +3042,8 @@ function CustomTypeFuncs:runeforgePower(link, linkType, runeforgePowerID)
 		local runeforgePowerColor = CreateColor(LEGENDARY_ORANGE_COLOR.r, LEGENDARY_ORANGE_COLOR.g, LEGENDARY_ORANGE_COLOR.b, 1); -- see RuneforgePowerBaseMixin:OnEnter() in "RuneforgeUtil.lua"
 		ttif:SetBackdropBorderColorLocked(self, runeforgePowerColor:GetRGBA());
 	end
+
+	self:Show();
 end
 
 -- guild challenge
@@ -3008,7 +3076,11 @@ function CustomTypeFuncs:flyout(link, linkType, flyoutID, icon)
 	-- FlyoutID
 	if (cfg.if_showFlyoutId) then
 		self:AddLine(format("FlyoutID: %d", flyoutID), unpack(cfg.if_infoColor));
-		self:Show();	-- call Show() to resize tip after adding lines
+	end
+
+	-- Icon ID
+	if (cfg.if_showIconId and icon) then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor))
 	end
 
   	-- Colored Border
@@ -3016,6 +3088,8 @@ function CustomTypeFuncs:flyout(link, linkType, flyoutID, icon)
 		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
+
+	self:Show();
 end
 
 -- pet action
@@ -3030,7 +3104,11 @@ function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
 	-- PetActionID
 	if (cfg.if_showPetActionId and petActionID) then
 		self:AddLine(format("PetActionID: %d", petActionID), unpack(cfg.if_infoColor));
-		self:Show();	-- call Show() to resize tip after adding lines. only necessary for pet tooltip in action bar.
+	end
+
+	-- Icon ID
+	if (cfg.if_showIconId and icon) then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor))
 	end
 
   	-- Colored Border
@@ -3038,4 +3116,6 @@ function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
 		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
+
+	self:Show();
 end

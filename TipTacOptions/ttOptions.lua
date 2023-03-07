@@ -368,6 +368,7 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_auraSpellColoredBorder", label = "Show Aura Tips with Colored Border", tip = "When enabled and the tip is showing a buff or debuff, the tip border will have the standard spell color" },
 		{ type = "Check", var = "if_showAuraSpellIdAndRank", label = "Show Aura Spell ID & Rank", tip = "For buff and debuff tooltips, show their spellID and spellRank" },
 		{ type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura" },
+		{ type = "Check", var = "if_casterClassColor", label = "Use Class Color for Aura Caster", tip = "Use the class color for the caster of the aura" },
 		{ type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" },
 		{ type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For spell and aura tooltips, show their mountID" },
 
@@ -415,6 +416,7 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showPetActionId", label = "Show Pet Action ID", tip = "For flyout tooltips, show their petActionID" },
 
 		{ type = "Header", label = "Icon", tip = "Settings about tooltip icon", y = 12 },
+		{ type = "Check", var = "if_showIconId", label = "Show Icon ID", tip = "Show the iconID in the tooltip", y = 12 },
 		{ type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown" },
 		{ type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" },
 		{ type = "DropDown", var = "if_stackCountToTooltip", label = "Show Stack Count in\nTooltip", list = { ["|cffffa0a0Do not show"] = "none", ["Always"] = "always", ["Only if icon is not shown"] = "noicon" }, y = 8 },
