@@ -3167,7 +3167,7 @@ function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
 	local showIconID = (cfg.if_showIconId and icon);
 	
 	if (showPetActionID) then
-		self:AddLine(format("PetActionID: %d", petActionID), unpack(cfg.if_infoColor));
+		self:AddLine(format("PetActionID: %.0f", petActionID), unpack(cfg.if_infoColor));
 	end
 	if (showIconID) then
 		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor));
