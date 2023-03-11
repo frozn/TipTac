@@ -585,8 +585,9 @@ end
 local TT_COLOR = {
 	text = {
 		default = HIGHLIGHT_FONT_COLOR, -- white
-		chat = BRIGHTBLUE_FONT_COLOR,
 		highlight = LIGHTYELLOW_FONT_COLOR,
+		caption = NORMAL_FONT_COLOR, -- yellow
+		chat = BRIGHTBLUE_FONT_COLOR,
 		error = RED_FONT_COLOR
 	},
 	anchor = {
@@ -839,9 +840,76 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- SetBackdropBorderColorLocked        set backdrop border color locked to tip                     tooltip, r, g, b, a
 
 ----------------------------------------------------------------------------------------------------
---                                         Slash Handling                                         --
+--                                       Interface Options                                        --
 ----------------------------------------------------------------------------------------------------
 
+-- toggle options
+function tt:ToggleOptions()
+	local addOnName = MOD_NAME .. "Options";
+	local loaded, reason = LoadAddOn(addOnName);
+	
+	if (loaded) then
+		local TipTacOptions = _G[addOnName];
+		TipTacOptions:SetShown(not TipTacOptions:IsShown());
+	else
+		tt:AddMessageToChatFrame(MOD_NAME .. ": {error:Couldn't open " .. MOD_NAME .. " Options: [{highlight:" .. _G["ADDON_" .. reason] .. "}]. Please make sure the addon is enabled in the character selection screen.}"); -- see UIParentLoadAddOn()
+	end
+end
+
+-- register addon category
+LibFroznFunctions:RegisterAddOnCategory((function()
+	local frame = CreateFrame("Frame");
+	
+	frame:SetScript("OnShow", function(self)
+		self.header = self:CreateFontString(nil, "ARTWORK");
+		self.header:SetFontObject(GameFontNormalLarge);
+		self.header:SetPoint("TOPLEFT", 16, -16);
+		self.header:SetText(TT_COLOR.text.caption:WrapTextInColorCode(MOD_NAME));
+		
+		self.vers1 = self:CreateFontString(nil, "ARTWORK");
+		self.vers1:SetFontObject(GameFontHighlight);
+		self.vers1:SetJustifyH("LEFT");
+		self.vers1:SetPoint("TOPLEFT", self.header, "BOTTOMLEFT", 0, -8);
+		self.vers1:SetText(TT_COLOR.text.highlight:WrapTextInColorCode(MOD_NAME .. ": \nWoW: "));
+		
+		self.vers2 = self:CreateFontString(nil, "ARTWORK");
+		self.vers2:SetFontObject(GameFontHighlight);
+		self.vers2:SetJustifyH("LEFT");
+		self.vers2:SetPoint("TOPLEFT", self.vers1, "TOPRIGHT");
+		self.vers2:SetText(GetAddOnMetadata(MOD_NAME, "Version") .. "\n" .. GetBuildInfo());
+		
+		self.notes = self:CreateFontString(nil, "ARTWORK");
+		self.notes:SetFontObject(GameFontHighlight);
+		self.notes:SetPoint("TOPLEFT", self.vers1, "BOTTOMLEFT", 0, -8);
+		self.notes:SetText(GetAddOnMetadata(MOD_NAME, "Notes"));
+		
+		self.btnOptions = CreateFrame("Button", nil, self, "UIPanelButtonTemplate");
+		self.btnOptions:SetPoint("TOPLEFT", self.notes, "BOTTOMLEFT", -2, -8);
+		self.btnOptions:SetText(GAMEOPTIONS_MENU);
+		self.btnOptions:SetWidth(math.max(120, self.btnOptions:GetTextWidth() + 20));
+		self.btnOptions:SetScript("OnEnter", function()
+			GameTooltip:SetOwner(self.btnOptions, "ANCHOR_RIGHT");
+			GameTooltip:AddLine("Slash commands");
+			GameTooltip:AddLine(TT_COLOR.text.default:WrapTextInColorCode("/tip\n/tiptac"), nil, nil, nil, true);
+			GameTooltip:Show();
+		end);
+		self.btnOptions:SetScript("OnLeave", function()
+			GameTooltip:Hide();
+		end);
+		self.btnOptions:SetScript("OnClick", function()
+			tt:ToggleOptions();
+		end);
+		
+		-- cleanup
+		self:SetScript("OnShow", nil);
+	end);
+	
+	frame:Hide();
+	
+	return frame;
+end)(), MOD_NAME);
+
+-- register new slash commands
 LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, function(msg)
 	-- extract parameters
 	local parameters = LibFroznFunctions:CreatePushArray();
@@ -850,18 +918,9 @@ LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, func
 		parameters:Push(parameter:lower());
 	end
 	
-	-- show/hide options
+	-- toggle options
 	if (parameters:GetCount() == 0) then
-		local addOnName = MOD_NAME .. "Options";
-		local loaded, reason = LoadAddOn(addOnName);
-		
-		if (loaded) then
-			local TipTacOptions = _G[addOnName];
-			TipTacOptions:SetShown(not TipTacOptions:IsShown());
-		else
-			tt:AddMessageToChatFrame(MOD_NAME .. ": {error:Couldn't open " .. MOD_NAME .. " Options: [{highlight:" .. _G["ADDON_" .. reason] .. "}]. Please make sure the addon is enabled in the character selection screen.}"); -- see UIParentLoadAddOn()
-		end
-		
+		tt:ToggleOptions();
 		return;
 	end
 	
@@ -2470,7 +2529,7 @@ function tt:SetUnitAppearanceToTip(tip, first)
 end
 
 -- update unit appearance to tip
-function tt:UpdateUnitAppearanceToTip(tip)
+function tt:UpdateUnitAppearanceToTip(tip, force)
 	-- get frame parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -2494,7 +2553,7 @@ function tt:UpdateUnitAppearanceToTip(tip)
 	end
 	
 	-- consider update interval
-	if (GetTime() - timestampStartUnitAppearance < cfg.updateFreq) then
+	if (not force) and (GetTime() - timestampStartUnitAppearance < cfg.updateFreq) then
 		return;
 	end
 	

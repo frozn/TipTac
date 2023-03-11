@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 7; -- bump on changes
+local LIB_MINOR = 8; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -307,8 +307,8 @@ end
 --
 -- @param  spellID  spell id
 -- @return mountID  mount id
---                  returns 0 if the spell/aura is from a mount, but there is not specific mount, e.g. "Running Wild" for worgen.
---                  returns nil if spell/aura doesn't belong to a mount.
+--         returns 0 if the spell/aura is from a mount, but there is not specific mount, e.g. "Running Wild" for worgen.
+--         returns nil if spell/aura doesn't belong to a mount.
 function LibFroznFunctions:GetMountFromSpell(spellID)
 	-- since BfA 8.0.1
 	if (C_MountJournal) and (C_MountJournal.GetMountFromSpell) then
@@ -323,8 +323,8 @@ end
 --
 -- @param  itemID  item id
 -- @return mountID  mount id
---                  returns 0 if the spell/aura is from a mount, but there is not specific mount, e.g. "Running Wild" for worgen.
---                  returns nil if spell/aura doesn't belong to a mount.
+--         returns 0 if the spell/aura is from a mount, but there is not specific mount, e.g. "Running Wild" for worgen.
+--         returns nil if spell/aura doesn't belong to a mount.
 function LibFroznFunctions:GetMountFromItem(itemID)
 	-- since BfA 8.1.0
 	if (C_MountJournal) and (C_MountJournal.GetMountFromItem) then
@@ -885,8 +885,132 @@ function LibFroznFunctions:AddMessageToChatFrame(message, ...)
 end
 
 ----------------------------------------------------------------------------------------------------
---                                         Slash Handling                                         --
+--                                       Interface Options                                        --
 ----------------------------------------------------------------------------------------------------
+
+-- register addon category
+--
+-- @param frame               frame with options
+-- @param categoryName        name of category
+-- @param parentCategoryName  optional. name of parent category
+function LibFroznFunctions:RegisterAddOnCategory(frame, categoryName, parentCategoryName)
+	-- since df 10.0.0
+	if (Settings) then -- see "\SharedXML\Settings\Blizzard_Deprecated.lua" for df 10.0.0
+		-- cancel is no longer a default option. may add menu extension for this.
+		frame.OnCommit = frame.okay;
+		frame.OnDefault = frame.default;
+		frame.OnRefresh = frame.refresh;
+		
+		if (parentCategoryName) then
+			local category = Settings.GetCategory(parentCategoryName);
+			local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, frame, categoryName, categoryName);
+			subcategory.ID = categoryName;
+		else
+			local category, layout = Settings.RegisterCanvasLayoutCategory(frame, categoryName, categoryName);
+			category.ID = categoryName;
+			
+			Settings.RegisterAddOnCategory(category);
+		end
+		
+		return;
+	end
+	
+	-- before df 10.0.0
+	frame.name = categoryName;
+	frame.parent = parentCategoryName;
+	
+	InterfaceOptions_AddCategory(frame);
+end
+
+-- open addon category
+--
+-- @param categoryName     name of category
+-- @param subcategoryName  name of subcategory
+function LibFroznFunctions:OpenAddOnCategory(categoryName, subcategoryName)
+	-- since df 10.0.0
+	if (Settings) then
+		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
+			for index, category in ipairs(tbl.categories) do
+				if (category:GetName() == categoryName) then
+					Settings.OpenToCategory(category:GetID(), category:GetName());
+					
+					if (subcategoryName) then
+						for index, subcategory in ipairs(category:GetSubcategories()) do
+							if (subcategory:GetName() == subcategoryName) then
+								SettingsPanel:SelectCategory(subcategory);
+								return;
+							end
+						end
+					end
+					
+					return;
+				end
+			end
+		end
+		
+		return;
+	end
+	
+	-- before df 10.0.0
+	if (not InterfaceOptionsFrame:IsShown()) then
+		InterfaceOptionsFrame_Show();
+	end
+	
+	InterfaceOptionsFrame_OpenToCategory(categoryName);
+	
+	if (subcategoryName) then
+		InterfaceOptionsFrame_OpenToCategory(subcategoryName);
+	end
+end
+
+-- expand addon category
+--
+-- @param categoryName  name of category
+function LibFroznFunctions:ExpandAddOnCategory(categoryName)
+	-- since df 10.0.0
+	if (Settings) then
+		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
+			for index, category in ipairs(tbl.categories) do
+				if (category:GetName() == categoryName) then
+					if (not category.expanded) then
+						category.expanded = true;
+						SettingsPanel:GetCategoryList():CreateCategories();
+					end
+					
+					return;
+				end
+			end
+		end
+		
+		return;
+	end
+	
+	-- before df 10.0.0
+	local function SecureNext(elements, key)
+		return securecall(next, elements, key);
+	end
+	
+	local elementToDisplay; -- see InterfaceOptionsFrame_OpenToCategory() in "InterfaceOptionsFrame.lua"
+	
+	for i, element in SecureNext, INTERFACEOPTIONS_ADDONCATEGORIES do
+		if (categoryName) and (element.name) and (element.name == categoryName) then
+			elementToDisplay = element;
+			break;
+		end
+	end
+	
+	if (not elementToDisplay) then
+		return;
+	end
+	
+	local buttons = InterfaceOptionsFrameAddOns.buttons;
+	
+	for i, button in SecureNext, buttons do
+		if (elementToDisplay.name) and (button.element) and ((button.element.name == elementToDisplay.name) and (button.element.collapsed)) then
+			OptionsListButtonToggle_OnClick(button.toggle);
+		end
+	end
+end
 
 -- register new slash commands
 --
@@ -1463,15 +1587,64 @@ function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
 	tip:SetPadding(tip:GetPadding());
 end
 
--- get aura description from tooltip
+-- get aura description
 --
--- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
--- @param  index   index of an aura to query
--- @param  filter  a list of filters, separated by pipe chars or spaces, see LFF_AURA_FILTERS
--- @return aura description, nil otherwise.
+-- @param  unitID                 unit id, e.g. "player", "target" or "mouseover"
+-- @param  index                  index of an aura to query
+-- @param  filter                 a list of filters, separated by pipe chars or spaces, see LFF_AURA_FILTERS
+-- @param  callbackForAuraData()  callback function if aura data is available. parameters: auraDescription
+-- @return aura description
+--         returns "LFF_AURA_DESCRIPTION.available" if aura description is available.
+--         returns "LFF_AURA_DESCRIPTION.none" if no aura description has been found.
+--         returns nil if spell id can't be determined from aura
+LFF_AURA_DESCRIPTION = {
+	available = 1, -- aura description available
+	none = 2 -- no aura description found
+};
+
 local getAuraDescriptionFromTooltipScanTip;
 
-function LibFroznFunctions:GetAuraDescription(unitID, index, filter)
+function LibFroznFunctions:GetAuraDescription(unitID, index, filter, callbackForAuraData)
+	-- check if spell data for aura is available and queried from server
+	local spellID = select(10, UnitAura(unitID, index, filter));
+	
+	if (not spellID) then
+		return nil;
+	end
+	
+	local spell = Spell:CreateFromSpellID(spellID);
+	
+	if (spell:IsSpellEmpty()) then
+		return LFF_AURA_DESCRIPTION.none;
+	end
+	
+	-- spell data for aura is already available
+	if (spell:IsSpellDataCached()) then
+		return LFF_GetAuraDescriptionFromSpellData(unitID, index, filter);
+	end
+	
+	-- spell data for aura isn't available
+	local unitGUID = UnitGUID(unitID);
+	
+	spell:ContinueOnSpellLoad(function()
+		LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForAuraData, unitGUID);
+	end);
+	
+	return LFF_AURA_DESCRIPTION.available;
+end
+
+function LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForAuraData, unitGUID)
+	-- check if unit guid from unit id is still the same when waiting for spell data
+	if (callbackForAuraData) and (unitGUID) then
+		local _unitGUID = UnitGUID(unitID);
+		
+		if (_unitGUID ~= unitGUID) then
+			return nil;
+		end
+	end
+	
+	-- get aura description
+	
 	-- since df 10.0.2
 	if (C_TooltipInfo) then
 		local tooltipData = C_TooltipInfo.GetUnitAura(unitID, index, filter);
@@ -1485,11 +1658,17 @@ function LibFroznFunctions:GetAuraDescription(unitID, index, filter)
 			if (line) then
 				TooltipUtil.SurfaceArgs(line);
 				
-				return line.leftText;
+				local auraDescription = line.leftText;
+				
+				if (callbackForAuraData) then
+					callbackForAuraData(auraDescription);
+				end
+				
+				return auraDescription;
 			end
 		end
 		
-		return;
+		return LFF_AURA_DESCRIPTION.none;
 	end
 	
 	-- before df 10.0.2
@@ -1508,12 +1687,13 @@ function LibFroznFunctions:GetAuraDescription(unitID, index, filter)
 	
 	-- line 1 is aura name. line 2 is aura description.
 	local leftText2 = _G[scanTipName .. "TextLeft2"];
+	local auraDescription = (leftText2 and leftText2:GetText() or LFF_AURA_DESCRIPTION.none);
 	
-	if (not leftText2) then
-		return;
+	if (callbackForAuraData) then
+		callbackForAuraData(auraDescription);
 	end
 	
-	return leftText2:GetText();
+	return auraDescription;
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -2346,8 +2526,9 @@ end
 --         .iconFileID     talent/specialization icon file id, e.g. 135770
 --         .role           role ("DAMAGER", "TANK" or "HEALER"
 --         .pointsSpent[]  talent points spent, e.g. { 57, 14, 0 }. nil if no talent points spent has been found.
---         returns "LFF_TALENTS.none" if no talents have been found.
+--         returns "LFF_TALENTS.available" if talents are available.
 --         returns "LFF_TALENTS.na" if no talents are available.
+--         returns "LFF_TALENTS.none" if no talents have been found.
 --         returns nil if unit id is missing or not a player
 function LibFroznFunctions:GetTalents(unitID)
 	-- check if talents are available
@@ -2486,13 +2667,14 @@ end
 
 -- get average item level
 --
--- @param  unitID                    unit id for unit, e.g. "player", "target" or "mouseover"
--- @param  callbackForInspectData()  callback function if all item data is available. parameters: unitCacheRecord
+-- @param  unitID                 unit id for unit, e.g. "player", "target" or "mouseover"
+-- @param  callbackForItemData()  callback function if all item data is available. parameters: unitCacheRecord
 -- @return .value         average item level
 --         .qualityColor  ColorMixin with total quality color
 --         .totalItems    total items
 --         .gearScore     GearScore
---         returns "LFF_AVERAGE_ITEM_LEVEL.available" if average item level is available
+--         returns "LFF_AVERAGE_ITEM_LEVEL.available" if average item level is available.
+--         returns "LFF_AVERAGE_ITEM_LEVEL.na" if no average item level is available.
 --         returns "LFF_AVERAGE_ITEM_LEVEL.none" if no average item level has been found.
 --         returns nil if unit id is missing or not a player
 function LibFroznFunctions:GetAverageItemLevel(unitID, callbackForItemData)
@@ -2543,7 +2725,7 @@ LFF_BASE_LEVEL_FOR_GEAR_SCORE =
 	LibFroznFunctions.isWoWFlavor.DF         and 395;   -- Lost Landcaller's Robes (Druid, Tier 23)
 
 function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGUID)
-	-- check if unit guid from unit id is still the same if waiting for item data
+	-- check if unit guid from unit id is still the same when waiting for item data
 	if (callbackForItemData) and (unitGUID) then
 		local _unitGUID = UnitGUID(unitID);
 		

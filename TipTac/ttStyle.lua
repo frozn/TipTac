@@ -462,10 +462,15 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 					if (cfg.showMountSpeed) then
 						spacer = (mountText:GetCount() > 0) and " " or "";
 						
-						local auraDescription = LibFroznFunctions:GetAuraDescription(unitID, index, filter);
+						local auraDescription = LibFroznFunctions:GetAuraDescription(unitID, index, filter, function(_auraDescription)
+							if (_auraDescription) and (not LibFroznFunctions:ExistsInTable(_auraDescription, { LFF_AURA_DESCRIPTION.available, LFF_AURA_DESCRIPTION.none })) then
+								tt:UpdateUnitAppearanceToTip(tip, true);
+							end
+						end);
+						
 						local mountSpeeds = LibFroznFunctions:CreatePushArray();
 						
-						if (auraDescription) then
+						if (auraDescription) and (not LibFroznFunctions:ExistsInTable(auraDescription, { LFF_AURA_DESCRIPTION.available, LFF_AURA_DESCRIPTION.none })) then
 							for mountSpeed in auraDescription:gmatch("(%d+)%%") do
 								mountSpeeds:Push(mountSpeed);
 							end
