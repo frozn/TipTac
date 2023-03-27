@@ -1,5 +1,5 @@
 ## Interface: 11403
-## Version: 23.03.07
+## Version: 23.03.27
 ## Title: TipTacTalents
 ## Author: Aezay (Earthen Ring EU), Frozn45
 ## Notes: Adds Talent Spec and Average Item Level to Player Tooltips
