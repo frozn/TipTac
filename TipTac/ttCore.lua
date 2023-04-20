@@ -2666,6 +2666,13 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					return;
 				end
 				
+				-- no unit record
+				local unitRecord = frameParams.currentDisplayParams.unitRecord;
+				
+				if (not unitRecord) then
+					return;
+				end
+				
 				-- instant unit fadeout
 				if (cfg.preFadeTime == 0) and (cfg.fadeTime == 0) then
 					tip:Hide();
@@ -2771,6 +2778,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		else
 			if (eventsForHideWorldTipsHooked) then
 				tt:UnregisterEvent(LibFroznFunctions.isWoWFlavor.ClassicEra and "CURSOR_UPDATE" or "CURSOR_CHANGED");
+				eventsForHideWorldTipsHooked = false;
 			end
 		end
 	end
