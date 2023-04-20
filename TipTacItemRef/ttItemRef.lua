@@ -57,6 +57,7 @@ local TTIF_DefaultConfig = {
 	if_itemQualityBorder = true,
 	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
 	if_showItemId = false,
+	if_showExpansionName = false,
 	if_showKeystoneRewardLevel = true,
 	if_showKeystoneTimeLimit = true,
 	if_showKeystoneAffixInfo = true,
@@ -2092,6 +2093,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	end
 	
 	local mountID = LibFroznFunctions:GetMountFromItem(id);
+	local expansionName = expacID and _G["EXPANSION_NAME" .. expacID];
 	
 	-- Icon
 	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
@@ -2120,6 +2122,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	local showId = (id and cfg.if_showItemId);
 	local showMountID = (cfg.if_showMountId and mountID and (mountID ~= 0));
 	local showIconID = (cfg.if_showIconId and itemTexture);
+	local showExpansionName = (cfg.if_showExpansionName and expansionName);
 	local linePadding = 2;
 
 	if (showLevel or showId) then
@@ -2202,6 +2205,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 	if (showIconID) then
 		self:AddLine(format("IconID: %d", itemTexture), unpack(cfg.if_infoColor));
 	end
+	if (showExpansionName) then
+		self:AddLine(format("Expansion: %s", expansionName), unpack(cfg.if_infoColor));
+	end
 	
 	targetTooltip:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
 end
@@ -2215,7 +2221,9 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	if (trueItemLevel) then
 		itemLevel = trueItemLevel;
 	end
-
+	
+	local expansionName = expacID and _G["EXPANSION_NAME" .. expacID];
+	
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
@@ -2249,6 +2257,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	local showTimeLimit = (mapID and cfg.if_showKeystoneTimeLimit);
 	local showAffixInfo = cfg.if_showKeystoneAffixInfo;
 	local showIconID = (cfg.if_showIconId and itemTexture);
+	local showExpansionName = (cfg.if_showExpansionName and expansionName);
 	
 	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
 		local tipName = self:GetName();
@@ -2306,6 +2315,9 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	end
 	if (showIconID) then
 		self:AddLine(format("IconID: %d", itemTexture), unpack(cfg.if_infoColor));
+	end
+	if (showExpansionName) then
+		self:AddLine(format("Expansion: %s", expansionName), unpack(cfg.if_infoColor));
 	end
 	
 	self:Show();	-- call Show() to resize tip after adding lines
