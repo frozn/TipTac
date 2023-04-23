@@ -2323,6 +2323,26 @@ function tt:SetDefaultAnchorHook(tip, parent)
 	tt:SetAnchorToTip(tip);
 end
 
+-- reset current display params for anchoring
+function tt:ResetCurrentDisplayParamsForAnchoring(tip, checkIsShown)
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	-- reset current display params for anchoring
+	if (not checkIsShown) or (not tip:IsShown()) then
+		currentDisplayParams.defaultAnchored = false;
+		currentDisplayParams.defaultAnchoredParentFrame = nil;
+	end
+	
+	currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType, currentDisplayParams.anchorPoint = nil, nil, nil;
+end
+
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
@@ -2344,6 +2364,15 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		if (tipParams.noHooks) then
 			return;
 		end
+		
+		-- HOOK: tip's SetOwner to reset current display params for anchoring
+		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			if (tip:GetObjectType() == "GameTooltip") then
+				hooksecurefunc(tip, "SetOwner", function(tip, owner, anchor, xOffset, yOffset)
+					tt:ResetCurrentDisplayParamsForAnchoring(tip);
+				end);
+			end
+		end);
 		
 		-- HOOK: tip's OnUpdate for anchoring to mouse
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
@@ -2380,12 +2409,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reset current display params for anchoring
-		if (not tip:IsShown()) then
-			currentDisplayParams.defaultAnchored = false;
-			currentDisplayParams.defaultAnchoredParentFrame = nil;
-		end
-		
-		currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType, currentDisplayParams.anchorPoint = nil, nil, nil;
+		tt:ResetCurrentDisplayParamsForAnchoring(tip, true);
 	end
 }, MOD_NAME .. " - Anchoring");
 
