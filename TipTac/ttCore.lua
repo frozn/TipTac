@@ -2324,7 +2324,7 @@ function tt:SetDefaultAnchorHook(tip, parent)
 end
 
 -- reset current display params for anchoring
-function tt:ResetCurrentDisplayParamsForAnchoring(tip, checkIsShown)
+function tt:ResetCurrentDisplayParamsForAnchoring(tip, resetOnlyDefaultAnchor)
 	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -2335,9 +2335,13 @@ function tt:ResetCurrentDisplayParamsForAnchoring(tip, checkIsShown)
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
 	-- reset current display params for anchoring
-	if (not checkIsShown) or (not tip:IsShown()) then
+	if (not tip:IsShown()) then
 		currentDisplayParams.defaultAnchored = false;
 		currentDisplayParams.defaultAnchoredParentFrame = nil;
+	end
+	
+	if (resetOnlyDefaultAnchor) then
+		return;
 	end
 	
 	currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType, currentDisplayParams.anchorPoint = nil, nil, nil;
@@ -2369,7 +2373,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
 			if (tip:GetObjectType() == "GameTooltip") then
 				hooksecurefunc(tip, "SetOwner", function(tip, owner, anchor, xOffset, yOffset)
-					tt:ResetCurrentDisplayParamsForAnchoring(tip);
+					tt:ResetCurrentDisplayParamsForAnchoring(tip, true);
 				end);
 			end
 		end);
@@ -2409,7 +2413,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reset current display params for anchoring
-		tt:ResetCurrentDisplayParamsForAnchoring(tip, true);
+		tt:ResetCurrentDisplayParamsForAnchoring(tip);
 	end
 }, MOD_NAME .. " - Anchoring");
 
