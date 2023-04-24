@@ -57,6 +57,7 @@ local TTIF_DefaultConfig = {
 	if_itemQualityBorder = true,
 	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
 	if_showItemId = false,
+	if_showExpansionIcon = false,
 	if_showExpansionName = false,
 	if_showKeystoneRewardLevel = true,
 	if_showKeystoneTimeLimit = true,
@@ -178,6 +179,108 @@ local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
 
 -- String constants
 local TTIF_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
+local TTIF_ExpansionIcon = {
+	[0] = {  -- Classic Era
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_logo",
+		textureWidth = 32,
+		textureHeight = 16,
+		aspectRatio = 31 / 16,
+		leftTexel = 0.03125,
+		rightTexel = 1,
+		topTexel = 0,
+		bottomTexel = 1
+	},
+	[1] = {  -- Burning Crusade
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\bc_logo",
+		textureWidth = 32,
+		textureHeight = 16,
+		aspectRatio = 29 / 12,
+		leftTexel = 0.0625,
+		rightTexel = 0.96875,
+		topTexel = 0.125,
+		bottomTexel = 0.875
+	},
+	[2] = {  -- Wrath of the Lich King
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wotlk_logo",
+		textureWidth = 64,
+		textureHeight = 32,
+		aspectRatio = 36 / 19,
+		leftTexel = 0.21875,
+		rightTexel = 0.78125,
+		topTexel = 0.1875,
+		bottomTexel = 0.78125
+	},
+	[3] = {  -- Cataclysm
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\cata_logo",
+		textureWidth = 64,
+		textureHeight = 16,
+		aspectRatio = 38 / 15,
+		leftTexel = 0.203125,
+		rightTexel = 0.796875,
+		topTexel = 0,
+		bottomTexel = 0.9375
+	},
+	[4] = {  -- Mists of Pandaria
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\mop_logo",
+		textureWidth = 64,
+		textureHeight = 16,
+		aspectRatio = 46 / 14,
+		leftTexel = 0.140625,
+		rightTexel = 0.859375,
+		topTexel = 0.0625,
+		bottomTexel = 0.9375
+	},
+	[5] = {  -- Warlords of Draenor
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wod_logo",
+		textureWidth = 64,
+		textureHeight = 16,
+		aspectRatio = 46 / 13,
+		leftTexel = 0.140625,
+		rightTexel = 0.859375,
+		topTexel = 0.0625,
+		bottomTexel = 0.875
+	},
+	[6] = {  -- Legion
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\legion_logo",
+		textureWidth = 64,
+		textureHeight = 16,
+		aspectRatio = 40 / 15,
+		leftTexel = 0.1875,
+		rightTexel = 0.8125,
+		topTexel = 0,
+		bottomTexel = 0.9375
+	},
+	[7] = {  -- Battle for Azeroth
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\bfa_logo",
+		textureWidth = 64,
+		textureHeight = 32,
+		aspectRatio = 48 / 17,
+		leftTexel = 0.125,
+		rightTexel = 0.875,
+		topTexel = 0.21875,
+		bottomTexel = 0.75
+	},
+	[8] = {  -- Shadowlands
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\sl_logo",
+		textureWidth = 64,
+		textureHeight = 32,
+		aspectRatio = 43 / 17,
+		leftTexel = 0.15625,
+		rightTexel = 0.828125,
+		topTexel = 0.21875,
+		bottomTexel = 0.75
+	},
+	[9] = {  -- Dragonflight
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\df_logo",
+		textureWidth = 64,
+		textureHeight = 32,
+		aspectRatio = 42 / 17,
+		leftTexel = 0.171875,
+		rightTexel = 0.828125,
+		topTexel = 0.21875,
+		bottomTexel = 0.75
+	}
+};
 
 --------------------------------------------------------------------------------------------------------
 --                                         Create Tooltip Icon                                        --
@@ -2093,6 +2196,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	end
 	
 	local mountID = LibFroznFunctions:GetMountFromItem(id);
+	local expansionIcon = expacID and TTIF_ExpansionIcon[expacID];
 	local expansionName = expacID and _G["EXPANSION_NAME" .. expacID];
 	
 	-- Icon
@@ -2122,6 +2226,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	local showId = (id and cfg.if_showItemId);
 	local showMountID = (cfg.if_showMountId and mountID and (mountID ~= 0));
 	local showIconID = (cfg.if_showIconId and itemTexture);
+	local showExpansionIcon = (cfg.if_showExpansionIcon and expansionIcon);
 	local showExpansionName = (cfg.if_showExpansionName and expansionName);
 	local linePadding = 2;
 
@@ -2205,8 +2310,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 	if (showIconID) then
 		self:AddLine(format("IconID: %d", itemTexture), unpack(cfg.if_infoColor));
 	end
-	if (showExpansionName) then
-		self:AddLine(format("Expansion: %s", expansionName), unpack(cfg.if_infoColor));
+	if (showExpansionIcon) or (showExpansionName) then
+		local expansionIconTextureMarkup = (showExpansionIcon and LibFroznFunctions:CreateTextureMarkupWithAspectRatio(expansionIcon.textureFile, expansionIcon.textureWidth, expansionIcon.textureHeight, expansionIcon.aspectRatio, expansionIcon.leftTexel, expansionIcon.rightTexel, expansionIcon.topTexel, expansionIcon.bottomTexel));
+		self:AddLine(format("Expansion: %s", (expansionIconTextureMarkup and expansionIconTextureMarkup or "") .. (showExpansionIcon and showExpansionName and " " or "") .. (showExpansionName and expansionName or "")), unpack(cfg.if_infoColor));
 	end
 	
 	targetTooltip:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
@@ -2222,6 +2328,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		itemLevel = trueItemLevel;
 	end
 	
+	local expansionIcon = expacID and TTIF_ExpansionIcon[expacID];
 	local expansionName = expacID and _G["EXPANSION_NAME" .. expacID];
 	
 	-- Icon
@@ -2257,6 +2364,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	local showTimeLimit = (mapID and cfg.if_showKeystoneTimeLimit);
 	local showAffixInfo = cfg.if_showKeystoneAffixInfo;
 	local showIconID = (cfg.if_showIconId and itemTexture);
+	local showExpansionIcon = (cfg.if_showExpansionIcon and expansionIcon);
 	local showExpansionName = (cfg.if_showExpansionName and expansionName);
 	
 	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
@@ -2316,8 +2424,9 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	if (showIconID) then
 		self:AddLine(format("IconID: %d", itemTexture), unpack(cfg.if_infoColor));
 	end
-	if (showExpansionName) then
-		self:AddLine(format("Expansion: %s", expansionName), unpack(cfg.if_infoColor));
+	if (showExpansionIcon) or (showExpansionName) then
+		local expansionIconTextureMarkup = (showExpansionIcon and LibFroznFunctions:CreateTextureMarkupWithAspectRatio(expansionIcon.textureFile, expansionIcon.textureWidth, expansionIcon.textureHeight, expansionIcon.aspectRatio, expansionIcon.leftTexel, expansionIcon.rightTexel, expansionIcon.topTexel, expansionIcon.bottomTexel));
+		self:AddLine(format("Expansion: %s", (expansionIconTextureMarkup and expansionIconTextureMarkup or "") .. (showExpansionIcon and showExpansionName and " " or "") .. (showExpansionName and expansionName or "")), unpack(cfg.if_infoColor));
 	end
 	
 	self:Show();	-- call Show() to resize tip after adding lines

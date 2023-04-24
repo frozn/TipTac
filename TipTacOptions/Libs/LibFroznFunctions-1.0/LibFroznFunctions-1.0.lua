@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 8; -- bump on changes
+local LIB_MINOR = 9; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1754,6 +1754,36 @@ function LibFroznFunctions:TextureExists(textureFile)
 	textureExistsTexture:SetTexture(textureFile);
 	
 	return (textureExistsTexture:GetTexture() ~= "?");
+end
+
+-- create texture markup with aspect ratio
+--
+-- @param  textureFile    path to a texture (usually in Interface\\) or a FileDataID
+-- @param  textureWidth   width of the source image in pixels
+-- @param  textureHeight  height of the source image in pixels
+-- @param  aspectRatio    aspect ratio
+-- @param  leftTexel      coordinate that identifies the left edge in pixels
+-- @param  rightTexel     coordinate that identifies the right edge in pixels
+-- @param  topTexel       coordinate that identifies the top edge in pixels
+-- @param  bottomTexel    coordinate that identifies the bottom edge in pixels
+-- @param  xOffset        x offset for the rendered image in pixels
+-- @param  yOffset        y offset for the rendered image in pixels (< 0 = move top, >0 = move bottom)
+-- @return texture markup with vertex color
+function LibFroznFunctions:CreateTextureMarkupWithAspectRatio(textureFile, textureWidth, textureHeight, aspectRatio, leftTexel, rightTexel, topTexel, bottomTexel, xOffset, yOffset)
+	-- see CreateTextureMarkup() in "TextureUtil.lua"
+	return ("|T%s:%d:%f:%d:%d:%d:%d:%d:%d:%d:%d|t"):format(
+		  textureFile
+		, 0
+		, aspectRatio
+		, xOffset or 0
+		, yOffset or 0
+		, textureWidth
+		, textureHeight
+		, leftTexel * textureWidth
+		, rightTexel * textureWidth
+		, topTexel * textureHeight
+		, bottomTexel * textureHeight
+	);
 end
 
 -- create texture markup with vertex color

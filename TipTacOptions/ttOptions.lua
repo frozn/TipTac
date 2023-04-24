@@ -360,7 +360,8 @@ if (TipTacItemRef) then
 	};
 	
 	if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
-		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name" };
+		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionIcon", label = "Show Expansion Icon", tip = "For item tooltips, show their expansion icon" };
+		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name", x = 160 };
 	end
 	
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showKeystoneRewardLevel", label = "Show Keystone (Weekly) Reward Level", tip = "For keystone tooltips, show their rewardLevel and weeklyRewardLevel", y = 12 };

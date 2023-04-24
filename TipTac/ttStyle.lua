@@ -367,7 +367,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	
 	-- Reaction Icon
 	if (cfg.reactIcon) and (TT_ReactionIcon[unitRecord.reactionIndex]) then
-		lineLevel:Push(" " .. LibFroznFunctions:CreateTextureMarkupWithVertexColor("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\" .. TT_ReactionIcon[unitRecord.reactionIndex] .. ".tga", 32, 32, nil, nil, 0.219, 0.75, 0.219, 0.75, nil, nil, unitRecord.reactionColor:GetRGB()));
+		lineLevel:Push(" " .. LibFroznFunctions:CreateTextureMarkupWithVertexColor("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\" .. TT_ReactionIcon[unitRecord.reactionIndex], 32, 32, nil, nil, 0.219, 0.75, 0.219, 0.75, nil, nil, unitRecord.reactionColor:GetRGB()));
 	end
 	
 	-- Generate Line Modification
@@ -439,10 +439,10 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						local isCollected = LibFroznFunctions:IsMountCollected(mountID);
 						
 						if (isCollected) then
-							-- mountText:Push(CreateAtlasMarkup("common-icon-checkmark")); -- available in DF, not available in WotLKC
+							-- mountText:Push(CreateAtlasMarkup("common-icon-checkmark")); -- available in DF, but not available in WotLKC
 							mountText:Push(CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\CommonIcons", 64, 64, 0, 0, 0.000488281, 0.125488, 0.504883, 0.754883));
 						else
-							-- mountText:Push(CreateAtlasMarkup("common-icon-redx")); -- available in DF, not available in WotLKC
+							-- mountText:Push(CreateAtlasMarkup("common-icon-redx")); -- available in DF, but not available in WotLKC
 							mountText:Push(CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\CommonIcons", 64, 64, 0, 0, 0.126465, 0.251465, 0.504883, 0.754883));
 						end
 					end
