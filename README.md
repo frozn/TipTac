@@ -68,7 +68,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "ItemRef->Show Mount ID" to show the mount id
 - added option "ItemRef->Show Icon ID" to show the icon id
 - added option in "ItemRef" to show stack count of items in tooltip
-- added option "ItemRef->Show Expansion Name" to show the expansion name of the item. This feature is only available in retail and not in WotLKC or classic era.
+- added options "ItemRef->Show Expansion Icon/Name" to show the expansion icon/name of the item. This feature is only available in retail and not in WotLKC or classic era.
 - added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 - considered debuff border for aura positions
 - splitted options for auras from spells
