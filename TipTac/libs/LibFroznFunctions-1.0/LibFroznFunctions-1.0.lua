@@ -895,7 +895,7 @@ end
 -- @param parentCategoryName  optional. name of parent category
 function LibFroznFunctions:RegisterAddOnCategory(frame, categoryName, parentCategoryName)
 	-- since df 10.0.0
-	if (Settings) then -- see "\SharedXML\Settings\Blizzard_Deprecated.lua" for df 10.0.0
+	if (Settings) and (Settings.RegisterAddOnCategory) then -- see "\SharedXML\Settings\Blizzard_Deprecated.lua" for df 10.0.0
 		-- cancel is no longer a default option. may add menu extension for this.
 		frame.OnCommit = frame.okay;
 		frame.OnDefault = frame.default;
@@ -928,7 +928,7 @@ end
 -- @param subcategoryName  name of subcategory
 function LibFroznFunctions:OpenAddOnCategory(categoryName, subcategoryName)
 	-- since df 10.0.0
-	if (Settings) then
+	if (Settings) and (Settings.OpenToCategory) then
 		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
 			for index, category in ipairs(tbl.categories) do
 				if (category:GetName() == categoryName) then
@@ -968,7 +968,7 @@ end
 -- @param categoryName  name of category
 function LibFroznFunctions:ExpandAddOnCategory(categoryName)
 	-- since df 10.0.0
-	if (Settings) then
+	if (Settings) and (Settings.CreateCategories) then
 		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
 			for index, category in ipairs(tbl.categories) do
 				if (category:GetName() == categoryName) then
