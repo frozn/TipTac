@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 9; -- bump on changes
+local LIB_MINOR = 10; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2089,7 +2089,21 @@ function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePacked
 	
 	-- since df 10.0.0
 	if (AuraUtil) and (AuraUtil.ForEachAura) then
-		AuraUtil.ForEachAura(unitID, filter, maxCount, func, usePackedAura);
+		local function callbackFunc(nameOrUnitAuraInfo, ...)
+			if (usePackedAura) then
+				if (not nameOrUnitAuraInfo) or (not nameOrUnitAuraInfo.name) then
+					return;
+				end
+			else
+				if (not nameOrUnitAuraInfo) then
+					return;
+				end
+			end
+			
+			func(nameOrUnitAuraInfo, ...);
+		end
+		
+		AuraUtil.ForEachAura(unitID, filter, maxCount, callbackFunc, usePackedAura);
 		return;
 	end
 	

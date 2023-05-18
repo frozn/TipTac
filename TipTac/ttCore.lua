@@ -2773,7 +2773,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 
 -- hide world tips instantly
 function tt:HideWorldTipsInstantly()
-	if (GameTooltip:IsShown()) and (GameTooltip:IsOwned(UIParent)) and (not TT_CacheForFrames[GameTooltip].currentDisplayParams.unitRecord) then
+	if (cfg.hideWorldTips) and (GameTooltip:IsShown()) and (GameTooltip:IsOwned(UIParent)) and (not TT_CacheForFrames[GameTooltip].currentDisplayParams.unitRecord) then
 		-- restoring the text of the first line is a workaround so that gatherer addons can get the name of nodes
 		local oldGameTooltipTextLeft1Text = GameTooltipTextLeft1:GetText();
 		
@@ -2809,6 +2809,48 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 				eventsForHideWorldTipsHooked = false;
 			end
 		end
+	end,
+	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- only for GameTooltip tips
+		if (tip:GetObjectType() ~= "GameTooltip") then
+			return;
+		end
+		
+		-- get tip parameters
+		local frameParams = TT_CacheForFrames[tip];
+		
+		if (not frameParams) then
+			return;
+		end
+		
+		local tipParams = frameParams.config;
+		
+		-- no hooking allowed
+		if (tipParams.noHooks) then
+			return;
+		end
+		
+		-- HOOK: tip's FadeOut() and OnUpdate for custom unit fadeout
+		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			hooksecurefunc(tip, "FadeOut", function(tip)
+				-- get frame parameters
+				local frameParams = TT_CacheForFrames[tip];
+				
+				if (not frameParams) then
+					return;
+				end
+				
+				-- unit record exists
+				local unitRecord = frameParams.currentDisplayParams.unitRecord;
+				
+				if (unitRecord) then
+					return;
+				end
+				
+				-- hide world tips instantly
+				tt:HideWorldTipsInstantly();
+			end);
+		end);
 	end
 }, MOD_NAME .. " - Hide World Tips Instantly");
 

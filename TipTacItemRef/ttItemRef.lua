@@ -181,7 +181,7 @@ local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
 local TTIF_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TTIF_ExpansionIcon = {
 	[0] = {  -- Classic Era
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\wow_logo",
 		textureWidth = 32,
 		textureHeight = 16,
 		aspectRatio = 31 / 16,
@@ -191,7 +191,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 1
 	},
 	[1] = {  -- Burning Crusade
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\bc_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\bc_logo",
 		textureWidth = 32,
 		textureHeight = 16,
 		aspectRatio = 29 / 12,
@@ -201,7 +201,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.875
 	},
 	[2] = {  -- Wrath of the Lich King
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wotlk_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\wotlk_logo",
 		textureWidth = 64,
 		textureHeight = 32,
 		aspectRatio = 36 / 19,
@@ -211,7 +211,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.78125
 	},
 	[3] = {  -- Cataclysm
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\cata_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\cata_logo",
 		textureWidth = 64,
 		textureHeight = 16,
 		aspectRatio = 38 / 15,
@@ -221,7 +221,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.9375
 	},
 	[4] = {  -- Mists of Pandaria
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\mop_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\mop_logo",
 		textureWidth = 64,
 		textureHeight = 16,
 		aspectRatio = 46 / 14,
@@ -231,7 +231,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.9375
 	},
 	[5] = {  -- Warlords of Draenor
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wod_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\wod_logo",
 		textureWidth = 64,
 		textureHeight = 16,
 		aspectRatio = 46 / 13,
@@ -241,7 +241,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.875
 	},
 	[6] = {  -- Legion
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\legion_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\legion_logo",
 		textureWidth = 64,
 		textureHeight = 16,
 		aspectRatio = 40 / 15,
@@ -251,7 +251,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.9375
 	},
 	[7] = {  -- Battle for Azeroth
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\bfa_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\bfa_logo",
 		textureWidth = 64,
 		textureHeight = 32,
 		aspectRatio = 48 / 17,
@@ -261,7 +261,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.75
 	},
 	[8] = {  -- Shadowlands
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\sl_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\sl_logo",
 		textureWidth = 64,
 		textureHeight = 32,
 		aspectRatio = 43 / 17,
@@ -271,7 +271,7 @@ local TTIF_ExpansionIcon = {
 		bottomTexel = 0.75
 	},
 	[9] = {  -- Dragonflight
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\df_logo",
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\df_logo",
 		textureWidth = 64,
 		textureHeight = 32,
 		aspectRatio = 42 / 17,
