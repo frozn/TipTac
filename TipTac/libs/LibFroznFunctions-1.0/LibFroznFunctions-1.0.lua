@@ -1665,14 +1665,10 @@ function LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForA
 		local tooltipData = C_TooltipInfo.GetUnitAura(unitID, index, filter);
 		
 		if (tooltipData) then
-			TooltipUtil.SurfaceArgs(tooltipData);
-			
 			-- line 1 is aura name. line 2 is aura description.
 			local line = tooltipData.lines[2];
 			
 			if (line) then
-				TooltipUtil.SurfaceArgs(line);
-				
 				local auraDescription = line.leftText;
 				
 				if (callbackForAuraData) then

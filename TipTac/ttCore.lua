@@ -910,9 +910,20 @@ LibFroznFunctions:RegisterAddOnCategory((function()
 end)(), MOD_NAME);
 
 -- addon compartment
-function TipTac_OnAddonCompartmentClick(addonName, buttonName)
+function TipTac_OnAddonCompartmentClick(addonName, mouseButton)
 	-- toggle options
 	tt:ToggleOptions();
+end
+
+function TipTac_OnAddonCompartmentEnter(addonName, button)
+    GameTooltip:SetOwner(button, "ANCHOR_LEFT");
+	GameTooltip:AddLine(MOD_NAME);
+	GameTooltip:AddLine(TT_COLOR.text.default:WrapTextInColorCode("Click to toggle options"));
+	GameTooltip:Show();
+end
+
+function TipTac_OnAddonCompartmentLeave(addonName, button)
+	GameTooltip:Hide();
 end
 
 -- register new slash commands
