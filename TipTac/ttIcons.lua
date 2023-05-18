@@ -27,19 +27,20 @@ function ttIcons:SetIcon(icon, unitRecord)
 	end
 	
 	local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
+	local englishFaction = UnitFactionGroup(unitRecord.id);
 
 	if (cfg.iconRaid) and (raidIconIndex) then
 		icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
 		SetRaidTargetIconTexture(icon,raidIconIndex);
 	elseif (cfg.iconFaction) and (UnitIsPVPFreeForAll(unitRecord.id)) then
 		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
-		icon:SetTexCoord(0,0.62,0,0.62);
-	elseif (cfg.iconFaction) and (UnitIsPVP(unitRecord.id)) and (UnitFactionGroup(unitRecord.id)) then
-		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-"..UnitFactionGroup(unitRecord.id));
-		icon:SetTexCoord(0,0.62,0,0.62);
+		icon:SetTexCoord(0, 0.62, 0, 0.62);
+	elseif (cfg.iconFaction) and (UnitIsPVP(unitRecord.id)) and (englishFaction) and (englishFaction ~= "Neutral") then
+		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
+		icon:SetTexCoord(0, 0.62, 0, 0.62);
 	elseif (cfg.iconCombat) and (UnitAffectingCombat(unitRecord.id)) then
 		icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
-		icon:SetTexCoord(0.5,1,0,0.5);
+		icon:SetTexCoord(0.5, 1, 0, 0.5);
 	elseif (unitRecord.isPlayer) and (cfg.iconClass) then
 		local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
 		if (texCoord) then
