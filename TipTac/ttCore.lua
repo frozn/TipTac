@@ -909,6 +909,12 @@ LibFroznFunctions:RegisterAddOnCategory((function()
 	return frame;
 end)(), MOD_NAME);
 
+-- addon compartment
+function TipTac_OnAddonCompartmentClick(addonName, buttonName)
+	-- toggle options
+	tt:ToggleOptions();
+end
+
 -- register new slash commands
 LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, function(msg)
 	-- extract parameters
