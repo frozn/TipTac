@@ -67,7 +67,7 @@ function ttHyperlink:VARIABLES_LOADED(event)
 end
 
 -- AddOn Loaded
-function ttHyperlink:ADDON_LOADED(event, addOnName)
+function ttHyperlink:ADDON_LOADED(event, addOnName, containsBindings)
 	if (not cfg) then return end;
 	
 	-- check if addon is already loaded

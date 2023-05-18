@@ -1836,7 +1836,7 @@ function ttif:HookTips()
 end
 
 -- AddOn Loaded
-function ttif:ADDON_LOADED(event, addOnName)
+function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 	if (not cfg) then return end;
 	
 	-- check if addon is already loaded

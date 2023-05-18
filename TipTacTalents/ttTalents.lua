@@ -68,7 +68,7 @@ local TTT_COLOR = {
 ----------------------------------------------------------------------------------------------------
 
 -- EVENT: addon loaded (one-time-event)
-function ttt:ADDON_LOADED(event, addOnName)
+function ttt:ADDON_LOADED(event, addOnName, containsBindings)
 	-- not this addon
 	if (addOnName ~= MOD_NAME) then
 		return;

@@ -764,7 +764,7 @@ tt:Hide();
 ----------------------------------------------------------------------------------------------------
 
 -- EVENT: addon loaded
-function tt:ADDON_LOADED(event, addOnName)
+function tt:ADDON_LOADED(event, addOnName, containsBindings)
 	if (TT_IsConfigLoaded) then
 		-- apply config
 		self:ApplyConfig();
@@ -876,12 +876,12 @@ LibFroznFunctions:RegisterAddOnCategory((function()
 		self.vers2:SetFontObject(GameFontHighlight);
 		self.vers2:SetJustifyH("LEFT");
 		self.vers2:SetPoint("TOPLEFT", self.vers1, "TOPRIGHT");
-		self.vers2:SetText(GetAddOnMetadata(MOD_NAME, "Version") .. "\n" .. GetBuildInfo());
+		self.vers2:SetText(LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Version") .. "\n" .. GetBuildInfo());
 		
 		self.notes = self:CreateFontString(nil, "ARTWORK");
 		self.notes:SetFontObject(GameFontHighlight);
 		self.notes:SetPoint("TOPLEFT", self.vers1, "BOTTOMLEFT", 0, -8);
-		self.notes:SetText(GetAddOnMetadata(MOD_NAME, "Notes"));
+		self.notes:SetText(LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Notes"));
 		
 		self.btnOptions = CreateFrame("Button", nil, self, "UIPanelButtonTemplate");
 		self.btnOptions:SetPoint("TOPLEFT", self.notes, "BOTTOMLEFT", -2, -8);
@@ -949,7 +949,7 @@ LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, func
 	
 	UpdateAddOnMemoryUsage();
 	
-	tt:AddMessageToChatFrame("----- {highlight:%s %s} ----- {highlight:%.2f kb} ----- {highlight:WoW " .. version .. "} ----- ", MOD_NAME, GetAddOnMetadata(MOD_NAME, "Version"), GetAddOnMemoryUsage(MOD_NAME));
+	tt:AddMessageToChatFrame("----- {highlight:%s %s} ----- {highlight:%.2f kb} ----- {highlight:WoW " .. version .. "} ----- ", MOD_NAME, LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Version"), GetAddOnMemoryUsage(MOD_NAME));
 	tt:AddMessageToChatFrame("The following {highlight:parameters} are valid for this addon:");
 	tt:AddMessageToChatFrame("  {highlight:anchor} = Shows the anchor where the tooltip appears");
 	tt:AddMessageToChatFrame("  {highlight:reset} = Resets all settings back to their default values");

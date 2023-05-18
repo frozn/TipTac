@@ -83,6 +83,21 @@ else -- retail
 	end
 end
 
+-- get addon metadata
+--
+-- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (case insensitive)
+-- @param  field        field name (case insensitive), e.g. "Title", "Version" or "Notes"
+-- @return value of the field in TOC metadata of an addon
+function LibFroznFunctions:GetAddOnMetadata(indexOrName, field)
+	-- since df 10.1.0
+	if (C_AddOns) and (C_AddOns.GetAddOnMetadata) then
+		return C_AddOns.GetAddOnMetadata(indexOrName, field);
+	end
+	
+	-- before df 10.1.0
+	return GetAddOnMetadata(indexOrName, field);
+end
+
 -- aura filters, see "AuraUtil.lua"
 LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
 	Helpful = "HELPFUL",

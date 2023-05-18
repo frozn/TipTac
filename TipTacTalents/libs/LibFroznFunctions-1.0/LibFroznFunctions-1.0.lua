@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 9; -- bump on changes
+local LIB_MINOR = 10; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -81,6 +81,21 @@ else -- retail
 	else
 		LibFroznFunctions.isWoWFlavor.DF = true;
 	end
+end
+
+-- get addon metadata
+--
+-- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (case insensitive)
+-- @param  field        field name (case insensitive), e.g. "Title", "Version" or "Notes"
+-- @return value of the field in TOC metadata of an addon
+function LibFroznFunctions:GetAddOnMetadata(indexOrName, field)
+	-- since df 10.1.0
+	if (C_AddOns) and (C_AddOns.GetAddOnMetadata) then
+		return C_AddOns.GetAddOnMetadata(indexOrName, field);
+	end
+	
+	-- before df 10.1.0
+	return GetAddOnMetadata(indexOrName, field);
 end
 
 -- aura filters, see "AuraUtil.lua"
@@ -2089,7 +2104,21 @@ function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePacked
 	
 	-- since df 10.0.0
 	if (AuraUtil) and (AuraUtil.ForEachAura) then
-		AuraUtil.ForEachAura(unitID, filter, maxCount, func, usePackedAura);
+		local function callbackFunc(nameOrUnitAuraInfo, ...)
+			if (usePackedAura) then
+				if (not nameOrUnitAuraInfo) or (not nameOrUnitAuraInfo.name) then
+					return;
+				end
+			else
+				if (not nameOrUnitAuraInfo) then
+					return;
+				end
+			end
+			
+			func(nameOrUnitAuraInfo, ...);
+		end
+		
+		AuraUtil.ForEachAura(unitID, filter, maxCount, callbackFunc, usePackedAura);
 		return;
 	end
 	

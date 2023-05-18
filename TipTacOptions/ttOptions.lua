@@ -489,7 +489,7 @@ f.header:SetText(PARENT_MOD_NAME.." Options");
 f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 f.vers:SetPoint("TOPRIGHT",-15,-15);
 local version, build = GetBuildInfo();
-f.vers:SetText(PARENT_MOD_NAME .. ": " .. GetAddOnMetadata(PARENT_MOD_NAME, "Version") .. "\nWoW: " .. version);
+f.vers:SetText(PARENT_MOD_NAME .. ": " .. LibFroznFunctions:GetAddOnMetadata(PARENT_MOD_NAME, "Version") .. "\nWoW: " .. version);
 f.vers:SetTextColor(1,1,0.5);
 
 f.btnAnchor = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
