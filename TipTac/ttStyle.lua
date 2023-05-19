@@ -257,6 +257,7 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 	lineLevel:Push(" ");
 	lineLevel:Push(classColor:WrapTextInColorCode(unitRecord.className));
 	-- name
+	local nameColor = (cfg.colorNameByClass and classColor) or unitRecord.nameColor;
 	local name = (cfg.nameType == "marysueprot" and unitRecord.rpName) or (cfg.nameType == "original" and unitRecord.originalName) or (cfg.nameType == "title" and UnitPVPName(unitRecord.id)) or unitRecord.name;
 	if (unitRecord.serverName) and (unitRecord.serverName ~= "") and (cfg.showRealm ~= "none") then
 		if (cfg.showRealm == "show") then
@@ -267,7 +268,6 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 			name = name .. " (*)";
 		end
 	end
-	local nameColor = (cfg.colorNameByClass and classColor) or unitRecord.nameColor;
 	lineName:Push(nameColor:WrapTextInColorCode(name));
 	-- dc, afk or dnd
 	if (cfg.showStatus) then
