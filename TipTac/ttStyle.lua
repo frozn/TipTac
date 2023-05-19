@@ -17,6 +17,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttStyle, "Style");
 
 -- vars
 local lineName = LibFroznFunctions:CreatePushArray();
+local lineRealm = LibFroznFunctions:CreatePushArray();
 local lineLevel = LibFroznFunctions:CreatePushArray();
 local lineInfo = LibFroznFunctions:CreatePushArray();
 local lineTargetedBy = LibFroznFunctions:CreatePushArray();
@@ -181,13 +182,16 @@ function ttStyle:GenerateTargetLines(unitRecord, method)
 	local target = unitRecord.id .."target";
 	local targetName = UnitName(target);
 	if (targetName) and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
-		if (method == "first") then
+		if (method == "afterName") then
 			lineName:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(" : "));
 			AddTarget(lineName,target,targetName);
-		elseif (method == "second") then
-			lineName:Push("\n  ");
-			AddTarget(lineName,target,targetName);
-		elseif (method == "last") then
+		elseif (method == "belowNameRealm") then
+			if (lineRealm:GetCount() > 0) then
+				lineRealm:Push("\n");
+			end
+			lineRealm:Push("  ");
+			AddTarget(lineRealm,target,targetName);
+		else
 			if (lineInfo:GetCount() > 0) then
 				lineInfo:Push("\n");
 			end
@@ -257,6 +261,8 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 	if (unitRecord.serverName) and (unitRecord.serverName ~= "") and (cfg.showRealm ~= "none") then
 		if (cfg.showRealm == "show") then
 			name = name .. " - " .. unitRecord.serverName;
+		elseif (cfg.showRealm == "showInNewLine") then
+			lineRealm:Push(nameColor:WrapTextInColorCode(unitRecord.serverName));
 		else
 			name = name .. " (*)";
 		end
@@ -511,8 +517,15 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	end
 
 	-- Name Line
-	GameTooltipTextLeft1:SetText(lineName:Concat());
+	local tipLineNameText = lineName:Concat();
+	
+	if (lineRealm:GetCount() > 0) then
+		tipLineNameText = tipLineNameText .. "\n" .. lineRealm:Concat();
+	end
+	
+	GameTooltipTextLeft1:SetText(tipLineNameText);
 	lineName:Clear();
+	lineRealm:Clear();
 
 	-- Level Line
 	for i = (GameTooltip:NumLines() + 1), lineLevel.Index do

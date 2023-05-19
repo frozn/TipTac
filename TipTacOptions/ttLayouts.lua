@@ -60,7 +60,7 @@ local layout_presets = {
 	},
 	-- TipTac Layout (Old)
 	["TipTac Old Style"] = {
-		showTarget = "second",
+		showTarget = "belowNameRealm",
 		targetYouText = "<<YOU>>",
 
 		reactColoredBackdrop = false,
@@ -103,7 +103,7 @@ local layout_presets = {
 	},
 	-- TipBuddy Layout
 	["TipBuddy"] = {
-		showTarget = "first",
+		showTarget = "afterName",
 		targetYouText = "[YOU]",
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
