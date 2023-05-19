@@ -285,8 +285,32 @@ TT_ExtendedConfig.tipsToModify = {
 	[MOD_NAME] = {
 		frames = {
 			["GameTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
-			["ShoppingTooltip1"] = { applyAppearance = true, applyScaling = true, applyAnchor = false },
-			["ShoppingTooltip2"] = { applyAppearance = true, applyScaling = true, applyAnchor = false },
+			["ShoppingTooltip1"] = {
+				applyAppearance = true, applyScaling = true, applyAnchor = false,
+				hookFnForFrame = function(TT_CacheForFrames, tip)
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					
+					-- since df 10.0.2
+					if (TooltipUtil) then
+						tip:HookScript("OnHide", function(tip)
+							tip:ClearHandlerInfo();
+						end);
+					end
+				end
+			},
+			["ShoppingTooltip2"] = {
+				applyAppearance = true, applyScaling = true, applyAnchor = false,
+				hookFnForFrame = function(TT_CacheForFrames, tip)
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					
+					-- since df 10.0.2
+					if (TooltipUtil) then
+						tip:HookScript("OnHide", function(tip)
+							tip:ClearHandlerInfo();
+						end);
+					end
+				end
+			},
 			["ItemRefTooltip"] = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
@@ -336,8 +360,32 @@ TT_ExtendedConfig.tipsToModify = {
 					end
 				end
 			},
-			["ItemRefShoppingTooltip1"] = { applyAppearance = true, applyScaling = true, applyAnchor = false },
-			["ItemRefShoppingTooltip2"] = { applyAppearance = true, applyScaling = true, applyAnchor = false },
+			["ItemRefShoppingTooltip1"] = {
+				applyAppearance = true, applyScaling = true, applyAnchor = false,
+				hookFnForFrame = function(TT_CacheForFrames, tip)
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					
+					-- since df 10.0.2
+					if (TooltipUtil) then
+						tip:HookScript("OnHide", function(tip)
+							tip:ClearHandlerInfo();
+						end);
+					end
+				end
+			},
+			["ItemRefShoppingTooltip2"] = {
+				applyAppearance = true, applyScaling = true, applyAnchor = false,
+				hookFnForFrame = function(TT_CacheForFrames, tip)
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					
+					-- since df 10.0.2
+					if (TooltipUtil) then
+						tip:HookScript("OnHide", function(tip)
+							tip:ClearHandlerInfo();
+						end);
+					end
+				end
+			},
 			["EmbeddedItemTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["NamePlateTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["BattlePetTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
@@ -889,7 +937,7 @@ LibFroznFunctions:RegisterAddOnCategory((function()
 		self.btnOptions:SetWidth(math.max(120, self.btnOptions:GetTextWidth() + 20));
 		self.btnOptions:SetScript("OnEnter", function()
 			GameTooltip:SetOwner(self.btnOptions, "ANCHOR_RIGHT");
-			GameTooltip:AddLine("Slash commands");
+			GameTooltip:SetText("Slash commands");
 			GameTooltip:AddLine(TT_COLOR.text.default:WrapTextInColorCode("/tip\n/tiptac"), nil, nil, nil, true);
 			GameTooltip:Show();
 		end);
@@ -917,7 +965,7 @@ end
 
 function TipTac_OnAddonCompartmentEnter(addonName, button)
     GameTooltip:SetOwner(button, "ANCHOR_LEFT");
-	GameTooltip:AddLine(MOD_NAME);
+	GameTooltip:SetText(MOD_NAME);
 	GameTooltip:AddLine(TT_COLOR.text.default:WrapTextInColorCode("Click to toggle options"));
 	GameTooltip:Show();
 end
