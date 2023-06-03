@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 10; -- bump on changes
+local LIB_MINOR = 11; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1330,42 +1330,47 @@ end
 
 -- get offsets for anchor point between two frames
 --
--- @param  anchorPoint  anchor point, e.g. "TOP" or "BOTTOMRIGHT"
--- @param  frame           frame
+-- @param  anchorPoint     anchor point, e.g. "TOP" or "BOTTOMRIGHT"
+-- @param  anchorFrame     anchor frame
+-- @param  targetFrame     target frame
 -- @param  frameReference  reference frame
 -- @return left offset, right offset. nil, nil if no valid anchor point is supplied.
 function LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, anchorFrame, targetFrame, referenceFrame)
+	local effectiveScaleAnchorFrame = anchorFrame:GetEffectiveScale();
 	local effectiveScaleTargetFrame = targetFrame:GetEffectiveScale();
+	local effectiveScaleReferenceFrame = referenceFrame:GetEffectiveScale();
 	local UIScale = UIParent:GetEffectiveScale();
 	
+	local totalEffectiveScaleAnchorFrame = effectiveScaleAnchorFrame / UIScale;
 	local totalEffectiveScaleTargetFrame = effectiveScaleTargetFrame / UIScale;
+	local totalEffectiveScaleReferenceFrame = effectiveScaleReferenceFrame / UIScale;
 	
 	if (anchorPoint == "TOPLEFT") then
-		return (anchorFrame:GetLeft() - referenceFrame:GetLeft()) / totalEffectiveScaleTargetFrame, (anchorFrame:GetTop() - referenceFrame:GetTop()) / totalEffectiveScaleTargetFrame;
+		return ((anchorFrame:GetLeft() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetLeft() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame, ((anchorFrame:GetTop() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetTop() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "TOPRIGHT") then
-		return (anchorFrame:GetRight() - referenceFrame:GetRight()) / totalEffectiveScaleTargetFrame, (anchorFrame:GetTop() - referenceFrame:GetTop()) / totalEffectiveScaleTargetFrame;
+		return ((anchorFrame:GetRight() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetRight() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame, ((anchorFrame:GetTop() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetTop() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "BOTTOMLEFT") then
-		return (anchorFrame:GetLeft() - referenceFrame:GetLeft()) / totalEffectiveScaleTargetFrame, (anchorFrame:GetBottom() - referenceFrame:GetBottom()) / totalEffectiveScaleTargetFrame;
+		return ((anchorFrame:GetLeft() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetLeft() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame, ((anchorFrame:GetBottom() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetBottom() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "BOTTOMRIGHT") then
-		return (anchorFrame:GetRight() - referenceFrame:GetRight()) / totalEffectiveScaleTargetFrame, (anchorFrame:GetBottom() - referenceFrame:GetBottom()) / totalEffectiveScaleTargetFrame;
+		return ((anchorFrame:GetRight() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetRight() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame, ((anchorFrame:GetBottom() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetBottom() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "TOP") then
-		return (((anchorFrame:GetLeft() + anchorFrame:GetRight()) - (referenceFrame:GetLeft() + referenceFrame:GetRight())) / totalEffectiveScaleTargetFrame) / 2, (anchorFrame:GetTop() - referenceFrame:GetTop()) / totalEffectiveScaleTargetFrame;
+		return ((((anchorFrame:GetLeft() + anchorFrame:GetRight()) * totalEffectiveScaleAnchorFrame) - ((referenceFrame:GetLeft() + referenceFrame:GetRight()) * totalEffectiveScaleReferenceFrame)) / 2) / totalEffectiveScaleTargetFrame, ((anchorFrame:GetTop() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetTop() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "BOTTOM") then
-		return (((anchorFrame:GetLeft() + anchorFrame:GetRight()) - (referenceFrame:GetLeft() + referenceFrame:GetRight())) / totalEffectiveScaleTargetFrame) / 2, (anchorFrame:GetBottom() - referenceFrame:GetBottom()) / totalEffectiveScaleTargetFrame;
+		return ((((anchorFrame:GetLeft() + anchorFrame:GetRight()) * totalEffectiveScaleAnchorFrame) - ((referenceFrame:GetLeft() + referenceFrame:GetRight()) * totalEffectiveScaleReferenceFrame)) / 2) / totalEffectiveScaleTargetFrame, ((anchorFrame:GetBottom() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetBottom() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "LEFT") then
-		return (anchorFrame:GetLeft() - referenceFrame:GetLeft()) / totalEffectiveScaleTargetFrame, (((anchorFrame:GetTop() + anchorFrame:GetBottom()) - (referenceFrame:GetTop() + referenceFrame:GetBottom())) / totalEffectiveScaleTargetFrame) / 2;
+		return ((anchorFrame:GetLeft() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetLeft() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame, ((((anchorFrame:GetTop() + anchorFrame:GetBottom()) * totalEffectiveScaleAnchorFrame) - ((referenceFrame:GetTop() + referenceFrame:GetBottom()) * totalEffectiveScaleReferenceFrame)) / 2) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "RIGHT") then
-		return (anchorFrame:GetRight() - referenceFrame:GetRight()) / totalEffectiveScaleTargetFrame, (((anchorFrame:GetTop() + anchorFrame:GetBottom()) - (referenceFrame:GetTop() + referenceFrame:GetBottom())) / totalEffectiveScaleTargetFrame) / 2;
+		return ((anchorFrame:GetRight() * totalEffectiveScaleAnchorFrame) - (referenceFrame:GetRight() * totalEffectiveScaleReferenceFrame)) / totalEffectiveScaleTargetFrame, ((((anchorFrame:GetTop() + anchorFrame:GetBottom()) * totalEffectiveScaleAnchorFrame) - ((referenceFrame:GetTop() + referenceFrame:GetBottom()) * totalEffectiveScaleReferenceFrame)) / 2) / totalEffectiveScaleTargetFrame;
 	end
 	if (anchorPoint == "CENTER") then
-		return (((anchorFrame:GetLeft() + anchorFrame:GetRight()) - (referenceFrame:GetLeft() + referenceFrame:GetRight())) / totalEffectiveScaleTargetFrame) / 2, (((anchorFrame:GetTop() + anchorFrame:GetBottom()) - (referenceFrame:GetTop() + referenceFrame:GetBottom())) / totalEffectiveScaleTargetFrame) / 2;
+		return ((((anchorFrame:GetLeft() + anchorFrame:GetRight()) * totalEffectiveScaleAnchorFrame) - ((referenceFrame:GetLeft() + referenceFrame:GetRight()) * totalEffectiveScaleReferenceFrame)) / 2) / totalEffectiveScaleTargetFrame, ((((anchorFrame:GetTop() + anchorFrame:GetBottom()) * totalEffectiveScaleAnchorFrame) - ((referenceFrame:GetTop() + referenceFrame:GetBottom()) * totalEffectiveScaleReferenceFrame)) / 2) / totalEffectiveScaleTargetFrame;
 	end
 	
 	return nil, nil;

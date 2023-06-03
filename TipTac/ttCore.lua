@@ -2244,6 +2244,7 @@ function tt:SetAnchorToTip(tip)
 		tip:ClearAllPoints();
 		
 		local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
+		
 		tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
 	elseif (anchorType == "mouse") then
 		-- although we anchor the tip continuously in OnUpdate, we must anchor it initially here to avoid flicker on the first frame its being shown.
@@ -2255,10 +2256,13 @@ function tt:SetAnchorToTip(tip)
 		
 		if (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
-			tip:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), parentFrame, anchorPoint);
+			local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
+			
+			tip:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), UIParent, anchorPoint, offsetX, offsetY);
 		else
 			-- fallback to "normal" anchor in case parent frame is UIParent
 			local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
+			
 			tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
 		end
 	end
