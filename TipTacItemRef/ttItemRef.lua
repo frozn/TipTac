@@ -2354,7 +2354,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		getRewardLevelInitialized = true;
 	end
 	local weeklyRewardLevel, endOfRunRewardLevel = nil, nil;
-	if (keystoneLevel) and (tonumber(keystoneLevel)) then
+	if (tonumber(keystoneLevel)) then
 		weeklyRewardLevel, endOfRunRewardLevel = C_MythicPlus.GetRewardLevelForDifficultyLevel(keystoneLevel);
 	end
 
