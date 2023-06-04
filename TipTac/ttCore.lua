@@ -2801,7 +2801,9 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					-- only needed for Classic Era and WotLKC: FadeOut() for worldframe unit tips will not be called
 					local unitRecord = frameParams.currentDisplayParams.unitRecord;
 					
-					if (unitRecord) and (not IsMouseButtonDown()) and (not UnitExists(unitRecord.id)) then
+					if ((LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC)) and
+							(unitRecord) and ((IsMouseButtonDown()) or (not UnitExists(unitRecord.id))) then
+						
 						tip:FadeOut();
 					end
 					
@@ -2899,7 +2901,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
-		-- HOOK: tip's FadeOut() and OnUpdate for custom unit fadeout
+		-- HOOK: tip's FadeOut() to hide world tips instantly
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
 			hooksecurefunc(tip, "FadeOut", function(tip)
 				-- get frame parameters
