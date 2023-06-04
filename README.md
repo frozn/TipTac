@@ -19,7 +19,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 10.0.5 - Dragonflight [DF]
+  * 10.1.0 - Dragonflight [DF]
   * 3.4.1 - Wrath of the Lich King Classic [WotLKC]
   * 1.14.3 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
@@ -101,7 +101,7 @@ In [WowUp](https://wowup.io/), go to `Get Addons->Install From URL` and enter `h
 
 Get [latest release](https://github.com/frozn/TipTac/releases) and replace the folders `TipTac`, `TipTacItemRef`, `TipTacOptions` and `TipTacTalents` with those from the zip file.
 
-Shadowlands: `\World of Warcraft\_retail_\Interface\AddOns`  
+Dragonflight: `\World of Warcraft\_retail_\Interface\AddOns`  
 Wrath of the Lich King Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
 Classic Era: `\World of Warcraft\_classic_era_\Interface\AddOns`  
 
