@@ -1,5 +1,5 @@
 ## Interface: 100100
-## Version: 23.05.20
+## Version: 23.06.20
 ## IconTexture: Interface\AddOns\TipTacTalents\media\tiptac_logo
 ## Title: TipTacTalents
 ## Author: Aezay (Earthen Ring EU), Frozn45
