@@ -1726,7 +1726,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_SetItemByID", EITT_SetItemByID_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_SetItemByQuestReward", EITT_SetItemByQuestReward_Hook);
-					hooksecurefunc("EmbeddedItemTooltip_SetSpellByQuestReward", EITT_SetSpellByQuestReward_Hook);
+					LibFroznFunctions:HookSecureFuncIfExists("EmbeddedItemTooltip_SetSpellByQuestReward", EITT_SetSpellByQuestReward_Hook); -- doesn't exist in WotLKC PTR 3.4.2
 					hooksecurefunc("EmbeddedItemTooltip_SetCurrencyByID", EITT_SetCurrencyByID_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_Clear", EITT_Clear_Hook);
 					-- classic support
