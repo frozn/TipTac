@@ -827,12 +827,14 @@ end
 local function SetQuestItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
-		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
-		if (itemLink) then
-			local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
-			if (_itemID) then
-				tipDataAdded[gtt] = linkType;
-				LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
+		if (itemID) then
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+			if (itemLink) then
+				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
+				if (_itemID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
+				end
 			end
 		end
 	end
@@ -852,12 +854,14 @@ local function SetQuestLogItem_Hook(self, _type, index)
 			itemID = _itemID;
 			numItems = _numItems;
 		end
-		local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
-		if (itemLink) then
-			local linkType, __itemID = itemLink:match("H?(%a+):(%d+)");
-			if (__itemID) then
-				tipDataAdded[gtt] = linkType;
-				LinkTypeFuncs.item(gtt, itemLink, linkType, __itemID);
+		if (itemID) then
+			local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+			if (itemLink) then
+				local linkType, __itemID = itemLink:match("H?(%a+):(%d+)");
+				if (__itemID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.item(gtt, itemLink, linkType, __itemID);
+				end
 			end
 		end
 	end
@@ -945,22 +949,24 @@ end
 local function SetLFGDungeonReward_Hook(self, dungeonID, rewardIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonRewardInfo(dungeonID, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
-		if (rewardType == "item") then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(rewardID);
-			if (itemLink) then
-				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
-				if (itemID) then
-					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.item(self, itemLink, linkType, itemID);
+		if (rewardID) then
+			if (rewardType == "item") then
+				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(rewardID);
+				if (itemLink) then
+					local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
+					if (itemID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.item(self, itemLink, linkType, itemID);
+					end
 				end
-			end
-		elseif (rewardType == "currency") then
-			local link = C_CurrencyInfo_GetCurrencyLink(rewardID, numItems);
-			if (link) then
-				local linkType, currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
-				if (currencyID) then
-					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.currency(self, link, linkType, currencyID, quantity);
+			elseif (rewardType == "currency") then
+				local link = C_CurrencyInfo_GetCurrencyLink(rewardID, numItems);
+				if (link) then
+					local linkType, currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
+					if (currencyID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.currency(self, link, linkType, currencyID, quantity);
+					end
 				end
 			end
 		end
@@ -971,22 +977,24 @@ end
 local function SetLFGDungeonShortageReward_Hook(self, dungeonID, rewardArg, rewardIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonShortageRewardInfo(dungeonID, rewardArg, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
-		if (rewardType == "item") then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(rewardID);
-			if (itemLink) then
-				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
-				if (itemID) then
-					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.item(self, itemLink, linkType, itemID);
+		if (rewardID) then
+			if (rewardType == "item") then
+				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(rewardID);
+				if (itemLink) then
+					local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
+					if (itemID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.item(self, itemLink, linkType, itemID);
+					end
 				end
-			end
-		elseif (rewardType == "currency") then
-			local link = C_CurrencyInfo_GetCurrencyLink(rewardID, numItems);
-			if (link) then
-				local linkType, currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
-				if (currencyID) then
-					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.currency(self, link, linkType, currencyID, quantity);
+			elseif (rewardType == "currency") then
+				local link = C_CurrencyInfo_GetCurrencyLink(rewardID, numItems);
+				if (link) then
+					local linkType, currencyID, quantity = link:match("H?(%a+):(%d+):(%d+)");
+					if (currencyID) then
+						tipDataAdded[self] = linkType;
+						LinkTypeFuncs.currency(self, link, linkType, currencyID, quantity);
+					end
 				end
 			end
 		end
@@ -1280,12 +1288,14 @@ local function EITT_SetItemByID_Hook(self, id, count)
 	local targetTooltip = self.Tooltip;
 	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
 		local itemID = id;
-		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
-		if (itemLink) then
-			local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
-			if (_itemID) then
-				tipDataAdded[targetTooltip] = linkType;
-				LinkTypeFuncs.item(targetTooltip, itemLink, linkType, _itemID);
+		if (itemID) then
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+			if (itemLink) then
+				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
+				if (_itemID) then
+					tipDataAdded[targetTooltip] = linkType;
+					LinkTypeFuncs.item(targetTooltip, itemLink, linkType, _itemID);
+				end
 			end
 		end
 	end
@@ -1309,7 +1319,7 @@ local function EITT_SetItemByQuestReward_Hook(self, questLogIndex, questID, rewa
 		
 		local name, texture, numItems, quality, isUsable, itemID = getterFunc(questLogIndex, questID);
 		
-		if (name) and (texture) then
+		if (itemID) and (name) and (texture) then
 			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
 			if (itemLink) then
 				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
@@ -1381,12 +1391,14 @@ local function DUODSM_OnEnter_Hook(self)
 		end
 		if (self.item) then -- item
 			local itemID = self.item.itemID;
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
-			if (itemLink) then
-				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
-				if (_itemID) then
-					tipDataAdded[gtt] = linkType;
-					LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
+			if (itemID) then
+				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
+				if (itemLink) then
+					local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
+					if (_itemID) then
+						tipDataAdded[gtt] = linkType;
+						LinkTypeFuncs.item(gtt, itemLink, linkType, _itemID);
+					end
 				end
 			end
 		else -- illusion
