@@ -1,4 +1,4 @@
-## Interface: 30401
+## Interface: 30402
 ## Version: 23.06.20
 ## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
 ## Title: TipTacItemRef

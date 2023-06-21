@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 11; -- bump on changes
+local LIB_MINOR = 12; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -909,7 +909,7 @@ end
 -- @param categoryName        name of category
 -- @param parentCategoryName  optional. name of parent category
 function LibFroznFunctions:RegisterAddOnCategory(frame, categoryName, parentCategoryName)
-	-- since df 10.0.0
+	-- since df 10.0.0 and wotlkc 3.4.2
 	if (Settings) and (Settings.RegisterAddOnCategory) then -- see "\SharedXML\Settings\Blizzard_Deprecated.lua" for df 10.0.0
 		-- cancel is no longer a default option. may add menu extension for this.
 		frame.OnCommit = frame.okay;
@@ -942,7 +942,7 @@ end
 -- @param categoryName     name of category
 -- @param subcategoryName  name of subcategory
 function LibFroznFunctions:OpenAddOnCategory(categoryName, subcategoryName)
-	-- since df 10.0.0
+	-- since df 10.0.0 and wotlkc 3.4.2
 	if (Settings) and (Settings.OpenToCategory) then
 		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
 			for index, category in ipairs(tbl.categories) do
@@ -982,7 +982,7 @@ end
 --
 -- @param categoryName  name of category
 function LibFroznFunctions:ExpandAddOnCategory(categoryName)
-	-- since df 10.0.0
+	-- since df 10.0.0 and wotlkc 3.4.2
 	if (Settings) and (Settings.CreateCategories) then
 		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
 			for index, category in ipairs(tbl.categories) do
