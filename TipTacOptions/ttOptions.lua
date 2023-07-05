@@ -379,7 +379,8 @@ if (TipTacItemRef) then
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_colorAuraCasterByReaction", label = "Color Aura Tooltip Caster by Reaction", tip = "Aura tooltip caster color will have the same color as the reaction\nNOTE: This option is overridden by class colored aura tooltip caster for players" };
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_colorAuraCasterByClass", label = "Color Aura Tooltip Caster for Player by Class Color", tip = "With this option on, color aura tooltip caster for players are colored by their class color\nNOTE: This option overrides reaction colored aura tooltip caster for players" };
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For item, spell and aura tooltips, show their mountID", y = 12 };
+	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showNpcId", label = "Show NPC ID", tip = "For npc or battle pet tooltips, show their npcID", y = 12 };
+	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For item, spell and aura tooltips, show their mountID" };
 	
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", y = 12 };
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)" };
@@ -393,8 +394,7 @@ if (TipTacItemRef) then
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_modifyAchievementTips", label = "Modify Achievement Tooltips", tip = "Changes the achievement tooltips to show a bit more information\nWarning: Might conflict with other achievement addons" };
 	
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_battlePetQualityBorder", label = "Show Battle Pet Tips with Quality Colored Border", tip = "When enabled and the tip is showing a battle pet, the tip border will have the color of the battle pet's quality", y = 12 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showBattlePetLevel", label = "Show Battle Pet Level", tip = "For battle bet tooltips, show their petLevel (Combines with petID)" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showBattlePetId", label = "Show Battle Pet ID", tip = "For battle bet tooltips, show their npcID (Combines with petLevel)", x = 160 };
+	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showBattlePetLevel", label = "Show Battle Pet Level", tip = "For battle bet tooltips, show their petLevel (Combines with npcID)" };
 	
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_battlePetAbilityColoredBorder", label = "Show Battle Pet Ability Tips with Colored Border", tip = "When enabled and the tip is showing a battle pet ability, the tip border will have the the standard battle pet ability color", y = 12 };
 	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showBattlePetAbilityId", label = "Show Battle Pet Ability ID", tip = "For battle bet ability tooltips, show their abilityID" };

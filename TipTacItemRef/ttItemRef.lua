@@ -71,6 +71,7 @@ local TTIF_DefaultConfig = {
 	if_showAuraCaster = true,
 	if_colorAuraCasterByReaction = true,
 	if_colorAuraCasterByClass = false,
+	if_showNpcId = false,
 	if_showMountId = false,
 	if_questDifficultyBorder = true,
 	if_showQuestLevel = false,
@@ -82,7 +83,6 @@ local TTIF_DefaultConfig = {
 	if_modifyAchievementTips = true,
 	if_battlePetQualityBorder = true,
 	if_showBattlePetLevel = false,
-	if_showBattlePetId = false,
 	if_battlePetAbilityColoredBorder = true,
 	if_showBattlePetAbilityId = false,
 	if_transmogAppearanceItemQualityBorder = true,
@@ -1158,8 +1158,19 @@ local function FPBA_Show_Hook(abilityID, maxHealth, power, speed)
 	end
 end
 
+-- OnTooltipSetUnit
+local function OnTooltipSetUnit(self, ...)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local _, unitID = LibFroznFunctions:GetUnitFromTooltip(self);
+		if (unitID) then
+			tipDataAdded[self] = "unit";
+			LinkTypeFuncs.unit(self, nil, "unit", unitID);
+		end
+	end
+end
+
 -- OnTooltipSetItem
-local function OnTooltipSetItem(self,...)
+local function OnTooltipSetItem(self, ...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, link = LibFroznFunctions:GetItemFromTooltip(self);
 		if (link) then
@@ -1178,7 +1189,7 @@ local function OnTooltipSetItem(self,...)
 end
 
 -- OnTooltipSetSpell
-local function OnTooltipSetSpell(self,...)
+local function OnTooltipSetSpell(self, ...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, id = LibFroznFunctions:GetSpellFromTooltip(self);	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
 		if (id) then
@@ -1729,6 +1740,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetUnitBuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
 					hooksecurefunc(tip, "SetUnitDebuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
 				end
+				LibFroznFunctions:HookScriptOnTooltipSetUnit(tip, OnTooltipSetUnit);
 				LibFroznFunctions:HookScriptOnTooltipSetItem(tip, OnTooltipSetItem);
 				LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, OnTooltipSetSpell);
 				tip:HookScript("OnTooltipCleared", OnTooltipCleared);
@@ -2814,6 +2826,19 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 	end
 end
 
+-- unit
+function LinkTypeFuncs:unit(link, linkType, unitID)
+	local unitGUID = UnitGUID(unitID);
+	local npcID = (not UnitIsPlayer(unitID)) and unitGUID and tonumber(unitGUID:match("-(%d+)-%x+$"));
+	
+	-- NpcID -- Only alter the tip if we got a valid "npcID"
+	local showId = (npcID and cfg.if_showNpcId);
+	
+	if (showId) then
+		self:AddLine(format("NpcID: %d", tonumber(npcID)), unpack(cfg.if_infoColor));
+	end
+end
+
 -- battle pet
 function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality, maxHealth, power, speed, petID, displayID)
 	local speciesName, speciesIcon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable, _displayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID);
@@ -2833,7 +2858,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 
 	-- Level + CreatureID + IconID -- Only alter the tip if we got either a valid "level" or "creatureID"
 	local showLevel = (level and cfg.if_showBattlePetLevel);
-	local showId = (creatureID and cfg.if_showBattlePetId);
+	local showId = (creatureID and cfg.if_showNpcId);
 	local showIconID = (cfg.if_showIconId and speciesIcon);
 	local linePadding = 2;
 
@@ -2905,9 +2930,9 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 		end
 		
 		if (not showLevel) then
-			self:AddLine(format("NPC ID: %d", tonumber(creatureID)), unpack(cfg.if_infoColor));
+			self:AddLine(format("NpcID: %d", tonumber(creatureID)), unpack(cfg.if_infoColor));
 		elseif (showId) then
-			self:AddLine(format("PetLevel: %d, NPC ID: %d", level, tonumber(creatureID)), unpack(cfg.if_infoColor));
+			self:AddLine(format("PetLevel: %d, NpcID: %d", level, tonumber(creatureID)), unpack(cfg.if_infoColor));
 		else
 			self:AddLine(format("PetLevel: %d", level), unpack(cfg.if_infoColor));
 		end
