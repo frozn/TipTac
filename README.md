@@ -19,8 +19,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 10.1.0 - Dragonflight [DF]
-  * 3.4.1 - Wrath of the Lich King Classic [WotLKC]
+  * 10.1.5 - Dragonflight [DF]
+  * 3.4.2 - Wrath of the Lich King Classic [WotLKC]
   * 1.14.3 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
@@ -76,6 +76,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
 - added option "Reactions->Show the unit's reaction as icon"
 - added unit reaction for honored, revered and exalted NPCs
+- added option "Special->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
 - added showing/hiding of options to WoW's interface options
 - classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic era: added missing styling of auras
