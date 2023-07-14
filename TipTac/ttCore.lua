@@ -43,8 +43,9 @@ local TT_DefaultConfig = {
 	gttScale = 1,
 	updateFreq = 0.5,
 	enableChatHoverTips = true,
-	hidePvpText = true,
 	hideFactionText = false,
+	hidePvpText = true,
+	hideSpecializationAndClassText = true,
 	
 	-- colors
 	colorName = { 1, 1, 1, 1 },

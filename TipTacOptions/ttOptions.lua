@@ -68,6 +68,21 @@ ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Text", var = "targetYouText"
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level", y = 16 };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" }, y = 8 };
 
+-- Special
+local ttOptionsSpecial = {
+	{ type = "Check", var = "showBattlePetTip", label = "Enable Battle Pet Tips", tip = "Will show a special tip for both wild and companion battle pets. Might need to be disabled for certain non-English clients" },
+	{ type = "Slider", var = "gttScale", label = "Tooltip Scale", min = 0.2, max = 4, step = 0.05, y = 8 },
+	{ type = "Slider", var = "updateFreq", label = "Tip Update Frequency", min = 0, max = 5, step = 0.05 },
+	{ type = "Check", var = "enableChatHoverTips", label = "Enable ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the chatframe, show the tooltip without having to click on it", y = 24 },
+	
+	{ type = "Check", var = "hideFactionText", label = "Hide Faction Text", tip = "Strips the Alliance or Horde faction text from the tooltip", y = 10 },
+	{ type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip", x = 160 }
+};
+
+if (LibFroznFunctions.isWoWFlavor.DF) then
+	ttOptionsSpecial[#ttOptionsSpecial + 1] = { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text", tip = "Strips the Specialization & Class text from the tooltip" };
+end
+
 local options = {
 	-- General
 	{
@@ -77,12 +92,7 @@ local options = {
 	-- Special
 	{
 		[0] = "Special",
-		{ type = "Check", var = "showBattlePetTip", label = "Enable Battle Pet Tips", tip = "Will show a special tip for both wild and companion battle pets. Might need to be disabled for certain non-English clients" },
-		{ type = "Slider", var = "gttScale", label = "Tooltip Scale", min = 0.2, max = 4, step = 0.05, y = 8 },
-		{ type = "Slider", var = "updateFreq", label = "Tip Update Frequency", min = 0, max = 5, step = 0.05 },
-		{ type = "Check", var = "enableChatHoverTips", label = "Enable ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the chatframe, show the tooltip without having to click on it", y = 24 },
-		{ type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip", y = 10 },
-		{ type = "Check", var = "hideFactionText", label = "Hide Faction Text", tip = "Strips the Alliance or Horde faction text from the tooltip", x = 170 },
+		unpack(ttOptionsSpecial)
  	},
 	-- Colors
 	{

@@ -84,25 +84,27 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 --
 -- GameTooltip lines of the player (determined via: UnitIsUnit(unitID, "player")):
 --
--- content                                  color                                                                    example
--- ---------------------------------------  -----------------------------------------------------------------------  ---------------------------------------------------------------------------------------------------
---  1. <name with optional title>           white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Camassea", "Camassea, Hand von A'dal", "Camassea die Ehrfurchtgebietende" or "Chefköchin Camassea"
--- [2. <guild>]                             white (HIGHLIGHT_FONT_COLOR)                                             "Blood Omen"
--- [3. <reaction, only colorblind mode>]    white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
---  4. <level> - <race>, <class> (Spieler)  white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 60 - Nachtelfe, Druidin (Spieler)"
--- [5. <faction>]                           white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
--- [6. PvP]                                 white (HIGHLIGHT_FONT_COLOR)
+-- content                                            color                                                                    example
+-- -------------------------------------------------  -----------------------------------------------------------------------  ---------------------------------------------------------------------------------------------------
+--  1. <name with optional title>                     white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Camassea", "Camassea, Hand von A'dal", "Camassea die Ehrfurchtgebietende" or "Chefköchin Camassea"
+-- [2. <guild>]                                       white (HIGHLIGHT_FONT_COLOR)                                             "Blood Omen"
+-- [3. <reaction, only colorblind mode>]              white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
+--  4. <level> - <race>, <class> (Spieler)            white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 60 - Nachtelfe, Druidin (Spieler)"
+-- [5. since df 10.1.5: [<specialization> ]<class>]]  white (HIGHLIGHT_FONT_COLOR)                                             "Gleichgewicht Druidin"
+-- [6. <faction>]                                     white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
+-- [7. PvP]                                           white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of other player (determined via: UnitIsPlayer(unitID) and not UnitIsUnit(unitID, "player")):
 --
--- content                                  color                                                                    example
--- ---------------------------------------  -----------------------------------------------------------------------  ------------------------------------------
---  1. <name with optional title>[-<realm>] white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Zoodirektorin Silvette-Alleria"
--- [2. <guild>[-<realm>]]                   white (HIGHLIGHT_FONT_COLOR)                                             "Die teuflischen Engel-Alleria"
--- [3. <reaction, only colorblind mode>]    white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
---  4. <level> - <race>, <class> (Spieler)  white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 70 - Leerenelfe, Jägerin (Spieler)"
---  5. <faction>                            white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
--- [6. PvP]                                 white (HIGHLIGHT_FONT_COLOR)
+-- content                                            color                                                                    example
+-- -------------------------------------------------  -----------------------------------------------------------------------  ------------------------------------------
+--  1. <name with optional title>[-<realm>]           white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Zoodirektorin Silvette-Alleria"
+-- [2. <guild>[-<realm>]]                             white (HIGHLIGHT_FONT_COLOR)                                             "Die teuflischen Engel-Alleria"
+-- [3. <reaction, only colorblind mode>]              white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
+--  4. <level> - <race>, <class> (Spieler)            white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 70 - Leerenelfe, Jägerin (Spieler)"
+-- [5. since df 10.1.5: [<specialization> ]<class>]]  white (HIGHLIGHT_FONT_COLOR)                                             "Verwüstung Dämonenjäger"
+--  6. <faction>                                      white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
+-- [7. PvP]                                           white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of NPC (determined via: not UnitIsPlayer(unitID) and not UnitPlayerControlled(unitID) and not UnitIsBattlePet(unitID)):
 --
@@ -143,18 +145,24 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 --  3. <level>, <type>                                                         white (HIGHLIGHT_FONT_COLOR)  "Haustierstufe 1, Kleintier"
 --
 
--- remove unwanted lines from tip, such as "PvP", "Alliance" and "Horde".
-function ttStyle:RemoveUnwantedLinesFromTip(tip)
-	if (not cfg.hidePvpText) and (not cfg.hideFactionText) then
+-- remove unwanted lines from tip, such as "Alliance", "Horde", "PvP" and "Shadow Priest".
+function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
+	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (LibFroznFunctions.isWoWFlavor.DF) and (unitRecord.isPlayer);
+	
+	if (not cfg.hideFactionText) and (not cfg.hidePvpText) and (not hideSpecializationAndClassText) then
 		return;
 	end
 	
 	for i = 2, tip:NumLines() do
-		local line = _G["GameTooltipTextLeft" .. i];
-		local text = line:GetText();
+		local gttLine = _G["GameTooltipTextLeft" .. i];
+		local gttLineText = gttLine:GetText();
 		
-		if (cfg.hidePvpText) and (text == PVP_ENABLED) or (cfg.hideFactionText) and ((text == FACTION_ALLIANCE) or (text == FACTION_HORDE)) then
-			line:SetText(nil);
+		if (type(gttLineText) == "string") and
+				((cfg.hideFactionText) and ((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE)) or
+				(cfg.hidePvpText) and (gttLineText == PVP_ENABLED) or
+				(hideSpecializationAndClassText) and ((gttLineText:match("^([^%s%d]+) " .. unitRecord.className .. "$")) or (gttLineText:match("^" .. unitRecord.className .. "$")))) then
+			
+			gttLine:SetText(nil);
 		end
 	end
 end
@@ -366,7 +374,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	lineLevel.Index = 2 + (unitRecord.isColorBlind and UnitIsVisible(unitRecord.id) and 1 or 0);
 	
 	-- remove unwanted lines from tip
-	self:RemoveUnwantedLinesFromTip(tip);
+	self:RemoveUnwantedLinesFromTip(tip, unitRecord);
 	
 	-- Level + Classification
 	lineLevel:Push(((UnitCanAttack(unitRecord.id, "player") or UnitCanAttack("player", unitRecord.id)) and LibFroznFunctions:GetDifficultyColorForUnit(unitRecord.id) or CreateColor(unpack(cfg.colorLevel))):WrapTextInColorCode((cfg["classification_".. (unitRecord.classification or "")] or "%s? "):format(unitRecord.level == -1 and "??" or unitRecord.level)));
@@ -542,7 +550,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		if (unitRecord.mergeLevelLineWithGuildName) then
 			local gttLineText = gttLine:GetText();
 			
-			gttLine:SetText((gttLineText ~= " ") and (gttLineText .. "\n" .. tipLineLevelText) or tipLineLevelText);
+			gttLine:SetText((gttLineText) and (gttLineText ~= " ") and (gttLineText .. "\n" .. tipLineLevelText) or tipLineLevelText);
 		else
 			gttLine:SetText(tipLineLevelText);
 		end
