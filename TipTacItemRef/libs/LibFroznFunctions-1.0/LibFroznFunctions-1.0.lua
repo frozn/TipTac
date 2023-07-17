@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 12; -- bump on changes
+local LIB_MINOR = 13; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2018,6 +2018,7 @@ end
 --           .nameWithServerName           name with server name of unit, e.g. "Rugnaer-DunMorogh"
 --           .nameWithTitle                name with title of unit, e.g. "Sternenrufer Rugnaer"
 --           .serverName                   server name of unit, e.g. "DunMorogh"
+--           .sex                          sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female)
 --           .className                    localized class name of unit, e.g. "Warrior" or "Guerrier"
 --           .classFile                    locale-independent class file of unit, e.g. "WARRIOR"
 --           .classID                      class id of unit
@@ -2057,8 +2058,8 @@ function LibFroznFunctions:CreateUnitRecord(unitID, unitGUID)
 	unitRecord.nameWithServerName = GetUnitName(unitID, true);
 	unitRecord.nameWithTitle = UnitPVPName(unitID);
 	
+	unitRecord.sex = UnitSex(unitID);
 	unitRecord.className, unitRecord.classFile, unitRecord.classID = UnitClass(unitID);
-	
 	unitRecord.classification = UnitClassification(unitID);
 	
 	self:UpdateUnitRecord(unitRecord);

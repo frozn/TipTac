@@ -153,6 +153,18 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		return;
 	end
 	
+	local specNames = LibFroznFunctions:CreatePushArray();
+	
+	if (hideSpecializationAndClassText) then
+		local numSpecs = GetNumSpecializationsForClassID(unitRecord.classID);
+		
+		for i = 1, numSpecs do
+			local specID, specName = GetSpecializationInfoForClassID(unitRecord.classID, i, unitRecord.sex);
+			
+			specNames:Push(specName);
+		end
+	end
+	
 	for i = 2, tip:NumLines() do
 		local gttLine = _G["GameTooltipTextLeft" .. i];
 		local gttLineText = gttLine:GetText();
@@ -160,7 +172,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		if (type(gttLineText) == "string") and
 				((cfg.hideFactionText) and ((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE)) or
 				(cfg.hidePvpText) and (gttLineText == PVP_ENABLED) or
-				(hideSpecializationAndClassText) and ((gttLineText:match("^([^%s%d]+) " .. unitRecord.className .. "$")) or (gttLineText:match("^" .. unitRecord.className .. "$")))) then
+				(hideSpecializationAndClassText) and ((gttLineText:match("^" .. unitRecord.className .. "$")) or (specNames:Contains(gttLineText:match("^(.+) " .. unitRecord.className .. "$"))))) then
 			
 			gttLine:SetText(nil);
 		end
@@ -247,7 +259,7 @@ end
 function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 	-- gender
 	if (cfg.showPlayerGender) then
-		local sex = UnitSex(unitRecord.id);
+		local sex = unitRecord.sex;
 		if (sex == 2) or (sex == 3) then
 			lineLevel:Push(" ");
 			lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(sex == 3 and FEMALE or MALE));
