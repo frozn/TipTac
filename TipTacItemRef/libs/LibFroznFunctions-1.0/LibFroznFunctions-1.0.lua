@@ -1118,7 +1118,18 @@ end
 -- @param  classID                     class id of unit
 -- @param  alternateClassIDIfNotFound  alternate class id if color for param "classID" doesn't exist
 -- @return ColorMixin  returns nil if class file for param "classID" and "alternateClassIDIfNotFound" doesn't exist.
-local LFF_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS; -- see "ColorUtil.lua"
+local LFF_CLASS_COLORS; -- see "ColorUtil.lua"
+
+if (CUSTOM_CLASS_COLORS) then
+	LFF_CLASS_COLORS = CUSTOM_CLASS_COLORS;
+	
+	-- make shure that ColorMixin methods are available
+	for _, color in pairs(LFF_CLASS_COLORS) do
+		LibFroznFunctions:MixinDifferingObjects(color, ColorMixin);
+	end
+else
+	LFF_CLASS_COLORS = RAID_CLASS_COLORS;
+end
 
 function LibFroznFunctions:GetClassColor(classID, alternateClassIDIfNotFound)
 	local classInfo = (classID and C_CreatureInfo.GetClassInfo(classID)) or (alternateClassIDIfNotFound and C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound));
