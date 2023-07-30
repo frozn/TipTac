@@ -459,7 +459,7 @@ end
 function LibFroznFunctions:IsTableEmpty(tab)
 	-- no table
 	if (type(tab) ~= "table") then
-		return nil;
+		return;
 	end
 	
 	-- check if table is empty
@@ -535,7 +535,7 @@ function LibFroznFunctions:ChainTables(leadingTable, alternateTable)
 			
 			-- check if value exists in old metatable of leading table
 			if (not oldLeadingTableMetatable) or (not oldLeadingTableMetatable.__index) then
-				return nil;
+				return;
 			end
 			
 			if (type(oldLeadingTableMetatable.__index) == "table") then
@@ -716,7 +716,7 @@ end
 function LibFroznFunctions:CallFunctionAndSuppressErrorMessageAndSpeech(func)
 	-- no function to call
 	if (type(func) ~= "function") then
-		return nil;
+		return;
 	end
 	
 	-- call function and suppress error message and speech
@@ -742,7 +742,7 @@ function LibFroznFunctions:GetValueFromObjectByPath(obj, path)
 	
 	for partOfPath in tostring(path):gmatch("([^.]+)") do
 		if (type(currentObject) ~= "table") then
-			return nil;
+			return;
 		end
 		
 		currentObject = currentObject[partOfPath];
@@ -1105,7 +1105,7 @@ function LibFroznFunctions:CreateColorSmart(colorDefinition, asBytes)
 	end
 	
 	if (type(colorDefinition) ~= "string") then
-		return nil;
+		return;
 	end
 	
 	local hexA, hexR, hexG, hexB = colorDefinition:gsub("|c", ""):match("(%2x)(%2x)(%2x)(%2x)");
@@ -1118,23 +1118,34 @@ end
 -- @param  classID                     class id of unit
 -- @param  alternateClassIDIfNotFound  alternate class id if color for param "classID" doesn't exist
 -- @return ColorMixin  returns nil if class file for param "classID" and "alternateClassIDIfNotFound" doesn't exist.
-local LFF_CLASS_COLORS; -- see "ColorUtil.lua"
-
-if (CUSTOM_CLASS_COLORS) then
-	LFF_CLASS_COLORS = CUSTOM_CLASS_COLORS;
+local function getClassColor(classFile)
+	local classColor; -- see "ColorUtil.lua"
 	
-	-- make shure that ColorMixin methods are available
-	for _, color in pairs(LFF_CLASS_COLORS) do
-		LibFroznFunctions:MixinDifferingObjects(color, ColorMixin);
+	if (CUSTOM_CLASS_COLORS) then
+		-- custom class color
+		classColor = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[classFile];
+		
+		if (classColor) then
+			-- make shure that ColorMixin methods are available
+			if (classColor) and (type(classColor.WrapTextInColorCode) ~= "function") then
+				LibFroznFunctions:MixinDifferingObjects(classColor, ColorMixin);
+			end
+		else
+			-- fallback to default class color
+			classColor = RAID_CLASS_COLORS[classFile];
+		end
+	else
+		-- default class color
+		classColor = RAID_CLASS_COLORS[classFile];
 	end
-else
-	LFF_CLASS_COLORS = RAID_CLASS_COLORS;
+	
+	return classColor;
 end
 
 function LibFroznFunctions:GetClassColor(classID, alternateClassIDIfNotFound)
 	local classInfo = (classID and C_CreatureInfo.GetClassInfo(classID)) or (alternateClassIDIfNotFound and C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound));
 	
-	return classInfo and LFF_CLASS_COLORS[classInfo.classFile];
+	return classInfo and getClassColor(classInfo.classFile);
 end
 
 -- get class color by class file
@@ -1143,7 +1154,7 @@ end
 -- @param  alternateClassFileIfNotFound  alternate class file if color for param "classFile" doesn't exist
 -- @return ColorMixin  returns nil if class file for param "classFile" and "alternateClassFileIfNotFound" doesn't exist.
 function LibFroznFunctions:GetClassColorByClassFile(classFile, alternateClassFileIfNotFound)
-	return LFF_CLASS_COLORS[classFile] or LFF_CLASS_COLORS[alternateClassFileIfNotFound];
+	return getClassColor(classFile) or getClassColor(alternateClassFileIfNotFound);
 end
 
 -- get power color
@@ -1194,7 +1205,7 @@ end
 function LibFroznFunctions:GetDifficultyColorForUnit(unitID)
 	-- no unit id
 	if (not unitID) then
-		return nil;
+		return;
 	end
 	
 	-- get difficulty color for unit compared to the player level
@@ -1220,7 +1231,7 @@ end
 function LibFroznFunctions:GetDifficultyColorForQuest(questID, questLevel)
 	-- no quest id or invalid number
 	if (not questID) or (type(questLevel) ~= "number") then
-		return nil;
+		return;
 	end
 	
 	-- world quests
@@ -1253,7 +1264,7 @@ function LibFroznFunctions:CreateMarkupForRoleIcon(role)
 	elseif (role == "HEALER") then
 		return CreateAtlasMarkup("roleicon-tiny-healer");
 	else
-		return nil;
+		return;
 	end
 end
 
@@ -1264,7 +1275,7 @@ end
 function LibFroznFunctions:CreateMarkupForClassIcon(classIcon)
 	-- invalid class icon
 	if (type(classIcon) ~= "number") and (type(classIcon) ~= "string") then
-		return nil;
+		return;
 	end
 	
 	-- create markup for class icon
@@ -1640,7 +1651,7 @@ function LibFroznFunctions:GetAuraDescription(unitID, index, filter, callbackFor
 	local spellID = select(10, UnitAura(unitID, index, filter));
 	
 	if (not spellID) then
-		return nil;
+		return;
 	end
 	
 	local spell = Spell:CreateFromSpellID(spellID);
@@ -1670,7 +1681,7 @@ function LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForA
 		local _unitGUID = UnitGUID(unitID);
 		
 		if (_unitGUID ~= unitGUID) then
-			return nil;
+			return;
 		end
 	end
 	
@@ -1943,7 +1954,7 @@ LFF_UNIT_REACTION_INDEX = {
 function LibFroznFunctions:GetUnitReactionIndex(unitID)
 	-- no unit id
 	if (not unitID) then
-		return nil;
+		return;
 	end
 	
 	-- dead unit
@@ -2044,7 +2055,7 @@ end
 function LibFroznFunctions:CreateUnitRecord(unitID, unitGUID)
 	-- no unit id
 	if (not unitID) then
-		return nil;
+		return;
 	end
 	
 	-- create unit record
@@ -2258,7 +2269,7 @@ function LibFroznFunctions:InspectUnit(unitID, callbackForInspectData, removeCal
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
-		return nil;
+		return;
 	end
 	
 	-- get record in unit cache
@@ -2266,7 +2277,7 @@ function LibFroznFunctions:InspectUnit(unitID, callbackForInspectData, removeCal
 	local unitCacheRecord = frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID);
 	
 	if (not unitCacheRecord) then
-		return nil;
+		return;
 	end
 	
 	-- no need for a delayed inspect request on the player unit
@@ -2298,7 +2309,7 @@ end
 function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
 	-- no unit guid
 	if (not unitGUID) then
-		return nil;
+		return;
 	end
 	
 	-- get record in unit cache
@@ -2483,7 +2494,7 @@ end);
 function frameForDelayedInspection:INSPECT_READY(event, unitGUID)
 	-- no unit guid
 	if (not unitGUID) then
-		return nil;
+		return;
 	end
 	
 	local unitID = LibFroznFunctions:GetUnitIDFromGUID(unitGUID);
@@ -2573,7 +2584,7 @@ function LibFroznFunctions:AreTalentsAvailable(unitID)
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
-		return nil;
+		return;
 	end
 	
 	 -- no need to display talent/specialization for players who hasn't yet gotten talent tabs or a specialization
@@ -2724,7 +2735,7 @@ function LibFroznFunctions:IsAverageItemLevelAvailable(unitID)
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
-		return nil;
+		return;
 	end
 	
 	 -- consider minimum player level to display average item level, see MIN_PLAYER_LEVEL_FOR_ITEM_LEVEL_DISPLAY in "PaperDollFrame.lua"
@@ -2802,7 +2813,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 		local _unitGUID = UnitGUID(unitID);
 		
 		if (_unitGUID ~= unitGUID) then
-			return nil;
+			return;
 		end
 	end
 	
