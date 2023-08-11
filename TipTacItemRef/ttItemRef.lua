@@ -2206,6 +2206,10 @@ end
 
 -- item
 function LinkTypeFuncs:item(link, linkType, id)
+	if (not link) then
+		return;
+	end
+	
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(link);
 	if (classID == 5) and (subClassID == 1) then -- keystone
 		local splits = StringSplitIntoTable(":", link);
@@ -2346,6 +2350,10 @@ end
 local getRewardLevelInitialized = false;
 
 function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ...) -- modifierID1, modifierID2, modifierID3, modifierID4
+	if (not itemID) then
+		return;
+	end
+	
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemID);
 	local trueItemLevel = LibItemString:GetTrueItemLevel(link);
 	if (trueItemLevel) then
@@ -2385,7 +2393,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	local showId = (itemID and cfg.if_showItemId);
 	local showRewardLevel = (endOfRunRewardLevel and cfg.if_showKeystoneRewardLevel);
 	local showWeeklyRewardLevel = (weeklyRewardLevel and cfg.if_showKeystoneRewardLevel);
-	local showTimeLimit = (mapID and cfg.if_showKeystoneTimeLimit);
+	local showTimeLimit = (tonumber(mapID) and cfg.if_showKeystoneTimeLimit);
 	local showAffixInfo = cfg.if_showKeystoneAffixInfo;
 	local showIconID = (cfg.if_showIconId and itemTexture);
 	local showExpansionIcon = (cfg.if_showExpansionIcon and expansionIcon);
