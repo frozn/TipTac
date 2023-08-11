@@ -612,6 +612,11 @@ TT_ExtendedConfig.tipsToModify = {
 			["EncounterJournalTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
 		}
 	},
+	["Blizzard_PerksProgram"] = {
+		frames = {
+			["PerksProgramTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
+		}
+	},
 	
 	-- 3rd party addon tooltips
 	["RaiderIO"] = {

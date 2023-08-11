@@ -131,6 +131,7 @@ local tipsToModify = {
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
+	"PerksProgramTooltip",
 	--"EncounterJournalTooltip", -- commented out for embedded tooltips, see description in tt:SetPadding()
 	-- 3rd party addon tooltips
 	"PlaterNamePlateAuraTooltip",
@@ -143,6 +144,7 @@ local addOnsLoaded = {
 	["Blizzard_Communities"] = false,
 	["Blizzard_EncounterJournal"] = false,
 	["Blizzard_GuildUI"] = false,
+	["Blizzard_PerksProgram"] = false,
 	["Blizzard_PlayerChoice"] = false,
 	["Blizzard_PVPUI"] = false,
 	["WorldQuestTracker"] = false
@@ -161,6 +163,7 @@ local tipsToAddIcon = {
 	["FloatingPetBattleAbilityTooltip"] = true,
 	["PetJournalPrimaryAbilityTooltip"] = true,
 	["PetJournalSecondaryAbilityTooltip"] = true,
+	["PerksProgramTooltip"] = true,
 	--["EncounterJournalTooltip"] = true, -- commented out for embedded tooltips, see description in tt:SetPadding()
 };
 
@@ -1896,7 +1899,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PetJournalPrimaryAbilityTooltip",
 			"PetJournalSecondaryAbilityTooltip"
 		}, true, true);
-
+		
 		self:OnApplyConfig();
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
@@ -1985,6 +1988,19 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_GuildUI"] = true;
+		end
+	end
+	-- now PlayerChoiceTorghastOption exists
+	if (addOnName == "Blizzard_PerksProgram") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_PerksProgram")) and (not addOnsLoaded['Blizzard_PerksProgram'])) then
+		-- Hook Tips & Apply Settings
+		self:ApplyHooksToTips({
+			"PerksProgramTooltip"
+		}, true, true);
+		
+		self:OnApplyConfig();
+		
+		if (addOnName == MOD_NAME) then
+			addOnsLoaded["Blizzard_PerksProgram"] = true;
 		end
 	end
 	-- now PlayerChoiceTorghastOption exists
@@ -2081,7 +2097,8 @@ local function SmartIconEvaluation(tip,linkType)
 		return false;
 	-- Item
 	elseif (linkType == "item") then
-		if (owner.hasItem or owner.action or owner.icon or owner.Icon or owner.texture or owner.lootFrame or owner.ItemIcon or owner.iconTexture) then
+		if (owner.hasItem or owner.action or owner.icon or owner.Icon or owner.texture or owner.lootFrame or owner.ItemIcon or owner.iconTexture or
+				(owner.ContentsContainer and owner.ContentsContainer.Icon) or owner.FrozenSlot) then -- Blizzard_PerksProgram -> PerksProgramTooltip, e.g. for trading post introduced with df 10.0.5
 			return false;
 		end
 	-- Spell
@@ -2152,6 +2169,14 @@ local function SmartIconEvaluation(tip,linkType)
 	elseif (linkType == "azessence") then
 		if (owner.Icon) then
 			return false;
+		end
+	-- Currency
+	elseif (linkType == "currency") then
+		local ownerParent = owner:GetParent();
+		if (ownerParent) then
+			if (ownerParent.Icon) then -- Blizzard_PerksProgram -> PerksProgramTooltip, e.g. for trading post introduced with df 10.0.5
+				return false;
+			end
 		end
 	end
 
