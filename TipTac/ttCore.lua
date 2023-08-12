@@ -617,6 +617,21 @@ TT_ExtendedConfig.tipsToModify = {
 			["PerksProgramTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
 		}
 	},
+	["Blizzard_PetBattleUI"] = {
+		frames = {
+			["PetBattlePrimaryUnitTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
+			["PetBattlePrimaryAbilityTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
+		},
+		hookFnForAddOn = function(TT_CacheForFrames)
+			-- HOOK: PetBattleAbilityButton_OnEnter to re-anchor tooltip of pet ability buttons in bottom frame, so that they are anchored the same way like "switch pet" or "give up" button
+			hooksecurefunc("PetBattleAbilityButton_OnEnter", function(self)
+				if (PetBattlePrimaryAbilityTooltip:IsShown()) then
+					PetBattlePrimaryAbilityTooltip:ClearAllPoints();
+					PetBattlePrimaryAbilityTooltip:SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0, 0);
+				end
+			end);
+		end
+	},
 	
 	-- 3rd party addon tooltips
 	["RaiderIO"] = {
@@ -1801,7 +1816,7 @@ function tt:SetPaddingToTip(tip)
 	
 	isSettingPaddingToTip = false;
 	
-	-- SetPadding() isn't available for e.g. BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip, EncounterJournalTooltip and DropDownList
+	-- SetPadding() isn't available for e.g. BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, PetBattlePrimaryUnitTooltip, PetBattlePrimaryAbilityTooltip, FloatingPetBattleAbilityTooltip, EncounterJournalTooltip and DropDownList
 	if (tip:GetObjectType() ~= "GameTooltip") then
 		return;
 	end

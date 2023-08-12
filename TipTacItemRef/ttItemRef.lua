@@ -3,9 +3,11 @@ local format = string.format;
 local unpack = unpack;
 local gtt = GameTooltip;
 local bptt = BattlePetTooltip;
+local pbputt = PetBattlePrimaryUnitTooltip;
 local fbptt = FloatingBattlePetTooltip;
 local pjpatt = PetJournalPrimaryAbilityTooltip;
 local pjsatt = PetJournalSecondaryAbilityTooltip;
+local pbpatt = PetBattlePrimaryAbilityTooltip;
 local fpbatt = FloatingPetBattleAbilityTooltip;
 local ejtt = EncounterJournalTooltip;
 
@@ -112,7 +114,7 @@ local TTIF_DefaultConfig = {
 	if_iconAnchor = "BOTTOMLEFT",
 	if_iconTooltipAnchor = "TOPLEFT",
 	if_iconOffsetX = 2.5,
-	if_iconOffsetY = -2.5,
+	if_iconOffsetY = -2.5
 };
 
 -- Tooltips to Hook into -- MUST be a GameTooltip widget -- If the main TipTac is installed, the TT_TipsToModify is used instead
@@ -126,15 +128,16 @@ local tipsToModify = {
 	"EmbeddedItemTooltip",
 	"NamePlateTooltip",
 	"BattlePetTooltip",
+	"PetBattlePrimaryUnitTooltip",
 	"FloatingBattlePetTooltip",
-	"FloatingPetBattleAbilityTooltip",
 	"PetJournalPrimaryAbilityTooltip",
 	"PetJournalSecondaryAbilityTooltip",
+	"PetBattlePrimaryAbilityTooltip",
 	"FloatingPetBattleAbilityTooltip",
 	"PerksProgramTooltip",
 	--"EncounterJournalTooltip", -- commented out for embedded tooltips, see description in tt:SetPadding()
 	-- 3rd party addon tooltips
-	"PlaterNamePlateAuraTooltip",
+	"PlaterNamePlateAuraTooltip"
 };
 
 local addOnsLoaded = {
@@ -145,6 +148,7 @@ local addOnsLoaded = {
 	["Blizzard_EncounterJournal"] = false,
 	["Blizzard_GuildUI"] = false,
 	["Blizzard_PerksProgram"] = false,
+	["Blizzard_PetBattleUI"] = false,
 	["Blizzard_PlayerChoice"] = false,
 	["Blizzard_PVPUI"] = false,
 	["WorldQuestTracker"] = false
@@ -159,11 +163,13 @@ local tipsToAddIcon = {
 	["ItemRefShoppingTooltip1"] = true,
 	["ItemRefShoppingTooltip2"] = true,
 	["BattlePetTooltip"] = true,
+	["PetBattlePrimaryUnitTooltip"] = true,
 	["FloatingBattlePetTooltip"] = true,
-	["FloatingPetBattleAbilityTooltip"] = true,
 	["PetJournalPrimaryAbilityTooltip"] = true,
 	["PetJournalSecondaryAbilityTooltip"] = true,
-	["PerksProgramTooltip"] = true,
+	["PetBattlePrimaryAbilityTooltip"] = true,
+	["FloatingPetBattleAbilityTooltip"] = true,
+	["PerksProgramTooltip"] = true
 	--["EncounterJournalTooltip"] = true, -- commented out for embedded tooltips, see description in tt:SetPadding()
 };
 
@@ -504,7 +510,7 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 end
 
 -- add text line to PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, FloatingPetBattleAbilityTooltip and EncounterJournalTooltip (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
-local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
+local function PATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 	local linePadding = 2;
 	local anchorXOfs = 0;
 	local anchorYOfs = 0;
@@ -516,7 +522,7 @@ local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 	
 	local anchor = self.textLineAnchor;
 	if not anchor then
-		if (self == pjpatt or self == pjsatt or self == fpbatt) then
+		if (self == pjpatt or self == pjsatt or self == fpbatt or self == pbpatt) then
 			anchor = self.bottomFrame;
 			linePadding = 5;
 			anchorXOfsWrap = -10;
@@ -528,6 +534,9 @@ local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 			end
 			anchorXOfs = 10; -- see AdventureJournal_Reward_OnEnter() in "Blizzard_EncounterJournal/Blizzard_EncounterJournal.lua"
 			anchorYOfs = 6;
+		elseif (self == pbputt) then
+			anchor = self.Delimiter2;
+			anchorXOfs = 8;
 		end
 	end
 	
@@ -546,20 +555,20 @@ local function PJATT_EJTT_AddTextLine(self, text, r, g, b, wrap)
 	
 	self:SetHeight(self:GetHeight() + line:GetHeight() + linePadding);
 	
-	if (self == pjpatt or self == pjsatt or self == fpbatt) then
+	if (self == pjpatt or self == pjsatt or self == fpbatt or self == pbpatt) then
 		self.bottomFrame = line;
 	end
 end
 
 -- HOOK: PetJournalPrimaryAbilityTooltip:OnLoad + PetJournalSecondaryAbilityTooltip:OnLoad + FloatingPetBattleAbilityTooltip:OnLoad + EncounterJournalTooltip:OnLoad (see BattlePetTooltip_OnLoad() in "FloatingPetBattleTooltip.lua")
-local function PJATT_EJTT_OnLoad_Hook(self)
+local function PATT_EJTT_OnLoad_Hook(self)
 	local subLayer = 0;
 	self.linePool = CreateFontStringPool(self, "ARTWORK", subLayer, "GameTooltipText");
-	self.AddLine = PJATT_EJTT_AddTextLine;
+	self.AddLine = PATT_EJTT_AddTextLine;
 end
 
 -- HOOK: PetJournalPrimaryAbilityTooltip:OnShow + PetJournalSecondaryAbilityTooltip:OnShow + FloatingPetBattleAbilityTooltip:OnShow + EncounterJournalTooltip:OnShow (see BattlePetTooltipTemplate_SetBattlePet() in "FloatingPetBattleTooltip.lua")
-local function PJATT_EJTT_OnShow_Hook(self)
+local function PATT_EJTT_OnShow_Hook(self)
 	self.linePool:ReleaseAll();
 	self.textLineAnchor = nil;
 end
@@ -665,7 +674,7 @@ local function SetCompanionPet_Hook(self, petID)
 		if (speciesID) then
 			local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(petID);
 			tipDataAdded[self] = "battlepet";
-			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, nil, displayID);
+			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, petID, displayID, canBattle);
 		end
 	end
 end
@@ -739,7 +748,7 @@ local function SetAction_Hook(self, slot)
 			if (speciesID) then
 				local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(id);
 				tipDataAdded[self] = "battlepet";
-				LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, nil, displayID);
+				LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, id, displayID, canBattle);
 			end
 		elseif (actionType == "flyout") then
 			local icon = GetActionTexture(slot);
@@ -1114,9 +1123,35 @@ end
 -- HOOK: BattlePetToolTip_Show
 local function BPTT_Show_Hook(speciesID, level, breedQuality, maxHealth, power, speed, customName)
 	if (cfg.if_enable) and (not tipDataAdded[bptt]) and (bptt:IsShown()) then
-		tipDataAdded[bptt] = "battlepet";
 		local speciesName, speciesIcon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable, displayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID);
-		LinkTypeFuncs.battlepet(bptt, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, nil, displayID);
+		tipDataAdded[bptt] = "battlepet";
+		LinkTypeFuncs.battlepet(bptt, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, nil, displayID, canBattle);
+	end
+end
+
+-- HOOK: PetBattleUnitTooltip_UpdateForUnit
+local function PBUTT_UpdateForUnit_Hook(self, petOwner, petIndex)
+	if (cfg.if_enable) and (not tipDataAdded[pbputt]) and (pbputt:IsShown()) then
+		if (not petOwner) or (not petIndex) then -- see PetBattleUnitFrame_UpdateDisplay() in "Blizzard_PetBattleUI/Blizzard_PetBattleUI.lua"
+			return;
+		end
+		
+		if (petIndex > C_PetBattles.GetNumPets(petOwner)) then
+			return;
+		end
+		
+		local speciesID = C_PetBattles.GetPetSpeciesID(petOwner, petIndex);
+		
+		if (speciesID) then
+			local level = C_PetBattles.GetLevel(petOwner, petIndex);
+			local breedQuality = C_PetBattles.GetBreedQuality(petOwner, petIndex);
+			local maxHealth = C_PetBattles.GetMaxHealth(petOwner, petIndex);
+			local power = C_PetBattles.GetPower(petOwner, petIndex);
+			local speed = C_PetBattles.GetSpeed(petOwner, petIndex);
+			local displayID = C_PetBattles.GetDisplayID(petOwner, petIndex);
+			tipDataAdded[pbputt] = "battlepet";
+			LinkTypeFuncs.battlepet(pbputt, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, nil, displayID, true);
+		end
 	end
 end
 
@@ -1124,7 +1159,8 @@ end
 local function FBP_Show_Hook(speciesID, level, breedQuality, maxHealth, power, speed, customName, petID)
 	if (cfg.if_enable) and (not tipDataAdded[fbptt]) and (fbptt:IsShown()) then
 		local speciesName, speciesIcon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable, displayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID);
-		LinkTypeFuncs.battlepet(fbptt, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, nil, displayID);
+		tipDataAdded[fbptt] = "battlepet";
+		LinkTypeFuncs.battlepet(fbptt, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, fbptt.battlePetID, displayID, canBattle);
 	end
 end
 
@@ -1132,7 +1168,7 @@ end
 local function PJ_ShowAbilityTooltip_Hook(self, abilityID, speciesID, petID, additionalText)
 	if (cfg.if_enable) and (not tipDataAdded[pjpatt]) and (pjpatt:IsShown()) then
 		tipDataAdded[pjpatt] = "battlePetAbil";
-		LinkTypeFuncs.battlePetAbil(pjpatt, nil, "battlePetAbil", abilityID, speciesID, petID, additionalText);
+		LinkTypeFuncs.battlePetAbil(pjpatt, nil, "battlePetAbil", false, abilityID, speciesID, petID, additionalText);
 	end
 end
 
@@ -1141,12 +1177,34 @@ local function PJ_ShowAbilityCompareTooltip_Hook(abilityID1, abilityID2, species
 	if (cfg.if_enable) then
 		if (not tipDataAdded[pjpatt]) and (pjpatt:IsShown()) then
 			tipDataAdded[pjpatt] = "battlePetAbil";
-			LinkTypeFuncs.battlePetAbil(pjpatt, nil, "battlePetAbil", abilityID1, speciesID, petID, nil);
+			LinkTypeFuncs.battlePetAbil(pjpatt, nil, "battlePetAbil", false, abilityID1, speciesID, petID, nil);
 		end
 		if (not tipDataAdded[pjsatt]) and (pjsatt:IsShown()) then
 			tipDataAdded[pjsatt] = "battlePetAbil";
-			LinkTypeFuncs.battlePetAbil(pjsatt, nil, "battlePetAbil", abilityID2, speciesID, petID, nil);
+			LinkTypeFuncs.battlePetAbil(pjsatt, nil, "battlePetAbil", false, abilityID2, speciesID, petID, nil);
 		end
+	end
+end
+
+-- HOOK: SharedPetBattleAbilityTooltip_SetAbility
+local function SPBATT_SetAbility_Hook(self, abilityInfo, additionalText)
+	if (cfg.if_enable) and (not tipDataAdded[pbpatt]) and (self == pbpatt) then
+		local abilityID = abilityInfo:GetAbilityID();
+		
+		if (not abilityID) then
+			return;
+		end
+		
+		local speciesID;
+		local petOwner, petIndex = abilityInfo.petOwner, abilityInfo.petIndex;
+		
+		if (petOwner) and (petIndex) and (petIndex > C_PetBattles.GetNumPets(petOwner)) then
+			speciesID = C_PetBattles.GetPetSpeciesID(petOwner, petIndex);
+		end
+		
+		tipDataAdded[pbpatt] = "battlePetAbil";
+		PATT_EJTT_OnShow_Hook(self); -- fire OnShow handler to clear lines added by Addline()
+		LinkTypeFuncs.battlePetAbil(pbpatt, nil, "battlePetAbil", true, abilityID, speciesID, nil, additionalText);
 	end
 end
 
@@ -1154,10 +1212,10 @@ end
 local function FPBA_Show_Hook(abilityID, maxHealth, power, speed)
 	if (cfg.if_enable) and (fpbatt:IsShown()) then
 		if (tipDataAdded[fpbatt]) then -- fire OnShow handler if hyperlink clicked repeatedly. The FloatingPetBattleAbilityTooltip doesn't toggle the tooltip like a FloatingBattlePetTooltip.
-			PJATT_EJTT_OnShow_Hook(fpbatt);
+			PATT_EJTT_OnShow_Hook(fpbatt);
 		end
 		tipDataAdded[fpbatt] = "battlePetAbil";
-		LinkTypeFuncs.battlePetAbil(fpbatt, nil, "battlePetAbil", abilityID, nil, nil, nil);
+		LinkTypeFuncs.battlePetAbil(fpbatt, nil, "battlePetAbil", false, abilityID, nil, nil, nil);
 	end
 end
 
@@ -1479,7 +1537,7 @@ local function AJR_OnEnter_Hook(self)
 			-- item and currency can both exist. In this case currency is the second item.
 			if (rewardData.currencyType) or (rewardData.itemLink) then
 				if (tipDataAdded[ejtt]) then -- fire OnShow handler to reset line pool. AdventureJournal_Reward_OnEnter will be called multiple times without OnHide.
-					PJATT_EJTT_OnShow_Hook(ejtt);
+					PATT_EJTT_OnShow_Hook(ejtt);
 				end
 			end
 			if (rewardData.currencyType) then -- currency
@@ -1656,6 +1714,14 @@ local function BPTT_OnHide_Hook(self)
 	end
 end
 
+-- HOOK: PetBattlePrimaryUnitTooltip:OnHide
+local function PBPUTT_OnHide_Hook(self)
+	tipDataAdded[self] = nil;
+	if (self.ttSetIconTextureAndText) then
+		self:ttSetIconTextureAndText();
+	end
+end
+
 -- HOOK: FloatingBattlePetTooltip:OnHide
 local function FBPTT_OnHide_Hook(self)
 	tipDataAdded[self] = nil;
@@ -1664,8 +1730,8 @@ local function FBPTT_OnHide_Hook(self)
 	end
 end
 
--- HOOK: PetJournalPrimaryAbilityTooltip:OnHide + PetJournalSecondaryAbilityTooltip:OnHide
-local function PJATT_OnHide_Hook(self)
+-- HOOK: PetJournalPrimaryAbilityTooltip:OnHide + PetBattlePrimaryAbilityTooltip:OnHide + PetJournalSecondaryAbilityTooltip:OnHide
+local function PATT_OnHide_Hook(self)
 	tipDataAdded[self] = nil;
 	if (self.ttSetIconTextureAndText) then
 		self:ttSetIconTextureAndText();
@@ -1689,6 +1755,75 @@ local function EJTT_OnHide_Hook(self)
 end
 
 -- Function to apply necessary hooks to tips
+local function applyHooksToTipsForFrames(tip, tipName)
+	local tipHooked = false;
+	
+	if (tipName == "BattlePetTooltip") then
+		hooksecurefunc("BattlePetToolTip_Show", BPTT_Show_Hook);
+		tip:HookScript("OnHide", BPTT_OnHide_Hook);
+		tipHooked = true;
+	elseif (tipName == "PetBattlePrimaryUnitTooltip") then
+		hooksecurefunc("PetBattleUnitTooltip_UpdateForUnit", PBUTT_UpdateForUnit_Hook);
+		tip:HookScript("OnHide", PBPUTT_OnHide_Hook);
+		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
+		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
+		tip:HookScript("OnShow", PATT_EJTT_OnShow_Hook);
+		if (tip.weakToTextures) then -- fire OnLoad handler if already loaded
+			PATT_EJTT_OnLoad_Hook(tip);
+		end
+		tipHooked = true;
+	elseif (tipName == "FloatingBattlePetTooltip") then
+		hooksecurefunc("FloatingBattlePet_Show", FBP_Show_Hook);
+		tip:HookScript("OnHide", FBPTT_OnHide_Hook);
+		tipHooked = true;
+	elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
+		if (tipName == "PetJournalPrimaryAbilityTooltip") then
+			hooksecurefunc("PetJournal_ShowAbilityTooltip", PJ_ShowAbilityTooltip_Hook);
+			hooksecurefunc("PetJournal_ShowAbilityCompareTooltip", PJ_ShowAbilityCompareTooltip_Hook);
+		end
+		tip:HookScript("OnHide", PATT_OnHide_Hook);
+		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
+		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
+		tip:HookScript("OnShow", PATT_EJTT_OnShow_Hook);
+		if (tip.strongAgainstTextures) then -- fire OnLoad handler if already loaded
+			PATT_EJTT_OnLoad_Hook(tip);
+		end
+		tipHooked = true;
+	elseif (tipName == "PetBattlePrimaryAbilityTooltip") then
+		hooksecurefunc("SharedPetBattleAbilityTooltip_SetAbility", SPBATT_SetAbility_Hook);
+		tip:HookScript("OnHide", PATT_OnHide_Hook);
+		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
+		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
+		-- tip:HookScript("OnShow", PATT_EJTT_OnShow_Hook); -- included in SPBATT_SetAbility_Hook()
+		if (tip.strongAgainstTextures) then -- fire OnLoad handler if already loaded
+			PATT_EJTT_OnLoad_Hook(tip);
+		end
+		tipHooked = true;
+	elseif (tipName == "FloatingPetBattleAbilityTooltip") then
+		hooksecurefunc("FloatingPetBattleAbility_Show", FPBA_Show_Hook);
+		tip:HookScript("OnHide", FPBATT_OnHide_Hook);
+		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
+		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
+		tip:HookScript("OnShow", PATT_EJTT_OnShow_Hook);
+		if (tip.strongAgainstTextures) then -- fire OnLoad handler if already loaded
+			PATT_EJTT_OnLoad_Hook(tip);
+		end
+		tipHooked = true;
+	elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
+		hooksecurefunc("AdventureJournal_Reward_OnEnter", AJR_OnEnter_Hook);
+		tip:HookScript("OnHide", EJTT_OnHide_Hook);
+		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
+		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
+		tip:HookScript("OnShow", PATT_EJTT_OnShow_Hook);
+		if (tip.headerText) then -- fire OnLoad handler if already loaded
+			PATT_EJTT_OnLoad_Hook(tip);
+		end
+		-- tipHooked = true;
+	end
+	
+	return tipHooked;
+end
+
 function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModify)
 	-- Resolve the TipsToModify strings into actual objects
 	if (resolveGlobalNamedObjects) then
@@ -1774,48 +1909,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				tipHooked = true;
 			else
 				if (tip:GetObjectType() == "Frame") then
-					if (tipName == "BattlePetTooltip") then
-						hooksecurefunc("BattlePetToolTip_Show", BPTT_Show_Hook);
-						tip:HookScript("OnHide", BPTT_OnHide_Hook);
-						tipHooked = true;
-					elseif (tipName == "FloatingBattlePetTooltip") then
-						hooksecurefunc("FloatingBattlePet_Show", FBP_Show_Hook);
-						tip:HookScript("OnHide", FBPTT_OnHide_Hook);
-						tipHooked = true;
-					elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
-						if (tipName == "PetJournalPrimaryAbilityTooltip") then
-							hooksecurefunc("PetJournal_ShowAbilityTooltip", PJ_ShowAbilityTooltip_Hook);
-							hooksecurefunc("PetJournal_ShowAbilityCompareTooltip", PJ_ShowAbilityCompareTooltip_Hook);
-						end
-						tip:HookScript("OnHide", PJATT_OnHide_Hook);
-						-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
-						tip:HookScript("OnLoad", PJATT_EJTT_OnLoad_Hook);
-						tip:HookScript("OnShow", PJATT_EJTT_OnShow_Hook);
-						if (tip.strongAgainstTextures) then -- fire OnLoad handler if already loaded
-							PJATT_EJTT_OnLoad_Hook(tip);
-						end
-						tipHooked = true;
-					elseif (tipName == "FloatingPetBattleAbilityTooltip") then
-						hooksecurefunc("FloatingPetBattleAbility_Show", FPBA_Show_Hook);
-						tip:HookScript("OnHide", FPBATT_OnHide_Hook);
-						-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
-						tip:HookScript("OnLoad", PJATT_EJTT_OnLoad_Hook);
-						tip:HookScript("OnShow", PJATT_EJTT_OnShow_Hook);
-						if (tip.strongAgainstTextures) then -- fire OnLoad handler if already loaded
-							PJATT_EJTT_OnLoad_Hook(tip);
-						end
-						tipHooked = true;
-					elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
-						hooksecurefunc("AdventureJournal_Reward_OnEnter", AJR_OnEnter_Hook);
-						tip:HookScript("OnHide", EJTT_OnHide_Hook);
-						-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
-						tip:HookScript("OnLoad", PJATT_EJTT_OnLoad_Hook);
-						tip:HookScript("OnShow", PJATT_EJTT_OnShow_Hook);
-						if (tip.headerText) then -- fire OnLoad handler if already loaded
-							PJATT_EJTT_OnLoad_Hook(tip);
-						end
-						-- tipHooked = true;
-					end
+					tipHooked = applyHooksToTipsForFrames(tip, tipName);
 				end
 			end
 			
@@ -1990,7 +2084,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			addOnsLoaded["Blizzard_GuildUI"] = true;
 		end
 	end
-	-- now PlayerChoiceTorghastOption exists
+	-- now PerksProgramTooltip exists
 	if (addOnName == "Blizzard_PerksProgram") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_PerksProgram")) and (not addOnsLoaded['Blizzard_PerksProgram'])) then
 		-- Hook Tips & Apply Settings
 		self:ApplyHooksToTips({
@@ -2001,6 +2095,23 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PerksProgram"] = true;
+		end
+	end
+	-- now PetBattlePrimaryUnitTooltip and PetBattlePrimaryAbilityTooltip exists
+	if (addOnName == "Blizzard_PetBattleUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_PetBattleUI")) and (not addOnsLoaded['Blizzard_PetBattleUI'])) then
+		pbputt = PetBattlePrimaryUnitTooltip;
+		pbpatt = PetBattlePrimaryAbilityTooltip;
+		
+		-- Hook Tips & Apply Settings
+		self:ApplyHooksToTips({
+			"PetBattlePrimaryUnitTooltip",
+			"PetBattlePrimaryAbilityTooltip"
+		}, true, true);
+		
+		self:OnApplyConfig();
+		
+		if (addOnName == MOD_NAME) then
+			addOnsLoaded["Blizzard_PetBattleUI"] = true;
 		end
 	end
 	-- now PlayerChoiceTorghastOption exists
@@ -2079,15 +2190,15 @@ local function SmartIconEvaluation(tip,linkType)
 		return true;
 	end
 
+	if (tip == pbputt or tip == pbpatt or tip == ejtt) then -- PetBattlePrimaryUnitTooltip, PetBattlePrimaryAbilityTooltip and EncounterJournalTooltip
+		return false;
+	end
+	
 	if (linkType == "battlePetAbil") then
-		if (tip.anchoredTo and tip.anchoredTo.icon) then
+		if (tip.anchoredTo and (tip.anchoredTo.icon or tip.anchoredTo.typeIcon)) then
 			return false;
 		end
 		return true;
-	end
-	
-	if (tip == ejtt) then -- EncounterJournalTooltip
-		return false;
 	end
 	
 	local owner = tip:GetOwner();
@@ -2873,12 +2984,12 @@ function LinkTypeFuncs:unit(link, linkType, unitID)
 end
 
 -- battle pet
-function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality, maxHealth, power, speed, petID, displayID)
+function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality, maxHealth, power, speed, petID, displayID, canBattle)
 	local speciesName, speciesIcon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable, _displayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID);
 
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType));
-	
+
 	if (showIcon) then
 		self:ttSetIconTextureAndText(speciesIcon);
 	end
@@ -2890,7 +3001,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 	end
 
 	-- Level + CreatureID + IconID -- Only alter the tip if we got either a valid "level" or "creatureID"
-	local showLevel = (level and cfg.if_showBattlePetLevel);
+	local showLevel = (canBattle and level and cfg.if_showBattlePetLevel);
 	local showId = (creatureID and cfg.if_showNpcId);
 	local showIconID = (cfg.if_showIconId and speciesIcon);
 	local linePadding = 2;
@@ -2951,7 +3062,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 						break;
 					end
 				end
-			else
+			elseif (self ~= pbputt) then
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 					local line = _G[self:GetName().."TextLeft"..i];
 					if (line and (line:GetText() or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
@@ -2989,22 +3100,29 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 		self:AddLine(format("IconID: %d", speciesIcon), unpack(cfg.if_infoColor));
 	end
 	
-	if (showLevel or showId or showIconID) and (self ~= bptt and self ~= fbptt) then
+	if (showLevel or showId or showIconID) and (self ~= bptt and self ~= fbptt and self ~= pbputt) then
 		self:Show();	-- call Show() to resize tip after adding lines. only necessary for pet tooltip in action bar.
 	end
 end
 
 -- battle pet ability
-function LinkTypeFuncs:battlePetAbil(link, linkType, abilityID, speciesID, petID, additionalText)
-	local abilityName, abilityIcon, abilityType = C_PetJournal.GetPetAbilityInfo(abilityID)
-
+function LinkTypeFuncs:battlePetAbil(link, linkType, inBattle, abilityID, speciesID, petID, additionalText)
+	local abilityName, abilityIcon, petType;
+	
+	if (inBattle) then
+		abilityName, abilityIcon, petType = C_PetJournal.GetPetAbilityInfo(abilityID);
+	else
+		local _abilityID, _abilityName, _abilityIcon, maxCooldown, unparsedDescription, numTurns, _petType, noStrongWeakHints = C_PetBattles.GetAbilityInfoByID(abilityID);
+		abilityName, abilityIcon, petType = _abilityName, _abilityIcon, _petType;
+	end
+	
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType));
 	
 	if (showIcon) then
 		self:ttSetIconTextureAndText(abilityIcon);
 	end
-
+	
 	-- AbilityID + IconID
 	local showAbilityID = cfg.if_showBattlePetAbilityId;
 	local showIconID = (cfg.if_showIconId and abilityIcon);
