@@ -1462,6 +1462,18 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	local tipContentUnknown = LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unknownOnShow, TT_TIP_CONTENT.unknownOnCleared });
 	
 	if (currentDisplayParams.isSet) or (currentDisplayParams.isSetTemporarily) and (tipContentUnknown) then
+		-- consider tip content "action" firing after e.g. "spell" or "item" to check if the tip needs to be hidden
+		if (currentDisplayParams.isSet) and (currentDisplayParams.tipContent ~= TT_TIP_CONTENT.action) and (tipContent == TT_TIP_CONTENT.action) then
+			-- inform group that the tip has to be checked if it needs to be hidden
+			LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+			
+			-- tip will be hidden
+			if (currentDisplayParams.hideTip) then
+				self:HideTip(tip);
+				return;
+			end
+		end
+		
 		return;
 	end
 	

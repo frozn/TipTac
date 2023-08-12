@@ -289,7 +289,7 @@ local options = {
 		{ type = "Check", var = "hideTipsUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden.", y = 10 },
 		{ type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160 },
 		{ type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden." },
-		{ type = "Check", var = "hideTipsActionTips", label = "Hide Other Action Bar Tips", tip = "When you have this option checked, other Action Bar Tips will be hidden." },
+		{ type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden." },
 		
 		{ type = "Header", label = "Hide Tips In Combat", y = 12 },
 		{ type = "Check", var = "hideTipsInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden in combat." },
@@ -300,7 +300,7 @@ local options = {
 		{ type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10 },
 		{ type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160 },
 		{ type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat." },
-		{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Other Action Bar Tips", tip = "When you have this option checked, other Action Bar Tips will be hidden in combat." },
+		{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." },
 		
 		{ type = "Header", label = "Others", y = 12 },
 		{ type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" }, y = 8 },
