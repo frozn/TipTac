@@ -21,7 +21,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 * added fixes for WoW patch ...
   * 10.1.5 - Dragonflight [DF]
   * 3.4.2 - Wrath of the Lich King Classic [WotLKC]
-  * 1.14.3 - Classic Era / Vanilla [Classic Era]
+  * 1.14.4 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -36,7 +36,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), LibQTip, LibDBIcon, LibDropdown, LibDropdownMC, auras from addon Plater, tooltips from addon RaiderIO, queue status frame (e.g. for lfg/lfr)
+- added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), LibQTip, LibDBIcon, LibDropdown, LibDropdownMC, auras from addon Plater, tooltips from addon RaiderIO, queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5)
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
@@ -60,7 +60,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
-- added option "Combat->Hide Tips" and "Combat->Hide Tips In Combat" to hide frame and/or world unit tips or all tips in or out of combat
+- added option "Combat->Hide Tips Out Of Combat" and "Combat->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action bar tips in or out of combat
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
 - added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
