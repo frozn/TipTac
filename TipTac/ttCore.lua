@@ -2887,11 +2887,6 @@ function tt:HideWorldTipsInstantly()
 	end
 end
 
--- EVENT: cursor update
-function tt:CURSOR_UPDATE(event)
-	self:HideWorldTipsInstantly();
-end
-
 -- EVENT: cursor changed
 function tt:CURSOR_CHANGED(event)
 	self:HideWorldTipsInstantly();
@@ -2904,12 +2899,12 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		if (cfg.hideWorldTips) then
 			if (not eventsForHideWorldTipsHooked) then
-				tt:RegisterEvent(LibFroznFunctions.isWoWFlavor.ClassicEra and "CURSOR_UPDATE" or "CURSOR_CHANGED");
+				tt:RegisterEvent("CURSOR_CHANGED");
 				eventsForHideWorldTipsHooked = true;
 			end
 		else
 			if (eventsForHideWorldTipsHooked) then
-				tt:UnregisterEvent(LibFroznFunctions.isWoWFlavor.ClassicEra and "CURSOR_UPDATE" or "CURSOR_CHANGED");
+				tt:UnregisterEvent("CURSOR_CHANGED");
 				eventsForHideWorldTipsHooked = false;
 			end
 		end
