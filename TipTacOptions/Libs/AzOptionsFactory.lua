@@ -26,6 +26,8 @@
 	- added a TextOnly element
 	23.03.07 Rev 19 10.0.5/Dragonflight #frozn45
 	- put option in new line also if last x offset has been lower than the current x offset
+	xx.xx.xx Rev 20 10.1.5/Dragonflight #frozn45
+	- added a tooltip for Slider
 --]]
 
 -- create new library
@@ -171,6 +173,30 @@ end
 --                                            Slider Frame                                            --
 --------------------------------------------------------------------------------------------------------
 
+-- tooltip
+local function SliderEdit_OnEnter(self)
+	self.text:SetTextColor(1,1,1);
+	if (self.option.tip) then
+		GameTooltip:SetOwner(self,"ANCHOR_TOP");
+		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
+		GameTooltip:Show();
+	end
+end
+
+local function SliderEdit_OnLeave(self)
+	local frames = { self, self:GetChildren() };
+	
+	for _, frame in ipairs(frames) do
+		if (frame:IsMouseOver()) then
+			return;
+		end
+	end
+	
+	self.text:SetTextColor(1,0.82,0);
+	GameTooltip:Hide();
+end
+
 -- EditBox Enter Pressed
 local function SliderEdit_OnEnterPressed(self)
 	self:GetParent().slider:SetValue(self:GetNumber());
@@ -190,7 +216,7 @@ end
 
 -- create slider
 azof.objects.Slider = {
-	xOffset = 15,
+	xOffset = 10,
 	yOffset = 4,
 	Init = function(self,option,cfgValue)
 		self.slider:SetMinMaxValues(option.min,option.max);
@@ -203,15 +229,26 @@ azof.objects.Slider = {
 	end,
 	CreateNew = function(self)
 		local f = CreateFrame("Frame",nil,self.owner);
-		f:SetSize(296,32);
+		f:SetSize(301,32);
+		f:SetHitRectInsets(-2, -2, -2, -2);
+		
+		f:SetScript("OnEnter", SliderEdit_OnEnter);
+		f:SetScript("OnLeave", SliderEdit_OnLeave);
 
 		f.edit = CreateFrame("EditBox",GenerateObjectName("EditBox"),f,"InputBoxTemplate");
 		f.edit:SetSize(45,21);
-		f.edit:SetPoint("BOTTOMLEFT");
+		f.edit:SetPoint("BOTTOMLEFT", 5, 0);
 		f.edit:SetScript("OnEnterPressed",SliderEdit_OnEnterPressed);
 		f.edit:SetAutoFocus(false);
 		f.edit:SetMaxLetters(5);
 		f.edit:SetFontObject("GameFontHighlight");
+		
+		f.edit:SetScript("OnEnter", function(self, ...)
+			SliderEdit_OnEnter(self:GetParent(), ...);
+		end);
+		f.edit:SetScript("OnLeave", function(self, ...)
+			SliderEdit_OnLeave(self:GetParent(), ...);
+		end);
 
 		local sliderName = GenerateObjectName("Slider");
 
@@ -227,6 +264,14 @@ azof.objects.Slider = {
 		f.slider:SetScript("OnMouseWheel",Slider_OnMouseWheel);
 		f.slider:EnableMouseWheel(true);
 		f.slider:SetObeyStepOnDrag(true);
+		
+		f.slider:SetHitRectInsets(0, 0, 0, 0);
+		f.slider:SetScript("OnEnter", function(self, ...)
+			SliderEdit_OnEnter(self:GetParent(), ...);
+		end);
+		f.slider:SetScript("OnLeave", function(self, ...)
+			SliderEdit_OnLeave(self:GetParent(), ...);
+		end);
 
 		f.text = _G[sliderName.."Text"];
 		f.text:SetTextColor(1.0,0.82,0);
@@ -447,7 +492,7 @@ azof.objects.Color = {
 	xOffset = 10,
 	yOffset = 5,
 	Init = function(self,option,cfgValue)
-		self:SetHitRectInsets(0,self.text:GetWidth() * -1,0,0);
+		self:SetHitRectInsets(-2,self.text:GetWidth() * -1 - 2, -2, -2);
 		if (option.subType == 2) then
 			local ha, hr, hg, hb = cfgValue:match("^|c(..)(..)(..)(..)");
 			self.color:SetRGBA(
