@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 13; -- bump on changes
+local LIB_MINOR = 14; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -362,28 +362,32 @@ function LibFroznFunctions:IsMountCollected(mountID)
 	
 	-- before Legion 7.0.3
 	if (GetNumCompanions) then
-		for index = 1, GetNumCompanions("MOUNT") do
-			local creatureID = GetCompanionInfo("MOUNT", index);
-			
-			if (creatureID == mountID) then
-				return true;
-			end
-		end
+		local numCompanionsOfMount = GetNumCompanions("MOUNT");
 		
-		return false;
+		if (numCompanionsOfMount) then -- function exists in classic era since 1.14.4 but returns nil
+			for index = 1, numCompanionsOfMount do
+				local creatureID = GetCompanionInfo("MOUNT", index);
+				
+				if (creatureID == mountID) then
+					return true;
+				end
+			end
+			
+			return false;
+		end
 	end
 	
 	-- before WotLK 3.0.2
-	if (GetContainerNumSlots) then
+	if (C_Container) and (C_Container.GetContainerNumSlots) then
 		local lastBankBagSlot = ITEM_INVENTORY_BANK_BAG_OFFSET + NUM_BANKBAGSLOTS;
 		local firstReagentBagSlot, lastReagentBagSlot = NUM_BAG_SLOTS + 1, ITEM_INVENTORY_BANK_BAG_OFFSET;
 		
 		for bagID = BANK_CONTAINER, lastBankBagSlot do
 			if (bagID <= firstReagentBagSlot) or (bagID >= lastReagentBagSlot) then -- ignore reagent bags
-				local numSlots = GetContainerNumSlots(bagID);
+				local numSlots = C_Container.GetContainerNumSlots(bagID);
 				
 				for slotIndex = 1, numSlots do
-					local itemLink = GetContainerItemLink(bagID, slotIndex);
+					local itemLink = C_Container.GetContainerItemLink(bagID, slotIndex);
 					
 					if (itemLink) then
 						local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
