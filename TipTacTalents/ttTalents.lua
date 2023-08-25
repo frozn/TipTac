@@ -310,7 +310,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 		end
 		
 		-- show ail and GS text
-		if (ailAndGSText) then
+		if (ailAndGSText:GetCount() > 0) then
 			local tipLineTextAverageItemLevel = LibFroznFunctions:FormatText("{prefix}: {averageItemLevelAndGearScore}", {
 				prefix = useOnlyGSPrefix and TTT_TEXT.onlyGSPrefix or TTT_TEXT.ailAndGSPrefix,
 				averageItemLevelAndGearScore = TTT_COLOR.text.ail:WrapTextInColorCode(ailAndGSText:Concat())
