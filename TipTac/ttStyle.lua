@@ -110,11 +110,11 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 --
 -- content                                color                         example
 -- -------------------------------------  ----------------------------  ----------------------------------------------
---  1. <name>                             color based on reaction       "Melris Malagan" or "Stadtwache von Sturmwind"
+--  1. <name>                             color based on reaction       "Melris Malagan" or "Stadtwache von Sturmwind" or "Versuchter Unterwerfer" or "Beckenvulpin"
 -- [2. <reaction, only colorblind mode>]  white (HIGHLIGHT_FONT_COLOR)  "Ehrfürchtig" or "Neutral"
 -- [3. <title>]                           white (HIGHLIGHT_FONT_COLOR)  "Hauptmann der Wache"
 --  4. <level>                            white (HIGHLIGHT_FONT_COLOR)  "Stufe 70" or "Stufe 30 (Elite)"
---  5. <faction>                          white (HIGHLIGHT_FONT_COLOR)  "Sturmwind"
+--  5. <faction or creature type>         white (HIGHLIGHT_FONT_COLOR)  "Sturmwind" or "Entartung" or "Humanoid" or "Wildtier". currently unknown if creature type replaces the faction or belongs to a separate line.
 -- [6. PvP]                               white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of pet (determined via: not UnitIsPlayer(unitID) and UnitPlayerControlled(unitID)):
@@ -147,9 +147,12 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 
 -- remove unwanted lines from tip, such as "Alliance", "Horde", "PvP" and "Shadow Priest".
 function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
+	local creatureFamily, creatureType = UnitCreatureFamily(unitRecord.id), UnitCreatureType(unitRecord.id);
+	
+	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (creatureType);
 	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (LibFroznFunctions.isWoWFlavor.DF) and (unitRecord.isPlayer);
 	
-	if (not cfg.hideFactionText) and (not cfg.hidePvpText) and (not hideSpecializationAndClassText) then
+	if (not cfg.hideFactionText) and (not cfg.hidePvpText) and (not hideCreatureTypeIfNoCreatureFamily) and (not hideSpecializationAndClassText) then
 		return;
 	end
 	
@@ -172,7 +175,8 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		if (type(gttLineText) == "string") and
 				((cfg.hideFactionText) and ((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE)) or
 				(cfg.hidePvpText) and (gttLineText == PVP_ENABLED) or
-				(hideSpecializationAndClassText) and ((gttLineText:match("^" .. unitRecord.className .. "$")) or (specNames:Contains(gttLineText:match("^(.+) " .. unitRecord.className .. "$"))))) then
+				(hideCreatureTypeIfNoCreatureFamily) and (gttLineText == creatureType) or
+				(hideSpecializationAndClassText) and ((gttLineText == unitRecord.className) or (specNames:Contains(gttLineText:match("^(.+) " .. unitRecord.className .. "$"))))) then
 			
 			gttLine:SetText(nil);
 		end
