@@ -102,8 +102,8 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 -- [2. <guild>[-<realm>]]                             white (HIGHLIGHT_FONT_COLOR)                                             "Die teuflischen Engel-Alleria"
 -- [3. <reaction, only colorblind mode>]              white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
 --  4. <level> - <race>, <class> (Spieler)            white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 70 - Leerenelfe, Jägerin (Spieler)"
--- [5. since df 10.1.5: [<specialization> ]<class>]]  white (HIGHLIGHT_FONT_COLOR)                                             "Verwüstung Dämonenjäger"
---  6. <faction>                                      white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
+-- [5. since df 10.1.5: [<specialization> ]<class>]]  white (HIGHLIGHT_FONT_COLOR)                                             "Verwüstung Dämonenjäger" or "Druidin"
+-- [6. <faction>]                                     white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
 -- [7. PvP]                                           white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of NPC (determined via: not UnitIsPlayer(unitID) and not UnitPlayerControlled(unitID) and not UnitIsBattlePet(unitID)):
@@ -316,11 +316,16 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 				text = text .. TT_COLOR.text.guildRank:WrapTextInColorCode(format(" %s", guildRankIndex));
 			end
 		end
-		GameTooltipTextLeft2:SetText(text);
-		if (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- no separate line for guild name in classic era. merge with level line.
-			unitRecord.mergeLevelLineWithGuildName = true;
+		currentDisplayParams.mergeLevelLineWithGuildName = false;
+		if (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- no separate line for guild name in classic era. merge with reaction (only color blind mode) or level line.
+			if (unitRecord.isColorBlind) then
+				GameTooltipTextLeft2:SetText(text .. "\n" .. unitRecord.reactionInColorBlindModeForClassicEra);
+			else
+				GameTooltipTextLeft2:SetText(text);
+				currentDisplayParams.mergeLevelLineWithGuildName = true;
+			end
 		else
-			unitRecord.mergeLevelLineWithGuildName = false;
+			GameTooltipTextLeft2:SetText(text);
 			lineLevel.Index = (lineLevel.Index + 1);
 		end
 	end
@@ -341,7 +346,7 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 		lineLevel:Push(" ");
 		lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 	else
-		if not (currentDisplayParams.petLineLevelIndex) then
+		if (not currentDisplayParams.petLineLevelIndex) then
 			for i = 2, GameTooltip:NumLines() do
 				local gttLineText = _G["GameTooltipTextLeft"..i]:GetText();
 				if (type(gttLineText) == "string") and (gttLineText:find(TT_LevelMatchPet)) then
@@ -563,7 +568,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	if (gttLine) then
 		local tipLineLevelText = TT_COLOR.text.default:WrapTextInColorCode(lineLevel:Concat());
 		
-		if (unitRecord.mergeLevelLineWithGuildName) then
+		if (currentDisplayParams.mergeLevelLineWithGuildName) then
 			local gttLineText = gttLine:GetText();
 			
 			gttLine:SetText((gttLineText) and (gttLineText ~= " ") and (gttLineText .. "\n" .. tipLineLevelText) or tipLineLevelText);
@@ -618,6 +623,7 @@ function ttStyle:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDis
 	currentDisplayParams.tipLineInfoIndex = nil;
 	currentDisplayParams.tipLineTargetedByIndex = nil;
 	currentDisplayParams.petLineLevelIndex = nil;
+	currentDisplayParams.mergeLevelLineWithGuildName = nil;
 end
 
 function ttStyle:OnTipStyle(TT_CacheForFrames, tip, first)
@@ -633,6 +639,10 @@ function ttStyle:OnTipStyle(TT_CacheForFrames, tip, first)
 				unitRecord.petOrBattlePetOrNPCTitle = nil;
 			end
 		end
+		-- remember reaction in color blind mode for classic era
+		if (LibFroznFunctions.isWoWFlavor.ClassicEra) and (unitRecord.isColorBlind) then
+			unitRecord.reactionInColorBlindModeForClassicEra = GameTooltipTextLeft2:GetText();
+		end
 	end
 
 	self:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first);
@@ -643,4 +653,5 @@ function ttStyle:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentD
 	currentDisplayParams.tipLineInfoIndex = nil;
 	currentDisplayParams.tipLineTargetedByIndex = nil;
 	currentDisplayParams.petLineLevelIndex = nil;
+	currentDisplayParams.mergeLevelLineWithGuildName = nil;
 end
