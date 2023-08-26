@@ -319,7 +319,7 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 		currentDisplayParams.mergeLevelLineWithGuildName = false;
 		if (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- no separate line for guild name in classic era. merge with reaction (only color blind mode) or level line.
 			if (unitRecord.isColorBlind) then
-				GameTooltipTextLeft2:SetText(text .. "\n" .. unitRecord.reactionInColorBlindModeForClassicEra);
+				GameTooltipTextLeft2:SetText(text .. "\n" .. unitRecord.reactionTextInColorBlindModeForClassicEra);
 			else
 				GameTooltipTextLeft2:SetText(text);
 				currentDisplayParams.mergeLevelLineWithGuildName = true;
@@ -641,7 +641,7 @@ function ttStyle:OnTipStyle(TT_CacheForFrames, tip, first)
 		end
 		-- remember reaction in color blind mode for classic era
 		if (LibFroznFunctions.isWoWFlavor.ClassicEra) and (unitRecord.isColorBlind) then
-			unitRecord.reactionInColorBlindModeForClassicEra = GameTooltipTextLeft2:GetText();
+			unitRecord.reactionTextInColorBlindModeForClassicEra = GameTooltipTextLeft2:GetText();
 		end
 	end
 
