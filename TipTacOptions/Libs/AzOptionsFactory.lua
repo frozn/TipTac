@@ -26,7 +26,7 @@
 	- added a TextOnly element
 	23.03.07 Rev 19 10.0.5/Dragonflight #frozn45
 	- put option in new line also if last x offset has been lower than the current x offset
-	xx.xx.xx Rev 20 10.1.5/Dragonflight #frozn45
+	23.08.28 Rev 20 10.1.5/Dragonflight #frozn45
 	- added a tooltip for Slider
 --]]
 
