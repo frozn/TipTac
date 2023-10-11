@@ -1997,15 +1997,15 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 		self:OnApplyConfig();
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items (incl. reapply for tabbing through items with same visualID)
+		--hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items (incl. reapply for tabbing through items with same visualID)
 
-		local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame; -- for illusions
-		for i = 1, itemsCollectionFrame.PAGE_SIZE do
-			local model = itemsCollectionFrame.Models[i];
-			model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
-		end
+		--local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame; -- for illusions
+		--for i = 1, itemsCollectionFrame.PAGE_SIZE do
+		--	local model = itemsCollectionFrame.Models[i];
+		--	model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
+		--end
 
-		hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- reapply if selecting or scrolling
+		--hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- reapply if selecting or scrolling
 			if (gtt:IsShown()) then
 				local itemsCollectionFrame = self;
 				for i = 1, itemsCollectionFrame.PAGE_SIZE do
@@ -2017,18 +2017,18 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 						break;
 					end
 				end
-			end
-		end);
+		--	end
+		end;
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
-		hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
+		-- hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
 
 		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsTransmogFrame, see WardrobeSetsTransmogMixin:UpdateSets() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
-		for i = 1, setsTransmogFrame.PAGE_SIZE do
-			local model = setsTransmogFrame.Models[i];
-			hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
-		end
+		--local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
+		--for i = 1, setsTransmogFrame.PAGE_SIZE do
+		--	local model = setsTransmogFrame.Models[i];
+		--	hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
+		--end
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_Collections"] = true;
