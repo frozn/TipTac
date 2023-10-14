@@ -19,8 +19,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 10.1.5 - Dragonflight [DF]
-  * 3.4.2 - Wrath of the Lich King Classic [WotLKC]
+  * 10.1.7 - Dragonflight [DF]
+  * 3.4.3 - Wrath of the Lich King Classic [WotLKC]
   * 1.14.4 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
@@ -55,16 +55,18 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
 - fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
 - added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
-- added showing of role and talent/specialization icon, coloring talents by class color, average item level and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
+- added showing of role and talent/specialization icon, coloring talents by class color, average item level, the de facto standard GearScore algorithm from addon TacoTip and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
 - completely rewritten ttCore. also applied necessary changes to ttStyle, ttBars, ttAuras and ttIcons.
 - scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "Combat->Hide Tips Out Of Combat" and "Combat->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action bar tips in or out of combat
+- added option "General->Show Player Guild" to show/hide guild name/rank
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
 - added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
 - added option "General->Show Mount" to show the player's mount icon/name/speed and an icon indicating if you already have collected the mount
+- added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
 - added option "ItemRef->Show Mount ID" to show the mount id
 - added option "ItemRef->Show Icon ID" to show the icon id
 - added option in "ItemRef" to show stack count of items in tooltip
