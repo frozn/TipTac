@@ -396,7 +396,7 @@ end
 function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	-- obtain unit properties
 	unitRecord.reactionColor = CreateColor(unpack(cfg["colorReactText" .. unitRecord.reactionIndex]));
-	unitRecord.nameColor = (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
+	unitRecord.nameColor = ((not cfg.enableColorName) and CreateColor(GameTooltipTextLeft1:GetTextColor())) or (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
 
 	-- this is the line index where the level and unit type info is
 	lineLevel.Index = 2 + (unitRecord.isColorBlind and UnitIsVisible(unitRecord.id) and 1 or 0);

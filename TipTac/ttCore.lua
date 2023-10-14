@@ -49,6 +49,7 @@ local TT_DefaultConfig = {
 	hideSpecializationAndClassText = true,
 	
 	-- colors
+	enableColorName = true,
 	colorName = { 1, 1, 1, 1 },
 	colorNameByReaction = true,
 	colorNameByClass = false,

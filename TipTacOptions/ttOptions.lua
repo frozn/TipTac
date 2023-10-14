@@ -100,7 +100,8 @@ local options = {
 	-- Colors
 	{
 		[0] = "Colors",
-		{ type = "Color", var = "colorName", label = "Name Color", tip = "Color of the name, when not using the option to make it the same as reaction color" },
+		{ type = "Check", var = "enableColorName", label = "Enable Coloring of Name", tip = "Turns on or off coloring names" },
+		{ type = "Color", var = "colorName", label = "Name Color", tip = "Color of the name, when not using the option to make it the same as reaction color", y = 8 },
 		{ type = "Check", var = "colorNameByReaction", label = "Color Name by Reaction", tip = "Name color will have the same color as the reaction\nNOTE: This option is overridden by class colored name for players" },
 		{ type = "Check", var = "colorNameByClass", label = "Color Player Names by Class Color", tip = "With this option on, player names are colored by their class color\nNOTE: This option overrides reaction colored name for players" },
 		
