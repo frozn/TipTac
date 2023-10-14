@@ -23,6 +23,7 @@ local cfg;
 local TT_DefaultConfig = {
 	showUnitTip = true,
 	showStatus = true,
+	showGuild = true,
 	showGuildRank = true,
 	guildRankFormat = "both",
 	showTargetedBy = true,

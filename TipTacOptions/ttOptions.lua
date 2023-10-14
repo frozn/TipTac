@@ -65,7 +65,8 @@ ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType",
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show realm in new line"] = "showInNewLine", ["Show (*) instead"] = "asterisk" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["|cffffa0a0Do not show target"] = "none", ["After name"] = "afterName", ["Below name/realm"] = "belowNameRealm", ["Last line"] = "last" } };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 16 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level", y = 16 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuild", label = "Show Player Guild", tip = "This will show the guild of the player.", y = 16 };
+ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level", y = 8 };
 ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" }, y = 8 };
 
 -- Special
