@@ -242,7 +242,7 @@ end
 local function MenuItem_OnEnter(self)
 	local entry = menu.list[self.index];
 	if (type(entry.tip) == "string") then
-		GameTooltip:SetOwner(self,"ANCHOR_TOP");
+		GameTooltip:SetOwner(self,"ANCHOR_TOP", 0, 5);
 		GameTooltip:AddLine(entry.text,1,1,1);
 		GameTooltip:AddLine(entry.tip,nil,nil,nil,1);
 		GameTooltip:Show();
