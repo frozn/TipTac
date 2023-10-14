@@ -34,7 +34,8 @@ local TTT_DefaultConfig = {
 	
 	t_showAverageItemLevel = true,        -- show average item level (AIL)
 	t_showGearScore = false,              -- show GearScore
-	t_gearScoreAlgorithm = 1,             -- GearScore Algorithm
+	t_gearScoreAlgorithm =                -- GearScore algorithm
+		((LibFroznFunctions.isWoWFlavor.SL or LibFroznFunctions.isWoWFlavor.DF) and 2 or 1),
 	t_colorAILAndGSTextByQuality = true   -- color average item level and GearScore text by average quality
 };
 
