@@ -451,26 +451,34 @@ function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkT
 	-- functions
 	local resetVarsFn = function(tooltip)
 		tooltip.ttWorkaroundForFirstMouseoverStatus = 0; -- 0 = initialized
+		tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
+		tooltip.ttWorkaroundForFirstMouseoverIsAura = nil;
+		tooltip.ttWorkaroundForFirstMouseoverSource = nil;
+		tooltip.ttWorkaroundForFirstMouseoverLink = nil;
+		tooltip.ttWorkaroundForFirstMouseoverLinkType = nil;
 		tooltip.ttWorkaroundForFirstMouseoverID = nil;
 		tooltip.ttWorkaroundForFirstMouseoverRank = nil;
-		tooltip.ttWorkaroundForFirstMouseoverOwner = nil;
 	end
 	
 	local initVarsFn = function(tooltip, id, rank, owner)
 		tooltip.ttWorkaroundForFirstMouseoverStatus = 1; -- 1 = armed, 1st stage
+		tooltip.ttWorkaroundForFirstMouseoverOwner = owner;
+		tooltip.ttWorkaroundForFirstMouseoverIsAura = isAura;
+		tooltip.ttWorkaroundForFirstMouseoverSource = source;
+		tooltip.ttWorkaroundForFirstMouseoverLink = link;
+		tooltip.ttWorkaroundForFirstMouseoverLinkType = linkType;
 		tooltip.ttWorkaroundForFirstMouseoverID = id;
 		tooltip.ttWorkaroundForFirstMouseoverRank = rank;
-		tooltip.ttWorkaroundForFirstMouseoverOwner = owner;
 	end
 	
 	local reapplyTooltipModificationFn = function(tooltip)
 		tipDataAdded[tooltip] = linkType;
 		if (linkType == "spell") then
-			LinkTypeFuncs.spell(tooltip, isAura, source, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
+			LinkTypeFuncs.spell(tooltip, tooltip.ttWorkaroundForFirstMouseoverIsAura, tooltip.ttWorkaroundForFirstMouseoverSource, tooltip.ttWorkaroundForFirstMouseoverLink, tooltip.ttWorkaroundForFirstMouseoverLinkType, tooltip.ttWorkaroundForFirstMouseoverID);
 		elseif (linkType == "azessence") then
-			LinkTypeFuncs.azessence(tooltip, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID, tooltip.ttWorkaroundForFirstMouseoverRank);
+			LinkTypeFuncs.azessence(tooltip, tooltip.ttWorkaroundForFirstMouseoverLink, tooltip.ttWorkaroundForFirstMouseoverLinkType, tooltip.ttWorkaroundForFirstMouseoverID, tooltip.ttWorkaroundForFirstMouseoverRank);
 		else
-			LinkTypeFuncs.item(tooltip, link, linkType, tooltip.ttWorkaroundForFirstMouseoverID);
+			LinkTypeFuncs.item(tooltip, tooltip.ttWorkaroundForFirstMouseoverLink, tooltip.ttWorkaroundForFirstMouseoverLinkType, tooltip.ttWorkaroundForFirstMouseoverID);
 		end
 	end
 	
@@ -1853,8 +1861,17 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetQuestItem", SetQuestItem_Hook);
 				hooksecurefunc(tip, "SetQuestLogItem", SetQuestLogItem_Hook);
 				if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
+					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
+					if (tip.SetCurrencyTokenByID) then -- removed since df 10.0.2
+						hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
+					end
 					hooksecurefunc(tip, "SetQuestCurrency", SetQuestCurrency_Hook);
 					hooksecurefunc(tip, "SetQuestLogCurrency", SetQuestLogCurrency_Hook);
+					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
+					hooksecurefunc(tip, "SetMountBySpellID", SetMountBySpellID_Hook);
+					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
+					hooksecurefunc(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
+					hooksecurefunc(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
 				end
 				if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 					hooksecurefunc(tip, "SetConduit", SetConduit_Hook);
@@ -1862,17 +1879,8 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc(tip, "SetAzeriteEssence", SetAzeriteEssence_Hook);
 					hooksecurefunc(tip, "SetAzeriteEssenceSlot", SetAzeriteEssenceSlot_Hook);
 					hooksecurefunc(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
-					hooksecurefunc(tip, "SetCurrencyToken", SetCurrencyToken_Hook);
-					if (tip.SetCurrencyTokenByID) then -- removed since df 10.0.2
-						hooksecurefunc(tip, "SetCurrencyTokenByID", SetCurrencyTokenByID_Hook);
-					end
 					hooksecurefunc(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
-					hooksecurefunc(tip, "SetCompanionPet", SetCompanionPet_Hook);
 					hooksecurefunc(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
-					hooksecurefunc(tip, "SetMountBySpellID", SetMountBySpellID_Hook);
-					hooksecurefunc(tip, "SetToyByItemID", SetToyByItemID_Hook);
-					hooksecurefunc(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
-					hooksecurefunc(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
 				end
 				if (LibFroznFunctions.isWoWFlavor.DF) then
 					hooksecurefunc(tip, "SetUnitBuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
@@ -1885,6 +1893,9 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				if (tipName == "GameTooltip") then
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					hooksecurefunc(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
+					for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
+						hooksecurefunc(pin, "UpdateTooltip", QBPM_UpdateTooltip_Hook);
+					end
 					hooksecurefunc("GameTooltip_AddQuestRewardsToTooltip", GTT_AddQuestRewardsToTooltip_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_SetItemByID", EITT_SetItemByID_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_SetItemByQuestReward", EITT_SetItemByQuestReward_Hook);
@@ -1892,12 +1903,11 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					hooksecurefunc("EmbeddedItemTooltip_SetCurrencyByID", EITT_SetCurrencyByID_Hook);
 					hooksecurefunc("EmbeddedItemTooltip_Clear", EITT_Clear_Hook);
 					-- classic support
-					if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
+					if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 						hooksecurefunc("QuestMapLogTitleButton_OnEnter", QMLTB_OnEnter_Hook);
+					end
+					if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 						hooksecurefunc("TaskPOI_OnEnter", TPOI_OnEnter_Hook);
-						for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
-							hooksecurefunc(pin, "UpdateTooltip", QBPM_UpdateTooltip_Hook);
-						end
 						hooksecurefunc("EmbeddedItemTooltip_SetSpellWithTextureByID", EITT_SetSpellWithTextureByID_Hook);
 						hooksecurefunc(RuneforgePowerBaseMixin, "OnEnter", RPBM_OnEnter_Hook);
 						hooksecurefunc(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
@@ -1996,39 +2006,42 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 		
 		self:OnApplyConfig();
 		
-		-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		--hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items (incl. reapply for tabbing through items with same visualID)
+		-- Function to apply necessary hooks to WardrobeCollectionFrame
+		if (WardrobeCollectionFrame) then
+			-- Function to apply necessary hooks to WardrobeCollectionFrame.ItemsCollectionFrame, see WardrobeItemsCollectionMixin:UpdateItems() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+			hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "RefreshAppearanceTooltip", WCFICF_RefreshAppearanceTooltip_Hook); -- for items (incl. reapply for tabbing through items with same visualID)
 
-		--local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame; -- for illusions
-		--for i = 1, itemsCollectionFrame.PAGE_SIZE do
-		--	local model = itemsCollectionFrame.Models[i];
-		--	model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
-		--end
+			local itemsCollectionFrame = WardrobeCollectionFrame.ItemsCollectionFrame; -- for illusions
+			for i = 1, itemsCollectionFrame.PAGE_SIZE do
+				local model = itemsCollectionFrame.Models[i];
+				model:HookScript("OnEnter", WCFICFM_OnEnter_Hook);
+			end
 
-		--hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- reapply if selecting or scrolling
-			if (gtt:IsShown()) then
-				local itemsCollectionFrame = self;
-				for i = 1, itemsCollectionFrame.PAGE_SIZE do
-					local model = itemsCollectionFrame.Models[i];
-					local gttOwner = gtt:GetOwner();
-					
-					if (gttOwner == model) then
-						WCFICFM_OnEnter_Hook(gttOwner);
-						break;
+			hooksecurefunc(WardrobeCollectionFrame.ItemsCollectionFrame, "UpdateItems", function(self) -- reapply if selecting or scrolling
+				if (gtt:IsShown()) then
+					local itemsCollectionFrame = self;
+					for i = 1, itemsCollectionFrame.PAGE_SIZE do
+						local model = itemsCollectionFrame.Models[i];
+						local gttOwner = gtt:GetOwner();
+						
+						if (gttOwner == model) then
+							WCFICFM_OnEnter_Hook(gttOwner);
+							break;
+						end
 					end
 				end
-		--	end
-		end;
-		
-		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
-		-- hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
+			end);
+			
+			-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
+			hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
 
-		-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsTransmogFrame, see WardrobeSetsTransmogMixin:UpdateSets() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-		--local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
-		--for i = 1, setsTransmogFrame.PAGE_SIZE do
-		--	local model = setsTransmogFrame.Models[i];
-		--	hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
-		--end
+			-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsTransmogFrame, see WardrobeSetsTransmogMixin:UpdateSets() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
+			local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
+			for i = 1, setsTransmogFrame.PAGE_SIZE do
+				local model = setsTransmogFrame.Models[i];
+				hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
+			end
+		end
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_Collections"] = true;

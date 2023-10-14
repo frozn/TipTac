@@ -571,12 +571,12 @@ TT_ExtendedConfig.tipsToModify = {
 		},
 		hookFnForAddOn = function(TT_CacheForFrames)
 			-- HOOK: SharedPetBattleAbilityTooltip_UpdateSize() to re-hook OnUpdate for PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip
-			--hooksecurefunc("SharedPetBattleAbilityTooltip_UpdateSize", function(self)
+			LibFroznFunctions:HookSecureFuncIfExists("SharedPetBattleAbilityTooltip_UpdateSize", function(self)
 				-- re-hook OnUpdate for PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip to anchor tip to mouse position
 				if (LibFroznFunctions:ExistsInTable(self, { PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip })) then
 					tt:AnchorTipToMouseOnUpdate(self);
 				end
-			--end;
+			end);
 		end
 	},
 	["Blizzard_Communities"] = {
