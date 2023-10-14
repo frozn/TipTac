@@ -34,6 +34,8 @@
 	- parent of menu set to UIParent and comment out corresponding SetParent() to fix cut off dropdown menus by scroll frames. "menu.parent" stays at dropdown frame.
 	——— 22.02.09 ——— Rev 16 ——— 9.1.5/Shadowlands ——— #frozn45
 	- fix for rev 15: fixed hiding the menu if parent is hidden
+	——— 23.10.15 ——— Rev 17 ——— 10.1.7/Dragonflight ——— #frozn45
+	- anchored tooltip of menu items to the top
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -240,7 +242,7 @@ end
 local function MenuItem_OnEnter(self)
 	local entry = menu.list[self.index];
 	if (type(entry.tip) == "string") then
-		GameTooltip_SetDefaultAnchor(GameTooltip,self);
+		GameTooltip:SetOwner(self,"ANCHOR_TOP");
 		GameTooltip:AddLine(entry.text,1,1,1);
 		GameTooltip:AddLine(entry.tip,nil,nil,nil,1);
 		GameTooltip:Show();
