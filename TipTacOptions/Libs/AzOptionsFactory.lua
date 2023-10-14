@@ -28,6 +28,8 @@
 	- put option in new line also if last x offset has been lower than the current x offset
 	23.08.28 Rev 20 10.1.5/Dragonflight #frozn45
 	- added a tooltip for Slider
+	23.10.15 Rev 21 10.1.7/Dragonflight #frozn45
+	- added a tooltip for DropDown and menu items
 --]]
 
 -- create new library
@@ -290,6 +292,7 @@ azof.objects.Slider = {
 --                                               Header                                               --
 --------------------------------------------------------------------------------------------------------
 
+-- tooltip
 local function Header_OnEnter(self)
 	self.text:SetTextColor(1, 1, 1);
 	if (self.option.tip) then
@@ -537,6 +540,31 @@ azof.objects.Color = {
 --                                           DropDown Frame                                           --
 --------------------------------------------------------------------------------------------------------
 
+-- tooltip
+local function DropDown_OnEnter(self)
+	self.text:SetTextColor(1,1,1);
+	if (self.option.tip) then
+		GameTooltip:SetOwner(self,"ANCHOR_TOP");
+		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
+		GameTooltip:Show();
+	end
+end
+
+local function DropDown_OnLeave(self)
+	local frames = { self, self:GetChildren() };
+	
+	for _, frame in ipairs(frames) do
+		if (frame:IsMouseOver()) then
+			return;
+		end
+	end
+	
+	self.text:SetTextColor(1,0.82,0);
+	GameTooltip:Hide();
+end
+
+-- default init
 local function Default_SelectValue(dropDown,entry,index)
 	dropDown.factory:SetConfigValue(dropDown.option.var,entry.value);
 end
@@ -545,7 +573,13 @@ local function Default_Init(dropDown,list)
 	dropDown.selectValueFunc = Default_SelectValue;
 	for text, option in next, dropDown.option.list do
 		local tbl = list[#list + 1]
-		tbl.text = text; tbl.value = option;
+		tbl.text = text;
+		if (type(option) == "table") then
+			tbl.value = option.value;
+			tbl.tip = option.tip;
+		else
+			tbl.value = option;
+		end
 	end
 end
 
@@ -664,7 +698,19 @@ azof.objects.DropDown = {
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 		f.text:SetPoint("LEFT",-302 + f:GetWidth(),-1);
 		f.text:SetJustifyH("LEFT");
-
+		
+		f:SetHitRectInsets(-302 + f:GetWidth(),0,0,0);
+		
+		f:SetScript("OnEnter", DropDown_OnEnter);
+		f:SetScript("OnLeave", DropDown_OnLeave);
+		
+		f.button:SetScript("OnEnter", function(self, ...)
+			DropDown_OnEnter(self:GetParent(), ...);
+		end);
+		f.button:SetScript("OnLeave", function(self, ...)
+			DropDown_OnLeave(self:GetParent(), ...);
+		end);
+		
 		return f;
 	end,
 };

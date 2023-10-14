@@ -34,6 +34,7 @@ local TTT_DefaultConfig = {
 	
 	t_showAverageItemLevel = true,        -- show average item level (AIL)
 	t_showGearScore = false,              -- show GearScore
+	t_gearScoreAlgorithm = 1,             -- GearScore Algorithm
 	t_colorAILAndGSTextByQuality = true   -- color average item level and GearScore text by average quality
 };
 
@@ -301,10 +302,18 @@ function TTT_UpdateTooltip(unitCacheRecord)
 					useOnlyGSPrefix = true;
 				end
 				
-				if (cfg.t_colorAILAndGSTextByQuality) then
-					ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.gearScore));
-				else
-					ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.gearScore);
+				if (cfg.t_gearScoreAlgorithm == 1) then -- TacoTip's GearScore algorithm
+					if (cfg.t_colorAILAndGSTextByQuality) then
+						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TacoTipGearScoreQualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.TacoTipGearScore));
+					else
+						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TacoTipGearScore);
+					end
+				else -- TipTac's GearScore algorithm
+					if (cfg.t_colorAILAndGSTextByQuality) then
+						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TipTacGearScoreQualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.TipTacGearScore));
+					else
+						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TipTacGearScore);
+					end
 				end
 			end
 		end
