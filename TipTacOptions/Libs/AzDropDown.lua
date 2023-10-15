@@ -36,6 +36,8 @@
 	- fix for rev 15: fixed hiding the menu if parent is hidden
 	——— 23.10.15 ——— Rev 17 ——— 10.1.7/Dragonflight ——— #frozn45
 	- anchored tooltip of menu items to the top
+	——— 23.xx.xx ——— Rev 18 ——— 10.1.7/Dragonflight ——— #frozn45
+	- since df 10.1.5 READY_CHECK_READY_TEXTURE switched from texture to atlas
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -268,7 +270,11 @@ local function CreateMenuItem()
 	item.text:SetPoint("LEFT",2,0);
 
 	item.check = item:CreateTexture(nil,"ARTWORK");
-	item.check:SetTexture(READY_CHECK_READY_TEXTURE);
+	if (READY_CHECK_READY_TEXTURE:match("^Interface\\.*")) then -- since df 10.1.5 READY_CHECK_READY_TEXTURE switched from texture to atlas
+		item.check:SetTexture(READY_CHECK_READY_TEXTURE);
+	else
+		item.check:SetAtlas(READY_CHECK_READY_TEXTURE);
+	end
 	item.check:SetSize(14,14);
 	item.check:SetPoint("RIGHT",item,"LEFT");
 	item.check:Hide();
