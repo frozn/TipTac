@@ -41,6 +41,7 @@ local DROPDOWN_BARTEXTFORMAT = {
 -- Options -- The "y" value of a category subtable, will further increase the vertical offset position of the item
 local activePage = 1;
 local options = {};
+local option;
 
 -- General
 local ttOptionsGeneral = {
@@ -338,7 +339,12 @@ if (TipTacTalents) then
 		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showTalentIcon", label = "Show Talent Icon", tip = "This option makes the tip show the talent icon" };
 	end
 	
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 12 };
+	option = { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 12 };
+	if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
+		option.tip = option.tip .. ".\nNOTE: Inspecting other players' talents isn't available in Classic Era. Only own talents (available at level 10) will be shown.";
+	end
+	tttOptions[#tttOptions + 1] = option;
+	
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorTalentTextByClass", label = "Color Talent Text by Class Color", tip = "With this option on, talent text is colored by their class color" };
 	
 	if (not LibFroznFunctions.isWoWFlavor.SL) then
