@@ -680,9 +680,12 @@ local function SetCompanionPet_Hook(self, petID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByPetID(petID);
 		if (speciesID) then
-			local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(petID);
+			local health, maxHealth, power, speed, breedQuality;
+			if (C_PetJournal.GetPetStats) then -- C_PetJournal.GetPetStats() isn't available in wotlkc 3.4.3 where collections interface has been introduced
+				health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(petID);
+			end
 			tipDataAdded[self] = "battlepet";
-			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, petID, displayID, canBattle);
+			LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or nil, maxHealth, power, speed, petID, displayID, canBattle);
 		end
 	end
 end
@@ -754,9 +757,12 @@ local function SetAction_Hook(self, slot)
 		elseif (actionType == "summonpet") then
 			local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByPetID(id);
 			if (speciesID) then
-				local health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(id);
+				local health, maxHealth, power, speed, breedQuality;
+				if (C_PetJournal.GetPetStats) then -- C_PetJournal.GetPetStats() isn't available in wotlkc 3.4.3 where collections interface has been introduced
+					health, maxHealth, power, speed, breedQuality = C_PetJournal.GetPetStats(id);
+				end
 				tipDataAdded[self] = "battlepet";
-				LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, id, displayID, canBattle);
+				LinkTypeFuncs.battlepet(self, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or nil, maxHealth, power, speed, id, displayID, canBattle);
 			end
 		elseif (actionType == "flyout") then
 			local icon = GetActionTexture(slot);
@@ -1158,7 +1164,7 @@ local function PBUTT_UpdateForUnit_Hook(self, petOwner, petIndex)
 			local speed = C_PetBattles.GetSpeed(petOwner, petIndex);
 			local displayID = C_PetBattles.GetDisplayID(petOwner, petIndex);
 			tipDataAdded[pbputt] = "battlepet";
-			LinkTypeFuncs.battlepet(pbputt, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or 0, maxHealth, power, speed, nil, displayID, true);
+			LinkTypeFuncs.battlepet(pbputt, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or nil, maxHealth, power, speed, nil, displayID, true);
 		end
 	end
 end
@@ -3008,7 +3014,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 	end
 
 	-- Quality Border
-	if (cfg.if_battlePetQualityBorder) then
+	if (cfg.if_battlePetQualityBorder) and (breedQuality ~= nil) then
 		local battlePetQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, GetItemQualityColor(breedQuality or 0)));
 		ttif:SetBackdropBorderColorLocked(self, battlePetQualityColor:GetRGBA());
 	end
