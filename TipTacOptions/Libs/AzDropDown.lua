@@ -36,7 +36,7 @@
 	- fix for rev 15: fixed hiding the menu if parent is hidden
 	——— 23.10.15 ——— Rev 17 ——— 10.1.7/Dragonflight ——— #frozn45
 	- anchored tooltip of menu items to the top
-	——— 23.xx.xx ——— Rev 18 ——— 10.1.7/Dragonflight ——— #frozn45
+	——— 23.11.06 ——— Rev 18 ——— 10.1.7/Dragonflight ——— #frozn45
 	- since df 10.1.5 READY_CHECK_READY_TEXTURE switched from texture to atlas
 
 	Keys set in the parent frame table
