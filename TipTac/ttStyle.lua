@@ -343,7 +343,7 @@ function ttStyle:GeneratePetLines(currentDisplayParams, unitRecord, first)
 	lineName:Push(unitRecord.nameColor:WrapTextInColorCode(unitRecord.name));
 	lineLevel:Push(" ");
 	local petType = UnitBattlePetType(unitRecord.id) or 5;
-	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(_G["BATTLE_PET_NAME_"..petType]));
+	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(_G["BATTLE_PET_NAME_"..petType] or TT_Unknown));
 
 	if (unitRecord.isWildBattlePet) then
 		local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
