@@ -131,7 +131,7 @@ local function OnHyperlinkEnter(self, refString, text)
 		elseif (linkToken == "battlePetAbil") then
 			-- makes shure that PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
 			if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
-				LoadAddOn("Blizzard_Collections");
+				LibFroznFunctions:LoadAddOn("Blizzard_Collections");
 			end
 			
 			-- show tooltip
@@ -168,7 +168,7 @@ local function OnHyperlinkEnter(self, refString, text)
 		elseif (linkToken == "transmogset") then -- WardrobeSetsTransmogModelMixin:RefreshTooltip() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
 			-- makes shure that WardrobeCollectionFrame exists
 			if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
-				LoadAddOn("Blizzard_Collections");
+				LibFroznFunctions:LoadAddOn("Blizzard_Collections");
 			end
 			
 			-- show tooltip

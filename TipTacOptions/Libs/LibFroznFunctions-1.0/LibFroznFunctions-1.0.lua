@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 15; -- bump on changes
+local LIB_MINOR = 16; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -96,6 +96,20 @@ function LibFroznFunctions:GetAddOnMetadata(indexOrName, field)
 	
 	-- before df 10.1.0
 	return GetAddOnMetadata(indexOrName, field);
+end
+
+-- load addon
+--
+-- @param  indexOrName     index in the addon list (cannot query Blizzard addons by index) or name of the addon (case insensitive)
+-- @return loaded, reason  if the addon is succesfully loaded or was already loaded. locale-independent reason why the addon could not be loaded e.g. "DISABLED", otherwise returns nil if the addon was loaded.
+function LibFroznFunctions:LoadAddOn(indexOrName)
+	-- since df 10.2.0
+	if (C_AddOns) and (C_AddOns.LoadAddOn) then
+		return C_AddOns.LoadAddOn(indexOrName);
+	end
+	
+	-- before df 10.2.0
+	return LoadAddOn(indexOrName);
 end
 
 -- aura filters, see "AuraUtil.lua"

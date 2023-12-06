@@ -917,7 +917,7 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- toggle options
 function tt:ToggleOptions()
 	local addOnName = MOD_NAME .. "Options";
-	local loaded, reason = LoadAddOn(addOnName);
+	local loaded, reason = LibFroznFunctions:LoadAddOn(addOnName);
 	
 	if (loaded) then
 		local TipTacOptions = _G[addOnName];
