@@ -288,10 +288,12 @@ function TTT_UpdateTooltip(unitCacheRecord)
 			
 			-- average item level
 			if (cfg.t_showAverageItemLevel) then
+				local averageItemLevel = (unitCacheRecord.averageItemLevel.value > 0) and unitCacheRecord.averageItemLevel.value or "-";
+				
 				if (cfg.t_colorAILAndGSTextByQuality) then
-					ailAndGSText:Push(unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.value));
+					ailAndGSText:Push(unitCacheRecord.averageItemLevel.qualityColor:WrapTextInColorCode(averageItemLevel));
 				else
-					ailAndGSText:Push(unitCacheRecord.averageItemLevel.value);
+					ailAndGSText:Push(averageItemLevel);
 				end
 			end
 			
@@ -303,17 +305,23 @@ function TTT_UpdateTooltip(unitCacheRecord)
 					useOnlyGSPrefix = true;
 				end
 				
+				local gearScore;
+				
 				if (cfg.t_gearScoreAlgorithm == 1) then -- TacoTip's GearScore algorithm
+					gearScore = (unitCacheRecord.averageItemLevel.TacoTipGearScore > 0) and unitCacheRecord.averageItemLevel.TacoTipGearScore or "-";
+					
 					if (cfg.t_colorAILAndGSTextByQuality) then
-						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TacoTipGearScoreQualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.TacoTipGearScore));
+						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TacoTipGearScoreQualityColor:WrapTextInColorCode(gearScore));
 					else
-						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TacoTipGearScore);
+						ailAndGSText:Push(spacer .. gearScore);
 					end
 				else -- TipTac's GearScore algorithm
+					gearScore = (unitCacheRecord.averageItemLevel.TipTacGearScore > 0) and unitCacheRecord.averageItemLevel.TipTacGearScore or "-";
+					
 					if (cfg.t_colorAILAndGSTextByQuality) then
-						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TipTacGearScoreQualityColor:WrapTextInColorCode(unitCacheRecord.averageItemLevel.TipTacGearScore));
+						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TipTacGearScoreQualityColor:WrapTextInColorCode(gearScore));
 					else
-						ailAndGSText:Push(spacer .. unitCacheRecord.averageItemLevel.TipTacGearScore);
+						ailAndGSText:Push(spacer .. gearScore);
 					end
 				end
 			end

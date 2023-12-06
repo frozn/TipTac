@@ -3344,7 +3344,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 				return floor(GearScore), floor(LevelTotal/ItemCount)
 			end
 		-- end
-		-- return 0,0
+		return 0,0
 	end
 	
 	-- return GearScore and quality color
