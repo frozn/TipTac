@@ -2821,7 +2821,7 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 			local quality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
 			difficultyColorMixin = WORLD_QUEST_QUALITY_COLORS[quality].color;
 		else
-			local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or GetQuestDifficultyColor(level);
+			local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or LibFroznFunctions.isWoWFlavor.ClassicEra and GetQuestDifficultyColor(questID) or GetQuestDifficultyColor(level);
 			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
 		end
 		
