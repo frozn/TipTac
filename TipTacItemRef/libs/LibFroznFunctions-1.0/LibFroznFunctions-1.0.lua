@@ -738,14 +738,18 @@ function LibFroznFunctions:CallFunctionAndSuppressErrorMessageAndSpeech(func)
 	end
 	
 	-- call function and suppress error message and speech
-	local oldCVarSound_EnableErrorSpeech = GetCVar("Sound_EnableErrorSpeech");
+	-- local oldCVarSound_EnableErrorSpeech = GetCVar("Sound_EnableErrorSpeech");
 	
-	SetCVar("Sound_EnableErrorSpeech", 0);
+	-- SetCVar("Sound_EnableErrorSpeech", 0);
+	
+	UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE");
 	
 	local values = { func() };
 	
-	UIErrorsFrame:Clear();
-	SetCVar("Sound_EnableErrorSpeech", oldCVarSound_EnableErrorSpeech);
+	-- UIErrorsFrame:Clear();
+	-- SetCVar("Sound_EnableErrorSpeech", oldCVarSound_EnableErrorSpeech);
+	
+	UIErrorsFrame:RegisterEvent("UI_ERROR_MESSAGE");
 	
 	return unpack(values);
 end
