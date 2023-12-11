@@ -6,11 +6,19 @@
 
 -- create addon
 local MOD_NAME = ...;
+local PARENT_MOD_NAME = "TipTac";
 local ttt = CreateFrame("Frame", MOD_NAME, nil, BackdropTemplateMixin and "BackdropTemplate");
 ttt:Hide();
 
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
+
+-- register with TipTac core addon if available
+local TipTac = _G[PARENT_MOD_NAME];
+
+if (TipTac) then
+	LibFroznFunctions:RegisterForGroupEvents(PARENT_MOD_NAME, ttt, "Talents");
+end
 
 ----------------------------------------------------------------------------------------------------
 --                                             Config                                             --
@@ -18,6 +26,8 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- config
 local cfg;
+local TT_ExtendedConfig;
+local TT_CacheForFrames;
 
 -- default config
 local TTT_DefaultConfig = {
@@ -102,6 +112,15 @@ function ttt:SetupConfig()
 	else
 		cfg = TTT_DefaultConfig;
 	end
+end
+
+----------------------------------------------------------------------------------------------------
+--                                         Element Events                                         --
+----------------------------------------------------------------------------------------------------
+
+function ttt:OnApplyConfig(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+	TT_CacheForFrames = _TT_CacheForFrames;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -225,7 +244,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 				spacer = (specText:GetCount() > 0) and " " or "";
 
 				if (cfg.t_colorTalentTextByClass) then
-					local classColor = LibFroznFunctions:GetClassColor(unitCacheRecord.classID, 5);
+					local classColor = LibFroznFunctions:GetClassColor(unitCacheRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 					specText:Push(spacer .. classColor:WrapTextInColorCode(unitCacheRecord.talents.name));
 				else
 					specText:Push(spacer .. unitCacheRecord.talents.name);

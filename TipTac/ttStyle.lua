@@ -192,7 +192,7 @@ local function AddTarget(lineList,target,targetName)
 		lineList:Push(targetReactionColor:WrapTextInColorCode("["));
 		if (UnitIsPlayer(target)) then
 			local targetClassID = select(3, UnitClass(target));
-			local targetClassColor = LibFroznFunctions:GetClassColor(targetClassID) or TT_COLOR.text.targeting;
+			local targetClassColor = LibFroznFunctions:GetClassColor(targetClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targeting;
 			lineList:Push(targetClassColor:WrapTextInColorCode(targetName));
 		else
 			lineList:Push(targetReactionColor:WrapTextInColorCode(targetName));
@@ -249,7 +249,7 @@ function ttStyle:GenerateTargetedByLines(unitRecord)
 			
 			if (UnitIsPlayer(unit)) then
 				local unitClassID = select(3, UnitClass(unit));
-				local unitClassColor = LibFroznFunctions:GetClassColor(unitClassID) or TT_COLOR.text.targetedBy;
+				local unitClassColor = LibFroznFunctions:GetClassColor(unitClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targetedBy;
 				lineTargetedBy:Push(unitClassColor:WrapTextInColorCode(unitName));
 			else
 				local unitReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(unit)]));
@@ -277,7 +277,7 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 	lineLevel:Push(" ");
 	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 	-- class
-	local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5);
+	local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 	lineLevel:Push(" ");
 	lineLevel:Push(classColor:WrapTextInColorCode(unitRecord.className));
 	-- name

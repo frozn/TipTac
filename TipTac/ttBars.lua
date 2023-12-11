@@ -35,7 +35,7 @@ end
 
 function HealthBarMixin:GetColor(unitRecord)
 	if (unitRecord.isPlayer) and (cfg.healthBarClassColor) then
-		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5);
+		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 		return classColor:GetRGBA();
 	else
 		return unpack(cfg.healthBarColor);

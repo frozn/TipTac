@@ -63,6 +63,21 @@ local TT_DefaultConfig = {
 	
 	classColoredBorder = true,
 	
+	enableCustomClassColors = false,
+	colorCustomClassWarrior = {},      -- set during event ADDON_LOADED
+	colorCustomClassPaladin = {},      -- set during event ADDON_LOADED
+	colorCustomClassHunter = {},       -- set during event ADDON_LOADED
+	colorCustomClassRogue = {},        -- set during event ADDON_LOADED
+	colorCustomClassPriest = {},       -- set during event ADDON_LOADED
+	colorCustomClassDeathknight = {},  -- set during event ADDON_LOADED
+	colorCustomClassShaman = {},       -- set during event ADDON_LOADED
+	colorCustomClassMage = {},         -- set during event ADDON_LOADED
+	colorCustomClassWarlock = {},      -- set during event ADDON_LOADED
+	colorCustomClassMonk = {},         -- set during event ADDON_LOADED
+	colorCustomClassDruid = {},        -- set during event ADDON_LOADED
+	colorCustomClassDemonhunter = {},  -- set during event ADDON_LOADED
+	colorCustomClassEvoker = {},       -- set during event ADDON_LOADED
+	
 	-- reactions
 	reactColoredBorder = false,
 	reactIcon = false,
@@ -217,6 +232,9 @@ local TT_DefaultConfig = {
 -- extended config
 local TT_ExtendedConfig = {};
 
+-- custom class colors config
+TT_ExtendedConfig.customClassColors = {}; -- set during event ADDON_LOADED and tt:ApplyConfig()
+
 -- original GameTooltip fonts
 TT_ExtendedConfig.oldGameTooltipText = {        -- set during tt:ApplyConfig()
 	fontFace = "",
@@ -329,7 +347,7 @@ TT_ExtendedConfig.tipsToModify = {
 								end
 								
 								local classID = splits[5];
-								local classColor = LibFroznFunctions:GetClassColor(classID, 5);
+								local classColor = LibFroznFunctions:GetClassColor(classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 								
 								tt:SetBackdropBorderColorLocked(tip, classColor.r, classColor.g, classColor.b);
 							end
@@ -518,7 +536,7 @@ TT_ExtendedConfig.tipsToModify = {
 						local name, classFile, localizedClass, level, itemLevel, honorLevel, tank, healer, damage, assignedRole, relationship, dungeonScore, pvpItemLevel = C_LFGList.GetApplicantMemberInfo(applicantID, memberIdx);
 						
 						if (name) then
-							local classColor = LibFroznFunctions:GetClassColorByClassFile(classFile, "PRIEST");
+							local classColor = LibFroznFunctions:GetClassColorByClassFile(classFile, "PRIEST", cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 							
 							tt:SetBackdropBorderColorLocked(GameTooltip, classColor.r, classColor.g, classColor.b);
 						end
@@ -594,9 +612,9 @@ TT_ExtendedConfig.tipsToModify = {
 					if (memberInfo) then
 						local classID = memberInfo.classID;
 						
-						classColor = LibFroznFunctions:GetClassColor(classID, 5);
+						classColor = LibFroznFunctions:GetClassColor(classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 					else
-						classColor = LibFroznFunctions:GetClassColor(5);
+						classColor = LibFroznFunctions:GetClassColor(5, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 					end
 					
 					tt:SetBackdropBorderColorLocked(GameTooltip, classColor.r, classColor.g, classColor.b);
@@ -1088,6 +1106,19 @@ tt:RegisterEvent("DISPLAY_SIZE_CHANGED");
 
 -- setup config
 function tt:SetupConfig()
+	-- update default config for custom class colors
+	local numClasses = GetNumClasses();
+	
+	for i = 1, numClasses do
+		local className, classFile = GetClassInfo(i);
+		
+		if (classFile) then
+			local camelCasedClassFile = LibFroznFunctions:CamelCaseText(classFile);
+			
+			TT_DefaultConfig["colorCustomClass" .. camelCasedClassFile] = { RAID_CLASS_COLORS[classFile]:GetRGBA() };
+		end
+	end
+	
 	-- update default config for fonts
 	TT_DefaultConfig.fontFace, TT_DefaultConfig.fontSize, TT_DefaultConfig.fontFlags = GameFontNormal:GetFont();
 	TT_DefaultConfig.fontSize = math.floor(TT_DefaultConfig.fontSize + 0.5);
@@ -1110,8 +1141,27 @@ function tt:SetupConfig()
 		self:Show();
 	end
 	
+	-- set custom class colors config
+	self:SetCustomClassColorsConfig();
+	
 	-- set tooltip backdrop config
 	self:SetTipBackdropConfig();
+end
+
+-- set custom class colors config
+function tt:SetCustomClassColorsConfig()
+	local currentConfig = TT_IsConfigLoaded and cfg or TT_DefaultConfig;
+	local numClasses = GetNumClasses();
+	
+	for i = 1, numClasses do
+		local className, classFile = GetClassInfo(i);
+		
+		if (classFile) then
+			local camelCasedClassFile = LibFroznFunctions:CamelCaseText(classFile);
+			
+			TT_ExtendedConfig.customClassColors[classFile] = CreateColor(unpack(currentConfig["colorCustomClass" .. camelCasedClassFile]));
+		end
+	end
 end
 
 -- set tooltip backdrop config (examples see "Backdrop.lua")
@@ -1168,6 +1218,9 @@ end
 function tt:ApplyConfig()
 	-- update pixel perfect scale
 	self:UpdatePixelPerfectScale();
+	
+	-- set custom class colors config
+	self:SetCustomClassColorsConfig();
 	
 	-- set tooltip backdrop config
 	self:SetTipBackdropConfig();
@@ -2635,7 +2688,7 @@ function tt:SetUnitAppearanceToTip(tip, first)
 
 	-- set backdrop border color to tip by unit class or by unit reaction index
 	if (cfg.classColoredBorder) and (unitRecord.isPlayer) then
-		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5);
+		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 		
 		self:SetBackdropBorderColorLocked(tip, classColor:GetRGBA());
 	elseif (cfg.reactColoredBorder) then

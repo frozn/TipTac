@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 16; -- bump on changes
+local LIB_MINOR = 17; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -460,6 +460,16 @@ function LibFroznFunctions:FormatText(text, replacements, ...)
 	end
 	
 	return string.format(newText, ...);
+end
+
+-- camel case text
+--
+-- @param  text  text to camel case, e.g. "warrior" or "WARRIOR"
+-- @return camel cased text
+function LibFroznFunctions:CamelCaseText(text)
+	local newText = tostring(text);
+	
+	return (newText:lower():gsub("^%l", string.upper));
 end
 
 -- convert to table
@@ -1139,44 +1149,54 @@ end
 --
 -- @param  classID                     class id of unit
 -- @param  alternateClassIDIfNotFound  alternate class id if color for param "classID" doesn't exist
+-- @param  customClassColors           optional. custom class colors
 -- @return ColorMixin  returns nil if class file for param "classID" and "alternateClassIDIfNotFound" doesn't exist.
-local function getClassColor(classFile)
+local function getClassColor(classFile, customClassColors)
 	local classColor; -- see "ColorUtil.lua"
 	
+	-- custom class colors
+	if (customClassColors) then
+		classColor = customClassColors[classFile];
+		
+		if (classColor) then
+			return classColor;
+		end
+	end
+	
+	-- global custom class colors
 	if (CUSTOM_CLASS_COLORS) then
-		-- custom class color
-		classColor = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[classFile];
+		classColor = CUSTOM_CLASS_COLORS[classFile];
 		
 		if (classColor) then
 			-- make shure that ColorMixin methods are available
-			if (classColor) and (type(classColor.WrapTextInColorCode) ~= "function") then
+			if (type(classColor.WrapTextInColorCode) ~= "function") then
 				LibFroznFunctions:MixinDifferingObjects(classColor, ColorMixin);
 			end
-		else
-			-- fallback to default class color
-			classColor = RAID_CLASS_COLORS[classFile];
+			
+			return classColor;
 		end
-	else
-		-- default class color
-		classColor = RAID_CLASS_COLORS[classFile];
 	end
+	
+	-- default class color
+	classColor = RAID_CLASS_COLORS[classFile];
 	
 	return classColor;
 end
 
-function LibFroznFunctions:GetClassColor(classID, alternateClassIDIfNotFound)
+function LibFroznFunctions:GetClassColor(classID, alternateClassIDIfNotFound, customClassColors)
 	local classInfo = (classID and C_CreatureInfo.GetClassInfo(classID)) or (alternateClassIDIfNotFound and C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound));
 	
-	return classInfo and getClassColor(classInfo.classFile);
+	return classInfo and getClassColor(classInfo.classFile, customClassColors);
 end
 
 -- get class color by class file
 --
 -- @param  classFile                     locale-independent class file of unit, e.g. "WARRIOR"
 -- @param  alternateClassFileIfNotFound  alternate class file if color for param "classFile" doesn't exist
+-- @param  customClassColors             optional. custom class colors
 -- @return ColorMixin  returns nil if class file for param "classFile" and "alternateClassFileIfNotFound" doesn't exist.
 function LibFroznFunctions:GetClassColorByClassFile(classFile, alternateClassFileIfNotFound)
-	return getClassColor(classFile) or getClassColor(alternateClassFileIfNotFound);
+	return getClassColor(classFile, customClassColors) or getClassColor(alternateClassFileIfNotFound, customClassColors);
 end
 
 -- get power color

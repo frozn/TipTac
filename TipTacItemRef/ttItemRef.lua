@@ -51,7 +51,6 @@ if (TipTac) then
 end
 
 -- Default Config
-local cfg;
 local TTIF_DefaultConfig = {
 	if_enable = true,
 	if_infoColor = { 0.2, 0.6, 1 },
@@ -116,6 +115,9 @@ local TTIF_DefaultConfig = {
 	if_iconOffsetX = 2.5,
 	if_iconOffsetY = -2.5
 };
+local cfg;
+local TT_ExtendedConfig;
+local TT_CacheForFrames;
 
 -- Tooltips to Hook into -- MUST be a GameTooltip widget -- If the main TipTac is installed, the TT_TipsToModify is used instead
 local tipsToModify = {
@@ -411,7 +413,10 @@ end
 --------------------------------------------------------------------------------------------------------
 
 -- Apply Settings -- It seems this may be called from TipTac:OnApplyConfig() before we have received our VARIABLES_LOADED, so ensure we have created the tip objects
-function ttif:OnApplyConfig()
+function ttif:OnApplyConfig(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+	TT_CacheForFrames = _TT_CacheForFrames;
+	TT_ExtendedConfig = _TT_ExtendedConfig;
+	
 	local gameFont = GameFontNormal:GetFont();
 	for index, tip in ipairs(tipsToModify) do
 		if (type(tip) == "table") and (tipsToAddIcon[tip:GetName()]) and (tip.ttIcon) then
@@ -2659,7 +2664,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 			
 			if (UnitIsPlayer(source)) and (cfg.if_colorAuraCasterByClass) then
 				local sourceClassID = select(3, UnitClass(source));
-				colorAuraCaster = LibFroznFunctions:GetClassColor(sourceClassID) or CreateColor(unpack(cfg.if_infoColor));
+				colorAuraCaster = LibFroznFunctions:GetClassColor(sourceClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or CreateColor(unpack(cfg.if_infoColor));
 			end
 			
 			if (not colorAuraCaster) and (cfg.if_colorAuraCasterByReaction) then

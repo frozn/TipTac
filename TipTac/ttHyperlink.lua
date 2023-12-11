@@ -227,7 +227,7 @@ local function OnHyperlinkEnter(self, refString, text)
 			local playerItemLevel = tonumber(splits[6]);
 			local playerLevel = tonumber(splits[7]);
 			local className, classFileName = GetClassInfo(playerClass);
-			local classColor = LibFroznFunctions:GetClassColor(playerClass, 5);
+			local classColor = LibFroznFunctions:GetClassColor(playerClass, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 			local runsThisSeason = tonumber(splits[8]);
 			
 			--Bad Link..
