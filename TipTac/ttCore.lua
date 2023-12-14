@@ -1115,7 +1115,9 @@ function tt:SetupConfig()
 		if (classFile) then
 			local camelCasedClassFile = LibFroznFunctions:CamelCaseText(classFile);
 			
-			TT_DefaultConfig["colorCustomClass" .. camelCasedClassFile] = { RAID_CLASS_COLORS[classFile]:GetRGBA() };
+			TT_DefaultConfig["colorCustomClass" .. camelCasedClassFile] = {
+				RAID_CLASS_COLORS[classFile]:GetRGBA()
+			};
 		end
 	end
 	

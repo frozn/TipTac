@@ -2411,9 +2411,14 @@ function LibFroznFunctions:CanInspect(unitID)
 		return false;
 	end
 	
+	-- no inspection if inspect frame is open
+	if (LibFroznFunctions:IsInspectFrameOpen()) then
+		return false;
+	end
+	
 	-- check if inspection is possible
 	local function checkFn()
-		return (not LibFroznFunctions:IsInspectFrameOpen()) and (CanInspect(unitID));
+		return CanInspect(unitID);
 	end
 	
 	-- suppress error message and speech in Classic Era, BCC and WotLKC
@@ -2472,12 +2477,13 @@ function frameForDelayedInspection:RemoveQueuedInspectRequest(unitCacheRecord)
 	end
 end
 
--- HOOK: frameForDelayedInspection's OnUpdate -- sends the inspect request after a delay
+-- HOOK: frameForDelayedInspection's OnUpdate() -- sends the inspect request after a delay
 frameForDelayedInspection.NextNotifyInspectTimestamp = GetTime();
+frameForDelayedInspection.NotifyInspectHooked = false;
 
 frameForDelayedInspection:SetScript("OnUpdate", function(self, elapsed)
 	if (self.NextNotifyInspectTimestamp <= GetTime()) then
-		-- send next queued inspect request
+		-- get next unit to send next queued inspect request for
 		local unitCacheRecord, unitID, unitIDForNotifyInspectFound;
 		
 		repeat
@@ -2506,6 +2512,10 @@ frameForDelayedInspection:SetScript("OnUpdate", function(self, elapsed)
 			end
 		until (unitIDForNotifyInspectFound);
 		
+		-- hook NotifyInspect() to monitor inspect requests
+		frameForDelayedInspection:HookNotifyInspect();
+		
+		-- send next queued inspect request
 		NotifyInspect(unitID);
 		
 		-- check if there are no more queued inspect requests available
@@ -2515,22 +2525,32 @@ frameForDelayedInspection:SetScript("OnUpdate", function(self, elapsed)
 	end
 end);
 
--- HOOK: NotifyInspect to monitor inspect requests
-hooksecurefunc("NotifyInspect", function(unitID)
-	-- set queued inspect request to inspect requests waiting for inspect data
-	local unitGUID = UnitGUID(unitID);
-	local unitCacheRecord = frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID);
-	
-	if (unitCacheRecord) then
-		unitCacheRecord.inspectStatus = LFF_INSPECT_STATUS.waitingForInspectData;
-		unitCacheRecord.inspectTimestamp = GetTime();
-		
-		frameForDelayedInspection:RemoveQueuedInspectRequest(unitCacheRecord);
+-- HOOK: NotifyInspect() to monitor inspect requests
+function frameForDelayedInspection:HookNotifyInspect()
+	-- check if NotifyInspect() is already hooked
+	if (not frameForDelayedInspection.NotifyInspectHooked) then
+		return;
 	end
 	
-	-- set timestamp for next inspect request
-	frameForDelayedInspection.NextNotifyInspectTimestamp = GetTime() + LFF_INSPECT_TIMEOUT;
-end);
+	-- HOOK: NotifyInspect() to monitor inspect requests
+	hooksecurefunc("NotifyInspect", function(unitID)
+		-- set queued inspect request to inspect requests waiting for inspect data
+		local unitGUID = UnitGUID(unitID);
+		local unitCacheRecord = frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID);
+		
+		if (unitCacheRecord) then
+			unitCacheRecord.inspectStatus = LFF_INSPECT_STATUS.waitingForInspectData;
+			unitCacheRecord.inspectTimestamp = GetTime();
+			
+			frameForDelayedInspection:RemoveQueuedInspectRequest(unitCacheRecord);
+		end
+		
+		-- set timestamp for next inspect request
+		frameForDelayedInspection.NextNotifyInspectTimestamp = GetTime() + LFF_INSPECT_TIMEOUT;
+	end);
+	
+	frameForDelayedInspection.NotifyInspectHooked = true;
+end
 
 -- EVENT: INSPECT_READY - inspect data available
 function frameForDelayedInspection:INSPECT_READY(event, unitGUID)
