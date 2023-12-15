@@ -2601,7 +2601,7 @@ end);
 -- HOOK: NotifyInspect() to monitor inspect requests
 function frameForDelayedInspection:HookNotifyInspect()
 	-- check if NotifyInspect() is already hooked
-	if (not frameForDelayedInspection.NotifyInspectHooked) then
+	if (frameForDelayedInspection.NotifyInspectHooked) then
 		return;
 	end
 	
