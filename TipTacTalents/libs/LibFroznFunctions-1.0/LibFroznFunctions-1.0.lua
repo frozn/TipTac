@@ -83,6 +83,12 @@ else -- retail
 	end
 end
 
+-- GearScore algorithms
+LFF_GEAR_SCORE_ALGORITHM = {
+	TacoTip = 1, -- TacoTip's GearScore algorithm
+	TipTac = 2 -- TipTac's GearScore algorithm
+};
+
 -- differences between WoW flavors
 --
 -- @return .guildNameInPlayerUnitTip                                   = true/false if the guild name is included in the player unit tip (since bc)
@@ -101,11 +107,6 @@ end
 --         .relatedExpansionForItemAvailable                           = true/false if GetItemInfo() return the related expansion for an item (parameter expacID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 "UISliderTemplateWithLabels")
-LFF_GEAR_SCORE_ALGORITHM = {
-	TacoTip = 1, -- TacoTip's GearScore algorithm
-	TipTac = 2 -- TipTac's GearScore algorithm
-};
-
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
