@@ -1204,7 +1204,7 @@ function tt:SetTipPaddingConfig()
 	if (currentConfig.enableBackdrop) then
 		TT_ExtendedConfig.tipPaddingForGameTooltip.right, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, TT_ExtendedConfig.tipPaddingForGameTooltip.left, TT_ExtendedConfig.tipPaddingForGameTooltip.top = TT_ExtendedConfig.tipBackdrop.insets.right + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.bottom + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.left + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.top + TT_ExtendedConfig.tipPaddingForGameTooltip.offset;
 		
-		if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
+		if (not LibFroznFunctions.hasWoWFlavor.GameTooltipSetPaddingWithLeftAndTop) then
 			TT_ExtendedConfig.tipPaddingForGameTooltip.left = 0;
 			TT_ExtendedConfig.tipPaddingForGameTooltip.top = 0;
 		end
@@ -2888,10 +2888,10 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 						return;
 					end
 					
-					-- only needed for Classic Era and WotLKC: FadeOut() for worldframe unit tips will not be called
+					-- consider if FadeOut() for worldframe unit tips will not be called
 					local unitRecord = frameParams.currentDisplayParams.unitRecord;
 					
-					if ((LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC)) and
+					if (LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips) and
 							(unitRecord) and ((IsMouseButtonDown()) or (not UnitExists(unitRecord.id))) then
 						
 						tip:FadeOut();

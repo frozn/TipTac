@@ -30,6 +30,8 @@
 	- added a tooltip for Slider
 	23.10.15 Rev 21 10.1.7/Dragonflight #frozn45
 	- added a tooltip for DropDown and menu items
+	xx.xx.xx Rev 22 10.2.0/Dragonflight #frozn45
+	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
 --]]
 
 -- create new library
@@ -254,8 +256,8 @@ azof.objects.Slider = {
 
 		local sliderName = GenerateObjectName("Slider");
 
-		f.slider = CreateFrame("Slider", sliderName, f, LibFroznFunctions.isWoWFlavor.DF and "UISliderTemplateWithLabels" or "OptionsSliderTemplate");
-		if (LibFroznFunctions.isWoWFlavor.DF and BackdropTemplateMixin and "BackdropTemplate") then
+		f.slider = CreateFrame("Slider", sliderName, f, LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate);
+		if ((LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate == "UISliderTemplateWithLabels") and BackdropTemplateMixin and "BackdropTemplate") then
 			Mixin(f.slider, BackdropTemplateMixin);
 			f.slider.backdropInfo = BACKDROP_SLIDER_8_8;
 			f.slider:ApplyBackdrop();

@@ -84,27 +84,27 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 --
 -- GameTooltip lines of the player (determined via: UnitIsUnit(unitID, "player")):
 --
--- content                                            color                                                                    example
--- -------------------------------------------------  -----------------------------------------------------------------------  ---------------------------------------------------------------------------------------------------
---  1. <name with optional title>                     white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Camassea", "Camassea, Hand von A'dal", "Camassea die Ehrfurchtgebietende" or "Chefköchin Camassea"
--- [2. <guild>]                                       white (HIGHLIGHT_FONT_COLOR)                                             "Blood Omen"
--- [3. <reaction, only colorblind mode>]              white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
---  4. <level> - <race>, <class> (Spieler)            white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 60 - Nachtelfe, Druidin (Spieler)"
--- [5. since df 10.1.5: [<specialization> ]<class>]]  white (HIGHLIGHT_FONT_COLOR)                                             "Gleichgewicht Druidin"
--- [6. <faction>]                                     white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
--- [7. PvP]                                           white (HIGHLIGHT_FONT_COLOR)
+-- content                                           color                                                                    example
+-- ------------------------------------------------  -----------------------------------------------------------------------  ---------------------------------------------------------------------------------------------------
+--  1. <name with optional title>                    white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Camassea", "Camassea, Hand von A'dal", "Camassea die Ehrfurchtgebietende" or "Chefköchin Camassea"
+-- [2. since bc: <guild>]                            white (HIGHLIGHT_FONT_COLOR)                                             "Blood Omen"
+-- [3. <reaction, only colorblind mode>]             white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
+--  4. <level> - <race>, <class> (Spieler)           white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 60 - Nachtelfe, Druidin (Spieler)"
+-- [5. since df 10.1.5: [<specialization> ]<class>]  white (HIGHLIGHT_FONT_COLOR)                                             "Gleichgewicht Druidin"
+-- [6. <faction>]                                    white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
+-- [7. PvP]                                          white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of other player (determined via: UnitIsPlayer(unitID) and not UnitIsUnit(unitID, "player")):
 --
--- content                                            color                                                                    example
--- -------------------------------------------------  -----------------------------------------------------------------------  ------------------------------------------
---  1. <name with optional title>[-<realm>]           white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Zoodirektorin Silvette-Alleria"
--- [2. <guild>[-<realm>]]                             white (HIGHLIGHT_FONT_COLOR)                                             "Die teuflischen Engel-Alleria"
--- [3. <reaction, only colorblind mode>]              white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
---  4. <level> - <race>, <class> (Spieler)            white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 70 - Leerenelfe, Jägerin (Spieler)"
--- [5. since df 10.1.5: [<specialization> ]<class>]]  white (HIGHLIGHT_FONT_COLOR)                                             "Verwüstung Dämonenjäger" or "Druidin"
--- [6. <faction>]                                     white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
--- [7. PvP]                                           white (HIGHLIGHT_FONT_COLOR)
+-- content                                           color                                                                    example
+-- ------------------------------------------------  -----------------------------------------------------------------------  ------------------------------------------
+--  1. <name with optional title>[-<realm>]          white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Zoodirektorin Silvette-Alleria"
+-- [2. since bc: <guild>[-<realm>]]                  white (HIGHLIGHT_FONT_COLOR)                                             "Die teuflischen Engel-Alleria"
+-- [3. <reaction, only colorblind mode>]             white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
+--  4. <level> - <race>, <class> (Spieler)           white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 70 - Leerenelfe, Jägerin (Spieler)"
+-- [5. since df 10.1.5: [<specialization> ]<class>]  white (HIGHLIGHT_FONT_COLOR)                                             "Verwüstung Dämonenjäger" or "Druidin"
+-- [6. <faction>]                                    white (HIGHLIGHT_FONT_COLOR)                                             "Allianz" or "Horde"
+-- [7. PvP]                                          white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of NPC (determined via: not UnitIsPlayer(unitID) and not UnitPlayerControlled(unitID) and not UnitIsBattlePet(unitID)):
 --
@@ -150,7 +150,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 	local creatureFamily, creatureType = UnitCreatureFamily(unitRecord.id), UnitCreatureType(unitRecord.id);
 	
 	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (creatureType);
-	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (LibFroznFunctions.isWoWFlavor.DF) and (unitRecord.isPlayer);
+	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (unitRecord.isPlayer) and (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip);
 	
 	if (not cfg.hideFactionText) and (not cfg.hidePvpText) and (not hideCreatureTypeIfNoCreatureFamily) and (not hideSpecializationAndClassText) then
 		return;
@@ -318,9 +318,9 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 				end
 			end
 			currentDisplayParams.mergeLevelLineWithGuildName = false;
-			if (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- no separate line for guild name in classic era. merge with reaction (only color blind mode) or level line.
+			if (not LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) then -- no separate line for guild name. merge with reaction (only color blind mode) or level line.
 				if (unitRecord.isColorBlind) then
-					GameTooltipTextLeft2:SetText(text .. "\n" .. unitRecord.reactionTextInColorBlindModeForClassicEra);
+					GameTooltipTextLeft2:SetText(text .. "\n" .. unitRecord.reactionTextInColorBlindMode);
 				else
 					GameTooltipTextLeft2:SetText(text);
 					currentDisplayParams.mergeLevelLineWithGuildName = true;
@@ -330,7 +330,7 @@ function ttStyle:GeneratePlayerLines(currentDisplayParams, unitRecord, first)
 				lineLevel.Index = (lineLevel.Index + 1);
 			end
 		else -- don't show guild
-			if (not LibFroznFunctions.isWoWFlavor.ClassicEra) then -- no separate line for guild name in classic era
+			if (LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) then -- separate line for guild name
 				GameTooltipTextLeft2:SetText(nil);
 				lineLevel.Index = (lineLevel.Index + 1);
 			end
@@ -646,9 +646,9 @@ function ttStyle:OnTipStyle(TT_CacheForFrames, tip, first)
 				unitRecord.petOrBattlePetOrNPCTitle = nil;
 			end
 		end
-		-- remember reaction in color blind mode for classic era
-		if (LibFroznFunctions.isWoWFlavor.ClassicEra) and (unitRecord.isColorBlind) then
-			unitRecord.reactionTextInColorBlindModeForClassicEra = GameTooltipTextLeft2:GetText();
+		-- remember reaction in color blind mode if there is no separate line for guild name
+		if (not LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) and (unitRecord.isColorBlind) then
+			unitRecord.reactionTextInColorBlindMode = GameTooltipTextLeft2:GetText();
 		end
 	end
 

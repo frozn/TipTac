@@ -83,6 +83,78 @@ else -- retail
 	end
 end
 
+-- differences between WoW flavors
+--
+-- @return .guildNameInPlayerUnitTip                                   = true/false if the guild name is included in the player unit tip (since bc)
+--         .specializationAndClassTextInPlayerUnitTip                  = true/false if a specialization and class text is included in the player unit tip (since df 10.1.5)
+--         .needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true/false for suppressing error message and speech when calling CanInspect() (till wotlkc)
+--         .talentsAvailableForInspectedUnit                           = true/false if getting talents from other players is available (since bc 2.3.0)
+--         .numTalentTrees                                             = number of talent trees
+--         .talentIconAvailable                                        = true/false if talent icon is available (since bc)
+--         .roleIconAvailable                                          = true/false if role icon is available (since MoP 5.0.4)
+--         .specializationAvailable                                    = true/false if specialization is available (since MoP 5.0.4)
+--         .itemLevelOfFirstRaidTierSet                                = item level of first raid tier set. false if not defined (yet).
+--         .GameTooltipSetPaddingWithLeftAndTop                        = true/false if GameTooltip:SetPadding() has the optional left and top parameters (since BfA 8.2.0)
+--         .GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips         = true/false if GameTooltip:FadeOut() will not be called for worldframe unit tips (till wotlkc)
+--         .barMarginAdjustment                                        = bar margin adjustment (till wotlkc)
+--         .realGetSpellLinkAvailable                                  = true/false if the real GetSpellLink() is available (since bc 2.3.0). in classic era this function only returns the spell name instead of a spell link.
+--         .relatedExpansionForItemAvailable                           = true/false if GetItemInfo() return the related expansion for an item (parameter expacID) (since Legion 7.1.0)
+--         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
+--         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 "UISliderTemplateWithLabels")
+LFF_GEAR_SCORE_ALGORITHM = {
+	TacoTip = 1, -- TacoTip's GearScore algorithm
+	TipTac = 2 -- TipTac's GearScore algorithm
+};
+
+LibFroznFunctions.hasWoWFlavor = {
+	guildNameInPlayerUnitTip = true,
+	specializationAndClassTextInPlayerUnitTip = true,
+	needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = false,
+	talentsAvailableForInspectedUnit = true,
+	numTalentTrees = 2,
+	talentIconAvailable = true,
+	roleIconAvailable = true,
+	specializationAvailable = false,
+	itemLevelOfFirstRaidTierSet = false,
+	barMarginAdjustment = 0,
+	GameTooltipSetPaddingWithLeftAndTop = true,
+	GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = false,
+	realGetSpellLinkAvailable = true,
+	relatedExpansionForItemAvailable = true,
+	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
+	optionsSliderTemplate = "UISliderTemplateWithLabels"
+};
+
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
+	LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip = false;
+	LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit = false;
+	LibFroznFunctions.hasWoWFlavor.talentIconAvailable = false;
+	LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable = false;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
+	LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true;
+	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 3;
+	LibFroznFunctions.hasWoWFlavor.roleIconAvailable = false;
+	LibFroznFunctions.hasWoWFlavor.specializationAvailable = false;
+	LibFroznFunctions.hasWoWFlavor.GameTooltipSetPaddingWithLeftAndTop = false;
+	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
+	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -2;
+	LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable = false;
+	LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TacoTip;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
+	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
+	LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate = "OptionsSliderTemplate";
+end
+if (LibFroznFunctions.isWoWFlavor.SL) then
+	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 0;
+end
+LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet = 
+	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)
+	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
+	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
+	LibFroznFunctions.isWoWFlavor.DF         and 395;   -- Lost Landcaller's Robes (Druid, Tier 23)
+
 -- get addon metadata
 --
 -- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (case insensitive)
@@ -2421,8 +2493,8 @@ function LibFroznFunctions:CanInspect(unitID)
 		return CanInspect(unitID);
 	end
 	
-	-- suppress error message and speech in Classic Era, BCC and WotLKC
-	if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
+	-- needs suppressing error message and speech when calling CanInspect()
+	if (LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect) then
 		return LibFroznFunctions:CallFunctionAndSuppressErrorMessageAndSpeech(checkFn);
 	end
 	
@@ -2656,8 +2728,8 @@ function LibFroznFunctions:AreTalentsAvailable(unitID)
 		return LFF_TALENTS.na;
 	end
 	
-	-- getting talents from other players isn't available in classic era
-	if (not isSelf) and (LibFroznFunctions.isWoWFlavor.ClassicEra) then
+	-- consider if getting talents from other players isn't available
+	if (not isSelf) and (not LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit) then
 		return LFF_TALENTS.na;
 	end
 	
@@ -2866,12 +2938,6 @@ function LibFroznFunctions:GetAverageItemLevel(unitID, callbackForItemData)
 end
 
 -- get average item level from item data
-LFF_BASE_LEVEL_FOR_TIPTAC_GEAR_SCORE =
-	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)
-	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
-	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
-	LibFroznFunctions.isWoWFlavor.DF         and 395;   -- Lost Landcaller's Robes (Druid, Tier 23)
-
 function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGUID)
 	-- check if unit guid from unit id is still the same when waiting for item data
 	if (callbackForItemData) and (unitGUID) then
@@ -3019,10 +3085,10 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 			-- 2. weighted item level by inventory type
 			-- 3. weighted item level by item quality
 			-- 4. sum it all up
-			local performancePerILvlForTipTacGearScore = LFF_BASE_LEVEL_FOR_TIPTAC_GEAR_SCORE and math.pow(1.01, (twoHandedMainHandOnly and (iLvlToAdd / 2) or iLvlToAdd) - LFF_BASE_LEVEL_FOR_TIPTAC_GEAR_SCORE) or 1; -- +1 iLvl = +1% performance, source: https://www.wowhead.com/news/gear-inflation-on-target-1-item-level-should-result-in-roughly-1-increased-322062
+			local performancePerILvlForTipTacGearScore = LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet and math.pow(1.01, (twoHandedMainHandOnly and (iLvlToAdd / 2) or iLvlToAdd) - LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet) or 1; -- +1 iLvl = +1% performance, source: https://www.wowhead.com/news/gear-inflation-on-target-1-item-level-should-result-in-roughly-1-increased-322062
 			local qualityModForTipTacGearScore = LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1;
 			
-			TipTacGearScore = TipTacGearScore + (LFF_BASE_LEVEL_FOR_TIPTAC_GEAR_SCORE or iLvlToAdd) * performancePerILvlForTipTacGearScore * (slotModForTipTacGearScore[item.inventoryType] or 1) * (LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1);
+			TipTacGearScore = TipTacGearScore + (LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet or iLvlToAdd) * performancePerILvlForTipTacGearScore * (slotModForTipTacGearScore[item.inventoryType] or 1) * (LibFroznFunctions:ExistsInTable(quality, { 0, 1 }) and 0.005 or (quality == 5) and 1.3 or (quality == 6) and 1.69 or 1);
 		end
 	end
 	

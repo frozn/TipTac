@@ -45,7 +45,7 @@ local TTT_DefaultConfig = {
 	t_showAverageItemLevel = true,        -- show average item level (AIL)
 	t_showGearScore = false,              -- show GearScore
 	t_gearScoreAlgorithm =                -- GearScore algorithm
-		((LibFroznFunctions.isWoWFlavor.SL or LibFroznFunctions.isWoWFlavor.DF) and 2 or 1),
+		LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm,
 	t_colorAILAndGSTextByQuality = true   -- color average item level and GearScore text by average quality
 };
 
@@ -55,7 +55,7 @@ local TTT_DefaultConfig = {
 
 -- text constants
 local TTT_TEXT = {
-	talentsPrefix = ((LibFroznFunctions.isWoWFlavor.SL or LibFroznFunctions.isWoWFlavor.DF) and SPECIALIZATION or TALENTS), -- MoP: Could be changed from TALENTS (Talents) to SPECIALIZATION (Specialization)
+	talentsPrefix = ((LibFroznFunctions.hasWoWFlavor.specializationAvailable) and SPECIALIZATION or TALENTS), -- MoP: Could be changed from TALENTS (Talents) to SPECIALIZATION (Specialization)
 	ailAndGSPrefix = STAT_AVERAGE_ITEM_LEVEL, -- Item Level
 	onlyGSPrefix = "GearScore",
 	loading = SEARCH_LOADING_TEXT, -- Loading...
@@ -326,7 +326,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 				
 				local gearScore;
 				
-				if (cfg.t_gearScoreAlgorithm == 1) then -- TacoTip's GearScore algorithm
+				if (cfg.t_gearScoreAlgorithm == LFF_GEAR_SCORE_ALGORITHM.TacoTip) then -- TacoTip's GearScore algorithm
 					gearScore = (unitCacheRecord.averageItemLevel.TacoTipGearScore > 0) and unitCacheRecord.averageItemLevel.TacoTipGearScore or "-";
 					
 					if (cfg.t_colorAILAndGSTextByQuality) then

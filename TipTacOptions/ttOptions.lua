@@ -47,7 +47,7 @@ local option;
 local ttOptionsGeneral = {
 	{ type = "Check", var = "showUnitTip", label = "Enable TipTac Unit Tip Appearance", tip = "Will change the appearance of how unit tips look. Many options in TipTac only work with this setting enabled.\nNOTE: Using this options with a non English client may cause issues!" },
 	{ type = "Check", var = "showStatus", label = "Show DC, AFK and DND Status", tip = "Will show the <DC>, <AFK> and <DND> status after the player name", y = 8 },
-	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options '"..(LibFroznFunctions.isWoWFlavor.DF and "Game->Gameplay->Interface->Nameplates" or "Interface->Names").."') are evaluated instead." },
+	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options 'Game->Gameplay->Interface->Nameplates') are evaluated instead." },
 	{ type = "Check", var = "showPlayerGender", label = "Show Player Gender", tip = "This will show the gender of the player. E.g. \"85 Female Blood Elf Paladin\"." },
 	{ type = "Check", var = "showCurrentUnitSpeed", label = "Show Current Unit Speed", tip = "This will show the current speed of the unit after race & class." }
 };
@@ -83,7 +83,7 @@ local ttOptionsSpecial = {
 	{ type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip", x = 160 }
 };
 
-if (LibFroznFunctions.isWoWFlavor.DF) then
+if (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) then
 	ttOptionsSpecial[#ttOptionsSpecial + 1] = { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text", tip = "Strips the Specialization & Class text from the tooltip" };
 end
 
@@ -354,24 +354,23 @@ if (TipTacTalents) then
 		{ type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown", y = 12 }
 	};
 	
-	if (not LibFroznFunctions.isWoWFlavor.ClassicEra) then
-		if (not LibFroznFunctions.isWoWFlavor.WotLKC) then
-			tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" };
-		end
-		
+	if (LibFroznFunctions.hasWoWFlavor.roleIconAvailable) then
+		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" };
+	end
+	if (LibFroznFunctions.hasWoWFlavor.talentIconAvailable) then
 		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showTalentIcon", label = "Show Talent Icon", tip = "This option makes the tip show the talent icon" };
 	end
 	
 	option = { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 12 };
-	if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
+	if (not LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit) then
 		option.tip = option.tip .. ".\nNOTE: Inspecting other players' talents isn't available in Classic Era. Only own talents (available at level 10) will be shown.";
 	end
 	tttOptions[#tttOptions + 1] = option;
 	
 	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorTalentTextByClass", label = "Color Talent Text by Class Color", tip = "With this option on, talent text is colored by their class color" };
 	
-	if (not LibFroznFunctions.isWoWFlavor.SL) then
-		if (LibFroznFunctions.isWoWFlavor.DF) then
+	if (LibFroznFunctions.hasWoWFlavor.numTalentTrees > 0) then
+		if (LibFroznFunctions.hasWoWFlavor.numTalentTrees == 2) then
 			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (31/30)"] = 1, ["Elemental"] = 2, ["31/30"] = 3,}, y = 8 }; -- not supported with MoP changes
 		else
 			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (57/14/0)"] = 1, ["Elemental"] = 2, ["57/14/0"] = 3,}, y = 8 }; -- not supported with MoP changes
@@ -403,7 +402,7 @@ if (TipTacItemRef) then
 		{ type = "Check", var = "if_showItemId", label = "Show Item ID", tip = "For item tooltips, show their itemID (Combines with itemLevel)", x = 160 }
 	};
 	
-	if (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
+	if (LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable) then
 		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionIcon", label = "Show Expansion Icon", tip = "For item tooltips, show their expansion icon" };
 		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name", x = 160 };
 	end
