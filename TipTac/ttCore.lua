@@ -1204,7 +1204,10 @@ function tt:SetTipPaddingConfig()
 	if (currentConfig.enableBackdrop) then
 		TT_ExtendedConfig.tipPaddingForGameTooltip.right, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, TT_ExtendedConfig.tipPaddingForGameTooltip.left, TT_ExtendedConfig.tipPaddingForGameTooltip.top = TT_ExtendedConfig.tipBackdrop.insets.right + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.bottom + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.left + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.top + TT_ExtendedConfig.tipPaddingForGameTooltip.offset;
 		
+		-- no padding if GameTooltip:SetPadding() doesn't have the optional left and top parameters (available since BfA 8.2.0)
 		if (not LibFroznFunctions.hasWoWFlavor.GameTooltipSetPaddingWithLeftAndTop) then
+			TT_ExtendedConfig.tipPaddingForGameTooltip.right = 0;
+			TT_ExtendedConfig.tipPaddingForGameTooltip.bottom = 0;
 			TT_ExtendedConfig.tipPaddingForGameTooltip.left = 0;
 			TT_ExtendedConfig.tipPaddingForGameTooltip.top = 0;
 		end
