@@ -1342,15 +1342,10 @@ end
 --
 -- @param  questID     quest id
 -- @param  questLevel  quest level
--- @return ColorMixin  difficulty color. returns nil if no quest id is supplied or quest level is invalid.
+-- @return ColorMixin  difficulty color. returns nil if no quest id is supplied, based on situation.
 function LibFroznFunctions:GetDifficultyColorForQuest(questID, questLevel)
-	-- no quest id or invalid number
-	if (not questID) or (type(questLevel) ~= "number") then
-		return;
-	end
-	
 	-- world quests
-	if (C_QuestLog.IsWorldQuest) and (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest()
+	if (C_QuestLog.IsWorldQuest) and (questID) and (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest()
 		local tagInfo = C_QuestLog.GetQuestTagInfo(questID);
 		local worldQuestQuality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
 		
@@ -1358,7 +1353,13 @@ function LibFroznFunctions:GetDifficultyColorForQuest(questID, questLevel)
 	end
 	
 	-- other quests
-	local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or GetQuestDifficultyColor(questLevel); -- see "UIParent.lua"
+	
+	-- GetDifficultyColor() will be used and no quest id
+	if (GetDifficultyColor) and (not questID) then
+		return;
+	end
+	
+	local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or GetQuestDifficultyColor((type(questLevel) == "number") and questLevel or 0); -- see "UIParent.lua"
 	
 	return LibFroznFunctions:CreateColorSmart(difficultyColor);
 end
