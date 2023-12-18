@@ -2811,18 +2811,11 @@ function LinkTypeFuncs:quest(link, linkType, questID, level)
 	
   	-- Difficulty Border
 	if (cfg.if_questDifficultyBorder) then
-		local difficultyColorMixin;
+		local difficultyColorMixin = LibFroznFunctions:GetDifficultyColorForQuest(questID, level);
 		
-		if (C_QuestLog.IsWorldQuest and C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest
-			local tagInfo = C_QuestLog.GetQuestTagInfo(questID);
-			local quality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
-			difficultyColorMixin = WORLD_QUEST_QUALITY_COLORS[quality].color;
-		else
-			local difficultyColor = GetDifficultyColor and GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID)) or GetQuestDifficultyColor(level);
-			difficultyColorMixin = CreateColor(difficultyColor.r, difficultyColor.g, difficultyColor.b, 1);
+		if (difficultyColorMixin) then
+			ttif:SetBackdropBorderColorLocked(self, difficultyColorMixin:GetRGBA());
 		end
-		
-		ttif:SetBackdropBorderColorLocked(self, difficultyColorMixin:GetRGBA());
 	end
 end
 
