@@ -1,4 +1,4 @@
-aaTipTac - An Advanced Tooltip Addon
+TipTac - An Advanced Tooltip Addon
 ----------------------------------
 TipTac is a tooltip enchancement addon, it allows you to configure various aspects of the tooltip, such as moving where it's shown, the font, the scale of tips, plus many more features.
 
