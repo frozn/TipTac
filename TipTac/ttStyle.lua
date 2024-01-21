@@ -682,6 +682,8 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		end
 		
 		lineInfo:Clear();
+	elseif (currentDisplayParams.tipLineInfoIndex) then
+		_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineInfoIndex]:SetText(nil);
 	end
 	
 	-- Targeted By Line
@@ -696,6 +698,8 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		end
 		
 		lineTargetedBy:Clear();
+	elseif (currentDisplayParams.tipLineTargetedByIndex) then
+		_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineTargetedByIndex]:SetText(nil);
 	end
 end
 
