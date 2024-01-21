@@ -255,6 +255,42 @@ function LibFroznFunctions:CreateColorFromHexString(hexColor)
 	end
 end
 
+-- setup color picker and show
+--
+-- @param info  color picker configuration
+--          .swatchFunc      function called when the color is changed
+--          .hasOpacity      if true, opacity can be customized in addition to color.
+--          .opacityFunc     function called when opacity is changed
+--          .opacity         initial opacity value (0 = fully transparent, 1 = fully opaque)
+--          .previousValues  will be added internally by the color picker. contains the initial rgba color value which will be returned when calling ".cancelFunc".
+--          .r               initial r color value for the color selector
+--          .g               initial g color value for the color selector
+--          .b               initial b color value for the color selector
+--          .cancelFunc      function called when color/opacity alteration is cancelled
+--          .extraInfo       optional. additional custom data.
+function LibFroznFunctions:SetupColorPickerAndShow(info)
+	-- since df 10.2.5
+	if (ColorPickerFrame) and (ColorPickerFrame.SetupColorPickerAndShow) then
+		ColorPickerFrame:SetupColorPickerAndShow(info);
+		return;
+	end
+	
+	-- before df 10.2.5
+	OpenColorPicker(info);
+end
+
+-- get color alpha from color picker
+-- @return opacity value (0 = fully transparent, 1 = fully opaque)
+function LibFroznFunctions:GetColorAlphaFromColorPicker()
+	-- since df 10.2.5
+	if (ColorPickerFrame) and (ColorPickerFrame.GetColorAlpha) then
+		return ColorPickerFrame:GetColorAlpha();
+	end
+	
+	-- before df 10.2.5
+	return OpacitySliderFrame:GetValue();
+end
+
 -- get global string
 --
 -- @param  str  name of localized global string constant

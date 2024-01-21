@@ -30,7 +30,8 @@
 	- added a tooltip for Slider
 	23.10.15 Rev 21 10.1.7/Dragonflight #frozn45
 	- added a tooltip for DropDown and menu items
-	xx.xx.xx Rev 22 10.2.0/Dragonflight #frozn45
+	xx.xx.xx Rev 22 10.2.5/Dragonflight #frozn45
+	- considered that the color picker frame has been reworked with df 10.2.5
 	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
 --]]
 
@@ -413,7 +414,7 @@ local function ColorButton_ColorPickerFunc(prevVal)
 		r, g, b, a  = prevVal:GetRGBA();
 	else
 		r, g, b = CPF:GetColorRGB();
-		a = (1 - OpacitySliderFrame:GetValue());
+		a = LibFroznFunctions:GetColorAlphaFromColorPicker();
 	end
 
 	-- Update frame only if its still showing this option. This can fail if the category page was changed.
@@ -452,15 +453,7 @@ local function ColorButton_OnClick(self,button)
 		cpfState.newColor = {};
 	end
 
-	local opacity = (1 - (a or 1));
-
-	-- these are fields the CPF uses
-	CPF.func = ColorButton_ColorPickerFunc;
-	CPF.cancelFunc = ColorButton_ColorPickerFunc;
-	CPF.opacityFunc = ColorButton_ColorPickerFunc;
-	CPF.hasOpacity = true;
-	CPF.opacity = opacity;
-	CPF.previousValues = cpfState.prevColor;
+	local opacity = (a or 1);
 
 	-- keep a state of the active references needed for this color pick
 	cpfState.frame = self;
@@ -468,9 +461,18 @@ local function ColorButton_OnClick(self,button)
 	cpfState.factory = self.factory;
 
 	-- init and display the color picker
-	OpacitySliderFrame:SetValue(opacity);
-	CPF:SetColorRGB(r,g,b);
-	CPF:Show();
+	LibFroznFunctions:SetupColorPickerAndShow({
+		swatchFunc = ColorButton_ColorPickerFunc,
+		hasOpacity = true,
+		opacityFunc = ColorButton_ColorPickerFunc,
+		opacity = opacity,
+		r = r,
+		g = g,
+		b = b,
+		cancelFunc = ColorButton_ColorPickerFunc
+	});
+	
+	CPF.previousValues = cpfState.prevColor;
 end
 
 -- OnEnter
