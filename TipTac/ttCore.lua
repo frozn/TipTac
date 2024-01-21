@@ -749,6 +749,7 @@ local TT_TipsToModifyFromOtherMods = {};
 --   .powerMax                               unit max power
 --
 --   .isColorBlind                           true if color blind mode is enabled, false otherwise.
+--   .isTipTacDeveloper                      true if it's a unit of a TipTac developer, false for other units.
 --
 -- timestampStartUnitAppearance              timestamp of start of unit appearance, nil otherwise.
 -- timestampStartCustomUnitFadeout           timestamp of start of custom unit fadeout, nil otherwise.
@@ -772,9 +773,25 @@ local TT_TIP_CONTENT = {
 	unknownOnCleared = 8
 };
 
+-- TipTac developer
+local TT_TipTacDeveloper = {
+	-- Frozn45
+	{
+		regionID = 3, -- Europe
+		guid = "Player-1099-00D6E047" -- Camassea - Rexxar
+	}, {
+		regionID = 3, -- Europe
+		guid = "Player-1099-006E9FB3" -- Valadenya - Rexxar
+	}, {
+		regionID = 3, -- Europe
+		guid = "Player-1099-025F2F49" -- Gorath - Rexxar
+	}
+};
+
 -- others
 local TT_IsConfigLoaded = false;
 local TT_IsApplyTipAppearanceAndHooking = false;
+local TT_CurrentRegionID = GetCurrentRegion();
 
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
@@ -2659,6 +2676,16 @@ function tt:SetUnitRecordFromTip(tip)
 	unitRecord.originalName = GameTooltipTextLeft1:GetText();
 	unitRecord.isColorBlind = (GetCVar("colorblindMode") == "1");
 	
+	-- check if it's a unit of a TipTac developer
+	unitRecord.isTipTacDeveloper = false;
+	
+	for _, tipTacDeveloper in ipairs(TT_TipTacDeveloper) do
+		if (tipTacDeveloper.regionID == TT_CurrentRegionID) and (tipTacDeveloper.guid == unitRecord.guid) then
+			unitRecord.isTipTacDeveloper = true;
+			break;
+		end
+	end
+	
 	frameParams.currentDisplayParams.unitRecord = unitRecord;
 end
 
@@ -2895,7 +2922,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					local unitRecord = frameParams.currentDisplayParams.unitRecord;
 					
 					if (LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips) and
-							(unitRecord) and ((IsMouseButtonDown()) or (not UnitExists(unitRecord.id))) then
+							(unitRecord) and (not UnitExists(unitRecord.id)) then
 						
 						tip:FadeOut();
 					end

@@ -2,7 +2,7 @@
 
 -- define table
 local TABLE_NAME = "LFF_GLOBAL_STRINGS";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -14,5 +14,6 @@ LibFroznFunctions:RegisterTableVersion(TABLE_NAME, TABLE_MINOR);
 
 -- create table
 LFF_GLOBAL_STRINGS.itIT = {
-	["RENOWN_REWARD_MOUNT_NAME_FORMAT"] = "Cavalcatura: %s"
+	["RENOWN_REWARD_MOUNT_NAME_FORMAT"] = "Cavalcatura: %s",
+	["TIPTAC_TIPTAC_DEVELOPER"] = "Sviluppatore dell'addon %s"
 }

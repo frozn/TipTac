@@ -572,7 +572,7 @@ end
 -- @param  tab[]     table to remove items from
 -- @param  removeFn  function to determine which items should be removed. if function returns true for the current item, it will be removed.
 -- @return number of removed items
-function LibFroznFunctions:removeFromTable(tab, removeFn)
+function LibFroznFunctions:RemoveFromTable(tab, removeFn)
 	-- no table
 	if (type(tab) ~= "table") then
 		return 0;
@@ -601,7 +601,7 @@ end
 -- remove all items from table
 --
 -- @param tab[]  table to remove all items from
-function LibFroznFunctions:removeAllFromTable(tab)
+function LibFroznFunctions:RemoveAllFromTable(tab)
 	-- no table
 	if (type(tab) ~= "table") then
 		return;
@@ -610,7 +610,7 @@ function LibFroznFunctions:removeAllFromTable(tab)
 	-- remove all items from table
 	for key, value in pairs(tab) do
 		if (type(value) == "table") then
-			self:removeAllFromTable(value);
+			self:RemoveAllFromTable(value);
 		end
 	end
 	
@@ -711,7 +711,7 @@ local pushArray = {
 			end
 		end,
 		Remove = function(tab, value)
-			local itemsRemoved = LibFroznFunctions:removeFromTable(tab, function(_value)
+			local itemsRemoved = LibFroznFunctions:RemoveFromTable(tab, function(_value)
 				return (_value == value);
 			end);
 			tab.count = tab.count - itemsRemoved;

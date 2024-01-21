@@ -2,7 +2,7 @@
 
 -- define table
 local TABLE_NAME = "LFF_GLOBAL_STRINGS";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -14,7 +14,8 @@ end
 LFF_GLOBAL_STRINGS = {};
 
 LFF_GLOBAL_STRINGS.deDE = {
-	["RENOWN_REWARD_MOUNT_NAME_FORMAT"] = "Mount: %s"
+	["RENOWN_REWARD_MOUNT_NAME_FORMAT"] = "Mount: %s",
+	["TIPTAC_TIPTAC_DEVELOPER"] = "Developer of the addon %s"
 }
 
 LFF_GLOBAL_STRINGS.enGB = LFF_GLOBAL_STRINGS.enUS;
