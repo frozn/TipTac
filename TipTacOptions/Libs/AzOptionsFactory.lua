@@ -30,7 +30,7 @@
 	- added a tooltip for Slider
 	23.10.15 Rev 21 10.1.7/Dragonflight #frozn45
 	- added a tooltip for DropDown and menu items
-	xx.xx.xx Rev 22 10.2.5/Dragonflight #frozn45
+	24.01.22 Rev 22 10.2.5/Dragonflight #frozn45
 	- considered that the color picker frame has been reworked with df 10.2.5
 	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
 --]]
