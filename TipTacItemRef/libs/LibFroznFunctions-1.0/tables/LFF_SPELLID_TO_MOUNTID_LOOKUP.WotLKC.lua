@@ -1,8 +1,8 @@
--- wotlkc 3.4.1 build 48120, from https://wago.tools/db2/SpellEffect?build=3.4.1.48120 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 with https://thdoan.github.io/mr-data-converter/
+-- wotlkc 3.4.3 build 52237, from https://wago.tools/db2/SpellEffect?build=3.4.3.52237 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -240,9 +240,7 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[46980]=26616,
 	[47037]=26439,
 	[47977]=23966,
-	[48023]=27152,
-	[48024]=27153,
-	[48025]=27153,
+	[48025]=27152,
 	[48027]=26439,
 	[48778]=28302,
 	[48954]=27541,
@@ -255,11 +253,7 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[50869]=30507,
 	[50870]=24368,
 	[51412]=28363,
-	[51617]=27152,
-	[51621]=27153,
 	[51960]=28531,
-	[54726]=29582,
-	[54727]=29582,
 	[54729]=29582,
 	[54753]=29596,
 	[55164]=29767,
@@ -268,8 +262,6 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[58615]=31124,
 	[58819]=14561,
 	[58983]=31319,
-	[58997]=31319,
-	[58999]=31319,
 	[59567]=31694,
 	[59568]=31695,
 	[59569]=31717,
@@ -378,36 +370,17 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[68769]=36484,
 	[69395]=36837,
 	[71342]=38204,
-	[71343]=38204,
-	[71344]=38204,
-	[71345]=38204,
-	[71346]=38204,
-	[71347]=38204,
 	[71810]=38361,
-	[72281]=38545,
-	[72282]=38545,
-	[72283]=38260,
-	[72284]=38260,
 	[72286]=38545,
 	[72807]=38695,
 	[72808]=38778,
 	[73313]=39046,
-	[74854]=40165,
-	[74855]=40165,
 	[74856]=40165,
 	[74918]=40191,
 	[75387]=40426,
 	[75596]=40533,
 	[75614]=40625,
-	[75617]=40625,
-	[75618]=40625,
-	[75619]=200848,
-	[75620]=200848,
-	[75957]=40725,
-	[75972]=40725,
 	[75973]=40725,
-	[76153]=40625,
-	[76154]=40725,
 	[348459]=176708,
 	[372677]=189739,
 	[387308]=34655,
@@ -419,5 +392,7 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[388516]=196503,
 	[389125]=189739,
 	[389128]=189739,
-	[394209]=198525
+	[394209]=198525,
+	[416158]=208033,
+	[423869]=211026
 });

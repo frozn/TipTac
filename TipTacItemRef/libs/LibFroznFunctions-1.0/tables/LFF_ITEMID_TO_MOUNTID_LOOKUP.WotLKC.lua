@@ -1,8 +1,8 @@
--- wotlkc 3.4.1 build 48120, from https://wago.tools/db2/ItemEffect?build=3.4.1.48120 with SpellCategoryID = 330 (Mount), converted to "Lua - Dictionary Table" by itemID with mountID with https://thdoan.github.io/mr-data-converter/
+-- wotlkc 3.4.3 build 52237, from https://wago.tools/db2/ItemEffect?build=3.4.3.52237 with SpellCategoryID = 330 (Mount), converted to "Lua - Dictionary Table" by itemID with mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_ITEMID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -226,7 +226,7 @@ LibFroznFunctions:ChainTables(LFF_ITEMID_TO_MOUNTID_LOOKUP, {
 	[35513]=26131,
 	[35906]=26439,
 	[37011]=23966,
-	[37012]=27153,
+	[37012]=27152,
 	[37598]=27541,
 	[37676]=27637,
 	[37719]=27684,
@@ -377,5 +377,7 @@ LibFroznFunctions:ChainTables(LFF_ITEMID_TO_MOUNTID_LOOKUP, {
 	[198632]=28363,
 	[198633]=40191,
 	[199931]=196503,
-	[201699]=198525
+	[201699]=198525,
+	[207097]=208033,
+	[209946]=211026
 });

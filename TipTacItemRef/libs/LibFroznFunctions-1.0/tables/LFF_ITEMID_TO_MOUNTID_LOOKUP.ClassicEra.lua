@@ -1,8 +1,8 @@
--- classic era 1.14.3 build 47658, from https://wago.tools/db2/ItemEffect?build=1.14.3.47658 with SpellCategoryID = 330 (Mount), converted to "Lua - Dictionary Table" by itemID with mountID with https://thdoan.github.io/mr-data-converter/
+-- classic era 1.15.0 build 52610, from https://wago.tools/db2/ItemEffect?build=1.15.0.52610 with SpellCategoryID = 330 (Mount), converted to "Lua - Dictionary Table" by itemID with mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_ITEMID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -127,5 +127,7 @@ LibFroznFunctions:ChainTables(LFF_ITEMID_TO_MOUNTID_LOOKUP, {
 	[21736]=15135,
 	[23193]=11195,
 	[23720]=17266,
-	[191480]=0
+	[191480]=0,
+	[211498]=12361,
+	[211499]=5197
 });
