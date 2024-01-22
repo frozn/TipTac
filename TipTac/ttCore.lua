@@ -47,6 +47,7 @@ local TT_DefaultConfig = {
 	hideFactionText = false,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
+	highlightTipTacDeveloper = true,
 	
 	-- colors
 	enableColorName = true,

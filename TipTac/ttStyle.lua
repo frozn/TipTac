@@ -264,7 +264,12 @@ end
 
 -- highlight TipTac developer
 function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord, first)
-	-- not TipTac developer
+	-- no highlighting of TipTac developer
+	if (not cfg.highlightTipTacDeveloper) then
+		return;
+	end
+	
+	-- no TipTac developer
 	if (not unitRecord.isTipTacDeveloper) then
 		return;
 	end
