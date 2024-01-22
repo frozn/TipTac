@@ -1800,7 +1800,8 @@ local getAuraDescriptionFromTooltipScanTip;
 
 function LibFroznFunctions:GetAuraDescription(unitID, index, filter, callbackForAuraData)
 	-- check if spell data for aura is available and queried from server
-	local spellID = select(10, UnitAura(unitID, index, filter));
+	local auraData = LibFroznFunctions:GetAuraDataByIndex(unitID, index, filter);
+	local spellID = (auraData and auraData.spellId);
 	
 	if (not spellID) then
 		return;
@@ -2268,30 +2269,83 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.powerMax = UnitPowerMax(unitID);
 end
 
+-- returns the buffs/debuffs for the unit
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @param  index   index of an aura to query
+-- @param  filter  a list of filters, separated by pipe chars or spaces, see LFF_AURA_FILTERS
+-- @return aura infos as a table of type AuraData
+function LibFroznFunctions:GetAuraDataByIndex(unitID, index, filter)
+	-- see "Deprecated_10_2_5.lua"
+	
+	-- since df 10.2.5
+	if (C_UnitAuras) and (C_UnitAuras.GetAuraDataByIndex) then
+		return C_UnitAuras.GetAuraDataByIndex(unitID, index, filter);
+	end
+	
+	-- before 10.2.5
+	local unitAura = { UnitAura(unitID, index, filter) };
+	
+	-- no aura available
+	local name = unitAura[1];
+	
+	if (not name) then
+		return nil;
+	end
+	
+	return {
+		name = unitAura[1],
+		icon = unitAura[2],
+		applications = unitAura[3],
+		dispelName = unitAura[4],
+		duration = unitAura[5],
+		expirationTime = unitAura[6],
+		sourceUnit = unitAura[7],
+		isStealable = unitAura[8],
+		nameplateShowPersonal = unitAura[9],
+		spellId = unitAura[10],
+		canApplyAura = unitAura[11],
+		isBossAura = unitAura[12],
+		isFromPlayerOrPlayerPet = unitAura[13],
+		nameplateShowAll = unitAura[14],
+		timeMod = unitAura[15],
+		points = { select(16, unitAura) },
+		
+		-- not available
+		auraInstanceID = nil,
+		isHarmful = nil,
+		isHelpful = nil,
+		isNameplateOnly = nil,
+		isRaid = nil,
+		charges = nil,
+		maxCharges = nil
+	};
+end
+
 -- iterate through unit's auras
 --
 -- @param unitID        unit id, e.g. "player", "target" or "mouseover"
 -- @param filter        a list of filters, separated by pipe chars or spaces, see LFF_AURA_FILTERS
 -- @param maxCount      optional. max count of auras to iterate through.
 -- @param func          callback function for each aura. iteration of unit's auras cancelable with returning true.
--- @param usePackedAura optional. if true, aura infos will be passed to callback function "func" as a table of type UnitAuraInfo. otherwise aura infos from UnitAuraBySlot() / UnitAura() will be passed as multiple return values.
+-- @param usePackedAura optional. if true, aura infos will be passed to callback function "func" as a table of type AuraData. otherwise aura infos from UnitAuraBySlot() / UnitAura() will be passed as multiple return values.
 function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePackedAura)
 	-- see SecureAuraHeader_Update() in "SecureGroupHeaders.lua"
 	
 	-- since df 10.0.0
 	if (AuraUtil) and (AuraUtil.ForEachAura) then
-		local function callbackFunc(nameOrUnitAuraInfo, ...)
+		local function callbackFunc(nameOrAuraData, ...)
 			if (usePackedAura) then
-				if (not nameOrUnitAuraInfo) or (not nameOrUnitAuraInfo.name) then
+				if (not nameOrAuraData) or (not nameOrAuraData.name) then
 					return;
 				end
 			else
-				if (not nameOrUnitAuraInfo) then
+				if (not nameOrAuraData) then
 					return;
 				end
 			end
 			
-			func(nameOrUnitAuraInfo, ...);
+			func(nameOrAuraData, ...);
 		end
 		
 		AuraUtil.ForEachAura(unitID, filter, maxCount, callbackFunc, usePackedAura);
@@ -2308,12 +2362,10 @@ function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePacked
 	while (true) do
 		index = index + 1;
 		
-		local unitAura = { UnitAura(unitID, index, filter) };
+		local unitAuraData = LibFroznFunctions:GetAuraDataByIndex(unitID, index, filter);
 		
 		-- no more auras available
-		local name = unitAura[1];
-		
-		if (not name) then
+		if (not unitAuraData) or (not unitAuraData.name) then
 			break;
 		end
 		
@@ -2321,35 +2373,26 @@ function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePacked
 		local done = false;
 		
 		if (usePackedAura) then
-			done = func({
-				name = unitAura[1],
-				icon = unitAura[2],
-				applications = unitAura[3],
-				dispelName = unitAura[4],
-				duration = unitAura[5],
-				expirationTime = unitAura[6],
-				sourceUnit = unitAura[7],
-				isStealable = unitAura[8],
-				nameplateShowPersonal = unitAura[9],
-				spellId = unitAura[10],
-				canApplyAura = unitAura[11],
-				isBossAura = unitAura[12],
-				isFromPlayerOrPlayerPet = unitAura[13],
-				nameplateShowAll = unitAura[14],
-				timeMod = unitAura[15],
-				points = { select(16, unitAura) },
-				
-				-- not available
-				auraInstanceID = nil,
-				isHarmful = nil,
-				isHelpful = nil,
-				isNameplateOnly = nil,
-				isRaid = nil,
-				charges = nil,
-				maxCharges = nil
-			});
+			done = func(unitAuraData);
 		else
-			done = func(unpack(unitAura));
+			done = func(
+				auraData.name,
+				auraData.icon,
+				auraData.applications,
+				auraData.dispelName,
+				auraData.duration,
+				auraData.expirationTime,
+				auraData.sourceUnit,
+				auraData.isStealable,
+				auraData.nameplateShowPersonal,
+				auraData.spellId,
+				auraData.canApplyAura,
+				auraData.isBossAura,
+				auraData.isFromPlayerOrPlayerPet,
+				auraData.nameplateShowAll,
+				auraData.timeMod,
+				unpack(auraData.points)
+			);
 		end
 		
 		if (done) then

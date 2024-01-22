@@ -623,17 +623,17 @@ end
 -- HOOK: SetUnitAura + SetUnitBuff + SetUnitDebuff
 local function SetUnitAura_Hook(self, unit, index, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = UnitAura(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
-		if (spellID) then
-			local link = GetSpellLink(spellID);
+		local auraData = LibFroznFunctions:GetAuraDataByIndex(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
+		if (auraData) and (auraData.spellId) then
+			local link = GetSpellLink(auraData.spellId);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, true, source, link, linkType, _spellID);
+					LinkTypeFuncs.spell(self, true, auraData.sourceUnit, link, linkType, _spellID);
 
 					-- apply workaround for first mouseover
-					ttif:ApplyWorkaroundForFirstMouseover(self, true, source, link, linkType, _spellID);
+					ttif:ApplyWorkaroundForFirstMouseover(self, true, auraData.sourceUnit, link, linkType, _spellID);
 				end
 			end
 		end

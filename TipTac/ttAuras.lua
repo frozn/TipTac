@@ -74,11 +74,11 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 
 	-- query auras
 	while (true) do
-		local _, iconTexture, count, debuffType, duration, endTime, casterUnit = UnitAura(unitRecord.id, queryIndex, auraType);	-- [18.07.19] 8.0/BfA: "dropped second parameter"
-		if (not iconTexture) or (auraFrameIndex / aurasPerRow > cfg.auraMaxRows) then
+		local auraData = LibFroznFunctions:GetAuraDataByIndex(unitRecord.id, queryIndex, auraType);	-- [18.07.19] 8.0/BfA: "dropped second parameter"
+		if (not auraData) or (not auraData.icon) or (auraFrameIndex / aurasPerRow > cfg.auraMaxRows) then
 			break;
 		end
-		if (not cfg.selfAurasOnly or validSelfCasterUnits[casterUnit]) then
+		if (not cfg.selfAurasOnly or validSelfCasterUnits[auraData.sourceUnit]) then
 			local aura = auras[auraFrameIndex] or CreateAuraFrame(tip);
 
 			-- Anchor It
@@ -95,19 +95,19 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 			end
 
 			-- Cooldown
-			if (cfg.showAuraCooldown) and (duration and duration > 0 and endTime and endTime > 0) then
-				aura.cooldown:SetCooldown(endTime - duration,duration);
+			if (cfg.showAuraCooldown) and (auraData.duration and auraData.duration > 0 and auraData.expirationTime and auraData.expirationTime > 0) then
+				aura.cooldown:SetCooldown(auraData.expirationTime - auraData.duration,auraData.duration);
 			else
 				aura.cooldown:Hide();
 			end
 
 			-- Set Texture + Count
-			aura.icon:SetTexture(iconTexture);
-			aura.count:SetText(count and count > 1 and count or "");
+			aura.icon:SetTexture(auraData.icon);
+			aura.count:SetText(auraData.applications and auraData.applications > 1 and auraData.applications or "");
 
 			-- Border -- Only shown for debuffs
 			if (auraType == "HARMFUL") then
-				local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"];
+				local color = DebuffTypeColor[auraData.dispelName] or DebuffTypeColor["none"];
 				aura.border:SetVertexColor(color.r,color.g,color.b);
 				aura.border:Show();
 			else
