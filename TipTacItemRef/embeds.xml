@@ -4,6 +4,7 @@
 <Include file="libs\AceHook-3.0\AceHook-3.0.xml"/>
 <Script file="libs\LibItemString.lua"/>
 <Include file="libs\LibFroznFunctions-1.0\lib.xml"/>
-<Script file="libs\table_MawPower_by_mawPowerID.lua"/>
+
+<Script file="libs\tables\LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP.lua"/>
 
 </Ui>

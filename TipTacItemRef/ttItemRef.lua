@@ -2628,7 +2628,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		if (linkMawPower) then
 			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");
 			mawPowerID = _mawPowerID;
-			if (not table_MawPower_by_MawPowerID[mawPowerID]) then -- possible internal blizzard bug: GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wow.tools/dbc/?dbc=mawpower)
+			if (not LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID]) then -- possible internal blizzard bug: GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wow.tools/dbc/?dbc=mawpower)
 				mawPowerID = nil;
 			end
 		end
@@ -2728,8 +2728,8 @@ end
 -- maw power
 function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	local spellID = nil;
-	if (mawPowerID and table_MawPower_by_MawPowerID[mawPowerID]) then
-		spellID = table_MawPower_by_MawPowerID[mawPowerID].spellID;
+	if (mawPowerID and LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID]) then
+		spellID = LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID].spellID;
 	end
 	
 	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil

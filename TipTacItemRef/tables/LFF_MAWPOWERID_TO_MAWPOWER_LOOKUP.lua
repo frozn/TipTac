@@ -1,6 +1,19 @@
--- df 10.0.5 build 47660, from https://wago.tools/db2/MawPower?build=10.0.5.48069, converted to "Lua - Dictionary Table" by mawPowerID with https://thdoan.github.io/mr-data-converter/
+-- df 10.2.5 build 52007, from https://wago.tools/db2/MawPower?build=10.2.5.53007, converted to "Lua - Dictionary Table" by mawPowerID with https://thdoan.github.io/mr-data-converter/
 
-table_MawPower_by_MawPowerID = {
+-- define table
+local TABLE_NAME = "LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP";
+local TABLE_MINOR = 2; -- bump on changes
+
+local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
+
+if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
+	return;
+end
+
+-- create table
+LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP = {};
+
+LibFroznFunctions:ChainTables(LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP, {
 	["1"]={["SpellID"]=294578,["MawPowerRarityID"]=1},
 	["2"]={["SpellID"]=294587,["MawPowerRarityID"]=2},
 	["3"]={["SpellID"]=294588,["MawPowerRarityID"]=3},
@@ -1181,5 +1194,39 @@ table_MawPower_by_MawPowerID = {
 	["1738"]={["SpellID"]=391033,["MawPowerRarityID"]=1},
 	["1739"]={["SpellID"]=391038,["MawPowerRarityID"]=1},
 	["1781"]={["SpellID"]=372935,["MawPowerRarityID"]=2},
-	["1782"]={["SpellID"]=394040,["MawPowerRarityID"]=2}
+	["1782"]={["SpellID"]=394040,["MawPowerRarityID"]=2},
+	["1884"]={["SpellID"]=412795,["MawPowerRarityID"]=2},
+	["1885"]={["SpellID"]=412796,["MawPowerRarityID"]=2},
+	["1886"]={["SpellID"]=412799,["MawPowerRarityID"]=2},
+	["1887"]={["SpellID"]=412801,["MawPowerRarityID"]=2},
+	["1888"]={["SpellID"]=412802,["MawPowerRarityID"]=2},
+	["1889"]={["SpellID"]=412828,["MawPowerRarityID"]=2},
+	["1890"]={["SpellID"]=412829,["MawPowerRarityID"]=3},
+	["1891"]={["SpellID"]=417638,["MawPowerRarityID"]=3},
+	["1892"]={["SpellID"]=412833,["MawPowerRarityID"]=3},
+	["1893"]={["SpellID"]=412834,["MawPowerRarityID"]=2},
+	["1894"]={["SpellID"]=414636,["MawPowerRarityID"]=3},
+	["1895"]={["SpellID"]=414584,["MawPowerRarityID"]=2},
+	["1896"]={["SpellID"]=415147,["MawPowerRarityID"]=2},
+	["1897"]={["SpellID"]=415174,["MawPowerRarityID"]=2},
+	["1898"]={["SpellID"]=415185,["MawPowerRarityID"]=2},
+	["1899"]={["SpellID"]=416868,["MawPowerRarityID"]=1},
+	["1900"]={["SpellID"]=417790,["MawPowerRarityID"]=3},
+	["1901"]={["SpellID"]=418100,["MawPowerRarityID"]=1},
+	["1902"]={["SpellID"]=418166,["MawPowerRarityID"]=1},
+	["1903"]={["SpellID"]=424231,["MawPowerRarityID"]=4},
+	["1904"]={["SpellID"]=424273,["MawPowerRarityID"]=4},
+	["1905"]={["SpellID"]=424341,["MawPowerRarityID"]=3},
+	["1906"]={["SpellID"]=424560,["MawPowerRarityID"]=2},
+	["1907"]={["SpellID"]=424568,["MawPowerRarityID"]=4},
+	["1908"]={["SpellID"]=424612,["MawPowerRarityID"]=4},
+	["1909"]={["SpellID"]=425247,["MawPowerRarityID"]=4},
+	["1910"]={["SpellID"]=424617,["MawPowerRarityID"]=4},
+	["1911"]={["SpellID"]=424613,["MawPowerRarityID"]=4},
+	["1912"]={["SpellID"]=424822,["MawPowerRarityID"]=1},
+	["1913"]={["SpellID"]=425196,["MawPowerRarityID"]=3},
+	["1914"]={["SpellID"]=418754,["MawPowerRarityID"]=1},
+	["1915"]={["SpellID"]=428110,["MawPowerRarityID"]=4},
+	["1916"]={["SpellID"]=428124,["MawPowerRarityID"]=3},
+	["1917"]={["SpellID"]=428203,["MawPowerRarityID"]=2}
 }
