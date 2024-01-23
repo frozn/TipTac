@@ -19,7 +19,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 10.2.0 - Dragonflight [DF]
+  * 10.2.5 - Dragonflight [DF]
   * 3.4.3 - Wrath of the Lich King Classic [WotLKC]
   * 1.15.0 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
