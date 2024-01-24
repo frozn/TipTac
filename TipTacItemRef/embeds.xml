@@ -5,6 +5,4 @@
 <Script file="libs\LibItemString.lua"/>
 <Include file="libs\LibFroznFunctions-1.0\lib.xml"/>
 
-<Script file="libs\tables\LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP.lua"/>
-
 </Ui>

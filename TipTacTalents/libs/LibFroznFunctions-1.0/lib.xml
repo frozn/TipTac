@@ -16,6 +16,8 @@
 	<Script file="tables\LFF_GLOBAL_STRINGS.ptBR.lua" />
 	<Script file="tables\LFF_GLOBAL_STRINGS.itIT.lua" />
 
+	<Script file="tables\LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP.lua" />
+
 	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.DF.lua" />
 	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.WotLKC.lua" />
 	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.ClassicEra.lua" />
