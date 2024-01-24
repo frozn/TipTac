@@ -1229,4 +1229,4 @@ LibFroznFunctions:ChainTables(LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP, {
 	[1915]={SpellID=428110,MawPowerRarityID=4},
 	[1916]={SpellID=428124,MawPowerRarityID=3},
 	[1917]={SpellID=428203,MawPowerRarityID=2}
-}
+});
