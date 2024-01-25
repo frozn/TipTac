@@ -1664,6 +1664,17 @@ function tt:SetScaleToTip(tip)
         newTipScale = newTipScale / math.max(tipWidthWithNewScaling / UIParentWidth, tipHeightWithNewScaling / UIParentHeight) * 0.95; -- 95% of maximum UIParent width/height
 	end
 	
+	-- consider min/max scale from inherited DefaultScaleFrame, see DefaultScaleFrameMixin:UpdateScale() in "SharedUIPanelTemplates.lua"
+	if (DefaultScaleFrameMixin) and (DefaultScaleFrameMixin.UpdateScale == tip.UpdateScale) then
+		if (tip.minScale) then
+			newTipScale = math.max(newTipScale, tip.minScale);
+		end
+
+		if (tip.maxScale) then
+			newTipScale = math.min(newTipScale, tip.maxScale);
+		end
+	end
+	
 	-- set scale to tip
 	tip:SetScale(newTipScale);
 end
