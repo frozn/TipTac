@@ -421,6 +421,7 @@ TT_ExtendedConfig.tipsToModify = {
 			["SettingsTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			
 			-- 3rd party addon tooltips
+			["AceConfigDialogTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["LibDBIconTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["AtlasLootTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["QuestHelperTooltip"] = { applyAppearance = true, applyAnchor = true, applyScaling = true },
