@@ -418,6 +418,7 @@ TT_ExtendedConfig.tipsToModify = {
 			["QuestScrollFrame.StoryTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["QuestScrollFrame.CampaignTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			["WorldMapTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
+			["SettingsTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
 			
 			-- 3rd party addon tooltips
 			["LibDBIconTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
@@ -1436,16 +1437,16 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 			end);
 			
 			if (tip:GetObjectType() == "GameTooltip") then
-				hooksecurefunc(tip, "SetUnit", function(tip)
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnit", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.unit);
 				end);
-				hooksecurefunc(tip, "SetUnitAura", function(tip)
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitAura", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.aura);
 				end);
-				hooksecurefunc(tip, "SetUnitBuff", function(tip)
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitBuff", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.aura);
 				end);
-				hooksecurefunc(tip, "SetUnitDebuff", function(tip)
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitDebuff", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.aura);
 				end);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitBuffByAuraInstanceID", function(tip)
@@ -1463,10 +1464,10 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 				LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.spell);
 				end);
-				hooksecurefunc(tip, "SetAction", function(tip)
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetAction", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.action);
 				end);
-				hooksecurefunc(tip, "SetHyperlink", function(tip)
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetHyperlink", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.others);
 				end);
 				
