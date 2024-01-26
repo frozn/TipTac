@@ -2224,7 +2224,7 @@ local function SmartIconEvaluation(tip,linkType)
 		return false;
 	-- Item
 	elseif (linkType == "item") then
-		if (owner.hasItem or owner.action or owner.icon or owner.Icon or owner.texture or owner.lootFrame or owner.ItemIcon or owner.iconTexture or
+		if (owner == EquipmentFlyoutFrameButtons or owner.hasItem or owner.action or owner.icon or owner.Icon or owner.texture or owner.lootFrame or owner.ItemIcon or owner.iconTexture or
 				(owner.ContentsContainer and owner.ContentsContainer.Icon) or owner.FrozenSlot) then -- Blizzard_PerksProgram -> PerksProgramTooltip, e.g. for trading post introduced with df 10.0.5
 			return false;
 		end
