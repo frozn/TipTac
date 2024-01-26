@@ -587,6 +587,12 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 		end
 	},
+	["Blizzard_CharacterCustomize"] = {
+		frames = {
+			["CharCustomizeTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
+			["CharCustomizeNoHeaderTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
+		}
+	},
 	["Blizzard_Collections"] = {
 		frames = {
 			["PetJournalPrimaryAbilityTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true },
