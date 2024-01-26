@@ -83,6 +83,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - improved stripping the specialization & class text from the tooltip introduced with df 10.1.5
 - improved using custom class colors from other addons if ColorMixin methods are not available
 - stripped creature type text from tooltip for npcs or wild battle pets if creature family isn't available to prevent displaying the creature type twice
+- added feature to enable/disable/set custom class colors in options under "Colors"
 - classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic era: added missing styling of auras
 - classic era: reactivated talent format option
