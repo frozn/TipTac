@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 17; -- bump on changes
+local LIB_MINOR = 18; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2191,7 +2191,7 @@ end
 --           .name                         name of unit, e.g. "Rugnaer"
 --           .nameWithForeignServerSuffix  name of unit with additional foreign server suffix if needed, e.g. "Rugnaer (*)"
 --           .nameWithServerName           name with server name of unit, e.g. "Rugnaer-DunMorogh"
---           .nameWithTitle                name with title of unit, e.g. "Sternenrufer Rugnaer"
+--           .nameWithTitle                name with title of unit, e.g. "Sternenrufer Rugnaer". if the unit is currently not visible to the client, the title is missing and it only contains the unit name (.name).
 --           .serverName                   server name of unit, e.g. "DunMorogh"
 --           .sex                          sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female)
 --           .className                    localized class name of unit, e.g. "Warrior" or "Guerrier"
@@ -2231,7 +2231,6 @@ function LibFroznFunctions:CreateUnitRecord(unitID, unitGUID)
 	unitRecord.name, unitRecord.serverName = UnitName(unitID);
 	unitRecord.nameWithForeignServerSuffix = GetUnitName(unitID);
 	unitRecord.nameWithServerName = GetUnitName(unitID, true);
-	unitRecord.nameWithTitle = UnitPVPName(unitID);
 	
 	unitRecord.sex = UnitSex(unitID);
 	unitRecord.className, unitRecord.classFile, unitRecord.classID = UnitClass(unitID);
@@ -2256,8 +2255,11 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	end
 	
 	-- update unit record
+	local unitPVPName = UnitPVPName(unitID); -- returns nil or "" if the unit is currently not visible to the client
+	
 	unitRecord.id = unitID;
 	
+	unitRecord.nameWithTitle = (unitPVPName and unitPVPName ~= "" and unitPVPName or unitRecord.name);
 	unitRecord.level = unitRecord.isBattlePet and UnitBattlePetLevel(unitID) or UnitLevel(unitID) or -1;
 	unitRecord.reactionIndex = LibFroznFunctions:GetUnitReactionIndex(unitID);
 	
