@@ -25,11 +25,10 @@ local lineTargetedBy = LibFroznFunctions:CreatePushArray();
 -- String Constants
 local TT_LevelMatch = "^"..TOOLTIP_UNIT_LEVEL:gsub("%%[^s ]*s",".+"); -- Was changed to match other localizations properly, used to match: "^"..LEVEL.." .+" -- Doesn't actually match the level line on the russian client! [14.02.24] Doesn't match for Italian client either. [18.07.27] changed the pattern, might match non-english clients now
 local TT_LevelMatchPet = "^"..TOOLTIP_WILDBATTLEPET_LEVEL_CLASS:gsub("%%[^s ]*s",".+");	-- "^Pet Level .+ .+"
-local TT_NotSpecified = "Not specified";
 local TT_Unknown = UNKNOWN; -- "Unknown"
 local TT_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
-local TT_TargetedBy = "Targeted by";
+local TT_TargetedBy = LibFroznFunctions:GetGlobalString("TIPTAC_TARGETED_BY") or "Targeted by"; -- "Targeted by"
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
 local TT_Mount = LibFroznFunctions:GetGlobalString("RENOWN_REWARD_MOUNT_NAME_FORMAT") or "Mount: %s"; -- "Mount: %s"
 local TT_ReactionIcon = {
@@ -355,7 +354,7 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 	end
 	-- race
 	local race = UnitRace(unitRecord.id);
-	if (not race) or (race == TT_NotSpecified) then
+	if (not race) then
 		race = TT_Unknown;
 	end
 	lineLevel:Push(" ");
@@ -431,7 +430,7 @@ function ttStyle:GeneratePetLines(tip, currentDisplayParams, unitRecord, first)
 
 	if (unitRecord.isWildBattlePet) then
 		local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
-		if (not race) or (race == TT_NotSpecified) then
+		if (not race) then
 			race = TT_Unknown;
 		end
 		lineLevel:Push(" ");
@@ -469,7 +468,7 @@ function ttStyle:GenerateNpcLines(tip, currentDisplayParams, unitRecord, first)
 
 	-- race
 	local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id);
-	if (not race) or (race == TT_NotSpecified) then
+	if (not race) then
 		race = TT_Unknown;
 	end
 	lineLevel:Push(" ");
