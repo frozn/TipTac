@@ -442,7 +442,6 @@ TT_ExtendedConfig.tipsToModify = {
 						applyAppearance = true,
 						applyScaling = true,
 						applyAnchor = false,
-						noHooks = noHooks,
 						isFromLibQTip = true
 					});
 					
@@ -668,6 +667,19 @@ TT_ExtendedConfig.tipsToModify = {
 			["RaiderIO_ProfileTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = false, waitSecondsForLookupFrameName = 1 },
 			["RaiderIO_SearchTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = false, waitSecondsForLookupFrameName = 1 }
 		}
+	},
+	["OPie"] = {
+		hookFnForAddOn = function(TT_CacheForFrames)
+			local OPie = _G["OPie"];
+			
+			if (OPie) and (OPie.NotGameTooltip) then
+				tt:AddModifiedTipExtended(OPie.NotGameTooltip, {
+					applyAppearance = true,
+					applyScaling = true,
+					applyAnchor = true
+				});
+			end
+		end
 	}
 };
 
@@ -1367,16 +1379,23 @@ function tt:ResolveTipsToModify()
 				wipe(addOnConfig.frames);
 			end
 			
-			-- apply hooks for addon
-			if (addOnConfig.hookFnForAddOn) then
-				LibFroznFunctions:CallFunctionDelayed(addOnConfig.waitSecondsForHooking, function()
-					addOnConfig.hookFnForAddOn(TT_CacheForFrames);
-				end);
-			end
-			
 			-- remove addon config from tips to modify
+			local addOnConfig_hookFnForAddOn = addOnConfig.hookFnForAddOn;
+			local addOnConfig_waitSecondsForHooking = addOnConfig.waitSecondsForHooking;
+			
 			wipe(addOnConfig);
 			TT_ExtendedConfig.tipsToModify[addOnName] = nil;
+			
+			-- apply hooks for addon
+			-- hint:
+			-- function hookFnForAddOn() needs to be called after removing addon config from tips to modify (see above),
+			-- because immediately calling tt:AddModifiedTipExtended() within hookFnForAddOn() leads to an infinite loop
+			-- because of calling tt:ApplyConfig() within tt:AddModifiedTipExtended() which leads to another call of tt:ResolveTipsToModify() and so on.
+			if (addOnConfig_hookFnForAddOn) then
+				LibFroznFunctions:CallFunctionDelayed(addOnConfig_waitSecondsForHooking, function()
+					addOnConfig_hookFnForAddOn(TT_CacheForFrames);
+				end);
+			end
 		end
 	end
 	
