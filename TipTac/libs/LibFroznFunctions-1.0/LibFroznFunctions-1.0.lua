@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 18; -- bump on changes
+local LIB_MINOR = 19; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -228,6 +228,18 @@ end
 function LibFroznFunctions:UnitIsBattlePetCompanion(unitID)
 	if (UnitIsBattlePetCompanion) then
 		return UnitIsBattlePetCompanion(unitID);
+	end
+	
+	return false;
+end
+
+-- is unit a mercenary
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return true if the unit has enabled mercenary mode, false otherwise.
+function LibFroznFunctions:UnitIsMercenary(unitID)
+	if (UnitIsMercenary) then
+		return UnitIsMercenary(unitID);
 	end
 	
 	return false;
