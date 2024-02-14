@@ -29,7 +29,7 @@ function ttIcons:SetIcon(icon, unitRecord)
 	local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
 	local englishFaction = UnitFactionGroup(unitRecord.id);
 	
-	if (englishFaction) and (UnitIsMercenary(unitRecord.id)) then
+	if (englishFaction) and (UnitIsMercenary) and (UnitIsMercenary(unitRecord.id)) then
 		if (englishFaction == "Horde") then
 			englishFaction = "Alliance";
 		elseif (englishFaction == "Alliance") then

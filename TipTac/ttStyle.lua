@@ -530,7 +530,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		local englishFaction, localizedFaction = UnitFactionGroup(unitRecord.id);
 		
 		if (englishFaction) then
-			if (UnitIsMercenary(unitRecord.id)) then
+			if (UnitIsMercenary) and (UnitIsMercenary(unitRecord.id)) then
 				if (englishFaction == "Horde") then
 					englishFaction = "Alliance";
 					localizedFaction = FACTION_ALLIANCE;
