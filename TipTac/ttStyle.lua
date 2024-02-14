@@ -154,7 +154,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (creatureType);
 	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (unitRecord.isPlayer) and (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip);
 	
-	if (not cfg.hideFactionText) and (not cfg.hidePvpText) and (not hideCreatureTypeIfNoCreatureFamily) and (not hideSpecializationAndClassText) then
+	if ((not cfg.hideFactionText) and (not cfg.factionText)) and (not cfg.hidePvpText) and (not hideCreatureTypeIfNoCreatureFamily) and (not hideSpecializationAndClassText) then
 		return;
 	end
 	
@@ -175,7 +175,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		local gttLineText = gttLine:GetText();
 		
 		if (type(gttLineText) == "string") and
-				((cfg.hideFactionText) and ((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE)) or
+				(((cfg.hideFactionText) or (cfg.factionText)) and ((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE) or (gttLineText == FACTION_NEUTRAL)) or
 				(cfg.hidePvpText) and (gttLineText == PVP_ENABLED) or
 				(hideCreatureTypeIfNoCreatureFamily) and (gttLineText == creatureType) or
 				(hideSpecializationAndClassText) and ((gttLineText == unitRecord.className) or (specNames:Contains(gttLineText:match("^(.+) " .. unitRecord.className .. "$"))))) then
@@ -337,7 +337,6 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 	local tipTacDeveloperText = (CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\QuestLegendaryMapIcons", 32, 32, 0, 0, 0.261719, 0.386719, 0.0078125, 0.257812, -2.5 * tipScale, 1.5 * tipScale) .. " " .. TT_TipTacDeveloper .. " " .. CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\QuestLegendaryMapIcons", 32, 32, 0, 0, 0.261719, 0.386719, 0.0078125, 0.257812, -1 * tipScale, 1.5 * tipScale));
 	local modNameText = TT_COLOR.text.tipTacDeveloperTipTac:WrapTextInColorCode(MOD_NAME);
 	
-	-- lineLevel:Push(TT_COLOR.text.tipTacDeveloper:WrapTextInColorCode(("~~ " .. TT_TipTacDeveloper .. " ~~"):format(modNameText)));
 	lineLevel:Push(TT_COLOR.text.tipTacDeveloper:WrapTextInColorCode(tipTacDeveloperText:format(modNameText)));
 	lineLevel:Push("\n");
 end
@@ -524,6 +523,18 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		
 		lineLevel:Push("\n");
 		lineLevel:Push(reactTextColor:WrapTextInColorCode(TT_ReactionText[unitRecord.reactionIndex]));
+	end
+
+	-- Faction Text
+	if (unitRecord.isPlayer) and (cfg.factionText) then
+		local englishFaction, localizedFaction = UnitFactionGroup(unitRecord.id);
+		
+		if (englishFaction) then
+			local factionTextColor = (cfg.enableColorFaction and cfg["colorFaction" .. englishFaction] and CreateColor(unpack(cfg["colorFaction" .. englishFaction]))) or TT_COLOR.text.default;
+			
+			lineLevel:Push("\n");
+			lineLevel:Push(factionTextColor:WrapTextInColorCode(localizedFaction));
+		end
 	end
 
 	-- Mythic+ Dungeon Score

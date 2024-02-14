@@ -44,14 +44,14 @@ local TT_DefaultConfig = {
 	gttScale = 1,
 	updateFreq = 0.5,
 	enableChatHoverTips = true,
-	hideFactionText = false,
+	hideFactionText = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
 	highlightTipTacDeveloper = true,
 	
 	-- colors
 	enableColorName = true,
-	colorName = { 1, 1, 1, 1 },
+	colorName = { HIGHLIGHT_FONT_COLOR:GetRGBA() }, -- white
 	colorNameByReaction = true,
 	colorNameByClass = false,
 	
@@ -59,8 +59,15 @@ local TT_DefaultConfig = {
 	colorSameGuild = { 1, 0.2, 1, 1 },
 	colorGuildByReaction = true,
 	
-	colorRace = { 1, 1, 1, 1 },
-	colorLevel = { 0.75, 0.75, 0.75, 1 },
+	colorRace = { HIGHLIGHT_FONT_COLOR:GetRGBA() }, -- white
+	colorLevel = { 0.8, 0.8, 0.8, 1 }, -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
+	
+	factionText = true,
+	enableColorFaction = false,
+	colorFactionAlliance = { PLAYER_FACTION_COLOR_ALLIANCE:GetRGBA() },
+	colorFactionHorde = { PLAYER_FACTION_COLOR_HORDE:GetRGBA() },
+	colorFactionNeutral = { HIGHLIGHT_FONT_COLOR:GetRGBA() }, -- white
+	colorFactionOther = { HIGHLIGHT_FONT_COLOR:GetRGBA() }, -- white
 	
 	classColoredBorder = true,
 	
@@ -84,7 +91,7 @@ local TT_DefaultConfig = {
 	reactIcon = false,
 	
 	reactText = false,
-	colorReactText = { 1, 1, 1, 1 },
+	colorReactText = { HIGHLIGHT_FONT_COLOR:GetRGBA() }, -- white
 	reactColoredText = true,
 	
 	["colorReactText" .. LFF_UNIT_REACTION_INDEX.tapped] = { 0.75, 0.75, 0.75, 1 },
@@ -1101,7 +1108,7 @@ end);
 local TT_PhysicalScreenWidth, TT_PhysicalScreenHeight, TT_UIUnitFactor, TT_UIScale, TT_MouseOffsetX, TT_MouseOffsetY;
 
 function tt:GetNearestPixelSize(size, pixelPerfect)
-	local currentConfig = TT_IsConfigLoaded and cfg or TT_DefaultConfig;
+	local currentConfig = (TT_IsConfigLoaded and cfg or TT_DefaultConfig);
 	local realSize = ((pixelPerfect and (size * TT_UIUnitFactor)) or size);
 	
 	return PixelUtil.GetNearestPixelSize(realSize, 1) / TT_UIScale / currentConfig.gttScale;
@@ -1109,7 +1116,7 @@ end
 
 -- update pixel perfect scale
 function tt:UpdatePixelPerfectScale()
-	local currentConfig = TT_IsConfigLoaded and cfg or TT_DefaultConfig;
+	local currentConfig = (TT_IsConfigLoaded and cfg or TT_DefaultConfig);
 	
 	TT_PhysicalScreenWidth, TT_PhysicalScreenHeight = GetPhysicalScreenSize();
 	TT_UIUnitFactor = 768.0 / TT_PhysicalScreenHeight;
@@ -1190,7 +1197,7 @@ end
 
 -- set custom class colors config
 function tt:SetCustomClassColorsConfig()
-	local currentConfig = TT_IsConfigLoaded and cfg or TT_DefaultConfig;
+	local currentConfig = (TT_IsConfigLoaded and cfg or TT_DefaultConfig);
 	local numClasses = GetNumClasses();
 	
 	for i = 1, numClasses do
@@ -1206,7 +1213,7 @@ end
 
 -- set tooltip backdrop config (examples see "Backdrop.lua")
 function tt:SetTipBackdropConfig()
-	local currentConfig = TT_IsConfigLoaded and cfg or TT_DefaultConfig;
+	local currentConfig = (TT_IsConfigLoaded and cfg or TT_DefaultConfig);
 	
 	if (currentConfig.tipBackdropBG == "nil") then
 		TT_ExtendedConfig.tipBackdrop.bgFile = nil;
@@ -1237,7 +1244,7 @@ end
 
 -- set tooltip padding config for GameTooltip
 function tt:SetTipPaddingConfig()
-	local currentConfig = TT_IsConfigLoaded and cfg or TT_DefaultConfig;
+	local currentConfig = (TT_IsConfigLoaded and cfg or TT_DefaultConfig);
 	
 	if (currentConfig.enableBackdrop) then
 		TT_ExtendedConfig.tipPaddingForGameTooltip.right, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, TT_ExtendedConfig.tipPaddingForGameTooltip.left, TT_ExtendedConfig.tipPaddingForGameTooltip.top = TT_ExtendedConfig.tipBackdrop.insets.right + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.bottom + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.left + TT_ExtendedConfig.tipPaddingForGameTooltip.offset, TT_ExtendedConfig.tipBackdrop.insets.top + TT_ExtendedConfig.tipPaddingForGameTooltip.offset;

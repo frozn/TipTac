@@ -33,10 +33,12 @@
 	24.01.22 Rev 22 10.2.5/Dragonflight #frozn45
 	- considered that the color picker frame has been reworked with df 10.2.5
 	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
+	xx.xx.xx Rev 23 10.2.5/Dargonflight #frozn45
+	- improved positioning and size of all elements
 --]]
 
 -- create new library
-local REVISION = 19; -- bump on changes
+local REVISION = 23; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -127,7 +129,8 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 	AzDropDown:HideMenu();
 
 	local lastXOffset = 0;
-	local lastHeight = 0;
+	local lastTop = 0;
+	local firstOption = true;
 
 	for index, option in ipairs(options) do
 		local restrictType = type(option.restrict);
@@ -151,20 +154,29 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 			obj:ClearAllPoints();
 
 			local xOffset = (option.x or 0);
-			if (xOffset <= lastXOffset) then
-				top = (top + lastHeight);
+			local yOffset = (option.y or 0);
+
+			if (xOffset > lastXOffset) then
+				top = lastTop;
 			end
 
-			local yOffset = (option.y or 0);
-			top = (top + yOffset);
-
 			local xFinal = left + self.objects[option.type].xOffset + xOffset;
-			local yFinal = top;
+			local yFinal = top + self.objects[option.type].yOffset + yOffset;
+			
+			if (firstOption) then
+				yFinal = yFinal - self.objects[option.type].extraPaddingTop;
+				firstOption = false;
+			end
 
 			obj:SetPoint("TOPLEFT",anchor,"TOPLEFT",xFinal,-yFinal);
 
+			top = yFinal + self.objects[option.type].height;
+
 			lastXOffset = xOffset;
-			lastHeight = (obj:GetHeight() + self.objects[option.type].yOffset);
+
+			if (xOffset <= lastXOffset) then
+				lastTop = yFinal - self.objects[option.type].yOffset;
+			end
 
 			-- Show
 			obj:Show();
@@ -219,10 +231,12 @@ local function Slider_OnMouseWheel(self,delta)
 	self:SetValue(self:GetValue() + self:GetParent().option.step * delta);
 end
 
--- create slider
+-- New Slider (dimensions: 301x32, visible dimension: 301x28, visible padding: 4/0/0/0)
 azof.objects.Slider = {
-	xOffset = 10,
-	yOffset = 4,
+	xOffset = 10, -- 10px final visible xOffset - 0px visible padding left = 10px
+	yOffset = 1, -- 5px final visible yOffset + 0px extra padding top - 4px visible padding top = 1px
+	height = 32, -- 28px visible dimension height + 4px visible padding top + 0px extra padding bottom = 32px
+	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	Init = function(self,option,cfgValue)
 		self.slider:SetMinMaxValues(option.min,option.max);
 		self.slider:SetValueStep(option.step);
@@ -311,16 +325,18 @@ local function Header_OnLeave(self)
 	GameTooltip:Hide();
 end
 
--- New Header
+-- New Header (dimensions: 301x18, visible dimension: 301x7, visible padding: 6/3/5/3)
 azof.objects.Header = {
-	xOffset = 10,
-	yOffset = 0,
+	xOffset = 10, -- 10px final visible xOffset - 0px visible padding left = 10px
+	yOffset = 12, -- 5px final visible yOffset + 10px extra padding top - 3px visible padding top = 12px
+	height = 18, -- 7px visible dimension height + 6px visible padding top + 5px extra padding bottom = 18px
+	extraPaddingTop = 15, -- 5px final visible yOffset + 10px extra padding top = 15px
 	CreateNew = function(self)
 		local f = CreateFrame("Frame", nil, self.owner);
 		f:SetSize(301, 18);
 		
 		f.text = f:CreateFontString("ARTWORK", nil, "GameFontNormalSmall");
-		f.text:SetPoint("TOP");
+		f.text:SetPoint("TOP"); -- vertically centered to Header (without text shadow and near to bottom in case of odd number of pixels)
 		f.text:SetPoint("BOTTOM");
 		f.text:SetJustifyH("CENTER");
 
@@ -368,10 +384,12 @@ local function CheckButton_OnClick(self)
 	self.factory:SetConfigValue(self.option.var,self:GetChecked() and true or false);	-- WoD patch made GetChecked() return bool instead of 1/nil
 end
 
--- New CheckButton
+-- New CheckButton (dimensions: 26x26, visible dimension: 20x17, visible padding: 4/3/5/3, visible padding right for text: 4)
 azof.objects.Check = {
-	xOffset = 7,
-	yOffset = -4,
+	xOffset = 7, -- 10px final visible xOffset - 3px visible padding left = 7px
+	yOffset = 1, -- 5px final visible yOffset + 0px extra padding top - 4px visible padding top = 1px
+	height = 21, -- 17px visible dimension height + 4px visible padding top + 0px extra padding bottom = 21px
+	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	Init = function(self,option,cfgValue)
 		self:SetHitRectInsets(0,self.text:GetWidth() * -1,0,0);
 		self:SetChecked(cfgValue);
@@ -390,7 +408,7 @@ azof.objects.Check = {
 		f:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 
 		f.text = f:CreateFontString("ARTWORK",nil,"GameFontNormalSmall");
-		f.text:SetPoint("LEFT",f,"RIGHT",0,0);
+		f.text:SetPoint("LEFT",f,"RIGHT",0,1); -- vertically centered to CheckButton (without text shadow and near to bottom in case of odd number of pixels) and 5px final visible padding to CheckButton - 4px visible padding right for text = 1px
 		f.text:SetJustifyH("LEFT");
 
 		return f;
@@ -494,10 +512,12 @@ local function ColorButton_OnLeave(self)
 	GameTooltip:Hide();
 end
 
--- New ColorButton
+-- New ColorButton (dimensions: 19x19, visible dimension: 19x19, visible padding: 0/0/0/0, visible padding right for text: 0)
 azof.objects.Color = {
-	xOffset = 10,
-	yOffset = 5,
+	xOffset = 10, -- 10px final visible xOffset - 0px visible padding left = 10px
+	yOffset = 5, -- 5px final visible yOffset + 0px extra padding top - 0px visible padding top = 5px
+	height = 19, -- 19px visible dimension height + 0px visible padding top + 0px extra padding bottom = 19px
+	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	Init = function(self,option,cfgValue)
 		self:SetHitRectInsets(-2,self.text:GetWidth() * -1 - 2, -2, -2);
 		if (option.subType == 2) then
@@ -515,7 +535,7 @@ azof.objects.Color = {
 	end,
 	CreateNew = function(self)
 		local f = CreateFrame("Button",nil,self.owner);
-		f:SetSize(18,18);
+		f:SetSize(19,19);
 		f:SetScript("OnEnter",ColorButton_OnEnter);
 		f:SetScript("OnLeave",ColorButton_OnLeave)
 		f:SetScript("OnClick",ColorButton_OnClick);
@@ -532,7 +552,7 @@ azof.objects.Color = {
 		f.border:SetColorTexture(1,1,1,1);
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-		f.text:SetPoint("LEFT",f,"RIGHT",4,-1);
+		f.text:SetPoint("LEFT",f,"RIGHT",5,0); -- vertically centered to ColorButton (without text shadow and near to bottom in case of odd number of pixels) and 5px final visible padding to ColorButton - 0px visible padding right for text = 5px
 
 		f.color = CreateColor();
 
@@ -689,10 +709,12 @@ local function SharedMediaLib_Init(dropDown,list)
 	table.sort(list,function(a,b) return a.text < b.text end);
 end
 
--- New DropDown
+-- New DropDown (dimensions: 301x24, visible dimension: 301x24, visible padding: 0/0/0/0)
 azof.objects.DropDown = {
-	xOffset = 131,
-	yOffset = 2,
+	xOffset = 131, -- 10px final visible xOffset + (301px max visible dimension - 180px DropDown box) = 131px
+	yOffset = 5, -- 5px final visible yOffset + 0px extra padding top - 0px visible padding top = 5px
+	height = 24, -- 24px visible dimension height + 0px visible padding top + 0px extra padding bottom = 24px
+	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	Init = function(self,option,cfgValue)
 		self.initFunc = (option.init or option.media and SharedMediaLib_Init or Default_Init);
 		self:InitSelectedItem(cfgValue);
@@ -700,10 +722,10 @@ azof.objects.DropDown = {
 	CreateNew = function(self)
 		local f = AzDropDown:CreateDropDown(self.owner,180,nil,nil,true);
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-		f.text:SetPoint("LEFT",-302 + f:GetWidth(),-1);
+		f.text:SetPoint("LEFT",-301 + f:GetWidth(),0); -- vertically centered to DropDown (without text shadow and near to bottom in case of odd number of pixels)
 		f.text:SetJustifyH("LEFT");
 		
-		f:SetHitRectInsets(-302 + f:GetWidth(),0,0,0);
+		f:SetHitRectInsets(-301 + f:GetWidth(),0,0,0);
 		
 		f:SetScript("OnEnter", DropDown_OnEnter);
 		f:SetScript("OnLeave", DropDown_OnLeave);
@@ -728,10 +750,12 @@ local function TextEdit_OnTextChanged(self)
 	self.factory:SetConfigValue(self.option.var,self:GetText():gsub("||","|"));
 end
 
--- New Text Edit
+-- New TextEdit (dimensions: 301x24, visible dimension: 301x24, visible padding: 0/0/0/0)
 azof.objects.Text = {
-	xOffset = 131,
-	yOffset = 0,
+	xOffset = 131, -- 10px final visible xOffset + (301px max visible dimension - 180px TextEdit box) = 131px
+	yOffset = 5, -- 5px final visible yOffset + 0px extra padding top - 0px visible padding top = 5px
+	height = 24, -- 24px visible dimension height + 0px visible padding top + 0px extra padding bottom = 24px
+	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	backdrop = {
 		bgFile = "Interface\\Buttons\\WHITE8X8",
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -756,7 +780,7 @@ azof.objects.Text = {
 		f:SetTextInsets(6,0,0,0);
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-		f.text:SetPoint("LEFT",-120,-1);
+		f.text:SetPoint("LEFT",-121,0); -- vertically centered to TextEdit (without text shadow and near to bottom in case of odd number of pixels)
 
 		return f;
 	end,
@@ -766,16 +790,18 @@ azof.objects.Text = {
 --                                             Text Only                                              --
 --------------------------------------------------------------------------------------------------------
 
--- New Text Only
+-- New TextOnly (dimensions: 301x18, visible dimension: 301x7, visible padding: 6/0/5/0)
 azof.objects.TextOnly = {
-	xOffset = 10,
-	yOffset = 0,
+	xOffset = 10, -- 10px final visible xOffset - 0px visible padding left = 10px
+	yOffset = -1, -- 5px final visible yOffset + 0px extra padding top - 6px visible padding top = -1px
+	height = 13, -- 7px visible dimension height + 6px visible padding top + 0px extra padding bottom = 13px
+	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	CreateNew = function(self)
 		local f = CreateFrame("Frame", nil, self.owner);
 		f:SetSize(301, 18);
 
 		f.text = f:CreateFontString("ARTWORK", nil, "GameFontNormalSmall");
-		f.text:SetPoint("LEFT");
+		f.text:SetPoint("LEFT"); -- vertically centered to TextOnly (without text shadow and near to bottom in case of odd number of pixels)
 		f.text:SetPoint("RIGHT");
 		f.text:SetJustifyH("LEFT");
 
