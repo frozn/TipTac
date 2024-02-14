@@ -33,7 +33,7 @@
 	24.01.22 Rev 22 10.2.5/Dragonflight #frozn45
 	- considered that the color picker frame has been reworked with df 10.2.5
 	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
-	xx.xx.xx Rev 23 10.2.5/Dargonflight #frozn45
+	24.02.14 Rev 23 10.2.5/Dargonflight #frozn45
 	- improved positioning and size of all elements
 --]]
 
