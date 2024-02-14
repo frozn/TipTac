@@ -530,6 +530,16 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		local englishFaction, localizedFaction = UnitFactionGroup(unitRecord.id);
 		
 		if (englishFaction) then
+			if (UnitIsMercenary(unitRecord.id)) then
+				if (englishFaction == "Horde") then
+					englishFaction = "Alliance";
+					localizedFaction = FACTION_ALLIANCE;
+				elseif (englishFaction == "Alliance") then
+					englishFaction = "Horde";
+					localizedFaction = FACTION_HORDE;
+				end
+			end
+			
 			local factionTextColor = (cfg.enableColorFaction and cfg["colorFaction" .. englishFaction] and CreateColor(unpack(cfg["colorFaction" .. englishFaction]))) or TT_COLOR.text.default;
 			
 			lineLevel:Push("\n");
