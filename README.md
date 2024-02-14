@@ -36,7 +36,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), AceConfigDialog-3.0, LibQTip, LibDBIcon, LibDropdown, LibDropdownMC, auras from addon Plater, tooltips from addon RaiderIO, queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop
+- added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop, AceConfigDialog-3.0, LibQTip, LibDBIcon, LibDropdown, LibDropdownMC, auras from addon Plater, tooltips from addon RaiderIO and OPie
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
@@ -67,6 +67,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
 - added option "General->Show Mount" to show the player's mount icon/name/speed and an icon indicating if you already have collected the mount
 - added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
+- added option "Colors->Enable Coloring of Faction Text" to change the color of the unit's faction text
 - added option "ItemRef->Show Mount ID" to show the mount id
 - added option "ItemRef->Show Icon ID" to show the icon id
 - added option in "ItemRef" to show stack count of items in tooltip
