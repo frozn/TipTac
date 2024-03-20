@@ -2623,12 +2623,12 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
 	local mawPowerID = nil;
-	if (GetMawPowerLinkBySpellID) then
-		local linkMawPower = GetMawPowerLinkBySpellID(spellID);
+	if (C_Spell) and (C_Spell.GetMawPowerLinkBySpellID) then
+		local linkMawPower = C_Spell.GetMawPowerLinkBySpellID(spellID);
 		if (linkMawPower) then
 			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");
 			mawPowerID = _mawPowerID;
-			if (not LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID]) then -- possible internal blizzard bug: GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wow.tools/dbc/?dbc=mawpower)
+			if (not LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID]) then -- possible internal blizzard bug: C_Spell.GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wow.tools/dbc/?dbc=mawpower)
 				mawPowerID = nil;
 			end
 		end
