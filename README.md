@@ -58,9 +58,9 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added showing of role and talent/specialization icon, coloring talents by class color, average item level, the de facto standard GearScore algorithm from addon TacoTip and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
 - completely rewritten ttCore. also applied necessary changes to ttStyle, ttBars, ttAuras and ttIcons.
 - scanning/inspecting of talents and average item level completely rewritten
-- added option in "Anchors" to override GTT anchor for world/frame units/tips in combat and (Guild & Community) ChatFrame
+- added option in "Anchors" to override GTT anchor for world/frame units/tips in combat or during dragonriding and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
-- added option "Combat->Hide Tips Out Of Combat" and "Combat->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action bar tips in or out of combat
+- added option "Combat->Hide Tips Out Of Combat" and "Combat->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action bar tips in/out of combat or during dragonriding
 - added option "General->Show Player Guild" to show/hide guild name/rank
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
