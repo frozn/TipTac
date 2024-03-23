@@ -210,6 +210,19 @@ local TT_DefaultConfig = {
 	anchorFrameTipTypeInCombat = "normal",
 	anchorFrameTipPointInCombat = "BOTTOMRIGHT",
 	
+	enableAnchorOverrideWorldUnitDuringDragonriding = false,
+	anchorWorldUnitTypeDuringDragonriding = "normal",
+	anchorWorldUnitPointDuringDragonriding = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldTipDuringDragonriding = false,
+	anchorWorldTipTypeDuringDragonriding = "normal",
+	anchorWorldTipPointDuringDragonriding = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameUnitDuringDragonriding = false,
+	anchorFrameUnitTypeDuringDragonriding = "normal",
+	anchorFrameUnitPointDuringDragonriding = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameTipDuringDragonriding = false,
+	anchorFrameTipTypeDuringDragonriding = "normal",
+	anchorFrameTipPointDuringDragonriding = "BOTTOMRIGHT",
+	
 	enableAnchorOverrideCF = false,
 	anchorOverrideCFType = "normal",
 	anchorOverrideCFPoint = "BOTTOMRIGHT",
@@ -225,6 +238,7 @@ local TT_DefaultConfig = {
 	hideTipsSpellTips = false,
 	hideTipsItemTips = false,
 	hideTipsActionTips = false,
+	
 	hideTipsInCombatWorldUnits = false,
 	hideTipsInCombatWorldTips = false,
 	hideTipsInCombatFrameUnits = false,
@@ -233,6 +247,16 @@ local TT_DefaultConfig = {
 	hideTipsInCombatSpellTips = false,
 	hideTipsInCombatItemTips = false,
 	hideTipsInCombatActionTips = false,
+	
+	hideTipsDuringDragonridingWorldUnits = false,
+	hideTipsDuringDragonridingFrameUnits = false,
+	hideTipsDuringDragonridingWorldTips = false,
+	hideTipsDuringDragonridingFrameTips = false,
+	hideTipsDuringDragonridingUnitTips = false,
+	hideTipsDuringDragonridingSpellTips = false,
+	hideTipsDuringDragonridingItemTips = false,
+	hideTipsDuringDragonridingActionTips = false,
+	
 	showHiddenModifierKey = "shift"
 };
 
@@ -2504,9 +2528,17 @@ function tt:GetAnchorPosition(tip)
 	
 	local anchorFrameName = (mouseFocus == WorldFrame and "World" or "Frame") .. (isUnit and "Unit" or "Tip");
 	local var = "anchor" .. anchorFrameName;
-	local anchorOverrideInCombat = (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"] and UnitAffectingCombat("player") and "InCombat" or "");
 	
-	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverrideInCombat], cfg[var .. "Point" .. anchorOverrideInCombat];
+	-- consider anchor override for in combat or during dragonriding
+	local anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"] and UnitAffectingCombat("player") and "InCombat" or "");
+	
+	if (anchorOverride == "") then
+		local bonusBarIndex = GetBonusBarIndex(); -- dragonriding bonus bar is 11
+		
+		anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringDragonriding"] and (bonusBarIndex == 11) and "DuringDragonriding" or "");
+	end
+	
+	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverride], cfg[var .. "Point" .. anchorOverride];
 	
 	-- check for GameTooltip anchor overrides
 	if (tip == GameTooltip) then
@@ -3113,11 +3145,17 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
-		-- hide tips
-		local inCombat = (UnitAffectingCombat("player") and "InCombat" or "");
+		-- consider hiding tips in combat or during dragonriding
+		local hidingTip = (UnitAffectingCombat("player") and "InCombat" or "");
+		
+		if (hidingTip == "") then
+			local bonusBarIndex = GetBonusBarIndex(); -- dragonriding bonus bar is 11
+			
+			hidingTip = ((bonusBarIndex == 11) and "DuringDragonriding" or "");
+		end
 		
 		if (currentDisplayParams.anchorFrameName) then
-			if (cfg["hideTips" .. inCombat .. currentDisplayParams.anchorFrameName .. "s"]) then
+			if (cfg["hideTips" .. hidingTip .. currentDisplayParams.anchorFrameName .. "s"]) then
 				currentDisplayParams.hideTip = true;
 				return;
 			end
@@ -3125,7 +3163,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		local tipContentName = ((tipContent == TT_TIP_CONTENT.unit) and "Unit") or (((tipContent == TT_TIP_CONTENT.aura) or (tipContent == TT_TIP_CONTENT.spell)) and "Spell") or ((tipContent == TT_TIP_CONTENT.item) and "Item") or ((tipContent == TT_TIP_CONTENT.action) and "Action");
 		
-		if (cfg["hideTips" .. inCombat .. tipContentName .. "Tips"]) then
+		if (cfg["hideTips" .. hidingTip .. tipContentName .. "Tips"]) then
 			currentDisplayParams.hideTip = true;
 			return;
 		end
