@@ -154,10 +154,6 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (creatureType);
 	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (unitRecord.isPlayer) and (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip);
 	
-	if ((not cfg.hideFactionText) and (not cfg.factionText)) and (not cfg.hidePvpText) and (not hideCreatureTypeIfNoCreatureFamily) and (not hideSpecializationAndClassText) then
-		return;
-	end
-	
 	local specNames = LibFroznFunctions:CreatePushArray();
 	
 	if (hideSpecializationAndClassText) then
@@ -175,7 +171,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		local gttLineText = gttLine:GetText();
 		
 		if (type(gttLineText) == "string") and
-				(((cfg.hideFactionText) or (cfg.factionText)) and ((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE) or (gttLineText == FACTION_NEUTRAL)) or
+				(((gttLineText == FACTION_ALLIANCE) or (gttLineText == FACTION_HORDE) or (gttLineText == FACTION_NEUTRAL)) or
 				(cfg.hidePvpText) and (gttLineText == PVP_ENABLED) or
 				(hideCreatureTypeIfNoCreatureFamily) and (gttLineText == creatureType) or
 				(hideSpecializationAndClassText) and ((gttLineText == unitRecord.className) or (specNames:Contains(gttLineText:match("^(.+) " .. unitRecord.className .. "$"))))) then

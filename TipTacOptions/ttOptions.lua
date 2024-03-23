@@ -88,8 +88,7 @@ local ttOptionsSpecial = {
 	
 	{ type = "Header", label = "Strip default text from tooltip" },
 	
-	{ type = "Check", var = "hideFactionText", label = "Hide Faction Text", tip = "Strips the Alliance or Horde faction text from the tooltip" },
-	{ type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip", x = 160 }
+	{ type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip" }
 };
 
 if (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) then

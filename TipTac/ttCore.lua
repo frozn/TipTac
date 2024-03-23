@@ -44,7 +44,6 @@ local TT_DefaultConfig = {
 	gttScale = 1,
 	updateFreq = 0.5,
 	enableChatHoverTips = true,
-	hideFactionText = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
 	highlightTipTacDeveloper = true,
