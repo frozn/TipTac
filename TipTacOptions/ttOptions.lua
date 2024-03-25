@@ -137,6 +137,114 @@ for i = 1, numClasses do
 	end
 end
 
+-- Anchors
+local ttOptionsAnchors = {
+	{ type = "Check", var = "enableAnchor", label = "Enable Anchor Modifications", tip = "Turns on or off all modifications of the anchor" },
+	
+	{ type = "DropDown", var = "anchorWorldUnitType", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
+	{ type = "DropDown", var = "anchorWorldUnitPoint", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
+	
+	{ type = "DropDown", var = "anchorWorldTipType", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
+	{ type = "DropDown", var = "anchorWorldTipPoint", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
+	
+	{ type = "DropDown", var = "anchorFrameUnitType", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
+	{ type = "DropDown", var = "anchorFrameUnitPoint", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS },
+	
+	{ type = "DropDown", var = "anchorFrameTipType", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
+	{ type = "DropDown", var = "anchorFrameTipPoint", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS },
+
+	{ type = "Header", label = "Anchor Overrides For In Combat", tip = "Special anchor overrides for in combat" },
+
+	{ type = "Check", var = "enableAnchorOverrideWorldUnitInCombat", label = "World Unit in combat", tip = "This option will override the anchor for World Unit in combat" },
+	{ type = "DropDown", var = "anchorWorldUnitTypeInCombat", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE },
+	{ type = "DropDown", var = "anchorWorldUnitPointInCombat", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
+	
+	{ type = "Check", var = "enableAnchorOverrideWorldTipInCombat", label = "World Tip in combat", tip = "This option will override the anchor for World Tip in combat", y = 10 },
+	{ type = "DropDown", var = "anchorWorldTipTypeInCombat", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE },
+	{ type = "DropDown", var = "anchorWorldTipPointInCombat", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
+	
+	{ type = "Check", var = "enableAnchorOverrideFrameUnitInCombat", label = "Frame Unit in combat", tip = "This option will override the anchor for Frame Unit in combat", y = 10 },
+	{ type = "DropDown", var = "anchorFrameUnitTypeInCombat", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE },
+	{ type = "DropDown", var = "anchorFrameUnitPointInCombat", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS },
+	
+	{ type = "Check", var = "enableAnchorOverrideFrameTipInCombat", label = "Frame Tip in combat", tip = "This option will override the anchor for Frame Tip in combat", y = 10 },
+	{ type = "DropDown", var = "anchorFrameTipTypeInCombat", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE },
+	{ type = "DropDown", var = "anchorFrameTipPointInCombat", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS }
+};
+
+if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding" };
+
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideWorldUnitDuringDragonriding", label = "World Unit during dragonriding", tip = "This option will override the anchor for World Unit during dragonriding" };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldUnitTypeDuringDragonriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldUnitPointDuringDragonriding", label = "World Unit Point", list = DROPDOWN_ANCHORPOS };
+	
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideWorldTipDuringDragonriding", label = "World Tip during dragonriding", tip = "This option will override the anchor for World Tip during dragonriding", y = 10 };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldTipTypeDuringDragonriding", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldTipPointDuringDragonriding", label = "World Tip Point", list = DROPDOWN_ANCHORPOS };
+	
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideFrameUnitDuringDragonriding", label = "Frame Unit during dragonriding", tip = "This option will override the anchor for Frame Unit during dragonriding", y = 10 };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameUnitTypeDuringDragonriding", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameUnitPointDuringDragonriding", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS };
+	
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideFrameTipDuringDragonriding", label = "Frame Tip during dragonriding", tip = "This option will override the anchor for Frame Tip during dragonriding", y = 10 };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameTipTypeDuringDragonriding", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE };
+	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameTipPointDuringDragonriding", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS };
+end
+
+ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Header", label = "Other Anchor Overrides", tip = "Other special anchor overrides" };
+
+ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideCF", label = "(Guild & Community) ChatFrame", tip = "This option will override the anchor for (Guild & Community) ChatFrame" };
+ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorOverrideCFType", label = "Tip Type", list = DROPDOWN_ANCHORTYPE };
+ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorOverrideCFPoint", label = "Tip Point", list = DROPDOWN_ANCHORPOS };
+
+-- Combat
+local ttOptionsCombat = {
+	{ type = "Header", label = "Hide Tips Out Of Combat" },
+	
+	{ type = "Check", var = "hideTipsWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden." },
+	{ type = "Check", var = "hideTipsFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden.", x = 160 },
+	{ type = "Check", var = "hideTipsWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden." },
+	{ type = "Check", var = "hideTipsFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden.", x = 160 },
+	
+	{ type = "Check", var = "hideTipsUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden.", y = 10 },
+	{ type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160 },
+	{ type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden." },
+	{ type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden." },
+	
+	{ type = "Header", label = "Hide Tips In Combat" },
+	
+	{ type = "Check", var = "hideTipsInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden in combat." },
+	{ type = "Check", var = "hideTipsInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden in combat.", x = 160 },
+	{ type = "Check", var = "hideTipsInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden in combat." },
+	{ type = "Check", var = "hideTipsInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden in combat.", x = 160 },
+	
+	{ type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10 },
+	{ type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160 },
+	{ type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat." },
+	{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." }
+};
+
+if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Header", label = "Hide Tips During Dragonriding" };
+	
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during dragonriding." };
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during dragonriding.", x = 160 };
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during dragonriding." };
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during dragonriding.", x = 160 };
+	
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during dragonriding.", y = 10 };
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during dragonriding.", x = 160 };
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during dragonriding." };
+	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during dragonriding." };
+end
+
+ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Header", label = "Others" };
+
+ttOptionsCombat[#ttOptionsCombat + 1] = { type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" } };
+ttOptionsCombat[#ttOptionsCombat + 1] = { type = "TextOnly", label = "", y = -12 }; -- spacer for multi-line label above
+
+-- build options
 local options = {
 	-- General
 	{
@@ -302,61 +410,7 @@ local options = {
 	-- Anchors
 	{
 		[0] = "Anchors",
-		{ type = "Check", var = "enableAnchor", label = "Enable Anchor Modifications", tip = "Turns on or off all modifications of the anchor" },
-		
-		{ type = "DropDown", var = "anchorWorldUnitType", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
-		{ type = "DropDown", var = "anchorWorldUnitPoint", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "DropDown", var = "anchorWorldTipType", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
-		{ type = "DropDown", var = "anchorWorldTipPoint", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "DropDown", var = "anchorFrameUnitType", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
-		{ type = "DropDown", var = "anchorFrameUnitPoint", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "DropDown", var = "anchorFrameTipType", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE, y = 10 },
-		{ type = "DropDown", var = "anchorFrameTipPoint", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS },
-
-		{ type = "Header", label = "Anchor Overrides For In Combat", tip = "Special anchor overrides for in combat" },
-
-		{ type = "Check", var = "enableAnchorOverrideWorldUnitInCombat", label = "World Unit in combat", tip = "This option will override the anchor for World Unit in combat" },
-		{ type = "DropDown", var = "anchorWorldUnitTypeInCombat", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorWorldUnitPointInCombat", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Check", var = "enableAnchorOverrideWorldTipInCombat", label = "World Tip in combat", tip = "This option will override the anchor for World Tip in combat", y = 10 },
-		{ type = "DropDown", var = "anchorWorldTipTypeInCombat", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorWorldTipPointInCombat", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Check", var = "enableAnchorOverrideFrameUnitInCombat", label = "Frame Unit in combat", tip = "This option will override the anchor for Frame Unit in combat", y = 10 },
-		{ type = "DropDown", var = "anchorFrameUnitTypeInCombat", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorFrameUnitPointInCombat", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Check", var = "enableAnchorOverrideFrameTipInCombat", label = "Frame Tip in combat", tip = "This option will override the anchor for Frame Tip in combat", y = 10 },
-		{ type = "DropDown", var = "anchorFrameTipTypeInCombat", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorFrameTipPointInCombat", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS },
-
-		{ type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding" },
-
-		{ type = "Check", var = "enableAnchorOverrideWorldUnitDuringDragonriding", label = "World Unit during dragonriding", tip = "This option will override the anchor for World Unit during dragonriding" },
-		{ type = "DropDown", var = "anchorWorldUnitTypeDuringDragonriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorWorldUnitPointDuringDragonriding", label = "World Unit Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Check", var = "enableAnchorOverrideWorldTipDuringDragonriding", label = "World Tip during dragonriding", tip = "This option will override the anchor for World Tip during dragonriding", y = 10 },
-		{ type = "DropDown", var = "anchorWorldTipTypeDuringDragonriding", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorWorldTipPointDuringDragonriding", label = "World Tip Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Check", var = "enableAnchorOverrideFrameUnitDuringDragonriding", label = "Frame Unit during dragonriding", tip = "This option will override the anchor for Frame Unit during dragonriding", y = 10 },
-		{ type = "DropDown", var = "anchorFrameUnitTypeDuringDragonriding", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorFrameUnitPointDuringDragonriding", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Check", var = "enableAnchorOverrideFrameTipDuringDragonriding", label = "Frame Tip during dragonriding", tip = "This option will override the anchor for Frame Tip during dragonriding", y = 10 },
-		{ type = "DropDown", var = "anchorFrameTipTypeDuringDragonriding", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorFrameTipPointDuringDragonriding", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS },
-		
-		{ type = "Header", label = "Other Anchor Overrides", tip = "Other special anchor overrides" },
-		
-		{ type = "Check", var = "enableAnchorOverrideCF", label = "(Guild & Community) ChatFrame", tip = "This option will override the anchor for (Guild & Community) ChatFrame", y = 10 },
-		{ type = "DropDown", var = "anchorOverrideCFType", label = "Tip Type", list = DROPDOWN_ANCHORTYPE },
-		{ type = "DropDown", var = "anchorOverrideCFPoint", label = "Tip Point", list = DROPDOWN_ANCHORPOS },
+		unpack(ttOptionsAnchors)
 	},
 	-- Mouse
 	{
@@ -367,46 +421,7 @@ local options = {
 	-- Combat
 	{
 		[0] = "Combat",
-		{ type = "Header", label = "Hide Tips Out Of Combat" },
-		
-		{ type = "Check", var = "hideTipsWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden." },
-		{ type = "Check", var = "hideTipsFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden.", x = 160 },
-		{ type = "Check", var = "hideTipsWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden." },
-		{ type = "Check", var = "hideTipsFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden.", x = 160 },
-		
-		{ type = "Check", var = "hideTipsUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden.", y = 10 },
-		{ type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160 },
-		{ type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden." },
-		{ type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden." },
-		
-		{ type = "Header", label = "Hide Tips In Combat" },
-		
-		{ type = "Check", var = "hideTipsInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden in combat." },
-		{ type = "Check", var = "hideTipsInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden in combat.", x = 160 },
-		{ type = "Check", var = "hideTipsInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden in combat." },
-		{ type = "Check", var = "hideTipsInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden in combat.", x = 160 },
-		
-		{ type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10 },
-		{ type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160 },
-		{ type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat." },
-		{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." },
-		
-		{ type = "Header", label = "Hide Tips During Dragonriding" },
-		
-		{ type = "Check", var = "hideTipsDuringDragonridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during dragonriding." },
-		{ type = "Check", var = "hideTipsDuringDragonridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during dragonriding.", x = 160 },
-		{ type = "Check", var = "hideTipsDuringDragonridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during dragonriding." },
-		{ type = "Check", var = "hideTipsDuringDragonridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during dragonriding.", x = 160 },
-		
-		{ type = "Check", var = "hideTipsDuringDragonridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during dragonriding.", y = 10 },
-		{ type = "Check", var = "hideTipsDuringDragonridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during dragonriding.", x = 160 },
-		{ type = "Check", var = "hideTipsDuringDragonridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during dragonriding." },
-		{ type = "Check", var = "hideTipsDuringDragonridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during dragonriding." },
-		
-		{ type = "Header", label = "Others" },
-		
-		{ type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" } },
-		{ type = "TextOnly", label = "", y = -12 }, -- spacer for multi-line label above
+		unpack(ttOptionsCombat)
 	},
 	-- Layouts
 	{

@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 19; -- bump on changes
+local LIB_MINOR = 20; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -107,6 +107,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .relatedExpansionForItemAvailable                           = true/false if GetItemInfo() return the related expansion for an item (parameter expacID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 "UISliderTemplateWithLabels")
+--         .dragonriding                                               = true/false if dragonriding is available (since df)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
@@ -123,7 +124,8 @@ LibFroznFunctions.hasWoWFlavor = {
 	realGetSpellLinkAvailable = true,
 	relatedExpansionForItemAvailable = true,
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
-	optionsSliderTemplate = "UISliderTemplateWithLabels"
+	optionsSliderTemplate = "UISliderTemplateWithLabels",
+	dragonriding = (GetAchievementInfo(15794) and true or false) -- see DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID in "Blizzard_DragonflightLandingPage.lua"
 };
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
