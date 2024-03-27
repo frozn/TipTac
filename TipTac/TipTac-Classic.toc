@@ -11,11 +11,16 @@
 ## X-Category: Tooltip
 ## X-Website: https://www.curseforge.com/wow/addons/tiptac-reborn
 ## X-Curse-Project-ID: 695153
+
+# embeds
 embeds.xml
 
+# core
 ttCore.lua
-ttStyle.lua
-ttBars.lua
-ttAuras.lua
-ttIcons.lua
-ttHyperlink.lua
+
+# modules
+modules\ttAuras.lua
+modules\ttBars.lua
+modules\ttIcons.lua
+modules\ttHyperlink.lua
+modules\ttStyle.lua

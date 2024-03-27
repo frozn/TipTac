@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------
--- TipTac
+-- TipTac - Core
 --
--- Show player talents/specialization including role and talent/specialization icon and the average item level in the tooltip.
+-- TipTac is a tooltip enchancement addon, it allows you to configure various aspects of the tooltip, such as moving where it's shown, the font, the scale of tips, plus many more features.
 --
 
 -- create addon
