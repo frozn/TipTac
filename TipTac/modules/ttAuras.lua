@@ -38,6 +38,7 @@ local validSelfCasterUnits = {
 
 -- config has been loaded
 function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+	-- set config
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
@@ -46,13 +47,9 @@ end
 -- config settings needs to be applied
 function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	-- set size of auras. hide auras if showing buffs/debuffs are disabled.
-	local gameFontNormal = GameFontNormal:GetFont();
-	
 	for _, aura in ipairs(self.auras) do
 		if (cfg.showBuffs) or (cfg.showDebuffs) then
-			aura:SetWidth(cfg.auraSize, cfg.auraSize);
-			aura.count:SetFont(gameFontNormal, (cfg.auraSize / 2), "OUTLINE");
-			aura.cooldown.noCooldownCount = cfg.noCooldownCount;
+			aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		else
 			aura:Hide();
 		end
@@ -185,14 +182,20 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 end
 
 -- create aura frame
+
+-- config settings needs to be applied
+local function auraOnApplyConfig(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	-- set size of auras
+	self:SetSize(cfg.auraSize, cfg.auraSize);
+	self.count:SetFont(GameFontNormal:GetFont(), cfg.auraSize / 2, "OUTLINE");
+	self.cooldown.noCooldownCount = cfg.noCooldownCount;
+end
+
 function ttAuras:CreateAuraFrame(parent)
 	local aura = CreateFrame("Frame", nil, parent);
 	
-	aura:SetSize(cfg.auraSize, cfg.auraSize);
-	
 	aura.count = aura:CreateFontString(nil, "OVERLAY");
 	aura.count:SetPoint("BOTTOMRIGHT", 1, 0);
-	aura.count:SetFont(GameFontNormal:GetFont(), cfg.auraSize / 2, "OUTLINE");
 	
 	aura.icon = aura:CreateTexture(nil, "BACKGROUND");
 	aura.icon:SetAllPoints();
@@ -202,7 +205,6 @@ function ttAuras:CreateAuraFrame(parent)
 	aura.cooldown:SetReverse(1);
 	aura.cooldown:SetAllPoints();
 	aura.cooldown:SetFrameLevel(aura:GetFrameLevel());
-	aura.cooldown.noCooldownCount = cfg.noCooldownCount;
 	
 	aura.border = aura:CreateTexture(nil, "OVERLAY");
 	aura.border:SetPoint("TOPLEFT", -1, 1);
@@ -210,7 +212,11 @@ function ttAuras:CreateAuraFrame(parent)
 	aura.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
 	aura.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625);
 	
+	aura.OnApplyConfig = auraOnApplyConfig;
+	aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	
 	self.auras[#self.auras + 1] = aura;
 	
 	return aura;
 end
+

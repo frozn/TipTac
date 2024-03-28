@@ -33,12 +33,14 @@
 	24.01.22 Rev 22 10.2.5/Dragonflight #frozn45
 	- considered that the color picker frame has been reworked with df 10.2.5
 	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
-	24.02.14 Rev 23 10.2.5/Dargonflight #frozn45
+	24.02.14 Rev 23 10.2.5/Dragonflight #frozn45
 	- improved positioning and size of all elements
+	24.xx.xx Rev 24 10.2.6/Dragonflight #frozn45
+	- don't change value of slider on mouse wheel
 --]]
 
 -- create new library
-local REVISION = 23; -- bump on changes
+local REVISION = 24; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -280,7 +282,7 @@ azof.objects.Slider = {
 		f.slider:SetPoint("TOPLEFT",f.edit,"TOPRIGHT",5,-3);
 		f.slider:SetPoint("BOTTOMRIGHT",0,-2);
 		f.slider:SetScript("OnValueChanged",Slider_OnValueChanged);
-		f.slider:SetScript("OnMouseWheel",Slider_OnMouseWheel);
+		-- f.slider:SetScript("OnMouseWheel",Slider_OnMouseWheel);
 		f.slider:EnableMouseWheel(true);
 		f.slider:SetObeyStepOnDrag(true);
 		

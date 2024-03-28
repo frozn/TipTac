@@ -153,32 +153,31 @@ local TT_DefaultConfig = {
 	fadeTime = 0.1,
 	hideWorldTips = true,
 	
-	barFontFace = "",          -- set during event ADDON_LOADED
-	barFontSize = 0,           -- set during event ADDON_LOADED
-	barFontFlags = "",         -- set during event ADDON_LOADED
-	barHeight = 6,
-	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
-	
-	hideDefaultBar = true,
-	barsCondenseValues = true,
 	healthBar = true,
-	healthBarClassColor = true,
 	healthBarText = "value",
 	healthBarColor = { 0.3, 0.9, 0.3, 1 },
+	healthBarClassColor = true,
+	hideDefaultBar = true,
 	manaBar = false,
 	manaBarText = "value",
 	manaBarColor = { 0.3, 0.55, 0.9, 1 },
 	powerBar = false,
 	powerBarText = "value",
+	barsCondenseValues = true,
+	barFontFace = "",          -- set during event ADDON_LOADED
+	barFontFlags = "",         -- set during event ADDON_LOADED
+	barFontSize = 0,           -- set during event ADDON_LOADED
+	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
+	barHeight = 6,
 	
-	aurasAtBottom = false,
 	showBuffs = true,
 	showDebuffs = true,
 	selfAurasOnly = false,
-	auraSize = 20,
-	auraMaxRows = 2,
 	showAuraCooldown = true,
 	noCooldownCount = false,
+	auraSize = 20,
+	auraMaxRows = 2,
+	aurasAtBottom = false,
 	
 	iconRaid = true,
 	iconFaction = false,

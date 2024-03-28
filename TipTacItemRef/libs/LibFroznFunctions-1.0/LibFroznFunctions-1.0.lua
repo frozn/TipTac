@@ -595,6 +595,55 @@ function LibFroznFunctions:CamelCaseText(text)
 	return (newText:lower():gsub("^%l", string.upper));
 end
 
+-- format number
+--
+-- @param  number      number
+-- @param  abbreviate  optional. true if number should be abbreviated.
+-- @return formatted number
+function LibFroznFunctions:FormatNumber(number, abbreviate)
+	local realNumber = tonumber(number);
+	
+	if (abbreviate) then
+		-- use the correct symbol for long scale number locales
+		local BILLION_NUMBER = 10^9;
+		local locale = GetLocale();
+		
+		if (LibFroznFunctions:ExistsInTable(quality, { "frFR", "esMX", "esES" })) then
+			BILLION_NUMBER = 10^12
+		end
+		
+		local absRealNumber = math.abs(realNumber);
+		local abbreviatedRealNumber, abbreviatedFormat;
+		
+		if (absRealNumber >= BILLION_NUMBER) then
+			abbreviatedFormat = "%.1fb";
+			abbreviatedRealNumber = realNumber / BILLION_NUMBER;
+		elseif (absRealNumber >= 1000000000) then
+			abbreviatedFormat = "%.0fm";
+			abbreviatedRealNumber = realNumber / 1000000;
+		elseif (absRealNumber >= 10000000) then
+			abbreviatedFormat = "%.1fm";
+			abbreviatedRealNumber = realNumber / 1000000;
+		elseif (absRealNumber >= 1000000) then
+			abbreviatedFormat = "%.2fm";
+			abbreviatedRealNumber = realNumber / 1000000;
+		elseif (absRealNumber >= 100000) then
+			abbreviatedFormat = "%.0fk";
+			abbreviatedRealNumber = realNumber / 1000;
+		elseif (absRealNumber >= 10000) then
+			abbreviatedFormat = "%.1fk";
+			abbreviatedRealNumber = realNumber / 1000;
+		else
+			abbreviatedFormat = "%.0f";
+			abbreviatedRealNumber = realNumber;
+		end
+		
+		return string.format(abbreviatedFormat, abbreviatedRealNumber);
+	end
+	
+	return BreakUpLargeNumbers(realNumber);
+end
+
 -- convert to table
 --
 -- @param  obj   object
