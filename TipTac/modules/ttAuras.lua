@@ -12,7 +12,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- register with TipTac core addon
 local tt = _G[MOD_NAME];
-local ttAuras = { auras = {} };
+local ttAuras = { };
 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttAuras, "Auras");
 
@@ -47,12 +47,12 @@ end
 -- config settings needs to be applied
 function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	-- set size of auras. hide auras if showing buffs/debuffs are disabled.
-	for _, aura in ipairs(self.auras) do
-		if (cfg.showBuffs) or (cfg.showDebuffs) then
+	if (cfg.showBuffs) or (cfg.showDebuffs) then
+		for aura, _ in self.aurasPool:EnumerateActive() do
 			aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
-		else
-			aura:Hide();
 		end
+	else
+		self.aurasPool:ReleaseAll();
 	end
 end
 
@@ -74,11 +74,7 @@ end
 -- after tooltip's current display parameters has to be reset
 function ttAuras:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
 	-- hide tip's auras
-	for _, aura in ipairs(self.auras) do
-		if (aura:GetParent() == tip) then
-			aura:Hide();
-		end
-	end
+	self:HideTipsAuras(tip);
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -88,23 +84,32 @@ end
 -- setup auras
 function ttAuras:SetupAuras(tip, unitRecord)
 	-- display buffs and debuffs
-	local auraCount = 0;
+	self:HideTipsAuras(tip);
+	
+	local currentAuraCount = 0;
+	local auraCount, lastAura;
 	
 	if (cfg.showBuffs) then
-		auraCount = auraCount + self:DisplayAuras(tip, unitRecord, "HELPFUL", auraCount + 1);
+		auraCount, lastAura = self:DisplayAuras(tip, unitRecord, "HELPFUL", currentAuraCount + 1);
+		currentAuraCount = currentAuraCount + auraCount;
 	end
 	if (cfg.showDebuffs) then
-		auraCount = auraCount + self:DisplayAuras(tip, unitRecord, "HARMFUL", auraCount + 1);
+		auraCount, lastAura = self:DisplayAuras(tip, unitRecord, "HARMFUL", currentAuraCount + 1);
+		currentAuraCount = currentAuraCount + auraCount;
 	end
-	
-	-- hide the unused aura frames
-	for i = (auraCount + 1), #self.auras do
-		self.auras[i]:Hide();
+end
+
+-- hide tip's auras
+function ttAuras:HideTipsAuras(tip)
+	for aura, _ in self.aurasPool:EnumerateActive() do
+		if (aura:GetParent() == tip) then
+			self.aurasPool:Release(aura);
+		end
 	end
 end
 
 -- display buffs and debuffs
-function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
+function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex, lastAura)
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
 	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2)); -- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = (auraType == "HELPFUL" and 1 or -1);             -- is +1 or -1 based on horz anchoring
@@ -135,7 +140,9 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 		if (not cfg.selfAurasOnly) or (validSelfCasterUnits[unitAuraData.sourceUnit]) then
 			auraFrameIndex = auraFrameIndex + 1;
 			
-			local aura = (self.auras[auraFrameIndex] or self:CreateAuraFrame(tip));
+			local aura = self.aurasPool:Acquire();
+			
+			aura:SetParent(tip);
 			
 			-- anchor aura frame
 			aura:ClearAllPoints();
@@ -144,11 +151,13 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 				-- new aura line
 				local x = (xOffsetBasis * 2);
 				local y = (cfg.auraSize + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + 1;
+				
 				y = (cfg.aurasAtBottom and -y or y);
+				
 				aura:SetPoint(anchor1, tip, anchor2, x, y);
 			else
 				-- anchor to last
-				aura:SetPoint(horzAnchor1, self.auras[auraFrameIndex - 1], horzAnchor2, xOffsetBasis * 2, 0);
+				aura:SetPoint(horzAnchor1, lastAura, horzAnchor2, xOffsetBasis * 2, 0);
 			end
 			
 			-- show cooldown model if enabled and aura duration is available
@@ -174,11 +183,15 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex)
 			
 			-- show aura
 			aura:Show();
+			
+			lastAura = aura;
 		end
 	end
 	
 	-- return the number of auras displayed
-	return (auraFrameIndex - startingAuraFrameIndex + 1);
+	local auraCount = auraFrameIndex - startingAuraFrameIndex + 1;
+	
+	return auraCount, lastAura;
 end
 
 -- create aura frame
@@ -191,9 +204,7 @@ local function auraOnApplyConfig(self, TT_CacheForFrames, cfg, TT_ExtendedConfig
 	self.cooldown.noCooldownCount = cfg.noCooldownCount;
 end
 
-function ttAuras:CreateAuraFrame(parent)
-	local aura = CreateFrame("Frame", nil, parent);
-	
+ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura)
 	aura.count = aura:CreateFontString(nil, "OVERLAY");
 	aura.count:SetPoint("BOTTOMRIGHT", 1, 0);
 	
@@ -214,9 +225,4 @@ function ttAuras:CreateAuraFrame(parent)
 	
 	aura.OnApplyConfig = auraOnApplyConfig;
 	aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
-	
-	self.auras[#self.auras + 1] = aura;
-	
-	return aura;
-end
-
+end);
