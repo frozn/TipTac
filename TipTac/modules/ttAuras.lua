@@ -12,7 +12,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- register with TipTac core addon
 local tt = _G[MOD_NAME];
-local ttAuras = { };
+local ttAuras = {};
 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttAuras, "Auras");
 
