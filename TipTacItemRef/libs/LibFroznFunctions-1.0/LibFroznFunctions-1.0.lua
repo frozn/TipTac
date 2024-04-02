@@ -1928,7 +1928,7 @@ function LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForA
 	-- before df 10.0.2
 	
 	-- create scanning tooltip
-	local scanTipName = LIB_NAME .. "_GetAuraDescription";
+	local scanTipName = LIB_NAME .. "-" .. LIB_MINOR .. "_GetAuraDescription";
 	
 	if (not getAuraDescriptionFromTooltipScanTip) then
 		getAuraDescriptionFromTooltipScanTip = CreateFrame("GameTooltip", scanTipName, nil, "GameTooltipTemplate");
@@ -1968,7 +1968,7 @@ function LibFroznFunctions:FontExists(fontFile)
 	
 	-- create font
 	if (not fontExistsFont) then
-		fontExistsFont = CreateFont(LIB_NAME .. "FontExists");
+		fontExistsFont = CreateFont(LIB_NAME .. "-" .. LIB_MINOR .. "FontExists");
 	end
 	
 	-- check if font exists
@@ -1995,7 +1995,7 @@ function LibFroznFunctions:TextureExists(textureFile)
 	
 	-- create frame
 	if (not textureExistsFrame) then
-		textureExistsFrame = CreateFrame("Frame");
+		textureExistsFrame = CreateFrame("Frame", LIB_NAME .. "-" .. LIB_MINOR .. "_TextureExists");
 	end
 	
 	-- create texture
@@ -2481,7 +2481,7 @@ local LFF_INSPECT_FAIL_TIMEOUT = 1; -- time to wait for event INSPECT_READY with
 local LFF_CACHE_TIMEOUT = 5; -- seconds to keep stale information before issuing a new inspect
 
 -- create frame for delayed inspection
-local frameForDelayedInspection = CreateFrame("Frame", LIB_NAME .. "_DelayedInspection");
+local frameForDelayedInspection = CreateFrame("Frame", LIB_NAME .. "-" .. LIB_MINOR .. "_DelayedInspection");
 frameForDelayedInspection:Hide();
 
 frameForDelayedInspection:SetScript("OnEvent", function(self, event, ...)
