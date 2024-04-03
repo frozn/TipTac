@@ -555,11 +555,12 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				end
 			end
 			if (mythicPlusDungeonScore > 0) then
+				local mythicPlusDungeonScoreColor = C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore) or TT_COLOR.text.default;
 				if (lineInfo:GetCount() > 0) then
 					lineInfo:Push("\n");
 				end
 				lineInfo:Push("|cffffd100");
-				lineInfo:Push(TT_MythicPlusDungeonScore:format(C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore):WrapTextInColorCode(mythicPlusDungeonScore) .. (mythicPlusBestRunLevel and " |cffffff99(+" .. mythicPlusBestRunLevel .. ")|r" or "")));
+				lineInfo:Push(TT_MythicPlusDungeonScore:format(mythicPlusDungeonScoreColor:WrapTextInColorCode(mythicPlusDungeonScore) .. (mythicPlusBestRunLevel and " |cffffff99(+" .. mythicPlusBestRunLevel .. ")|r" or "")));
 			end
 		end
 	end
