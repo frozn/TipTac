@@ -60,6 +60,9 @@ end
 --
 -- hint: auras has to be updated last because it depends on the tip's new dimension
 function ttAuras:OnTipPostStyle(TT_CacheForFrames, tip, first)
+	-- hide tip's auras
+	self:HideTipsAuras(tip);
+	
 	-- check if showing buffs/debuffs are disabled
 	if (not cfg.showBuffs) and (not cfg.showDebuffs) then
 		return;
@@ -84,8 +87,6 @@ end
 -- setup auras
 function ttAuras:SetupAuras(tip, unitRecord)
 	-- display buffs and debuffs
-	self:HideTipsAuras(tip);
-	
 	local currentAuraCount = 0;
 	local auraCount, lastAura;
 	
@@ -96,15 +97,6 @@ function ttAuras:SetupAuras(tip, unitRecord)
 	if (cfg.showDebuffs) then
 		auraCount, lastAura = self:DisplayAuras(tip, unitRecord, "HARMFUL", currentAuraCount + 1);
 		currentAuraCount = currentAuraCount + auraCount;
-	end
-end
-
--- hide tip's auras
-function ttAuras:HideTipsAuras(tip)
-	for aura, _ in self.aurasPool:EnumerateActive() do
-		if (aura:GetParent() == tip) then
-			self.aurasPool:Release(aura);
-		end
 	end
 end
 
@@ -226,3 +218,12 @@ ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura
 	aura.OnApplyConfig = auraOnApplyConfig;
 	aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 end);
+
+-- hide tip's auras
+function ttAuras:HideTipsAuras(tip)
+	for aura, _ in self.aurasPool:EnumerateActive() do
+		if (aura:GetParent() == tip) then
+			self.aurasPool:Release(aura);
+		end
+	end
+end
