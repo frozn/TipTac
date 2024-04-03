@@ -555,7 +555,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				end
 			end
 			if (mythicPlusDungeonScore > 0) then
-				local mythicPlusDungeonScoreColor = C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore) or TT_COLOR.text.default;
+				local mythicPlusDungeonScoreColor = (C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore) or TT_COLOR.text.default);
 				if (lineInfo:GetCount() > 0) then
 					lineInfo:Push("\n");
 				end
