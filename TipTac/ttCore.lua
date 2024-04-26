@@ -1188,9 +1188,15 @@ function tt:SetupConfig()
 		
 		if (classFile) then
 			local camelCasedClassFile = LibFroznFunctions:CamelCaseText(classFile);
+			local classColor = RAID_CLASS_COLORS[classFile];
+			
+			-- make shure that ColorMixin methods are available
+			if (type(classColor.WrapTextInColorCode) ~= "function") then
+				classColor = CreateColor(classColor.r, classColor.g, classColor.b, classColor.a);
+			end
 			
 			TT_DefaultConfig["colorCustomClass" .. camelCasedClassFile] = {
-				RAID_CLASS_COLORS[classFile]:GetRGBA()
+				classColor:GetRGBA()
 			};
 		end
 	end

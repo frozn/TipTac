@@ -1382,7 +1382,7 @@ local function getClassColor(classFile, customClassColors)
 		if (classColor) then
 			-- make shure that ColorMixin methods are available
 			if (type(classColor.WrapTextInColorCode) ~= "function") then
-				LibFroznFunctions:MixinDifferingObjects(classColor, ColorMixin);
+				classColor = CreateColor(classColor.r, classColor.g, classColor.b, classColor.a);
 			end
 			
 			return classColor;
