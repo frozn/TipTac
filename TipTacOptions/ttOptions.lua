@@ -82,7 +82,6 @@ local ttOptionsSpecial = {
 	{ type = "Check", var = "showBattlePetTip", label = "Enable Battle Pet Tips", tip = "Will show a special tip for both wild and companion battle pets. Might need to be disabled for certain non-English clients" },
 	
 	{ type = "Slider", var = "gttScale", label = "Tooltip Scale", min = 0.2, max = 4, step = 0.05, y = 10 },
-	{ type = "Slider", var = "updateFreq", label = "Tip Update Frequency", tip = "Set the time in seconds to wait before (repeatedly) updating the tooltip (e.g. for current unit speed, health/mana bar).", min = 0.1, max = 5, step = 0.05 },
 	
 	{ type = "Check", var = "enableChatHoverTips", label = "Enable ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the chatframe, show the tooltip without having to click on it", y = 10 },
 	

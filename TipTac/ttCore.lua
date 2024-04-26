@@ -42,7 +42,6 @@ local TT_DefaultConfig = {
 	
 	showBattlePetTip = true,
 	gttScale = 1,
-	updateFreq = 0.5,
 	enableChatHoverTips = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
@@ -2859,7 +2858,7 @@ function tt:UpdateUnitAppearanceToTip(tip, force)
 	end
 	
 	-- consider update interval
-	if (not force) and (GetTime() - timestampStartUnitAppearance < cfg.updateFreq) then
+	if (not force) and (GetTime() - timestampStartUnitAppearance < TOOLTIP_UPDATE_TIME) then
 		return;
 	end
 	
