@@ -1028,6 +1028,46 @@ function LibFroznFunctions:HookSecureFuncIfExists(tab, functionName, hookfunc)
 	hooksecurefunc(tab, functionName, hookfunc);
 end
 
+-- register the frame to an event if event exists
+--
+-- @param frame      frame to register the event to
+-- @param eventName  name of the event
+-- @return true if the frame is successfully registered to the event, false if the frame was already registered to this event.
+function LibFroznFunctions:RegisterEventIfExists(frame, eventName)
+	if (not C_EventUtils.IsEventValid(eventName)) then
+		return;
+	end
+	
+	return frame:RegisterEvent(eventName);
+end
+
+-- register the frame to an event for specified units if event exists
+--
+-- @param frame      frame to register the event to
+-- @param eventName  name of the event
+-- @param ...        unit ids, e.g. "player", "target" or "mouseover"
+-- @return true if the frame is successfully registered to the event, false if the frame was already registered to this event.
+function LibFroznFunctions:RegisterUnitEventIfExists(frame, eventName, ...)
+	if (not C_EventUtils.IsEventValid(eventName)) then
+		return;
+	end
+	
+	return frame:RegisterUnitEvent(eventName, ...);
+end
+
+-- unregister an event from the frame if event exists
+--
+-- @param frame      frame to unregister the event from
+-- @param eventName  name of the event
+-- @return true if the event is successfully unregistered from the frame, false if the event was already unregistered from the frame.
+function LibFroznFunctions:UnregisterEventIfExists(frame, eventName)
+	if (not C_EventUtils.IsEventValid(eventName)) then
+		return;
+	end
+	
+	return frame:UnregisterEvent(eventName);
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                         Custom Events                                          --
 ----------------------------------------------------------------------------------------------------
@@ -1068,7 +1108,7 @@ end
 -- fire group event
 --
 -- @param group      string with group name
--- @param eventName  event name
+-- @param eventName  name of the event
 -- @param ...        event payload
 function LibFroznFunctions:FireGroupEvent(group, eventName, ...)
 	-- one of the parameters are invalid
@@ -2469,6 +2509,63 @@ function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePacked
 			return;
 		end
 	end
+end
+
+-- get information about the spell currently being cast/channeled/charged from unit id
+--
+-- @param unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return information about the spell currently being cast/channeled/charged
+--           .isCasting         true if spell is cast
+--           .isChanneling      true if spell is channeled
+--           .isCharging        true if spell is charging
+--           .name              name of the spell
+--           .displayName       name to be displayed
+--           .textureFile       texture file of spell icon
+--           .startTime         time when castin/channeling began
+--           .endTime           time when casting/channeling will end
+--           .isTradeSkill      true if cast is a trade skill
+--           .castID            guid of spell cast
+--           .notInterruptible  true if cast cannot be interrupted with abilities
+--           .spellID           id of spell
+--           .isEmpowered       true if spell is empower spell
+--           .numEmpowerStages  number of stages of empower spell
+function LibFroznFunctions:GetUnitCastingSpell(unitID)
+	local name, displayName, textureFile, startTimeMs, endTimeMs, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unitID);
+	local isEmpowered, numEmpowerStages;
+	
+	local isCasting, isChanneling, isCharging = false, false, false;
+	
+	if (name) then
+		isCasting = true;
+	else
+		name, displayName, textureFile, startTimeMs, endTimeMs, isTradeSkill, notInterruptible, spellID, isEmpowered, numEmpowerStages = UnitChannelInfo(unitID);
+		
+		if (name) then
+			if (numEmpowerStages and (numEmpowerStages > 0)) then -- see CastingBarMixin:OnEvent() handling event UNIT_SPELLCAST_EMPOWER_START in "CastingBarFrame.lua"
+				isCharging = true;
+			else
+				isChanneling = true;
+			end
+		end
+		
+	end
+	
+	return {
+		isCasting = isCasting,
+		isChanneling = isChanneling,
+		isCharging = isCharging,
+		name = name,
+		displayName = displayName,
+		textureFile = textureFile,
+		startTime = startTimeMs and (startTimeMs / 1000),
+		endTime = endTimeMs and (endTimeMs / 1000),
+		isTradeSkill = isTradeSkill,
+		castID = castID,
+		notInterruptible = notInterruptible,
+		spellID = spellID,
+		isEmpowered = isEmpowered,
+		numEmpowerStages = numEmpowerStages
+	};
 end
 
 ----------------------------------------------------------------------------------------------------

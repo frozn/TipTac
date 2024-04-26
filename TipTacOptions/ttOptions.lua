@@ -374,6 +374,17 @@ local options = {
 		{ type = "Check", var = "powerBar", label = "Show Bar for other Power Types\n(e.g. Energy, Rage, Runic Power or Focus)", tip = "If the unit uses other power types than mana (e.g. energy, rage, runic power or focus), a bar for that will be shown." },
 		{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = DROPDOWN_BARTEXTFORMAT },
 		
+		{ type = "Header", label = "Cast Bar" },
+		
+		{ type = "Check", var = "castBar", label = "Show Cast Bar", tip = "Will show a cast bar of the unit." },
+		{ type = "Check", var = "castBarAlwaysShow", label = "Always Show Cast Bar", tip = "Check this to always show the cast bar", x = 130 },
+		{ type = "Color", var = "castBarCastingColor", label = "Cast Bar Casting Color", tip = "The casting color of the cast bar", y = 10 },
+		{ type = "Color", var = "castBarChannelingColor", label = "Cast Bar Channeling Color", tip = "The channeling color of the cast bar" },
+		{ type = "Color", var = "castBarChargingColor", label = "Cast Bar Charging Color", tip = "The charging color of the cast bar" },
+		{ type = "Color", var = "castBarCompleteColor", label = "Cast Bar Complete Color", tip = "The complete color of the cast bar" },
+		{ type = "Color", var = "castBarFailColor", label = "Cast Bar Fail Color", tip = "The fail color of the cast bar" },
+		{ type = "Color", var = "castBarSparkColor", label = "Cast Bar Spark Color", tip = "The spark color of the cast bar" },
+		
 		{ type = "Header", label = "Others" },
 		
 		{ type = "Check", var = "barsCondenseValues", label = "Show Condensed Bar Values", tip = "You can enable this option to condense values shown on the bars. It does this by showing 57254 as 57.3k as an example" },

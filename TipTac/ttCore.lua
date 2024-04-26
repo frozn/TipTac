@@ -163,6 +163,14 @@ local TT_DefaultConfig = {
 	manaBarColor = { 0.3, 0.55, 0.9, 1 },
 	powerBar = false,
 	powerBarText = "value",
+	castBar = false,
+	castBarCastingColor = { YELLOW_THREAT_COLOR:GetRGBA() }, -- light yellow
+	castBarChannelingColor = { 0.32, 0.3, 1, 1},
+	castBarChargingColor = { ORANGE_THREAT_COLOR:GetRGBA() }, -- light orange
+	castBarCompleteColor = { 0.12, 0.86, 0.15, 1},
+	castBarFailColor = { 1, 0.09, 0, 1},
+	castBarSparkColor = {1, 1, 1, 0.75},
+	castBarAlwaysShow = false,
 	barsCondenseValues = true,
 	barFontFace = "",          -- set during event ADDON_LOADED
 	barFontFlags = "",         -- set during event ADDON_LOADED
@@ -973,7 +981,7 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- eventName                           description                                                 additional payload
 -- ----------------------------------  ----------------------------------------------------------  ------------------------------------------------------------
 -- OnConfigLoaded                      config has been loaded                                      TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyConfig                       config settings needs to be applied                         TT_CacheForFrames, cfg, TT_ExtendedConfig
+-- OnApplyConfig                       config settings need to be applied                          TT_CacheForFrames, cfg, TT_ExtendedConfig
 -- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied  TT_CacheForFrames, cfg, TT_ExtendedConfig
 --
 -- OnTipAddedToCache                   tooltip has been added to cache for frames                  TT_CacheForFrames, tooltip

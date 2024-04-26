@@ -98,7 +98,7 @@ function ttIcons:OnTipPostStyle(TT_CacheForFrames, tip, first)
 	self.icon:SetShown(self:SetIcon(self.icon, unitRecord));
 end
 
-function ttIcons:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
+function ttIcons:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
 	if (self.icon) and (tip == GameTooltip) then
 		self.icon:Hide();
 	end

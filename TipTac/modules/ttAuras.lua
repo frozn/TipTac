@@ -25,7 +25,7 @@ local cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
--- valid units to filter the auras in DisplayAuras() with the "cfg.selfAurasOnly" setting on
+-- valid units to filter the auras in DisplayTipsAuras() with the "cfg.selfAurasOnly" setting on
 local validSelfCasterUnits = {
 	player = true,
 	pet = true,
@@ -44,15 +44,28 @@ function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
--- config settings needs to be applied
+-- config settings need to be applied
 function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
-	-- set size of auras. hide auras if showing buffs/debuffs are disabled.
-	if (cfg.showBuffs) or (cfg.showDebuffs) then
-		for aura, _ in self.aurasPool:EnumerateActive() do
-			aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	-- set size of auras
+	for aura, _ in self.aurasPool:EnumerateActive() do
+		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	end
+	
+	for _, aura in self.aurasPool:EnumerateInactive() do
+		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	end
+	
+	-- setup active tip's auras
+	local tipsProcessed = {};
+	
+	for aura, _ in self.aurasPool:EnumerateActive() do
+		local tip = aura:GetParent();
+		
+		if (not tipsProcessed[tip]) then
+			self:SetupTipsAuras(tip);
+			
+			tipsProcessed[tip] = true;
 		end
-	else
-		self.aurasPool:ReleaseAll();
 	end
 end
 
@@ -60,48 +73,55 @@ end
 --
 -- hint: auras has to be updated last because it depends on the tip's new dimension
 function ttAuras:OnTipPostStyle(TT_CacheForFrames, tip, first)
+	-- setup tip's auras
+	self:SetupTipsAuras(tip);
+end
+
+-- tooltip's current display parameters has to be reset
+function ttAuras:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
+	-- hide tip's auras
+	self:HideTipsAuras(tip);
+end
+
+----------------------------------------------------------------------------------------------------
+--                                          Setup Module                                          --
+----------------------------------------------------------------------------------------------------
+
+-- setup tip's auras
+function ttAuras:SetupTipsAuras(tip)
 	-- hide tip's auras
 	self:HideTipsAuras(tip);
 	
-	-- check if showing buffs/debuffs are disabled
-	if (not cfg.showBuffs) and (not cfg.showDebuffs) then
+	-- get frame parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
 		return;
 	end
 	
-	-- setup auras
-	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
+	-- no unit record
+	local unitRecord = frameParams.currentDisplayParams.unitRecord;
 	
-	self:SetupAuras(tip, unitRecord);
-end
-
--- after tooltip's current display parameters has to be reset
-function ttAuras:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
-	-- hide tip's auras
-	self:HideTipsAuras(tip);
-end
-
-----------------------------------------------------------------------------------------------------
---                                         Main Functions                                         --
-----------------------------------------------------------------------------------------------------
-
--- setup auras
-function ttAuras:SetupAuras(tip, unitRecord)
-	-- display buffs and debuffs
+	if (not unitRecord) then
+		return;
+	end
+	
+	-- display tip's buffs and debuffs
 	local currentAuraCount = 0;
 	local auraCount, lastAura;
 	
 	if (cfg.showBuffs) then
-		auraCount, lastAura = self:DisplayAuras(tip, unitRecord, "HELPFUL", currentAuraCount + 1);
+		auraCount, lastAura = self:DisplayTipsAuras(tip, unitRecord, "HELPFUL", currentAuraCount + 1);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 	if (cfg.showDebuffs) then
-		auraCount, lastAura = self:DisplayAuras(tip, unitRecord, "HARMFUL", currentAuraCount + 1);
+		auraCount, lastAura = self:DisplayTipsAuras(tip, unitRecord, "HARMFUL", currentAuraCount + 1);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 end
 
--- display buffs and debuffs
-function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex, lastAura)
+-- display tip's buffs and debuffs
+function ttAuras:DisplayTipsAuras(tip, unitRecord, auraType, startingAuraFrameIndex, lastAura)
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
 	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2)); -- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = (auraType == "HELPFUL" and 1 or -1);             -- is +1 or -1 based on horz anchoring
@@ -187,15 +207,6 @@ function ttAuras:DisplayAuras(tip, unitRecord, auraType, startingAuraFrameIndex,
 end
 
 -- create aura frame
-
--- config settings needs to be applied
-local function auraOnApplyConfig(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
-	-- set size of auras
-	self:SetSize(cfg.auraSize, cfg.auraSize);
-	self.count:SetFont(GameFontNormal:GetFont(), cfg.auraSize / 2, "OUTLINE");
-	self.cooldown.noCooldownCount = cfg.noCooldownCount;
-end
-
 ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura)
 	aura.count = aura:CreateFontString(nil, "OVERLAY");
 	aura.count:SetPoint("BOTTOMRIGHT", 1, 0);
@@ -215,7 +226,14 @@ ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura
 	aura.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
 	aura.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625);
 	
-	aura.OnApplyConfig = auraOnApplyConfig;
+	-- config settings need to be applied
+	function aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- set size of auras
+		self:SetSize(cfg.auraSize, cfg.auraSize);
+		self.count:SetFont(GameFontNormal:GetFont(), cfg.auraSize / 2, "OUTLINE");
+		self.cooldown.noCooldownCount = cfg.noCooldownCount;
+	end
+	
 	aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 end);
 
