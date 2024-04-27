@@ -394,6 +394,9 @@ local options = {
 		
 		{ type = "DropDown", var = "barTexture", label = "Bar Texture", media = "statusbar", y = 10 },
 		{ type = "Slider", var = "barHeight", label = "Bar Height", min = 1, max = 50, step = 1 },
+		
+		{ type = "Check", var = "barEnableTipMinimumWidth", label = "Enable Minimum Width for Tooltip If Showing Bars", tip = "Check this to enable a minimum width for the tooltip if showing bars, so that numbers are not cut off.", y = 10 },
+		{ type = "Slider", var = "barTipMinimumWidth", label = "Minimum Width for Tooltip", min = 10, max = 500, step = 10 },
 	},
 	-- Auras
 	{

@@ -30,7 +30,6 @@ local TT_GTT_BARS_MARGIN_X = 7 + LibFroznFunctions.hasWoWFlavor.barMarginAdjustm
 local TT_GTT_BARS_MARGIN_Y = 8 + LibFroznFunctions.hasWoWFlavor.barMarginAdjustment;
 local TT_GTT_BARS_SPACING = 7;
 local TT_GTT_BARS_TEXT_OFFSET_X = 8;
-local TT_GTT_BARS_MINIMUM_WIDTH_FOR = 110; -- minimum width for bars, so that numbers are not out of bounds.
 local TT_GTT_BARS_FADING_TIME = 0.5; -- fading time for bars in seconds
 
 -- colors
@@ -132,14 +131,18 @@ end
 -- tooltip is being resized
 function ttBars:OnTipResize(TT_CacheForFrames, tip, first)
 	-- set minimum width for bars, so that numbers are not out of bounds.
+	if (not cfg.barEnableTipMinimumWidth) then
+		return;
+	end
+	
 	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
 	local breakFor = false;
 	
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
 			if (bar:GetParent() == tip) then
-				if (tip:GetWidth() < TT_GTT_BARS_MINIMUM_WIDTH_FOR) then
-					tip:SetMinimumWidth(TT_GTT_BARS_MINIMUM_WIDTH_FOR);
+				if (tip:GetWidth() < cfg.barTipMinimumWidth) then
+					tip:SetMinimumWidth(cfg.barTipMinimumWidth);
 				end
 				
 				breakFor = true;

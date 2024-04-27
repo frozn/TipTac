@@ -176,6 +176,8 @@ local TT_DefaultConfig = {
 	barFontSize = 0,           -- set during event ADDON_LOADED
 	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
 	barHeight = 6,
+	barEnableTipMinimumWidth = true,
+	barTipMinimumWidth = 110,
 	
 	showBuffs = true,
 	showDebuffs = true,
