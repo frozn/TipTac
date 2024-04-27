@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 20; -- bump on changes
+local LIB_MINOR = 21; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -59,6 +59,7 @@ end
 -- @return .ClassicEra = true/false for Classic Era
 --         .BCC        = true/false for BCC
 --         .WotLKC     = true/false for WotLKC
+--         .CataC      = true/false for CataC
 --         .SL         = true/false for SL
 --         .DF         = true/false for DF
 LibFroznFunctions.isWoWFlavor = {
@@ -106,7 +107,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .realGetSpellLinkAvailable                                  = true/false if the real GetSpellLink() is available (since bc 2.3.0). in classic era this function only returns the spell name instead of a spell link.
 --         .relatedExpansionForItemAvailable                           = true/false if GetItemInfo() return the related expansion for an item (parameter expacID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
---         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 "UISliderTemplateWithLabels")
+--         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 and catac 4.4.0 "UISliderTemplateWithLabels")
 --         .dragonriding                                               = true/false if dragonriding is available (since df)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
@@ -156,6 +157,7 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)
 	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
 	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
+	LibFroznFunctions.isWoWFlavor.CataC      and 359 or -- Stormrider's Robes (Druid, Tier 11)
 	LibFroznFunctions.isWoWFlavor.DF         and 395;   -- Lost Landcaller's Robes (Druid, Tier 23)
 
 -- get addon metadata
