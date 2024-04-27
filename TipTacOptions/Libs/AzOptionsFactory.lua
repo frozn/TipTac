@@ -35,7 +35,7 @@
 	- switched using LibFroznFunctions.isWoWFlavor.* to LibFroznFunctions.hasWoWFlavor.*
 	24.02.14 Rev 23 10.2.5/Dragonflight #frozn45
 	- improved positioning and size of all elements
-	24.xx.xx Rev 24 10.2.6/Dragonflight #frozn45
+	24.04.27 Rev 24 10.2.6/Dragonflight #frozn45
 	- don't change value of slider on mouse wheel
 --]]
 
