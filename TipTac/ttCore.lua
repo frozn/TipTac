@@ -1540,13 +1540,13 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 				end);
 				
 				tip:HookScript("OnTooltipCleared", function(tip)
-					if (tip:IsShown()) and (tip:GetObjectType() == "GameTooltip") and (tip.shouldRefreshData) then
+					if (not tip:IsForbidden()) and (tip:IsShown()) and (tip:GetObjectType() == "GameTooltip") and (tip.shouldRefreshData) then
 						return;
 					end
 					
 					tt:ResetCurrentDisplayParams(tip);
 					
-					if (tip:IsShown()) then
+					if (not tip:IsForbidden()) and (tip:IsShown()) then
 						tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.unknownOnCleared);
 					end
 				end);
@@ -1684,7 +1684,7 @@ end
 
 -- hide tip
 function tt:HideTip(tip)
-	if (tip:IsShown()) then
+	if (not tip:IsForbidden()) and (tip:IsShown()) then
 		tip:Hide();
 		TT_CacheForFrames[tip].currentDisplayParams.ignoreSetCurrentDisplayParamsOnTimestamp = GetTime();
 	end
@@ -1692,6 +1692,11 @@ end
 
 -- set scale to tip
 function tt:SetScaleToTip(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -1852,6 +1857,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 local isSettingBackdropToTip = false;
 
 function tt:SetBackdropToTip(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting backdrop to tip
 	if (isSettingBackdropToTip) then
 		return;
@@ -1979,6 +1989,11 @@ end
 local isSettingPaddingToTip = false;
  
 function tt:SetPaddingToTip(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting padding to tip
 	if (isSettingPaddingToTip) then
 		return;
@@ -2240,6 +2255,11 @@ end
 local isSettingBackdropLocked = false;
 
 function tt:SetBackdropLocked(tip, backdropInfo)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting backdrop color locked
 	if (isSettingBackdropLocked) then
 		return;
@@ -2266,6 +2286,11 @@ end
 local isSettingBackdropColorLocked = false;
 
 function tt:SetBackdropColorLocked(tip, r, g, b, a)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting backdrop color locked
 	if (isSettingBackdropColorLocked) then
 		return;
@@ -2295,6 +2320,11 @@ end
 local isSettingBackdropBorderColorLocked = false;
 
 function tt:SetBackdropBorderColorLocked(tip, r, g, b, a)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting backdrop border color locked
 	if (isSettingBackdropBorderColorLocked) then
 		return;
@@ -2324,6 +2354,11 @@ end
 local isSettingCenterColorLocked = false;
 
 function tt:SetCenterColorLocked(tip, r, g, b, a)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting center color locked
 	if (isSettingCenterColorLocked) then
 		return;
@@ -2353,6 +2388,11 @@ end
 local isSettingBorderColorLocked = false;
 
 function tt:SetBorderColorLocked(tip, r, g, b, a)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- check if we're already setting border color locked
 	if (isSettingBorderColorLocked) then
 		return;
@@ -2389,6 +2429,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 
 -- set anchor to tip
 function tt:SetAnchorToTip(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -2445,13 +2490,13 @@ function tt:SetAnchorToTip(tip)
 		
 		local parentFrame = currentDisplayParams.defaultAnchoredParentFrame;
 		
-		if (parentFrame ~= UIParent) then
+		if (parentFrame) and (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
 			local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
 			
 			tip:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), UIParent, anchorPoint, offsetX, offsetY);
 		else
-			-- fallback to "normal" anchor in case parent frame is UIParent
+			-- fallback to "normal" anchor in case parent frame isn't available or is UIParent
 			local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
 			
 			tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
@@ -2464,6 +2509,11 @@ end
 
 -- anchor tip to mouse position
 function tt:AnchorTipToMouse(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- get frame parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -2555,10 +2605,11 @@ function tt:GetAnchorPosition(tip)
 	-- check for GameTooltip anchor overrides
 	if (tip == GameTooltip) then
 		-- override GameTooltip anchor for (Guild & Community) ChatFrame
-		if (cfg.enableAnchorOverrideCF) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
+		if (not tip:IsForbidden()) and (cfg.enableAnchorOverrideCF) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
 					"ChatFrame(%d+)",
 					(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
 				}, 1)) then
+			
 			return anchorFrameName, cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
 		end
 	end
@@ -2603,7 +2654,7 @@ function tt:ResetCurrentDisplayParamsForAnchoring(tip, resetOnlyDefaultAnchor)
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
 	-- reset current display params for anchoring
-	if (not tip:IsShown()) then
+	if (tip:IsForbidden()) or (not tip:IsShown()) then
 		currentDisplayParams.defaultAnchored = false;
 		currentDisplayParams.defaultAnchoredParentFrame = nil;
 	end

@@ -318,6 +318,12 @@ end
 
 -- Set Texture and Text
 local function ttSetIconTextureAndText(self, texture, stackCount)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (self:IsForbidden()) then
+		return;
+	end
+	
+	-- Set Texture and Text
 	if (texture) then
 		self.ttIcon:SetTexture(texture ~= "" and texture or "Interface\\Icons\\INV_Misc_QuestionMark");
 		local outputStackCount = ttifGetOutputStackCount(stackCount);
@@ -452,6 +458,11 @@ end
 -- 3   = tooltip modification reapplied (triggered)
 function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkType, id, rank)
 	local tooltip = self;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tooltip:IsForbidden()) then
+		return;
+	end
 	
 	-- functions
 	local resetVarsFn = function(tooltip)
@@ -2618,6 +2629,12 @@ end
 
 -- spell
 function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (self:IsForbidden()) then
+		return;
+	end
+	
+	-- spell
 	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
