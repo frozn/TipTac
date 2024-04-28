@@ -24,11 +24,11 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **TipTac Reborn (please complete the following information):**
- - Version [e.g. 22.11.20, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
+ - Version [e.g. 24.04.27, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
 
 **WoW (please complete the following information):**
  - Flavor: [e.g. Retail, WotLKC, Classic Era]
- - Version [e.g. 10.0.2, 3.4.0, 1.14.3, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
+ - Version [e.g. 10.2.6, 3.4.3, 1.15.2, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
 
 **Additional context**
 Add any other context about the problem here.
