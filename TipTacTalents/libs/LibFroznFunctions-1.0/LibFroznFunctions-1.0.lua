@@ -3048,7 +3048,7 @@ function LibFroznFunctions:GetTalents(unitID)
 						if (treeCurrencyInfo) then
 							for _, treeCurrencyInfoItem in ipairs(treeCurrencyInfo) do
 								if (treeCurrencyInfoItem.spent) then
-									pointsSpent[#pointsSpent + 1] = treeCurrencyInfoItem.spent;
+									tinsert(pointsSpent, treeCurrencyInfoItem.spent);
 								end
 							end
 						end
@@ -3075,7 +3075,7 @@ function LibFroznFunctions:GetTalents(unitID)
 		
 		for tabIndex = 1, numTalentTabs do
 			local _talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
-			pointsSpent[#pointsSpent + 1] = _pointsSpent;
+			tinsert(pointsSpent, _pointsSpent);
 			
 			if (not maxPointsSpent) or (_pointsSpent > maxPointsSpent) then
 				maxPointsSpent = _pointsSpent;

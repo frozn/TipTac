@@ -58,24 +58,24 @@ local ttOptionsGeneral = {
 };
 
 if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
-	ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMythicPlusDungeonScore", label = "Show Mythic+ Dungeon Score", tip = "This will show the mythic+ dungeon score of the player." };
+	tinsert(ttOptionsGeneral, { type = "Check", var = "showMythicPlusDungeonScore", label = "Show Mythic+ Dungeon Score", tip = "This will show the mythic+ dungeon score of the player." });
 end
 
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player.", y = 10 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountCollected", label = "Collected", tip = "This option makes the tip show an icon indicating if you already have collected the mount.", x = 122 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", x = 210 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountText", label = "Text", tip = "This option makes the tip show the mount text.", x = 122 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", x = 210 };
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player.", y = 10 });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountCollected", label = "Collected", tip = "This option makes the tip show an icon indicating if you already have collected the mount.", x = 122 });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", x = 210 });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountText", label = "Text", tip = "This option makes the tip show the mount text.", x = 122 });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", x = 210 });
 
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "nameType", label = "Name & Title", list = { ["Name only"] = "normal", ["Name + title"] = "title", ["Copy from original tip"] = "original", ["Mary Sue Protocol"] = "marysueprot" }, y = 10 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show realm in new line"] = "showInNewLine", ["Show (*) instead"] = "asterisk" } };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["|cffffa0a0Do not show target"] = "none", ["After name"] = "afterName", ["Below name/realm"] = "belowNameRealm", ["Last line"] = "last" } };
+tinsert(ttOptionsGeneral, { type = "DropDown", var = "nameType", label = "Name & Title", list = { ["Name only"] = "normal", ["Name + title"] = "title", ["Copy from original tip"] = "original", ["Mary Sue Protocol"] = "marysueprot" }, y = 10 });
+tinsert(ttOptionsGeneral, { type = "DropDown", var = "showRealm", label = "Show Unit Realm", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show realm in new line"] = "showInNewLine", ["Show (*) instead"] = "asterisk" } });
+tinsert(ttOptionsGeneral, { type = "DropDown", var = "showTarget", label = "Show Unit Target", list = { ["|cffffa0a0Do not show target"] = "none", ["After name"] = "afterName", ["Below name/realm"] = "belowNameRealm", ["Last line"] = "last" } });
 
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 10 };
+tinsert(ttOptionsGeneral, { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 10 });
 
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuild", label = "Show Player Guild", tip = "This will show the guild of the player.", y = 10 };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level" };
-ttOptionsGeneral[#ttOptionsGeneral + 1] = { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" } };
+tinsert(ttOptionsGeneral, { type = "Check", var = "showGuild", label = "Show Player Guild", tip = "This will show the guild of the player.", y = 10 });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level" });
+tinsert(ttOptionsGeneral, { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" } });
 
 -- Special
 local ttOptionsSpecial = {
@@ -91,7 +91,7 @@ local ttOptionsSpecial = {
 };
 
 if (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) then
-	ttOptionsSpecial[#ttOptionsSpecial + 1] = { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text", tip = "Strips the Specialization & Class text from the tooltip" };
+	tinsert(ttOptionsSpecial, { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text", tip = "Strips the Specialization & Class text from the tooltip" });
 end
 
 -- Colors
@@ -130,7 +130,7 @@ for i = 1, numClasses do
 	if (classFile) then
 		local camelCasedClassFile = LibFroznFunctions:CamelCaseText(classFile);
 		
-		ttOptionsColors[#ttOptionsColors + 1] = { type = "Color", var = "colorCustomClass" .. camelCasedClassFile, label = camelCasedClassFile .. " Color", y = (firstClass and 10 or nil) };
+		tinsert(ttOptionsColors, { type = "Color", var = "colorCustomClass" .. camelCasedClassFile, label = camelCasedClassFile .. " Color", y = (firstClass and 10 or nil) });
 		
 		firstClass = false;
 	end
@@ -172,30 +172,30 @@ local ttOptionsAnchors = {
 };
 
 if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding" };
+	tinsert(ttOptionsAnchors, { type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding" }=;
 
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideWorldUnitDuringDragonriding", label = "World Unit during dragonriding", tip = "This option will override the anchor for World Unit during dragonriding" };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldUnitTypeDuringDragonriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldUnitPointDuringDragonriding", label = "World Unit Point", list = DROPDOWN_ANCHORPOS };
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldUnitDuringDragonriding", label = "World Unit during dragonriding", tip = "This option will override the anchor for World Unit during dragonriding" });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitTypeDuringDragonriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitPointDuringDragonriding", label = "World Unit Point", list = DROPDOWN_ANCHORPOS });
 	
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideWorldTipDuringDragonriding", label = "World Tip during dragonriding", tip = "This option will override the anchor for World Tip during dragonriding", y = 10 };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldTipTypeDuringDragonriding", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorWorldTipPointDuringDragonriding", label = "World Tip Point", list = DROPDOWN_ANCHORPOS };
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldTipDuringDragonriding", label = "World Tip during dragonriding", tip = "This option will override the anchor for World Tip during dragonriding", y = 10 });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldTipTypeDuringDragonriding", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldTipPointDuringDragonriding", label = "World Tip Point", list = DROPDOWN_ANCHORPOS });
 	
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideFrameUnitDuringDragonriding", label = "Frame Unit during dragonriding", tip = "This option will override the anchor for Frame Unit during dragonriding", y = 10 };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameUnitTypeDuringDragonriding", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameUnitPointDuringDragonriding", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS };
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideFrameUnitDuringDragonriding", label = "Frame Unit during dragonriding", tip = "This option will override the anchor for Frame Unit during dragonriding", y = 10 });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameUnitTypeDuringDragonriding", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameUnitPointDuringDragonriding", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS });
 	
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideFrameTipDuringDragonriding", label = "Frame Tip during dragonriding", tip = "This option will override the anchor for Frame Tip during dragonriding", y = 10 };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameTipTypeDuringDragonriding", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE };
-	ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorFrameTipPointDuringDragonriding", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS };
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideFrameTipDuringDragonriding", label = "Frame Tip during dragonriding", tip = "This option will override the anchor for Frame Tip during dragonriding", y = 10 });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameTipTypeDuringDragonriding", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameTipPointDuringDragonriding", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS });
 end
 
-ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Header", label = "Other Anchor Overrides", tip = "Other special anchor overrides" };
+tinsert(ttOptionsAnchors, { type = "Header", label = "Other Anchor Overrides", tip = "Other special anchor overrides" });
 
-ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "Check", var = "enableAnchorOverrideCF", label = "(Guild & Community) ChatFrame", tip = "This option will override the anchor for (Guild & Community) ChatFrame" };
-ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorOverrideCFType", label = "Tip Type", list = DROPDOWN_ANCHORTYPE };
-ttOptionsAnchors[#ttOptionsAnchors + 1] = { type = "DropDown", var = "anchorOverrideCFPoint", label = "Tip Point", list = DROPDOWN_ANCHORPOS };
+tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideCF", label = "(Guild & Community) ChatFrame", tip = "This option will override the anchor for (Guild & Community) ChatFrame" });
+tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorOverrideCFType", label = "Tip Type", list = DROPDOWN_ANCHORTYPE });
+tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorOverrideCFPoint", label = "Tip Point", list = DROPDOWN_ANCHORPOS });
 
 -- Combat
 local ttOptionsCombat = {
@@ -225,23 +225,23 @@ local ttOptionsCombat = {
 };
 
 if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Header", label = "Hide Tips During Dragonriding" };
+	tinsert(ttOptionsCombat, { type = "Header", label = "Hide Tips During Dragonriding" });
 	
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during dragonriding." };
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during dragonriding.", x = 160 };
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during dragonriding." };
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during dragonriding.", x = 160 };
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during dragonriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during dragonriding.", x = 160 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during dragonriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during dragonriding.", x = 160 });
 	
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during dragonriding.", y = 10 };
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during dragonriding.", x = 160 };
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during dragonriding." };
-	ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Check", var = "hideTipsDuringDragonridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during dragonriding." };
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during dragonriding.", y = 10 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during dragonriding.", x = 160 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during dragonriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during dragonriding." });
 end
 
-ttOptionsCombat[#ttOptionsCombat + 1] = { type = "Header", label = "Others" };
+tinsert(ttOptionsCombat, { type = "Header", label = "Others" });
 
-ttOptionsCombat[#ttOptionsCombat + 1] = { type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" } };
-ttOptionsCombat[#ttOptionsCombat + 1] = { type = "TextOnly", label = "", y = -12 }; -- spacer for multi-line label above
+tinsert(ttOptionsCombat, { type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" } });
+tinsert(ttOptionsCombat, { type = "TextOnly", label = "", y = -12 }); -- spacer for multi-line label above
 
 -- build options
 local options = {
@@ -465,41 +465,41 @@ if (TipTacTalents) then
 	};
 	
 	if (LibFroznFunctions.hasWoWFlavor.roleIconAvailable) then
-		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" };
+		tinsert(tttOptions, { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" });
 	end
 	if (LibFroznFunctions.hasWoWFlavor.talentIconAvailable) then
-		tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showTalentIcon", label = "Show Talent Icon", tip = "This option makes the tip show the talent icon" };
+		tinsert(tttOptions, { type = "Check", var = "t_showTalentIcon", label = "Show Talent Icon", tip = "This option makes the tip show the talent icon" });
 	end
 	
 	option = { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 10 };
 	if (not LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit) then
 		option.tip = option.tip .. ".\nNOTE: Inspecting other players' talents isn't available in Classic Era. Only own talents (available at level 10) will be shown.";
 	end
-	tttOptions[#tttOptions + 1] = option;
+	tinsert(tttOptions, option);
 	
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorTalentTextByClass", label = "Color Talent Text by Class Color", tip = "With this option on, talent text is colored by their class color" };
+	tinsert(tttOptions, { type = "Check", var = "t_colorTalentTextByClass", label = "Color Talent Text by Class Color", tip = "With this option on, talent text is colored by their class color" });
 	
 	if (LibFroznFunctions.hasWoWFlavor.numTalentTrees > 0) then
 		if (LibFroznFunctions.hasWoWFlavor.numTalentTrees == 2) then
-			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (31/30)"] = 1, ["Elemental"] = 2, ["31/30"] = 3,} }; -- not supported with MoP changes
+			tinsert(tttOptions, { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (31/30)"] = 1, ["Elemental"] = 2, ["31/30"] = 3,} }); -- not supported with MoP changes
 		else
-			tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (57/14/0)"] = 1, ["Elemental"] = 2, ["57/14/0"] = 3,} }; -- not supported with MoP changes
+			tinsert(tttOptions, { type = "DropDown", var = "t_talentFormat", label = "Talent Text Format", list = { ["Elemental (57/14/0)"] = 1, ["Elemental"] = 2, ["57/14/0"] = 3,} }); -- not supported with MoP changes
 		end
 	end
 	
-	tttOptions[#tttOptions + 1] = { type = "Header", label = "Average Item Level" };
+	tinsert(tttOptions, { type = "Header", label = "Average Item Level" });
 	
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players" };
+	tinsert(tttOptions, { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players" });
 	
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show TipTac's GearScore of other players", y = 10 };
-	tttOptions[#tttOptions + 1] = { type = "DropDown", var = "t_gearScoreAlgorithm", label = "GearScore Algorithm", list = { ["TacoTip"] = { value = 1, tip = "The de-facto standard algorithm from addon TacoTip" }, ["TipTac"] = { value = 2, tip = "TipTac's own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." },}, tip = "Switch between different GearScore implementations" };
+	tinsert(tttOptions, { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show TipTac's GearScore of other players", y = 10 });
+	tinsert(tttOptions, { type = "DropDown", var = "t_gearScoreAlgorithm", label = "GearScore Algorithm", list = { ["TacoTip"] = { value = 1, tip = "The de-facto standard algorithm from addon TacoTip" }, ["TipTac"] = { value = 2, tip = "TipTac's own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." },}, tip = "Switch between different GearScore implementations" });
 	
-	tttOptions[#tttOptions + 1] = { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the quality", y = 10 };
+	tinsert(tttOptions, { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the quality", y = 10 });
 	
-	options[#options + 1] = {
+	tinsert(options, {
 		[0] = "Talents/AIL",
 		unpack(tttOptions)
-	};
+	});
 end
 
 -- TipTacItemRef Support -- Az: this category page is full -- Frozn45: added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
@@ -517,87 +517,87 @@ if (TipTacItemRef) then
 	};
 	
 	if (LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable) then
-		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionIcon", label = "Show Expansion Icon", tip = "For item tooltips, show their expansion icon" };
-		ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name", x = 160 };
+		tinsert(ttifOptions, { type = "Check", var = "if_showExpansionIcon", label = "Show Expansion Icon", tip = "For item tooltips, show their expansion icon" });
+		tinsert(ttifOptions, { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name", x = 160 });
 	end
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showKeystoneRewardLevel", label = "Show Keystone (Weekly) Reward Level", tip = "For keystone tooltips, show their rewardLevel and weeklyRewardLevel", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showKeystoneTimeLimit", label = "Show Keystone Time Limit", tip = "For keystone tooltips, show the instance timeLimit" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showKeystoneAffixInfo", label = "Show Keystone Affix Infos", tip = "For keystone tooltips, show the affix infos" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_modifyKeystoneTips", label = "Modify Keystone Tooltips", tip = "Changes the keystone tooltips to show a bit more information\nWarning: Might conflict with other keystone addons" };
+	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneRewardLevel", label = "Show Keystone (Weekly) Reward Level", tip = "For keystone tooltips, show their rewardLevel and weeklyRewardLevel", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneTimeLimit", label = "Show Keystone Time Limit", tip = "For keystone tooltips, show the instance timeLimit" });
+	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneAffixInfo", label = "Show Keystone Affix Infos", tip = "For keystone tooltips, show the affix infos" });
+	tinsert(ttifOptions, { type = "Check", var = "if_modifyKeystoneTips", label = "Modify Keystone Tooltips", tip = "Changes the keystone tooltips to show a bit more information\nWarning: Might conflict with other keystone addons" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_spellColoredBorder", label = "Show Spell Tips with Colored Border", tip = "When enabled and the tip is showing a spell, the tip border will have the standard spell color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showSpellIdAndRank", label = "Show Spell ID & Rank", tip = "For spell tooltips, show their spellID and spellRank" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_auraSpellColoredBorder", label = "Show Aura Tips with Colored Border", tip = "When enabled and the tip is showing a buff or debuff, the tip border will have the standard spell color" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showAuraSpellIdAndRank", label = "Show Aura Spell ID & Rank", tip = "For buff and debuff tooltips, show their spellID and spellRank" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_spellColoredBorder", label = "Show Spell Tips with Colored Border", tip = "When enabled and the tip is showing a spell, the tip border will have the standard spell color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showSpellIdAndRank", label = "Show Spell ID & Rank", tip = "For spell tooltips, show their spellID and spellRank" });
+	tinsert(ttifOptions, { type = "Check", var = "if_auraSpellColoredBorder", label = "Show Aura Tips with Colored Border", tip = "When enabled and the tip is showing a buff or debuff, the tip border will have the standard spell color" });
+	tinsert(ttifOptions, { type = "Check", var = "if_showAuraSpellIdAndRank", label = "Show Aura Spell ID & Rank", tip = "For buff and debuff tooltips, show their spellID and spellRank" });
+	tinsert(ttifOptions, { type = "Check", var = "if_showMawPowerId", label = "Show Maw Power ID", tip = "For spell and aura tooltips, show their mawPowerID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_colorAuraCasterByReaction", label = "Color Aura Tooltip Caster by Reaction", tip = "Aura tooltip caster color will have the same color as the reaction\nNOTE: This option is overridden by class colored aura tooltip caster for players" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_colorAuraCasterByClass", label = "Color Aura Tooltip Caster for Player by Class Color", tip = "With this option on, color aura tooltip caster for players are colored by their class color\nNOTE: This option overrides reaction colored aura tooltip caster for players" };
+	tinsert(ttifOptions, { type = "Check", var = "if_showAuraCaster", label = "Show Aura Tooltip Caster", tip = "When showing buff and debuff tooltips, it will add an extra line, showing who cast the specific aura", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_colorAuraCasterByReaction", label = "Color Aura Tooltip Caster by Reaction", tip = "Aura tooltip caster color will have the same color as the reaction\nNOTE: This option is overridden by class colored aura tooltip caster for players" });
+	tinsert(ttifOptions, { type = "Check", var = "if_colorAuraCasterByClass", label = "Color Aura Tooltip Caster for Player by Class Color", tip = "With this option on, color aura tooltip caster for players are colored by their class color\nNOTE: This option overrides reaction colored aura tooltip caster for players" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showNpcId", label = "Show NPC ID", tip = "For npc or battle pet tooltips, show their npcID", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For item, spell and aura tooltips, show their mountID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_showNpcId", label = "Show NPC ID", tip = "For npc or battle pet tooltips, show their npcID", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For item, spell and aura tooltips, show their mountID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showQuestId", label = "Show Quest ID", tip = "For quest tooltips, show their questID (Combines with questLevel)", x = 160 };
+	tinsert(ttifOptions, { type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)" });
+	tinsert(ttifOptions, { type = "Check", var = "if_showQuestId", label = "Show Quest ID", tip = "For quest tooltips, show their questID (Combines with questLevel)", x = 160 });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_currencyQualityBorder", label = "Show Currency Tips with Quality Colored Border", tip = "When enabled and the tip is showing a currency, the tip border will have the color of the currency's quality", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showCurrencyId", label = "Show Currency ID", tip = "Currency items will now show their ID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_currencyQualityBorder", label = "Show Currency Tips with Quality Colored Border", tip = "When enabled and the tip is showing a currency, the tip border will have the color of the currency's quality", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showCurrencyId", label = "Show Currency ID", tip = "Currency items will now show their ID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_achievmentColoredBorder", label = "Show Achievement Tips with Colored Border", tip = "When enabled and the tip is showing an achievement, the tip border will have the the standard achievement color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showAchievementIdAndCategoryId", label = "Show Achievement ID & Category", tip = "On achievement tooltips, the achievement ID as well as the category will be shown" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_modifyAchievementTips", label = "Modify Achievement Tooltips", tip = "Changes the achievement tooltips to show a bit more information\nWarning: Might conflict with other achievement addons" };
+	tinsert(ttifOptions, { type = "Check", var = "if_achievmentColoredBorder", label = "Show Achievement Tips with Colored Border", tip = "When enabled and the tip is showing an achievement, the tip border will have the the standard achievement color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showAchievementIdAndCategoryId", label = "Show Achievement ID & Category", tip = "On achievement tooltips, the achievement ID as well as the category will be shown" });
+	tinsert(ttifOptions, { type = "Check", var = "if_modifyAchievementTips", label = "Modify Achievement Tooltips", tip = "Changes the achievement tooltips to show a bit more information\nWarning: Might conflict with other achievement addons" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_battlePetQualityBorder", label = "Show Battle Pet Tips with Quality Colored Border", tip = "When enabled and the tip is showing a battle pet, the tip border will have the color of the battle pet's quality", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showBattlePetLevel", label = "Show Battle Pet Level", tip = "For battle bet tooltips, show their petLevel (Combines with npcID)" };
+	tinsert(ttifOptions, { type = "Check", var = "if_battlePetQualityBorder", label = "Show Battle Pet Tips with Quality Colored Border", tip = "When enabled and the tip is showing a battle pet, the tip border will have the color of the battle pet's quality", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showBattlePetLevel", label = "Show Battle Pet Level", tip = "For battle bet tooltips, show their petLevel (Combines with npcID)" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_battlePetAbilityColoredBorder", label = "Show Battle Pet Ability Tips with Colored Border", tip = "When enabled and the tip is showing a battle pet ability, the tip border will have the the standard battle pet ability color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showBattlePetAbilityId", label = "Show Battle Pet Ability ID", tip = "For battle bet ability tooltips, show their abilityID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_battlePetAbilityColoredBorder", label = "Show Battle Pet Ability Tips with Colored Border", tip = "When enabled and the tip is showing a battle pet ability, the tip border will have the the standard battle pet ability color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showBattlePetAbilityId", label = "Show Battle Pet Ability ID", tip = "For battle bet ability tooltips, show their abilityID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_transmogAppearanceItemQualityBorder", label = "Show Transmog Appearance Item Tips with Quality Colored Border", tip = "When enabled and the tip is showing an transmog appearance item, the tip border will have the color of the transmog appearance item's quality", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showTransmogAppearanceItemId", label = "Show Transmog Appearance Item ID", tip = "For transmog appearance item tooltips, show their itemID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_transmogAppearanceItemQualityBorder", label = "Show Transmog Appearance Item Tips with Quality Colored Border", tip = "When enabled and the tip is showing an transmog appearance item, the tip border will have the color of the transmog appearance item's quality", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showTransmogAppearanceItemId", label = "Show Transmog Appearance Item ID", tip = "For transmog appearance item tooltips, show their itemID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_transmogIllusionColoredBorder", label = "Show Transmog Illusion Tips with Colored Border", tip = "When enabled and the tip is showing a transmog illusion, the tip border will have the the standard transmog illusion color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showTransmogIllusionId", label = "Show Transmog Illusion ID", tip = "For transmog illusion tooltips, show their illusionID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_transmogIllusionColoredBorder", label = "Show Transmog Illusion Tips with Colored Border", tip = "When enabled and the tip is showing a transmog illusion, the tip border will have the the standard transmog illusion color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showTransmogIllusionId", label = "Show Transmog Illusion ID", tip = "For transmog illusion tooltips, show their illusionID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_transmogSetQualityBorder", label = "Show Transmog Set Tips with Quality Colored Border", tip = "When enabled and the tip is showing an transmog set, the tip border will have the color of the transmog set's quality", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showTransmogSetId", label = "Show Transmog Set ID", tip = "For transmog set tooltips, show their setID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_transmogSetQualityBorder", label = "Show Transmog Set Tips with Quality Colored Border", tip = "When enabled and the tip is showing an transmog set, the tip border will have the color of the transmog set's quality", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showTransmogSetId", label = "Show Transmog Set ID", tip = "For transmog set tooltips, show their setID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_conduitQualityBorder", label = "Show Conduit Tips with Quality Colored Border", tip = "When enabled and the tip is showing a conduit, the tip border will have the color of the conduit's quality", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showConduitItemLevel", label = "Show Conduit Item Level", tip = "For conduit tooltips, show their itemLevel (Combines with conduitID)" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showConduitId", label = "Show Conduit ID", tip = "For conduit tooltips, show their conduitID (Combines with conduit itemLevel)", x = 160 };
+	tinsert(ttifOptions, { type = "Check", var = "if_conduitQualityBorder", label = "Show Conduit Tips with Quality Colored Border", tip = "When enabled and the tip is showing a conduit, the tip border will have the color of the conduit's quality", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showConduitItemLevel", label = "Show Conduit Item Level", tip = "For conduit tooltips, show their itemLevel (Combines with conduitID)" });
+	tinsert(ttifOptions, { type = "Check", var = "if_showConduitId", label = "Show Conduit ID", tip = "For conduit tooltips, show their conduitID (Combines with conduit itemLevel)", x = 160 });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_azeriteEssenceQualityBorder", label = "Show Azerite Essence Tips with Quality Colored Border", tip = "When enabled and the tip is showing an azerite essence, the tip border will have the color of the azerite essence's quality", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showAzeriteEssenceId", label = "Show Azerite Essence ID", tip = "For azerite essence tooltips, show their essenceID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_azeriteEssenceQualityBorder", label = "Show Azerite Essence Tips with Quality Colored Border", tip = "When enabled and the tip is showing an azerite essence, the tip border will have the color of the azerite essence's quality", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showAzeriteEssenceId", label = "Show Azerite Essence ID", tip = "For azerite essence tooltips, show their essenceID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_runeforgePowerColoredBorder", label = "Show Runeforge Power Tips with Colored Border", tip = "When enabled and the tip is showing a runeforge power, the tip border will have the the standard runeforge power color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showRuneforgePowerId", label = "Show Runeforge Power ID", tip = "For runeforge power tooltips, show their runeforgePowerID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_runeforgePowerColoredBorder", label = "Show Runeforge Power Tips with Colored Border", tip = "When enabled and the tip is showing a runeforge power, the tip border will have the the standard runeforge power color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showRuneforgePowerId", label = "Show Runeforge Power ID", tip = "For runeforge power tooltips, show their runeforgePowerID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_flyoutColoredBorder", label = "Show Flyout Tips with Colored Border", tip = "When enabled and the tip is showing a flyout, the tip border will have the the standard spell color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showFlyoutId", label = "Show Flyout ID", tip = "For flyout tooltips, show their flyoutID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_flyoutColoredBorder", label = "Show Flyout Tips with Colored Border", tip = "When enabled and the tip is showing a flyout, the tip border will have the the standard spell color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showFlyoutId", label = "Show Flyout ID", tip = "For flyout tooltips, show their flyoutID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_petActionColoredBorder", label = "Show Pet Action Tips with Colored Border", tip = "When enabled and the tip is showing a pet action, the tip border will have the the standard spell color", y = 10 };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showPetActionId", label = "Show Pet Action ID", tip = "For flyout tooltips, show their petActionID" };
+	tinsert(ttifOptions, { type = "Check", var = "if_petActionColoredBorder", label = "Show Pet Action Tips with Colored Border", tip = "When enabled and the tip is showing a pet action, the tip border will have the the standard spell color", y = 10 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showPetActionId", label = "Show Pet Action ID", tip = "For flyout tooltips, show their petActionID" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Header", label = "Icon", tip = "Settings about tooltip icon" };
+	tinsert(ttifOptions, { type = "Header", label = "Icon", tip = "Settings about tooltip icon" });
 	
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" };
-	ttifOptions[#ttifOptions + 1] = { type = "DropDown", var = "if_stackCountToTooltip", label = "Show Stack Count in\nTooltip", list = { ["|cffffa0a0Do not show"] = "none", ["Always"] = "always", ["Only if icon is not shown"] = "noicon" } };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_showIconId", label = "Show Icon ID", tip = "For tooltips with icon, show their iconID" };
-	ttifOptions[#ttifOptions + 1] = { type = "Check", var = "if_borderlessIcons", label = "Borderless Icons", tip = "Turn off the border on icons" };
-	ttifOptions[#ttifOptions + 1] = { type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 };
-	ttifOptions[#ttifOptions + 1] = { type = "DropDown", var = "if_iconAnchor", label = "Icon Anchor", tip = "The anchor of the icon", list = DROPDOWN_ANCHORPOS };
-	ttifOptions[#ttifOptions + 1] = { type = "DropDown", var = "if_iconTooltipAnchor", label = "Icon Tooltip Anchor", tip = "The anchor of the tooltip that the icon should anchor to.", list = DROPDOWN_ANCHORPOS };
-	ttifOptions[#ttifOptions + 1] = { type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5 };
-	ttifOptions[#ttifOptions + 1] = { type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5 };
+	tinsert(ttifOptions, { type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown" });
+	tinsert(ttifOptions, { type = "Check", var = "if_smartIcons", label = "Smart Icon Appearance", tip = "When enabled, TipTacItemRef will determine if an icon is needed, based on where the tip is shown. It will not be shown on actionbars or bag slots for example, as they already show an icon" });
+	tinsert(ttifOptions, { type = "DropDown", var = "if_stackCountToTooltip", label = "Show Stack Count in\nTooltip", list = { ["|cffffa0a0Do not show"] = "none", ["Always"] = "always", ["Only if icon is not shown"] = "noicon" } });
+	tinsert(ttifOptions, { type = "Check", var = "if_showIconId", label = "Show Icon ID", tip = "For tooltips with icon, show their iconID" });
+	tinsert(ttifOptions, { type = "Check", var = "if_borderlessIcons", label = "Borderless Icons", tip = "Turn off the border on icons" });
+	tinsert(ttifOptions, { type = "Slider", var = "if_iconSize", label = "Icon Size", min = 16, max = 128, step = 1 });
+	tinsert(ttifOptions, { type = "DropDown", var = "if_iconAnchor", label = "Icon Anchor", tip = "The anchor of the icon", list = DROPDOWN_ANCHORPOS });
+	tinsert(ttifOptions, { type = "DropDown", var = "if_iconTooltipAnchor", label = "Icon Tooltip Anchor", tip = "The anchor of the tooltip that the icon should anchor to.", list = DROPDOWN_ANCHORPOS });
+	tinsert(ttifOptions, { type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5 });
+	tinsert(ttifOptions, { type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5 });
 	
-	options[#options + 1] = {
+	tinsert(options, {
 		[0] = "ItemRef",
 		unpack(ttifOptions)
-	};
+	});
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -606,7 +606,7 @@ end
 
 local f = CreateFrame("Frame",MOD_NAME,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
-UISpecialFrames[#UISpecialFrames + 1] = f:GetName();
+tinsert(UISpecialFrames, f:GetName());
 
 f.options = options;
 
@@ -831,7 +831,7 @@ local function CreateCategoryButtonEntry(parent)
 	b:GetHighlightTexture():SetAlpha(0.7);
 	b.text = b:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	b.text:SetPoint("LEFT",3,0);
-	listButtons[#listButtons + 1] = b;
+	tinsert(listButtons, b);
 	return b;
 end
 

@@ -1867,7 +1867,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 			local tipHooked = false;
 			
 			if (addToTipsToModify) then
-				tipsToModify[#tipsToModify + 1] = tip;
+				tinsert(tipsToModify, tip);
 			end
 			
 			if (tip:GetObjectType() == "GameTooltip") then
@@ -2913,13 +2913,13 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 			local leftText = left:GetText();
 			local rightText = right:GetText();
 			if (leftText and leftText ~= " ") then
-				criteriaList[#criteriaList + 1] = { label = leftText, done = left:GetTextColor() < 0.5 };
+				tinsert(criteriaList, { label = leftText, done = left:GetTextColor() < 0.5 });
 				if (criteriaList[#criteriaList].done) then
 					criteriaComplete = (criteriaComplete + 1);
 				end
 			end
 			if (rightText and rightText ~= " ") then
-				criteriaList[#criteriaList + 1] = { label = rightText, done = right:GetTextColor() < 0.5 };
+				tinsert(criteriaList, { label = rightText, done = right:GetTextColor() < 0.5 });
 				if (criteriaList[#criteriaList].done) then
 					criteriaComplete = (criteriaComplete + 1);
 				end
