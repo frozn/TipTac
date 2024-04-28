@@ -2566,10 +2566,9 @@ function tt:AnchorTipToMouse(tip)
 	-- anchor tip to mouse position
 	if (anchorType == "mouse") then
 		local x, y = GetCursorPosition();
-		local effScale = tip:GetEffectiveScale();
 		
 		tip:ClearAllPoints();
-		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + TT_MouseOffsetX), (y / effScale + TT_MouseOffsetY));
+		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", self:GetNearestPixelSize(x) + TT_MouseOffsetX, self:GetNearestPixelSize(y) + TT_MouseOffsetY);
 	end
 	
 	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
