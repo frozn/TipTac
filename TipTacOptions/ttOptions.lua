@@ -172,7 +172,7 @@ local ttOptionsAnchors = {
 };
 
 if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
-	tinsert(ttOptionsAnchors, { type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding" }=;
+	tinsert(ttOptionsAnchors, { type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding" });
 
 	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldUnitDuringDragonriding", label = "World Unit during dragonriding", tip = "This option will override the anchor for World Unit during dragonriding" });
 	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitTypeDuringDragonriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE });
