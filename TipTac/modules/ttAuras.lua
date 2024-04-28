@@ -92,15 +92,17 @@ function ttAuras:SetupTipsAuras(tip)
 	-- hide tip's auras
 	self:HideTipsAuras(tip);
 	
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- no unit record
-	local unitRecord = frameParams.currentDisplayParams.unitRecord;
+	local unitRecord = currentDisplayParams.unitRecord;
 	
 	if (not unitRecord) then
 		return;

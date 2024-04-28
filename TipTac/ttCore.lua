@@ -152,6 +152,7 @@ local TT_DefaultConfig = {
 	fadeTime = 0.1,
 	hideWorldTips = true,
 	
+	-- bars
 	healthBar = true,
 	healthBarText = "value",
 	healthBarColor = { 0.3, 0.9, 0.3, 1 },
@@ -163,13 +164,13 @@ local TT_DefaultConfig = {
 	powerBar = false,
 	powerBarText = "value",
 	castBar = false,
+	castBarAlwaysShow = false,
 	castBarCastingColor = { YELLOW_THREAT_COLOR:GetRGBA() }, -- light yellow
 	castBarChannelingColor = { 0.32, 0.3, 1, 1},
 	castBarChargingColor = { ORANGE_THREAT_COLOR:GetRGBA() }, -- light orange
 	castBarCompleteColor = { 0.12, 0.86, 0.15, 1},
 	castBarFailColor = { 1, 0.09, 0, 1},
 	castBarSparkColor = {1, 1, 1, 0.75},
-	castBarAlwaysShow = false,
 	barsCondenseValues = true,
 	barFontFace = "",          -- set during event ADDON_LOADED
 	barFontFlags = "",         -- set during event ADDON_LOADED
@@ -177,8 +178,9 @@ local TT_DefaultConfig = {
 	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
 	barHeight = 6,
 	barEnableTipMinimumWidth = true,
-	barTipMinimumWidth = 110,
+	barTipMinimumWidth = 160,
 	
+	-- auras
 	showBuffs = true,
 	showDebuffs = true,
 	selfAurasOnly = false,
@@ -777,6 +779,7 @@ local TT_TipsToModifyFromOtherMods = {};
 -- lockedBackdropColor                       locked backdrop color, nil otherwise.
 -- lockedBackdropBorderColor                 locked backdrop border color, nil otherwise.
 --
+-- extraPaddingRightForMinimumWidth          value for extra padding right for minimum width, nil otherwise.
 -- extraPaddingRightForCloseButton           value for extra padding right to fit close button, nil otherwise.
 -- extraPaddingBottomForBars                 value for extra padding bottom to fit health/power bars, nil otherwise.
 --
@@ -1656,24 +1659,24 @@ end
 
 -- reset tip's current display parameters
 function tt:ResetCurrentDisplayParams(tip, noFireGroupEvent)
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
-	-- current display parameters are already resetted
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
+	-- current display parameters are already resetted
 	if (not currentDisplayParams.isSet) and (not currentDisplayParams.isSetTemporarily) then
 		return;
 	end
 	
 	-- inform group that the tip's current display parameters has to be reset
 	if (not noFireGroupEvent) then
-		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipResetCurrentDisplayParams", TT_CacheForFrames, tip, frameParams.currentDisplayParams);
-		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostResetCurrentDisplayParams", TT_CacheForFrames, tip, frameParams.currentDisplayParams);
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipResetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams);
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostResetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams);
 	end
 	
 	currentDisplayParams.isSet = false;
@@ -2008,12 +2011,14 @@ function tt:SetPaddingToTip(tip)
 		return;
 	end
 	
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
 	
 	-- set padding to tip
 	local oldPaddingRight, oldPaddingBottom, oldPaddingLeft, oldPaddingTop = tip:GetPadding();
@@ -2042,8 +2047,8 @@ function tt:SetPaddingToTip(tip)
 	
 	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = newPaddingRight + TT_ExtendedConfig.tipPaddingForGameTooltip.right, newPaddingBottom + TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, newPaddingLeft + TT_ExtendedConfig.tipPaddingForGameTooltip.left, newPaddingTop + TT_ExtendedConfig.tipPaddingForGameTooltip.top;
 	
-	newPaddingRight = newPaddingRight + (frameParams.currentDisplayParams.extraPaddingRightForCloseButton or 0);
-	newPaddingBottom = newPaddingBottom + (frameParams.currentDisplayParams.extraPaddingBottomForBars or 0);
+	newPaddingRight = newPaddingRight + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0) + (currentDisplayParams.extraPaddingRightForCloseButton or 0);
+	newPaddingBottom = newPaddingBottom + (currentDisplayParams.extraPaddingBottomForBars or 0);
 	
 	if (math.abs(newPaddingRight - oldPaddingRight) <= 0.5) and (math.abs(newPaddingBottom - oldPaddingBottom) <= 0.5) and (math.abs(newPaddingLeft - oldPaddingLeft) <= 0.5) and (math.abs(newPaddingTop - oldPaddingTop) <= 0.5) then
 		isSettingPaddingToTip = false;
@@ -2106,6 +2111,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		end
 		
 		-- reset current display parameters for padding
+		currentDisplayParams.extraPaddingRightForMinimumWidth = nil;
 		currentDisplayParams.extraPaddingRightForCloseButton = nil;
 		currentDisplayParams.extraPaddingBottomForBars = nil;
 	end,
@@ -2516,23 +2522,23 @@ function tt:AnchorTipToMouse(tip)
 		return;
 	end
 	
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
-
-	local tipParams = frameParams.config;
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
 	
 	-- set anchor to tip not possible
+	local tipParams = frameParams.config;
+	
 	if (not cfg.enableAnchor) or (not tipParams.applyAnchor) then
 		return;
 	end
 	
 	-- tip not default anchored
-	local currentDisplayParams = frameParams.currentDisplayParams;
-	
 	if (not currentDisplayParams.defaultAnchored) then
 		return;
 	end
@@ -2629,16 +2635,18 @@ end
 
 -- HOOK: GameTooltip_SetDefaultAnchor() after set default anchor to tip
 function tt:SetDefaultAnchorHook(tip, parent)
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- set current display params for anchoring
-	frameParams.currentDisplayParams.defaultAnchored = true;
-	frameParams.currentDisplayParams.defaultAnchoredParentFrame = parent;
+	currentDisplayParams.defaultAnchored = true;
+	currentDisplayParams.defaultAnchoredParentFrame = parent;
 	
 	-- set anchor to tip
 	tt:SetAnchorToTip(tip);
@@ -2759,12 +2767,14 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 
 -- set unit record from tip
 function tt:SetUnitRecordFromTip(tip)
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
 	
 	-- set unit record from tip
 	local _, unitID = LibFroznFunctions:GetUnitFromTooltip(tip);
@@ -2785,7 +2795,7 @@ function tt:SetUnitRecordFromTip(tip)
 	
 	-- sometimes when you move your mouse quickly over units in the worldframe, we can get here without a unit id.
 	if (not unitID) then
-		frameParams.currentDisplayParams.unitRecord = nil;
+		currentDisplayParams.unitRecord = nil;
 		return;
 	end
 	
@@ -2833,20 +2843,22 @@ function tt:SetUnitRecordFromTip(tip)
 		end
 	end
 	
-	frameParams.currentDisplayParams.unitRecord = unitRecord;
+	currentDisplayParams.unitRecord = unitRecord;
 end
 
 -- set unit appearance to tip
 function tt:SetUnitAppearanceToTip(tip, first)
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- no unit record
-	local unitRecord = frameParams.currentDisplayParams.unitRecord;
+	local unitRecord = currentDisplayParams.unitRecord;
 	
 	if (not unitRecord) then
 		return;
@@ -2894,22 +2906,23 @@ end
 
 -- update unit appearance to tip
 function tt:UpdateUnitAppearanceToTip(tip, force)
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- no unit appearance
-	local timestampStartUnitAppearance = frameParams.currentDisplayParams.timestampStartUnitAppearance;
+	local timestampStartUnitAppearance = currentDisplayParams.timestampStartUnitAppearance;
 	
 	if (not timestampStartUnitAppearance) then
 		return;
 	end
 	
 	-- no unit record
-	local currentDisplayParams = frameParams.currentDisplayParams;
 	local unitRecord = currentDisplayParams.unitRecord;
 	
 	if (not unitRecord) then
@@ -3023,15 +3036,17 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					return;
 				end
 				
-				-- get frame parameters
+				-- get current display parameters
 				local frameParams = TT_CacheForFrames[tip];
 				
 				if (not frameParams) then
 					return;
 				end
 				
+				local currentDisplayParams = frameParams.currentDisplayParams;
+				
 				-- no unit record
-				local unitRecord = frameParams.currentDisplayParams.unitRecord;
+				local unitRecord = currentDisplayParams.unitRecord;
 				
 				if (not unitRecord) then
 					return;
@@ -3045,19 +3060,21 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 				
 				-- enable custom unit fadeout
 				tip:Show(); -- cancels default unit fadeout
-				frameParams.currentDisplayParams.timestampStartCustomUnitFadeout = GetTime();
+				currentDisplayParams.timestampStartCustomUnitFadeout = GetTime();
 			end);
 			
 			tip:HookScript("OnUpdate", function(tip)
-				-- get frame parameters
+				-- get current display parameters
 				local frameParams = TT_CacheForFrames[tip];
 				
 				if (not frameParams) then
 					return;
 				end
 				
+				local currentDisplayParams = frameParams.currentDisplayParams;
+				
 				-- no custom unit fadeout
-				local timestampStartCustomUnitFadeout = frameParams.currentDisplayParams.timestampStartCustomUnitFadeout;
+				local timestampStartCustomUnitFadeout = currentDisplayParams.timestampStartCustomUnitFadeout;
 				
 				if (not timestampStartCustomUnitFadeout) then
 					-- no override of default unit fadeout
@@ -3066,7 +3083,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					end
 					
 					-- consider if FadeOut() for worldframe unit tips will not be called
-					local unitRecord = frameParams.currentDisplayParams.unitRecord;
+					local unitRecord = currentDisplayParams.unitRecord;
 					
 					if (LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips) and
 							(unitRecord) and (not UnitExists(unitRecord.id)) then
@@ -3166,15 +3183,17 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- HOOK: tip's FadeOut() to hide world tips instantly
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
 			hooksecurefunc(tip, "FadeOut", function(tip)
-				-- get frame parameters
+				-- get current display parameters
 				local frameParams = TT_CacheForFrames[tip];
 				
 				if (not frameParams) then
 					return;
 				end
 				
+				local currentDisplayParams = frameParams.currentDisplayParams;
+				
 				-- unit record exists
-				local unitRecord = frameParams.currentDisplayParams.unitRecord;
+				local unitRecord = currentDisplayParams.unitRecord;
 				
 				if (unitRecord) then
 					return;

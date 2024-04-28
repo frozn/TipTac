@@ -130,19 +130,29 @@ end
 
 -- tooltip is being resized
 function ttBars:OnTipResize(TT_CacheForFrames, tip, first)
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- set minimum width for bars, so that numbers are not out of bounds.
 	if (not cfg.barEnableTipMinimumWidth) then
 		return;
 	end
 	
-	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
 	local breakFor = false;
 	
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
 			if (bar:GetParent() == tip) then
-				if (tip:GetWidth() < cfg.barTipMinimumWidth) then
-					tip:SetMinimumWidth(cfg.barTipMinimumWidth);
+				local tipWidth = tip:GetWidth() - (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
+				
+				if (tipWidth < cfg.barTipMinimumWidth) then
+					currentDisplayParams.extraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - tipWidth;
 				end
 				
 				breakFor = true;
@@ -174,22 +184,24 @@ function ttBars:SetupTipsBars(tip)
 	-- hide tip's bars
 	self:HideTipsBars(tip);
 	
-	-- get frame parameters
+	-- get frame and current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- no unit record
-	local unitRecord = frameParams.currentDisplayParams.unitRecord;
+	local unitRecord = currentDisplayParams.unitRecord;
 	
 	if (not unitRecord) then
 		return;
 	end
 	
 	-- display tip's bars (in opposite vertical direction)
-	frameParams.currentDisplayParams.extraPaddingBottomForBars = 0;
+	currentDisplayParams.extraPaddingBottomForBars = 0;
 	
 	local offsetY = TT_GTT_BARS_MARGIN_Y;
 	
@@ -273,15 +285,17 @@ end
 local function barUpdateValueFunc(bar)
 	local tip = bar:GetParent();
 	
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- no unit record
-	local unitRecord = frameParams.currentDisplayParams.unitRecord;
+	local unitRecord = currentDisplayParams.unitRecord;
 	
 	if (not unitRecord) then
 		return;
@@ -561,15 +575,17 @@ function ttBars:RegisterUnitEvents(tip)
 		return;
 	end
 	
-	-- get frame parameters
+	-- get current display parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- no unit record
-	local unitRecord = frameParams.currentDisplayParams.unitRecord;
+	local unitRecord = currentDisplayParams.unitRecord;
 	
 	if (not unitRecord) then
 		return;
