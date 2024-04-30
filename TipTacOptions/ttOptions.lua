@@ -457,12 +457,16 @@ if (TipTacTalents) then
 	local tttOptions = {
 		{ type = "Check", var = "t_enable", label = "Enable TipTacTalents", tip = "Turns on or off all features of the TipTacTalents addon" },
 		
-		{ type = "Header", label = "Talents" },
-		
-		{ type = "Check", var = "t_showTalents", label = "Show Talents", tip = "This option makes the tip show the talent specialization of other players" },
-		
-		{ type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown", y = 10 }
+		{ type = "Header", label = "Talents" }
 	};
+	
+	option = { type = "Check", var = "t_showTalents", label = "Show Talents", tip = "This option makes the tip show the talent specialization of other players" };
+	if (not LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit) then
+		option.tip = option.tip .. ".\nNOTE: Inspecting other players' talents isn't available in Classic Era. Only own talents (available at level 10) will be shown.";
+	end
+	tinsert(tttOptions, option);
+	
+	tinsert(tttOptions, { type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown", y = 10 });
 	
 	if (LibFroznFunctions.hasWoWFlavor.roleIconAvailable) then
 		tinsert(tttOptions, { type = "Check", var = "t_showRoleIcon", label = "Show Role Icon", tip = "This option makes the tip show the role icon (tank, damager, healer)" });
@@ -471,12 +475,7 @@ if (TipTacTalents) then
 		tinsert(tttOptions, { type = "Check", var = "t_showTalentIcon", label = "Show Talent Icon", tip = "This option makes the tip show the talent icon" });
 	end
 	
-	option = { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 10 };
-	if (not LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit) then
-		option.tip = option.tip .. ".\nNOTE: Inspecting other players' talents isn't available in Classic Era. Only own talents (available at level 10) will be shown.";
-	end
-	tinsert(tttOptions, option);
-	
+	tinsert(tttOptions, { type = "Check", var = "t_showTalentText", label = "Show Talent Text", tip = "This option makes the tip show the talent text", y = 10 });
 	tinsert(tttOptions, { type = "Check", var = "t_colorTalentTextByClass", label = "Color Talent Text by Class Color", tip = "With this option on, talent text is colored by their class color" });
 	
 	if (LibFroznFunctions.hasWoWFlavor.numTalentTrees > 0) then
