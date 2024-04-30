@@ -1266,10 +1266,10 @@ function tt:SetTipBackdropConfig()
 		TT_ExtendedConfig.tipBackdrop.edgeFile = currentConfig.tipBackdropEdge;
 	end
 	
-	local edgeSize = ((currentConfig.pixelPerfectBackdrop and self:GetNearestPixelSize(currentConfig.backdropEdgeSize, true)) or currentConfig.backdropEdgeSize);
+	local edgeSize = self:GetNearestPixelSize(currentConfig.backdropEdgeSize, currentConfig.pixelPerfectBackdrop);
 	TT_ExtendedConfig.tipBackdrop.edgeSize = edgeSize;
 	
-	local insets = ((currentConfig.pixelPerfectBackdrop and self:GetNearestPixelSize(currentConfig.backdropInsets, true)) or currentConfig.backdropInsets);
+	local insets = self:GetNearestPixelSize(currentConfig.backdropInsets, currentConfig.pixelPerfectBackdrop);
 	TT_ExtendedConfig.tipBackdrop.insets.left = insets;
 	TT_ExtendedConfig.tipBackdrop.insets.right = insets;
 	TT_ExtendedConfig.tipBackdrop.insets.top = insets;
@@ -2089,7 +2089,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	end,
 	OnTipSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- reapply padding to tip
-		if (tipContent == TT_TIP_CONTENT.unknownOnShow) then
+		if (LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unit, TT_TIP_CONTENT.unknownOnShow })) then
 			-- set padding to tip
 			tt:SetPaddingToTip(tip);
 		end
