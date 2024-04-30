@@ -149,10 +149,14 @@ function ttBars:OnTipResize(TT_CacheForFrames, tip, first)
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
 			if (bar:GetParent() == tip) then
-				local tipWidth = tip:GetWidth() - (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
+				local tipCenterWidth = tip.NineSlice.Center:GetWidth() - (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
 				
-				if (tipWidth < cfg.barTipMinimumWidth) then
-					currentDisplayParams.extraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - tipWidth;
+				if (tipCenterWidth < cfg.barTipMinimumWidth) then
+					local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - tipCenterWidth;
+					
+					if (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs(newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) > 0.5) then
+						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
+					end
 				end
 				
 				breakFor = true;
