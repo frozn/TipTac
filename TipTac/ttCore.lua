@@ -2324,16 +2324,26 @@ function tt:SetBackdropLocked(tip, backdropInfo)
 	
 	isSettingBackdropLocked = false;
 	
-	-- set backdrop locked
+	-- set locked backdrop info
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (frameParams) then
 		frameParams.currentDisplayParams.lockedBackdropInfo = backdropInfo;
 	end
 	
+	-- create new backdrop info with nearest pixel size for insets and edgeSize
+	local newBackDropInfo = CopyTable(backdropInfo);
+	
+	newBackDropInfo.edgeSize = self:GetNearestPixelSize(tip, newBackDropInfo.edgeSize, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
+	
+	newBackDropInfo.insets.left = self:GetNearestPixelSize(tip, newBackDropInfo.insets.left, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
+	newBackDropInfo.insets.right = self:GetNearestPixelSize(tip, newBackDropInfo.insets.right, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
+	newBackDropInfo.insets.top = self:GetNearestPixelSize(tip, newBackDropInfo.insets.top, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
+	newBackDropInfo.insets.bottom = self:GetNearestPixelSize(tip, newBackDropInfo.insets.bottom, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
+	
 	-- set backdrop locked
 	isSettingBackdropLocked = true;
-	tip:SetBackdrop(backdropInfo);
+	tip:SetBackdrop(newBackDropInfo);
 	isSettingBackdropLocked = false;
 end
 
