@@ -1,13 +1,13 @@
-## Interface: 30403
+## Interface: 40400
 ## Version: 24.04.27
-## IconTexture: Interface\AddOns\TipTacTalents\media\tiptac_logo
-## Title: TipTacTalents
+## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
+## Title: TipTacItemRef
 ## Author: Aezay (Earthen Ring EU), Frozn45
-## Notes: Adds Talent Spec and Average Item Level to Player Tooltips
+## Notes: Improved ItemRefTooltip
 ## OptionalDeps: TipTac
 ## X-Category: Tooltip
 ## X-Website: https://www.curseforge.com/wow/addons/tiptac-reborn
 ## X-Curse-Project-ID: 695153
 embeds.xml
 
-ttTalents.lua
+ttItemRef.lua
