@@ -66,6 +66,7 @@ LibFroznFunctions.isWoWFlavor = {
 	ClassicEra = false,
 	BCC = false,
 	WotLKC = false,
+	CataC = false,
 	SL = false,
 	DF = false
 };
@@ -76,6 +77,8 @@ elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.BCC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.WotLKC = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
+	LibFroznFunctions.isWoWFlavor.CataC = true;
 else -- retail
 	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
 		LibFroznFunctions.isWoWFlavor.SL = true;
