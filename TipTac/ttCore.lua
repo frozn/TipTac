@@ -1004,6 +1004,8 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset        TT_CacheForFrames, tooltip, currentDisplayParams
 -- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset  TT_CacheForFrames, tooltip, currentDisplayParams
 --
+-- OnTipRescaled                       tooltip has been rescaled                                   TT_CacheForFrames, tooltip, currentDisplayParams
+--
 -- SetDefaultAnchorHook                hook for set default anchor to tip                          tooltip, parent
 -- SetBackdropBorderColorLocked        set backdrop border color locked to tip                     tooltip, r, g, b, a
 
@@ -1139,13 +1141,25 @@ end);
 ----------------------------------------------------------------------------------------------------
 
 -- get nearest pixel size (e.g. to avoid 1-pixel borders which are sometimes 0/2-pixels wide)
-local TT_PhysicalScreenWidth, TT_PhysicalScreenHeight, TT_UIUnitFactor, TT_UIScale, TT_MouseOffsetX, TT_MouseOffsetY;
+--
+-- description:
+-- - instead of pixels, lengths measure in scaled units equal to 1/768 of the screen height multiplied by a ratio.
+-- - the ratio for frames can be determined with frame:GetEffectiveScale().
+-- - the effective scale is the scale of the frame multiplied by all individual parent frame scales. if scale propagation on a frame in this chain has been disabled by calling SetIgnoreParentScale(true), the chain ends there.
+--
+-- - calculation to determine the pixel perfect size needed for given pixels:                                              PixelUtil.GetNearestPixelSize(pixels * TT_UIUnitFactor, 1) / frame:GetEffectiveScale()
+-- - calculation to determine the pixel perfect size needed for given pixels shrinking/expanding with frame's scale:       PixelUtil.GetNearestPixelSize(pixels * TT_UIUnitFactor, frame:GetEffectiveScale())
+-- - calculation to determine the pixel perfect size needed for given scaled units:                                        PixelUtil.GetNearestPixelSize(scaledUnits, 1) / frame:GetEffectiveScale()
+-- - calculation to determine the pixel perfect size needed for given scaled units shrinking/expanding with frame's scale: PixelUtil.GetNearestPixelSize(scaledUnits, frame:GetEffectiveScale())
+local TT_PhysicalScreenWidth, TT_PhysicalScreenHeight, TT_UIUnitFactor, TT_UIScale;
 
-function tt:GetNearestPixelSize(size, pixelPerfect)
-	local currentConfig = (TT_IsConfigLoaded and cfg or TT_DefaultConfig);
+function tt:GetNearestPixelSize(tip, size, pixelPerfect, ignoreScale)
+	local tipEffectiveScale = tip:GetEffectiveScale();
 	local realSize = ((pixelPerfect and (size * TT_UIUnitFactor)) or size);
+	local targetScale = (ignoreScale and 1 or tipEffectiveScale);
+	local frameScale = (ignoreScale and tip:GetEffectiveScale() or 1);
 	
-	return PixelUtil.GetNearestPixelSize(realSize, 1) / TT_UIScale / currentConfig.gttScale;
+	return PixelUtil.GetNearestPixelSize(realSize, targetScale) / frameScale;
 end
 
 -- update pixel perfect scale
@@ -1155,7 +1169,6 @@ function tt:UpdatePixelPerfectScale()
 	TT_PhysicalScreenWidth, TT_PhysicalScreenHeight = GetPhysicalScreenSize();
 	TT_UIUnitFactor = 768.0 / TT_PhysicalScreenHeight;
 	TT_UIScale = UIParent:GetEffectiveScale();
-	TT_MouseOffsetX, TT_MouseOffsetY = self:GetNearestPixelSize(currentConfig.mouseOffsetX), self:GetNearestPixelSize(currentConfig.mouseOffsetY);
 end
 
 tt:UpdatePixelPerfectScale();
@@ -1266,14 +1279,12 @@ function tt:SetTipBackdropConfig()
 		TT_ExtendedConfig.tipBackdrop.edgeFile = currentConfig.tipBackdropEdge;
 	end
 	
-	local edgeSize = self:GetNearestPixelSize(currentConfig.backdropEdgeSize, currentConfig.pixelPerfectBackdrop);
-	TT_ExtendedConfig.tipBackdrop.edgeSize = edgeSize;
+	TT_ExtendedConfig.tipBackdrop.edgeSize = currentConfig.backdropEdgeSize;
 	
-	local insets = self:GetNearestPixelSize(currentConfig.backdropInsets, currentConfig.pixelPerfectBackdrop);
-	TT_ExtendedConfig.tipBackdrop.insets.left = insets;
-	TT_ExtendedConfig.tipBackdrop.insets.right = insets;
-	TT_ExtendedConfig.tipBackdrop.insets.top = insets;
-	TT_ExtendedConfig.tipBackdrop.insets.bottom = insets;
+	TT_ExtendedConfig.tipBackdrop.insets.left = currentConfig.backdropInsets;
+	TT_ExtendedConfig.tipBackdrop.insets.right = currentConfig.backdropInsets;
+	TT_ExtendedConfig.tipBackdrop.insets.top = currentConfig.backdropInsets;
+	TT_ExtendedConfig.tipBackdrop.insets.bottom = currentConfig.backdropInsets;
 	
 	TT_ExtendedConfig.backdropColor:SetRGBA(unpack(currentConfig.tipColor));
 	TT_ExtendedConfig.backdropBorderColor:SetRGBA(unpack(currentConfig.tipBorderColor));
@@ -1396,7 +1407,7 @@ function tt:SetAppearanceToTip(tip)
 	end
 	
 	-- set scale, gradient and backdrop to tip
-	self:SetScaleToTip(tip);
+	self:SetScaleToTip(tip, true);
 	self:SetGradientToTip(tip);
 	self:SetBackdropToTip(tip);
 end
@@ -1696,19 +1707,20 @@ function tt:HideTip(tip)
 end
 
 -- set scale to tip
-function tt:SetScaleToTip(tip)
+function tt:SetScaleToTip(tip, noFireGroupEvent)
 	-- check if insecure interaction with the tip is currently forbidden
 	if (tip:IsForbidden()) then
 		return;
 	end
 	
-	-- get tip parameters
+	-- get current display and tip parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
 	if (not frameParams) then
 		return;
 	end
 	
+	local currentDisplayParams = frameParams.currentDisplayParams;
 	local tipParams = frameParams.config;
 	
 	-- set scale to tip not possible
@@ -1753,8 +1765,26 @@ function tt:SetScaleToTip(tip)
 		end
 	end
 	
+	-- don't set scale to tip if change results in less than 0.5 pixels difference
+	local tipWidth = tip:GetWidth() * tipEffectiveScale;
+	local tipHeight = tip:GetHeight() * tipEffectiveScale;
+	
+	newTipEffectiveScale = tipEffectiveScale * newTipScale / tipScale;
+	
+	tipWidthWithNewScaling = tip:GetWidth() * newTipEffectiveScale;
+	tipHeightWithNewScaling = tip:GetHeight() * newTipEffectiveScale;
+	
+	if (tipWidthWithNewScaling > 0) and (math.abs(tipWidthWithNewScaling - tipWidth) <= 0.5) and (tipHeightWithNewScaling > 0) and (math.abs(tipHeightWithNewScaling - tipHeight) <= 0.5) then
+		return;
+	end
+	
 	-- set scale to tip
 	tip:SetScale(newTipScale);
+	
+	-- inform group that the tip has been rescaled
+	if (not noFireGroupEvent) then
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipRescaled", TT_CacheForFrames, tip, currentDisplayParams);
+	end
 end
 
 -- set gradient to tip
@@ -1803,8 +1833,8 @@ function tt:SetGradientToTip(tip)
 		gradientForFrame:SetVertexColor(unpack(cfg.gradientColor));
 	end
 	
-	gradientForFrame:SetPoint("TOPLEFT", TT_ExtendedConfig.tipBackdrop.insets.left, -TT_ExtendedConfig.tipBackdrop.insets.top);
-	gradientForFrame:SetPoint("BOTTOMRIGHT", tip, "TOPRIGHT", -TT_ExtendedConfig.tipBackdrop.insets.right, -cfg.gradientHeight);
+	gradientForFrame:SetPoint("TOPLEFT", self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipBackdrop.insets.left, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), -self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipBackdrop.insets.top, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop));
+	gradientForFrame:SetPoint("BOTTOMRIGHT", tip, "TOPRIGHT", -self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipBackdrop.insets.right, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), -cfg.gradientHeight);
 	
 	gradientForFrame:Show();
 end
@@ -1849,6 +1879,19 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- reapply scale to tip
 		tt:SetScaleToTip(tip);
+	end,
+	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- reapply gradient to tip
+		tt:SetGradientToTip(tip);
+		
+		-- reapply backdrop to tip
+		tt:SetBackdropToTip(tip);
+		
+		-- reapply padding to tip
+		tt:SetPaddingToTip(tip);
+		
+		-- reapply anchor tip to mouse position
+		tt:AnchorTipToMouse(tip);
 	end
 }, MOD_NAME .. " - Apply Config");
 
@@ -2020,7 +2063,7 @@ function tt:SetPaddingToTip(tip)
 	
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
-	-- set padding to tip
+	-- calculate new padding for tip
 	local oldPaddingRight, oldPaddingBottom, oldPaddingLeft, oldPaddingTop = tip:GetPadding();
 	oldPaddingLeft = oldPaddingLeft or 0;
 	oldPaddingTop = oldPaddingTop or 0;
@@ -2045,17 +2088,23 @@ function tt:SetPaddingToTip(tip)
 		newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = 0, 0, 0, 0;
 	end
 	
-	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = newPaddingRight + TT_ExtendedConfig.tipPaddingForGameTooltip.right, newPaddingBottom + TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, newPaddingLeft + TT_ExtendedConfig.tipPaddingForGameTooltip.left, newPaddingTop + TT_ExtendedConfig.tipPaddingForGameTooltip.top;
+	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = newPaddingRight + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.right, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingBottom + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingLeft + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.left, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingTop + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.top, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
 	
 	newPaddingRight = newPaddingRight + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0) + (currentDisplayParams.extraPaddingRightForCloseButton or 0);
 	newPaddingBottom = newPaddingBottom + (currentDisplayParams.extraPaddingBottomForBars or 0);
 	
-	if (math.abs(newPaddingRight - oldPaddingRight) <= 0.5) and (math.abs(newPaddingBottom - oldPaddingBottom) <= 0.5) and (math.abs(newPaddingLeft - oldPaddingLeft) <= 0.5) and (math.abs(newPaddingTop - oldPaddingTop) <= 0.5) then
+	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = self:GetNearestPixelSize(tip, newPaddingRight), self:GetNearestPixelSize(tip, newPaddingBottom), self:GetNearestPixelSize(tip, newPaddingLeft), self:GetNearestPixelSize(tip, newPaddingTop);
+	
+	-- don't set padding to tip if change results in less than 0.5 pixels difference
+	local tipEffectiveScale = tip:GetEffectiveScale();
+	
+	if (math.abs((newPaddingRight - oldPaddingRight) * tipEffectiveScale) <= 0.5) and (math.abs((newPaddingBottom - oldPaddingBottom) * tipEffectiveScale) <= 0.5) and (math.abs((newPaddingLeft - oldPaddingLeft) * tipEffectiveScale) <= 0.5) and (math.abs((newPaddingTop - oldPaddingTop) * tipEffectiveScale) <= 0.5) then
 		isSettingPaddingToTip = false;
 		return;
 	end
 	
-	tip:SetPadding(newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop);
+	-- set padding to tip
+	tip:SetPadding(newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop);--print("set", currentDisplayParams.extraPaddingRightForMinimumWidth, newPaddingRight)
 	
 	if (isItemTooltipShown) then
 		if (isBottomFontStringShown) then
@@ -2566,10 +2615,9 @@ function tt:AnchorTipToMouse(tip)
 	-- anchor tip to mouse position
 	if (anchorType == "mouse") then
 		local x, y = GetCursorPosition();
-		local effScale = tip:GetEffectiveScale();
 		
 		tip:ClearAllPoints();
-		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", (x / effScale + TT_MouseOffsetX), (y / effScale + TT_MouseOffsetY));
+		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", self:GetNearestPixelSize(tip, x + cfg.mouseOffsetX, false, true), self:GetNearestPixelSize(tip, y + cfg.mouseOffsetY, false, true));
 	end
 	
 	-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips

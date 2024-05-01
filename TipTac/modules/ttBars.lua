@@ -153,8 +153,9 @@ function ttBars:OnTipResize(TT_CacheForFrames, tip, first)
 				
 				if (tipCenterWidth < cfg.barTipMinimumWidth) then
 					local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - tipCenterWidth;
+					local tipEffectiveScale = tip:GetEffectiveScale();
 					
-					if (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs(newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) > 0.5) then
+					if (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs((newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) * tipEffectiveScale) > 0.5) then
 						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
 					end
 				end
