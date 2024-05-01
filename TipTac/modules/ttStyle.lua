@@ -743,8 +743,7 @@ function ttStyle:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDis
 	currentDisplayParams.mergeLevelLineWithGuildName = nil;
 end
 
-function ttStyle:OnTipStyle(TT_CacheForFrames, tip, first)
-	local currentDisplayParams = TT_CacheForFrames[tip].currentDisplayParams;
+function ttStyle:OnTipStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
 	local unitRecord = currentDisplayParams.unitRecord;
 	
 	-- some things only need to be done once initially when the tip is first displayed

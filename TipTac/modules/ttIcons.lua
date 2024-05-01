@@ -87,12 +87,12 @@ function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	end
 end
 
-function ttIcons:OnTipPostStyle(TT_CacheForFrames, tip, first)
+function ttIcons:OnTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
 	if (not self.wantIcon) then
 		return;
 	end
 	
-	local unitRecord = TT_CacheForFrames[tip].currentDisplayParams.unitRecord;
+	local unitRecord = currentDisplayParams.unitRecord;
 	
 	-- show icon
 	self.icon:SetShown(self:SetIcon(self.icon, unitRecord));

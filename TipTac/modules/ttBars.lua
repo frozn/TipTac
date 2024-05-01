@@ -118,7 +118,7 @@ function ttBars:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisp
 end
 
 -- before tooltip is being styled
-function ttBars:OnTipPreStyle(TT_CacheForFrames, tip, first)
+function ttBars:OnTipPreStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
 	-- hide GameTooltip's standard status bar if needed
 	if (cfg.hideDefaultBar) and (first) then
 		GameTooltipStatusBar:Hide();
@@ -129,16 +129,7 @@ function ttBars:OnTipPreStyle(TT_CacheForFrames, tip, first)
 end
 
 -- tooltip is being resized
-function ttBars:OnTipResize(TT_CacheForFrames, tip, first)
-	-- get current display parameters
-	local frameParams = TT_CacheForFrames[tip];
-	
-	if (not frameParams) then
-		return;
-	end
-	
-	local currentDisplayParams = frameParams.currentDisplayParams;
-	
+function ttBars:OnTipResize(TT_CacheForFrames, tip, currentDisplayParams, first)
 	-- set minimum width for bars, so that numbers are not out of bounds.
 	if (not cfg.barEnableTipMinimumWidth) then
 		return;

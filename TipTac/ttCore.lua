@@ -996,10 +996,10 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- OnTipSetHidden                      check if tooltip needs to be hidden                         TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
 -- OnTipSetStyling                     tooltip's styling needs to be set                           TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
 --
--- OnTipPreStyle                       before tooltip is being styled                              TT_CacheForFrames, tooltip, first
--- OnTipStyle                          tooltip is being styled                                     TT_CacheForFrames, tooltip, first
--- OnTipResize                         tooltip is being resized                                    TT_CacheForFrames, tooltip, first
--- OnTipPostStyle                      after tooltip has been styled and has the final size        TT_CacheForFrames, tooltip, first
+-- OnTipPreStyle                       before tooltip is being styled                              TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnTipStyle                          tooltip is being styled                                     TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnTipResize                         tooltip is being resized                                    TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnTipPostStyle                      after tooltip has been styled and has the final size        TT_CacheForFrames, tooltip, currentDisplayParams, first
 --
 -- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset        TT_CacheForFrames, tooltip, currentDisplayParams
 -- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset  TT_CacheForFrames, tooltip, currentDisplayParams
@@ -2918,7 +2918,7 @@ function tt:SetUnitAppearanceToTip(tip, first)
 	end
 	
 	-- inform group that the tip is about to be styled
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPreStyle", TT_CacheForFrames, tip, first);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPreStyle", TT_CacheForFrames, tip, currentDisplayParams, first);
 	
 	-- set backdrop color to tip by unit reaction index
 	if (cfg.reactColoredBackdrop) then
@@ -2936,17 +2936,17 @@ function tt:SetUnitAppearanceToTip(tip, first)
 	
 	-- inform group that the tip has to be styled
 	if (cfg.showUnitTip) then
-		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipStyle", TT_CacheForFrames, tip, first);
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipStyle", TT_CacheForFrames, tip, currentDisplayParams, first);
 	end
 	
 	-- recalculate size of tip to ensure that it has the correct dimensions
 	LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
 	
 	-- inform group that the tip has to be resized
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipResize", TT_CacheForFrames, tip, first);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipResize", TT_CacheForFrames, tip, currentDisplayParams, first);
 	
 	-- inform group that the tip has been styled and has the final size
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostStyle", TT_CacheForFrames, tip, first);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostStyle", TT_CacheForFrames, tip, currentDisplayParams, first);
 	
 	-- set padding to tip. padding might have been modified to fit health/power bars.
 	self:SetPaddingToTip(tip);
