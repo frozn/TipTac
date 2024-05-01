@@ -2104,7 +2104,7 @@ function tt:SetPaddingToTip(tip)
 	end
 	
 	-- set padding to tip
-	tip:SetPadding(newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop);--print("set", currentDisplayParams.extraPaddingRightForMinimumWidth, newPaddingRight)
+	tip:SetPadding(newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop);
 	
 	if (isItemTooltipShown) then
 		if (isBottomFontStringShown) then
