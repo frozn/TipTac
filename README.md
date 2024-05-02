@@ -1,5 +1,5 @@
 <picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/219820911-344b64c3-8aab-43e3-abbc-6bf79c6d85b7.jpg" align="right"></picture>
-<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20classic%20(wotlkc)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
+<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20classic%20(catac)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
 
 [![Install](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
 &nbsp; 
@@ -11,7 +11,7 @@
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 # TipTac Reborn
-WoW AddOn TipTac Reborn [DF] [WotLKC] [Classic Era]
+WoW AddOn TipTac Reborn [DF] [CataC] [Classic Era]
 
 TipTac Reborn is a tooltip enchancement addon, it allows you to configure various aspects of the tooltip, such as moving where it's shown, the font, the scale of tips, plus a lot more. It's the successor of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac) (abandoned since Nov 2020) with massive modifications since then.
 
@@ -20,7 +20,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
   * 10.2.6 - Dragonflight [DF]
-  * 3.4.3 - Wrath of the Lich King Classic [WotLKC]
+  * 4.4.0 - Cataclysm Classic [CataC]
   * 1.15.2 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
@@ -100,7 +100,7 @@ If there are additional fixes in the future, I update this note accordingly.
 
 ## Install with CurseForge app
 
-In [CurseForge app](https://download.curseforge.com/), go to `World of Warcraft`, choose your flavor (Retail, WotLK Classic, Classic) and search for `TipTac Reborn`. Hit `Install` button.
+In [CurseForge app](https://download.curseforge.com/), go to `World of Warcraft`, choose your flavor (Retail, Cataclysm Classic, Classic) and search for `TipTac Reborn`. Hit `Install` button.
 
 ## Install with WowUp.io
 
