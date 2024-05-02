@@ -1157,9 +1157,9 @@ function tt:GetNearestPixelSize(tip, size, pixelPerfect, ignoreScale)
 	local tipEffectiveScale = tip:GetEffectiveScale();
 	local realSize = ((pixelPerfect and (size * TT_UIUnitFactor)) or size);
 	local targetScale = (ignoreScale and 1 or tipEffectiveScale);
-	local frameScale = (ignoreScale and tip:GetEffectiveScale() or 1);
+	local frameScaleAdjustmentToAchieveTargetScale = (ignoreScale and tip:GetEffectiveScale() or 1);
 	
-	return PixelUtil.GetNearestPixelSize(realSize, targetScale) / frameScale;
+	return PixelUtil.GetNearestPixelSize(realSize, targetScale) / frameScaleAdjustmentToAchieveTargetScale;
 end
 
 -- update pixel perfect scale
@@ -1769,12 +1769,7 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	local tipWidth = tip:GetWidth() * tipEffectiveScale;
 	local tipHeight = tip:GetHeight() * tipEffectiveScale;
 	
-	newTipEffectiveScale = tipEffectiveScale * newTipScale / tipScale;
-	
-	tipWidthWithNewScaling = tip:GetWidth() * newTipEffectiveScale;
-	tipHeightWithNewScaling = tip:GetHeight() * newTipEffectiveScale;
-	
-	if (tipWidthWithNewScaling > 0) and (math.abs(tipWidthWithNewScaling - tipWidth) <= 0.5) and (tipHeightWithNewScaling > 0) and (math.abs(tipHeightWithNewScaling - tipHeight) <= 0.5) then
+	if (tipWidth > 0) and (math.abs((newTipScale / tipScale - 1) * tipWidth) <= 0.5) and (tipHeight > 0) and (math.abs((newTipScale / tipScale - 1) * tipHeight) <= 0.5) then
 		return;
 	end
 	
