@@ -101,6 +101,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .talentsAvailableForInspectedUnit                           = true/false if getting talents from other players is available (since bc 2.3.0)
 --         .numTalentTrees                                             = number of talent trees
 --         .talentIconAvailable                                        = true/false if talent icon is available (since bc)
+--         .GetTalentTabInfoReturnValuesFromCataC                      = true/false if GetTalentTabInfo() return values from catac (since catac 4.4.0)
 --         .roleIconAvailable                                          = true/false if role icon is available (since MoP 5.0.4)
 --         .specializationAvailable                                    = true/false if specialization is available (since MoP 5.0.4)
 --         .itemLevelOfFirstRaidTierSet                                = item level of first raid tier set. false if not defined (yet).
@@ -119,8 +120,9 @@ LibFroznFunctions.hasWoWFlavor = {
 	talentsAvailableForInspectedUnit = true,
 	numTalentTrees = 2,
 	talentIconAvailable = true,
+	GetTalentTabInfoReturnValuesFromCataC = false,
 	roleIconAvailable = true,
-	specializationAvailable = false,
+	specializationAvailable = true,
 	itemLevelOfFirstRaidTierSet = false,
 	barMarginAdjustment = 0,
 	GameTooltipSetPaddingWithLeftAndTop = true,
@@ -139,6 +141,9 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
 	LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable = false;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
+	LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TacoTip;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) then
 	LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true;
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 3;
 	LibFroznFunctions.hasWoWFlavor.roleIconAvailable = false;
@@ -147,11 +152,15 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
 	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -2;
 	LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable = false;
-	LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TacoTip;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
-	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
 	LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate = "OptionsSliderTemplate";
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.SL) then
+	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
+end
+if (LibFroznFunctions.isWoWFlavor.CataC) then
+	LibFroznFunctions.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC = true;
 end
 if (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 0;
@@ -344,6 +353,12 @@ end
 -- @param tip       tooltip
 -- @param callback  callback function. parameters: self, ... (additional payload)
 function LibFroznFunctions:HookScriptOnTooltipSetUnit(tip, callback)
+	-- before df 10.0.2
+	if (tip:HasScript("OnTooltipSetUnit")) then
+		tip:HookScript("OnTooltipSetUnit", callback);
+		return;
+	end
+	
 	-- since df 10.0.2
 	if (TooltipDataProcessor) then
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(self, ...)
@@ -351,12 +366,7 @@ function LibFroznFunctions:HookScriptOnTooltipSetUnit(tip, callback)
 				callback(self, ...);
 			end
 		end);
-		
-		return;
 	end
-	
-	-- before df 10.0.2
-	tip:HookScript("OnTooltipSetUnit", callback);
 end
 
 -- get item from tooltip
@@ -387,6 +397,12 @@ end
 -- @param tip       tooltip
 -- @param callback  callback function. parameters: self, ... (additional payload)
 function LibFroznFunctions:HookScriptOnTooltipSetItem(tip, callback)
+	-- before df 10.0.2
+	if (tip:HasScript("OnTooltipSetItem")) then
+		tip:HookScript("OnTooltipSetItem", callback);
+		return;
+	end
+	
 	-- since df 10.0.2
 	if (TooltipDataProcessor) then
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self, ...)
@@ -394,12 +410,7 @@ function LibFroznFunctions:HookScriptOnTooltipSetItem(tip, callback)
 				callback(self, ...);
 			end
 		end);
-		
-		return;
 	end
-	
-	-- before df 10.0.2
-	tip:HookScript("OnTooltipSetItem", callback);
 end
 
 -- get spell from tooltip
@@ -421,6 +432,12 @@ end
 -- @param tip       tooltip
 -- @param callback  callback function. parameters: self, ... (additional payload)
 function LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, callback)
+	-- before df 10.0.2
+	if (tip:HasScript("OnTooltipSetSpell")) then
+		tip:HookScript("OnTooltipSetSpell", callback);
+		return;
+	end
+	
 	-- since df 10.0.2
 	if (TooltipDataProcessor) then
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, function(self, ...)
@@ -428,12 +445,7 @@ function LibFroznFunctions:HookScriptOnTooltipSetSpell(tip, callback)
 				callback(self, ...);
 			end
 		end);
-		
-		return;
 	end
-	
-	-- before df 10.0.2
-	tip:HookScript("OnTooltipSetSpell", callback);
 end
 
 -- get mount from tooltip
@@ -3077,7 +3089,14 @@ function LibFroznFunctions:GetTalents(unitID)
 		local maxPointsSpent;
 		
 		for tabIndex = 1, numTalentTabs do
-			local _talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
+			local _talentTabName, _talentTabIcon, _pointsSpent;
+			
+			if (LibFroznFunctions.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC) then
+				_, _talentTabName, _, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
+			else
+				_talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
+			end
+			
 			tinsert(pointsSpent, _pointsSpent);
 			
 			if (not maxPointsSpent) or (_pointsSpent > maxPointsSpent) then
