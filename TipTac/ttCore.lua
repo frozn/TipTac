@@ -1495,10 +1495,14 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 		
 		if (not tipParams.noHooks) then
 			LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
-				-- tip:HookScript("OnSizeChanged", function(tip, ...)
-					-- tip.OnBackdropSizeChanged(tip, ...);
-				-- end);
-				tip:HookScript("OnSizeChanged", tip.OnBackdropSizeChanged);
+				tip:HookScript("OnSizeChanged", function(...)
+					-- check if insecure interaction with the tip is currently forbidden
+					if (tip:IsForbidden()) then
+						return;
+					end
+					
+					tip.OnBackdropSizeChanged(...);
+				end);
 			end);
 		end
 		
