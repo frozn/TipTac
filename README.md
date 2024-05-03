@@ -81,6 +81,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added unit reaction for honored, revered and exalted NPCs
 - added option "Special->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
 - added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
+- added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
 - added showing/hiding of options to WoW's interface options
 - improved stripping the specialization & class text from the tooltip introduced with df 10.1.5
 - improved using custom class colors from other addons if ColorMixin methods are not available
