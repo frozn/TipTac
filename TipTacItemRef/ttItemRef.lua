@@ -2047,13 +2047,17 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			end);
 			
 			-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsCollectionFrame
-			hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
-
+			if (WardrobeCollectionFrame.SetsCollectionFrame) then
+				hooksecurefunc(WardrobeCollectionFrame.SetsCollectionFrame, "RefreshAppearanceTooltip", WCFSCF_RefreshAppearanceTooltip_Hook); -- for sets (incl. reapply for tabbing through items with same visualID)
+			end
+			
 			-- Function to apply necessary hooks to WardrobeCollectionFrame.SetsTransmogFrame, see WardrobeSetsTransmogMixin:UpdateSets() in "Blizzard_Collections/Blizzard_Wardrobe.lua"
-			local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
-			for i = 1, setsTransmogFrame.PAGE_SIZE do
-				local model = setsTransmogFrame.Models[i];
-				hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
+			if (WardrobeCollectionFrame.SetsTransmogFrame) then
+				local setsTransmogFrame = WardrobeCollectionFrame.SetsTransmogFrame; -- for sets at transmogrifier
+				for i = 1, setsTransmogFrame.PAGE_SIZE do
+					local model = setsTransmogFrame.Models[i];
+					hooksecurefunc(model, "RefreshTooltip", WCFSTFM_RefreshTooltip_Hook);
+				end
 			end
 		end
 		
