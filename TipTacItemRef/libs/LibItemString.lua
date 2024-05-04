@@ -30,10 +30,12 @@
 	- Accessing the IS table using a negative index now works
 	## REV-03 (22.11.20) - 10.0.2/DF ## #frozn45
 	- Replaced hidden scanning tooltip with new C_TooltipInfo function for df
+	## REV-04 (24.xx.xx) - 10.2.6/DF ## #frozn45
+	- replaced deprecated function GetItemInfo() with new function C_Item.GetItemInfo()
 --]]----------------------------------------------------
 
 -- Abort if library has already loaded with the same or newer revision
-local REVISION = 3;
+local REVISION = 4;
 if (type(LibItemString) == "table") and (REVISION <= LibItemString.REVISION) then
 	return;
 end
@@ -291,7 +293,7 @@ end
 -- As new upgrades are added all the time, this function is rather unreliable, and its therefore not recommended to use
 -- WARNING: Use the LibItemString:GetTrueItemLevel() function instead, which scans the tooltip for a 100% correct itemLevel
 function LIS:GetUpgradedItemLevel()
-	local _, _, _, itemLevel = GetItemInfo(self.source);
+	local _, _, _, itemLevel = C_Item.GetItemInfo(self.source);
 	if not (itemLevel) then
 		return nil;
 	end
@@ -348,7 +350,7 @@ function LIS:GetTooltipItemLevel(itemLink)
 	end
 end
 
--- Returns the true itemLevel for upgraded items, even when GetItemInfo() says otherwise
+-- Returns the true itemLevel for upgraded items, even when C_Item.GetItemInfo() says otherwise
 -- This method replaces the old GetUpgradedItemLevelFromItemLink() function
 function LIS:GetTrueItemLevel(itemLink)
 	return self:GetTooltipItemLevel(itemLink);
