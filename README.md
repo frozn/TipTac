@@ -64,7 +64,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "General->Show Player Guild" to show/hide guild name/rank
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
-- added option "General->Show Player Guild Rank Title->Format" to also show player guild rank level in addition to guild rank title
+- added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
 - added option "General->Show Mount" to show the player's mount icon/name/speed and an icon indicating if you already have collected the mount
 - added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
 - added option "Colors->Enable Coloring of Faction Text" to change the color of the unit's faction text
