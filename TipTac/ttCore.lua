@@ -34,6 +34,7 @@ local TT_DefaultConfig = {
 	targetYouText = "<<YOU>>",
 	showCurrentUnitSpeed = true,
 	showMythicPlusDungeonScore = true,
+	mythicPlusDungeonScoreFormat = "both",
 	showMount = true,
 	showMountCollected = true,
 	showMountIcon = true,

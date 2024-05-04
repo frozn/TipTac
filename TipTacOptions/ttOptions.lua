@@ -58,7 +58,8 @@ local ttOptionsGeneral = {
 };
 
 if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
-	tinsert(ttOptionsGeneral, { type = "Check", var = "showMythicPlusDungeonScore", label = "Show Mythic+ Dungeon Score", tip = "This will show the mythic+ dungeon score of the player." });
+	tinsert(ttOptionsGeneral, { type = "Check", var = "showMythicPlusDungeonScore", label = "Show Mythic+ Dungeon Score", tip = "This will show the mythic+ dungeon score of the player.", y = 10 });
+	tinsert(ttOptionsGeneral, { type = "DropDown", var = "mythicPlusDungeonScoreFormat", label = "Format Dungeon Score", list = { ["Dungeon Score only"] = "dungeonScore", ["Dungeon Score + Highest successfull run"] = "both", ["Highest successfull run only"] = "highestSuccessfullRun" } });
 end
 
 tinsert(ttOptionsGeneral, { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player.", y = 10 });
@@ -74,8 +75,8 @@ tinsert(ttOptionsGeneral, { type = "DropDown", var = "showTarget", label = "Show
 tinsert(ttOptionsGeneral, { type = "Text", var = "targetYouText", label = "Targeting You Text", y = 10 });
 
 tinsert(ttOptionsGeneral, { type = "Check", var = "showGuild", label = "Show Player Guild", tip = "This will show the guild of the player.", y = 10 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank Title", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level" });
-tinsert(ttOptionsGeneral, { type = "DropDown", var = "guildRankFormat", label = "Format", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" } });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level" });
+tinsert(ttOptionsGeneral, { type = "DropDown", var = "guildRankFormat", label = "Format Guild Rank", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" } });
 
 -- Special
 local ttOptionsSpecial = {

@@ -29,7 +29,7 @@ local TT_Unknown = UNKNOWN; -- "Unknown"
 local TT_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = LibFroznFunctions:GetGlobalString("TIPTAC_TARGETED_BY") or "Targeted by"; -- "Targeted by"
-local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating"
+local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating: %s"
 local TT_Mount = LibFroznFunctions:GetGlobalString("RENOWN_REWARD_MOUNT_NAME_FORMAT") or "Mount: %s"; -- "Mount: %s"
 local TT_ReactionIcon = {
 	[LFF_UNIT_REACTION_INDEX.hostile] = "unit_reaction_hostile",             -- Hostile
@@ -549,18 +549,35 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		if (ratingSummary) then
 			local mythicPlusDungeonScore = ratingSummary.currentSeasonScore;
 			local mythicPlusBestRunLevel;
-			for _, ratingMapSummary in ipairs(ratingSummary.runs or {}) do
-				if (ratingMapSummary.finishedSuccess) and ((not mythicPlusBestRunLevel) or (mythicPlusBestRunLevel < ratingMapSummary.bestRunLevel)) then
-					mythicPlusBestRunLevel = ratingMapSummary.bestRunLevel;
+			if (ratingSummary.runs) then
+				for _, ratingMapSummary in ipairs(ratingSummary.runs or {}) do
+					if (ratingMapSummary.finishedSuccess) and ((not mythicPlusBestRunLevel) or (mythicPlusBestRunLevel < ratingMapSummary.bestRunLevel)) then
+						mythicPlusBestRunLevel = ratingMapSummary.bestRunLevel;
+					end
 				end
 			end
-			if (mythicPlusDungeonScore > 0) then
-				local mythicPlusDungeonScoreColor = (C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore) or TT_COLOR.text.default);
+			
+			local mythicPlusText = LibFroznFunctions:CreatePushArray();
+			if (cfg.mythicPlusDungeonScoreFormat == "highestSuccessfullRun") then
+				if (mythicPlusBestRunLevel) then
+					mythicPlusText:Push(TT_COLOR.text.default:WrapTextInColorCode("+" .. mythicPlusBestRunLevel));
+				end
+			else
+				if (mythicPlusDungeonScore > 0) then
+					local mythicPlusDungeonScoreColor = (C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore) or TT_COLOR.text.default);
+					mythicPlusText:Push(mythicPlusDungeonScoreColor:WrapTextInColorCode(mythicPlusDungeonScore));
+				end
+			end
+			if (mythicPlusText:GetCount() > 0) then
 				if (lineInfo:GetCount() > 0) then
 					lineInfo:Push("\n");
 				end
 				lineInfo:Push("|cffffd100");
-				lineInfo:Push(TT_MythicPlusDungeonScore:format(mythicPlusDungeonScoreColor:WrapTextInColorCode(mythicPlusDungeonScore) .. (mythicPlusBestRunLevel and " |cffffff99(+" .. mythicPlusBestRunLevel .. ")|r" or "")));
+				lineInfo:Push(TT_MythicPlusDungeonScore:format(mythicPlusText:Concat()));
+				
+				if (cfg.mythicPlusDungeonScoreFormat == "both") and (mythicPlusBestRunLevel) then
+					lineInfo:Push(" |cffffff99(+" .. mythicPlusBestRunLevel .. ")|r");
+				end
 			end
 		end
 	end
