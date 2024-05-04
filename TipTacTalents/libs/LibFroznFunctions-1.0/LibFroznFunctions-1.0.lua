@@ -14,7 +14,7 @@ local LIB_MINOR = 21; -- bump on changes
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
 end
--- local ldb = LibStub("LibDataBroker-1.1", true)
+-- local ldb = LibStub:GetLibrary("LibDataBroker-1.1", true)
 -- if not ldb then error(LIB_NAME .. " requires LibDataBroker-1.1.") end
 
 local LibFroznFunctions = LibStub:NewLibrary(LIB_NAME, LIB_MINOR);
@@ -109,7 +109,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips         = true/false if GameTooltip:FadeOut() will not be called for worldframe unit tips (till wotlkc)
 --         .barMarginAdjustment                                        = bar margin adjustment (till wotlkc)
 --         .realGetSpellLinkAvailable                                  = true/false if the real GetSpellLink() is available (since bc 2.3.0). in classic era this function only returns the spell name instead of a spell link.
---         .relatedExpansionForItemAvailable                           = true/false if GetItemInfo() return the related expansion for an item (parameter expacID) (since Legion 7.1.0)
+--         .relatedExpansionForItemAvailable                           = true/false if C_Item.GetItemInfo() return the related expansion for an item (parameter expacID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 and catac 4.4.0 "UISliderTemplateWithLabels")
 --         .dragonriding                                               = true/false if dragonriding is available (since df)
@@ -380,7 +380,7 @@ function LibFroznFunctions:GetItemFromTooltip(tooltip)
 			local tooltipData = tooltip:GetTooltipData();
 			local itemLink = C_ToyBox.GetToyLink(tooltipData.id);
 			if (itemLink) then
-				local name = GetItemInfo(itemLink);
+				local name = C_Item.GetItemInfo(itemLink);
 				return name, itemLink, tooltipData.id;
 			end
 		end
@@ -3551,7 +3551,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 		if not (ItemLink) then
 			return 0, 0, 0.1, 0.1, 0.1
 		end
-		local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(ItemLink)
+		local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = C_Item.GetItemInfo(ItemLink)
 		if (ItemLink and ItemRarity and ItemLevel and ItemEquipLoc and GS_ItemTypes[ItemEquipLoc]) then
 			local Table
 			local QualityScale = 1
@@ -3660,14 +3660,14 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 			end
 
 			if (mainHandLink and offHandLink) then
-				local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(mainHandLink)
+				local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = C_Item.GetItemInfo(mainHandLink)
 				if (ItemEquipLoc == "INVTYPE_2HWEAPON") then
 					TitanGrip = 0.5
 				end
 			end
 
 			if (offHandLink) then
-				local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(offHandLink)
+				local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = C_Item.GetItemInfo(offHandLink)
 				if (ItemEquipLoc == "INVTYPE_2HWEAPON") then
 					TitanGrip = 0.5
 				end

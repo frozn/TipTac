@@ -14,7 +14,7 @@ local LIB_MINOR = 21; -- bump on changes
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
 end
--- local ldb = LibStub("LibDataBroker-1.1", true)
+-- local ldb = LibStub:GetLibrary("LibDataBroker-1.1", true)
 -- if not ldb then error(LIB_NAME .. " requires LibDataBroker-1.1.") end
 
 local LibFroznFunctions = LibStub:NewLibrary(LIB_NAME, LIB_MINOR);

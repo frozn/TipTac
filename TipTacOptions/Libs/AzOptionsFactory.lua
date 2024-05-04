@@ -610,7 +610,7 @@ local function Default_Init(dropDown,list)
 end
 
 -- Lib Shared Media
-local LSM = LibStub and LibStub("LibSharedMedia-3.0",1);
+local LSM = LibStub and LibStub:GetLibrary("LibSharedMedia-3.0",1);
 
 azof.LibSharedMediaSubstitute = {
 	font = {

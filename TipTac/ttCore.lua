@@ -10,6 +10,8 @@ local tt = CreateFrame("Frame", MOD_NAME, UIParent, BackdropTemplateMixin and "B
 tt:Hide();
 
 -- get libs
+local LibDataBroker = LibStub:GetLibrary("LibDataBroker-1.1");
+local LibDBIcon = LibStub:GetLibrary("LibDBIcon-1.0");
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 ----------------------------------------------------------------------------------------------------
@@ -21,6 +23,9 @@ local cfg;
 
 -- default config
 local TT_DefaultConfig = {
+	-- general
+	showMinimapIcon = true,
+	minimapConfig = {},  -- set in LibDBIcon-1.0
 	showUnitTip = true,
 	showStatus = true,
 	showGuild = true,
@@ -41,12 +46,13 @@ local TT_DefaultConfig = {
 	showMountText = true,
 	showMountSpeed = true,
 	
+	-- special
 	showBattlePetTip = true,
 	gttScale = 1,
 	enableChatHoverTips = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
-	highlightTipTacDeveloper = true,
+	highlightTipTacDeveloper = true, -- hidden
 	
 	-- colors
 	enableColorName = true,
@@ -471,7 +477,7 @@ TT_ExtendedConfig.tipsToModify = {
 		},
 		hookFnForAddOn = function(TT_CacheForFrames)
 			-- LibQTip-1.0, e.g. used by addon Broker_Location
-			local LibQTip = LibStub("LibQTip-1.0", true);
+			local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
 			
 			if (LibQTip) then
 				local oldLibQTipAcquire = LibQTip.Acquire;
@@ -494,7 +500,7 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- LibDropdown-1.0, e.g used by addon Recount
-			local LibDropdown = LibStub("LibDropdown-1.0", true);
+			local LibDropdown = LibStub:GetLibrary("LibDropdown-1.0", true);
 			
 			if (LibDropdown) then
 				local oldLibDropdownOpenAce3Menu = LibDropdown.OpenAce3Menu;
@@ -532,7 +538,7 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- LibDropdownMC-1.0, e.g used by addon Outfitter
-			local LibDropdownMC = LibStub("LibDropdownMC-1.0", true);
+			local LibDropdownMC = LibStub:GetLibrary("LibDropdownMC-1.0", true);
 			
 			if (LibDropdownMC) then
 				local oldLibDropdownMCOpenAce3Menu = LibDropdownMC.OpenAce3Menu;
@@ -1081,6 +1087,11 @@ LibFroznFunctions:RegisterAddOnCategory((function()
 end)(), MOD_NAME);
 
 -- addon compartment
+function tt:SetAddonCompartmentText(tip)
+	tip:SetText(MOD_NAME);
+	tip:AddLine(TT_COLOR.text.default:WrapTextInColorCode("Click to toggle options"));
+end
+
 function TipTac_OnAddonCompartmentClick(addonName, mouseButton)
 	-- toggle options
 	tt:ToggleOptions();
@@ -1088,8 +1099,7 @@ end
 
 function TipTac_OnAddonCompartmentEnter(addonName, button)
     GameTooltip:SetOwner(button, "ANCHOR_LEFT");
-	GameTooltip:SetText(MOD_NAME);
-	GameTooltip:AddLine(TT_COLOR.text.default:WrapTextInColorCode("Click to toggle options"));
+	tt:SetAddonCompartmentText(GameTooltip);
 	GameTooltip:Show();
 end
 
@@ -1136,6 +1146,45 @@ LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, func
 	tt:AddMessageToChatFrame("  {highlight:anchor} = Shows the anchor where the tooltip appears");
 	tt:AddMessageToChatFrame("  {highlight:reset} = Resets all settings back to their default values");
 end);
+
+----------------------------------------------------------------------------------------------------
+--                                     LibDataBroker Support                                      --
+----------------------------------------------------------------------------------------------------
+
+TT_LDB_DataObject = LibDataBroker:NewDataObject(MOD_NAME, {
+	type = "launcher",
+	icon = "Interface\\AddOns\\TipTac\\media\\tiptac_logo",
+	label = MOD_NAME,
+	text = MOD_NAME,
+	OnTooltipShow = function(tip)
+		-- set text to tip
+		tt:SetAddonCompartmentText(tip);
+	end,
+	OnClick = function(self, mouseButton)
+		-- toggle options
+		tt:ToggleOptions();
+	end
+});
+
+----------------------------------------------------------------------------------------------------
+--                                          Minimap Icon                                          --
+----------------------------------------------------------------------------------------------------
+
+-- register for group events
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnConfigLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- register minimap icon to LibDBIcon-1.0
+		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, cfg.minimapConfig);
+	end,
+	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- show/hide minimap icon
+		if (cfg.showMinimapIcon) then
+			LibDBIcon:Show(MOD_NAME);
+		else
+			LibDBIcon:Hide(MOD_NAME);
+		end
+	end
+}, MOD_NAME .. " - Minimap Icon");
 
 ----------------------------------------------------------------------------------------------------
 --                                      Pixel Perfect Scale                                       --
@@ -1742,7 +1791,7 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	
 	-- reduce scale if tip exceeds UIParent width/height
 	if (tipParams.isFromLibQTip) then
-		local LibQTip = LibStub("LibQTip-1.0", true);
+		local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
 		
 		if (LibQTip) then
 			LibQTip.layoutCleaner:CleanupLayouts();
@@ -3206,6 +3255,7 @@ local eventsForHideWorldTipsHooked = false;
 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- register/unregister cursor changed event
 		if (cfg.hideWorldTips) then
 			if (not eventsForHideWorldTipsHooked) then
 				tt:RegisterEvent("CURSOR_CHANGED");

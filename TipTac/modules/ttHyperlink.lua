@@ -1,4 +1,4 @@
-local AceHook = LibStub("AceHook-3.0");
+local AceHook = LibStub:GetLibrary("AceHook-3.0");
 
 -- Addon
 local MOD_NAME = ...;
