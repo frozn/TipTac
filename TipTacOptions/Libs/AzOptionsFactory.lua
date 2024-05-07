@@ -942,6 +942,14 @@ azof.objects.TextOnly = {
 	yOffset = -1, -- 5px final visible yOffset + 0px extra padding top - 6px visible padding top = -1px
 	height = 13, -- 7px visible dimension height + 6px visible padding top + 0px extra padding bottom = 13px
 	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
+	Init = function(self, option, cfgValue)
+		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		if (enabled) then
+			self.text:SetTextColor(1, 0.82, 0);
+		else
+			self.text:SetTextColor(0.5, 0.5, 0.5);
+		end
+	end,
 	CreateNew = function(self)
 		local f = CreateFrame("Frame", nil, self.owner);
 		f:SetSize(301, 18);
