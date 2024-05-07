@@ -901,7 +901,7 @@ end
 
 local function CheckButton_OnClick(self, button)
 	local checked = (self:GetChecked() and true or false); -- WoD patch made GetChecked() return bool instead of 1/nil
-	local b = self:GetParent(); -- #test
+	local b = self:GetParent();
 	
 	SetConfigValue(f.factory, self.option.var, checked);
 	
