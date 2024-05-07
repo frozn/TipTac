@@ -93,7 +93,7 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 			
 			if (not tipsProcessed[tip]) then
 				-- register/unregister unit events
-				if (cfg.castBar) then
+				if (cfg.enableBars) and (cfg.castBar) then
 					self:RegisterUnitEvents(tip);
 				else
 					self:UnregisterUnitEvents(tip);
@@ -179,6 +179,11 @@ end
 function ttBars:SetupTipsBars(tip)
 	-- hide tip's bars
 	self:HideTipsBars(tip);
+	
+	-- check if bars are enabled
+	if (not cfg.enableBars) then
+		return;
+	end
 	
 	-- get frame and current display parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -567,7 +572,7 @@ end);
 -- register unit events
 function ttBars:RegisterUnitEvents(tip)
 	-- register unit events only needed if cast bar is enabled
-	if (not cfg.castBar) then
+	if (not cfg.enableBars) or (not cfg.castBar) then
 		return;
 	end
 	
