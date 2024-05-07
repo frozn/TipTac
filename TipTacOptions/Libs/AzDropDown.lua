@@ -57,7 +57,7 @@
 	tip			Tooltip will be shown when mouse is over item
 --]]
 
-local REVISION = 16;
+local REVISION = 18; -- bump on changes
 if (type(AzDropDown) == "table") and (AzDropDown.vers >= REVISION) then
 	return;
 end

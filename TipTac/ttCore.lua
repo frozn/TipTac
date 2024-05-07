@@ -26,17 +26,12 @@ local TT_DefaultConfig = {
 	-- general
 	showMinimapIcon = true,
 	minimapConfig = {},  -- set in LibDBIcon-1.0
+	gttScale = 1,
+	
 	showUnitTip = true,
 	showStatus = true,
-	showGuild = true,
-	showGuildRank = true,
-	guildRankFormat = "both",
 	showTargetedBy = true,
 	showPlayerGender = false,
-	nameType = "title",
-	showRealm = "show",
-	showTarget = "last",
-	targetYouText = "<<YOU>>",
 	showCurrentUnitSpeed = true,
 	showMythicPlusDungeonScore = true,
 	mythicPlusDungeonScoreFormat = "both",
@@ -45,11 +40,14 @@ local TT_DefaultConfig = {
 	showMountIcon = true,
 	showMountText = true,
 	showMountSpeed = true,
-	
-	-- special
+	nameType = "title",
+	showRealm = "show",
+	showTarget = "last",
+	targetYouText = "<<YOU>>",
+	showGuild = true,
+	showGuildRank = true,
+	guildRankFormat = "both",
 	showBattlePetTip = true,
-	gttScale = 1,
-	enableChatHoverTips = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
 	highlightTipTacDeveloper = true, -- hidden
@@ -126,6 +124,7 @@ local TT_DefaultConfig = {
 	["colorReactBack" .. LFF_UNIT_REACTION_INDEX.exaltedNPC] = { 0, 0.2, 0.2, 1 },
 	["colorReactBack" .. LFF_UNIT_REACTION_INDEX.dead] = { 0.1, 0.1, 0.1, 1 },
 	
+	-- backdrop
 	enableBackdrop = true,
 	tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 	tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -136,9 +135,10 @@ local TT_DefaultConfig = {
 	tipColor = { 0.1, 0.1, 0.2, 1 },        -- UI default: for most: (0.1, 0.1, 0.2, 1), world objects?: (0, 0.2, 0.35, 1)
 	tipBorderColor = { 0.3, 0.3, 0.4, 1 },  -- UI default: (1, 1, 1, 1)
 	gradientTip = true,
-	gradientHeight = 32,
 	gradientColor = { 0.8, 0.8, 0.8, 0.15 },
+	gradientHeight = 32,
 	
+	-- font
 	modifyFonts = false,
 	fontFace = "",   -- set during event ADDON_LOADED
 	fontSize = 0,    -- set during event ADDON_LOADED
@@ -146,6 +146,7 @@ local TT_DefaultConfig = {
 	fontSizeDeltaHeader = 2,
 	fontSizeDeltaSmall = -2,
 	
+	-- classify
 	classification_minus = "-%s",  -- new classification in MoP. used for minion mobs that typically have less health than normal mobs of their level, but engage the player in larger numbers. example of use: the "Sha Haunts" early in the horde's quests in thunder hold.
 	classification_trivial = "~%s",
 	classification_normal = "%s",
@@ -154,22 +155,24 @@ local TT_DefaultConfig = {
 	classification_rare = "%s|r (Rare)",
 	classification_rareelite = "+%s|r (Rare)",
 	
+	-- fading
 	overrideFade = true,
 	preFadeTime = 0.1,
 	fadeTime = 0.1,
 	hideWorldTips = true,
 	
 	-- bars
+	enableBars = true,
 	healthBar = true,
-	healthBarText = "value",
+	healthBarText = "full",
 	healthBarColor = { 0.3, 0.9, 0.3, 1 },
 	healthBarClassColor = true,
 	hideDefaultBar = true,
 	manaBar = false,
-	manaBarText = "value",
+	manaBarText = "full",
 	manaBarColor = { 0.3, 0.55, 0.9, 1 },
 	powerBar = false,
-	powerBarText = "value",
+	powerBarText = "current",
 	castBar = false,
 	castBarAlwaysShow = false,
 	castBarCastingColor = { YELLOW_THREAT_COLOR:GetRGBA() }, -- light yellow
@@ -188,15 +191,17 @@ local TT_DefaultConfig = {
 	barTipMinimumWidth = 160,
 	
 	-- auras
+	enableAuras = true,
 	showBuffs = true,
 	showDebuffs = true,
 	selfAurasOnly = false,
 	showAuraCooldown = true,
 	noCooldownCount = false,
-	auraSize = 20,
+	auraSize = 16,
 	auraMaxRows = 2,
 	aurasAtBottom = false,
 	
+	-- icon
 	iconRaid = true,
 	iconFaction = false,
 	iconCombat = false,
@@ -204,6 +209,7 @@ local TT_DefaultConfig = {
 	iconAnchor = "TOPLEFT",
 	iconSize = 24,
 	
+	-- anchors
 	enableAnchor = true,
 	anchorWorldUnitType = "normal",
 	anchorWorldUnitPoint = "BOTTOMRIGHT",
@@ -247,6 +253,7 @@ local TT_DefaultConfig = {
 	mouseOffsetX = 0,
 	mouseOffsetY = 0,
 	
+	-- combat
 	hideTipsWorldUnits = false,
 	hideTipsWorldTips = false,
 	hideTipsFrameUnits = false,
@@ -274,7 +281,10 @@ local TT_DefaultConfig = {
 	hideTipsDuringDragonridingItemTips = false,
 	hideTipsDuringDragonridingActionTips = false,
 	
-	showHiddenModifierKey = "shift"
+	showHiddenModifierKey = "shift",
+	
+	-- hyperlink
+	enableChatHoverTips = true
 };
 
 -- extended config
@@ -1850,7 +1860,7 @@ function tt:SetGradientToTip(tip)
 	-- set gradient to tip not possible
 	local gradientForFrame = frameParams.gradient;
 	
-	if (not cfg.enableBackdrop) or (not cfg.gradientTip) or (not tipParams.applyAppearance) or (not tipParams.applyAppearance) then
+	if (not cfg.enableBackdrop) or (not cfg.gradientTip) or (not tipParams.applyAppearance) then
 		if (gradientForFrame) then
 			gradientForFrame:Hide();
 		end

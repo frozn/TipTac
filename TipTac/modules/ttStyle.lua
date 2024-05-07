@@ -282,7 +282,7 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 			overlayTextureTopBottomTexel = 0.4375,
 			
 			overlayAtlasTopScale = 0.75,
-			overlayAtlasTopYOffset = 1 - (TT_ExtendedConfig.tipBackdrop.insets.top + TT_ExtendedConfig.tipPaddingForGameTooltip.offset),
+			overlayAtlasTopYOffset = 1 - ((cfg.enableBackdrop and TT_ExtendedConfig.tipBackdrop.insets.top or 0) + TT_ExtendedConfig.tipPaddingForGameTooltip.offset),
 			
 			-- overlayAtlasBottom = "AzeriteTooltip-Bottom", -- available in DF, but not available in WotLKC
 			overlayTextureBottom = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\AzeriteTooltip",
@@ -293,7 +293,7 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 			overlayTextureBottomTopTexel = 0.453125,
 			overlayTextureBottomBottomTexel = 0.539062,
 			
-			overlayAtlasBottomYOffset = 2 + (TT_ExtendedConfig.tipBackdrop.insets.bottom + TT_ExtendedConfig.tipPaddingForGameTooltip.offset)
+			overlayAtlasBottomYOffset = 2 + ((cfg.enableBackdrop and TT_ExtendedConfig.tipBackdrop.insets.bottom or 0) + TT_ExtendedConfig.tipPaddingForGameTooltip.offset)
 		};
 		
 		if (tip.TopOverlay) then
