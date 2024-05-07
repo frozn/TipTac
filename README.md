@@ -26,6 +26,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 ### The following problems are fixed respectively enhancements were added
 
+- added minimap icon
+- support for LibDataBroker
 - lua errors regarding SetBackdropColor(), SetBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
 - background colors
 - border colors, also based on unit class or item quality. Additionally the border colors are now "non sticky" if you move your mouse e.g. over items and then over spells.
@@ -82,6 +84,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "Special->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
 - added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
 - added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
+- added "enabled"-feature for options. depending options are now grayed out if disabled.
 - added showing/hiding of options to WoW's interface options
 - improved stripping the specialization & class text from the tooltip introduced with df 10.1.5
 - improved using custom class colors from other addons if ColorMixin methods are not available
