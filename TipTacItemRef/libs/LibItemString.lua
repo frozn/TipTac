@@ -30,7 +30,7 @@
 	- Accessing the IS table using a negative index now works
 	## REV-03 (22.11.20) - 10.0.2/DF ## #frozn45
 	- Replaced hidden scanning tooltip with new C_TooltipInfo function for df
-	## REV-04 (24.xx.xx) - 10.2.6/DF ## #frozn45
+	## REV-04 (24.05.07) - 10.2.6/DF ## #frozn45
 	- replaced deprecated function GetItemInfo() with new function C_Item.GetItemInfo()
 --]]----------------------------------------------------
 
