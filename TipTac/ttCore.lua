@@ -830,6 +830,7 @@ local TT_TipsToModifyFromOtherMods = {};
 --   .isColorBlind                           true if color blind mode is enabled, false otherwise.
 --   .isTipTacDeveloper                      true if it's a unit of a TipTac developer, false for other units.
 --
+-- firstCallDoneUnitAppearance               true if first call of unit appearace is done, false otherwise.
 -- timestampStartUnitAppearance              timestamp of start of unit appearance, nil otherwise.
 -- timestampStartCustomUnitFadeout           timestamp of start of custom unit fadeout, nil otherwise.
 --
@@ -1585,6 +1586,9 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 			end);
 			
 			if (tip:GetObjectType() == "GameTooltip") then
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "Show", function(tip)
+					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.unknownOnShow);
+				end);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnit", function(tip)
 					tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.unit);
 				end);
@@ -1685,39 +1689,25 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 		return;
 	end
 	
-	-- current display parameters are already set
+	-- current display parameters aren't set yet
 	local tipContentUnknown = LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unknownOnShow, TT_TIP_CONTENT.unknownOnCleared });
 	
-	if (currentDisplayParams.isSet) or (currentDisplayParams.isSetTemporarily) and (tipContentUnknown) then
-		-- consider tip content "action" firing after e.g. "spell" or "item" to check if the tip needs to be hidden
-		if (currentDisplayParams.isSet) and (currentDisplayParams.tipContent ~= TT_TIP_CONTENT.action) and (tipContent == TT_TIP_CONTENT.action) then
-			-- inform group that the tip has to be checked if it needs to be hidden
-			LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-			
-			-- tip will be hidden
-			if (currentDisplayParams.hideTip) then
-				self:HideTip(tip);
-				return;
-			end
+	if (not ((currentDisplayParams.isSet) or (currentDisplayParams.isSetTemporarily) and (tipContentUnknown))) then
+		-- set tip content
+		currentDisplayParams.tipContent = tipContent;
+		
+		-- inform group that the tip's current display parameters has to be set
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+		
+		if (tipContentUnknown) then
+			currentDisplayParams.isSetTemporarily = true;
+		else
+			currentDisplayParams.isSet = true;
 		end
 		
-		return;
+		currentDisplayParams.isSetTimestamp = currentTime;
 	end
-	
-	-- set tip content
-	currentDisplayParams.tipContent = tipContent;
-	
-	-- inform group that the tip's current display parameters has to be set
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-	
-	if (tipContentUnknown) then
-		currentDisplayParams.isSetTemporarily = true;
-	else
-		currentDisplayParams.isSet = true;
-	end
-	
-	currentDisplayParams.isSetTimestamp = currentTime;
 	
 	-- inform group that the tip has to be checked if it needs to be hidden
 	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
@@ -1730,6 +1720,9 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	
 	-- inform group that the tip's styling needs to be set
 	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+	
+	-- recalculate size of tip to ensure that it has the correct dimensions
+	LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
 end
 
 -- reset tip's current display parameters
@@ -3105,16 +3098,19 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			currentDisplayParams.unitRecord = nil;
 		end
 		
+		currentDisplayParams.firstCallDoneUnitAppearance = false;
 		currentDisplayParams.timestampStartUnitAppearance = nil;
 	end,
 	OnTipSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- set unit appearance to tip
-		tt:SetUnitAppearanceToTip(tip, true);
+		tt:SetUnitAppearanceToTip(tip, not currentDisplayParams.firstCallDoneUnitAppearance);
+		currentDisplayParams.firstCallDoneUnitAppearance = true;
 		currentDisplayParams.timestampStartUnitAppearance = GetTime();
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reset current display params for unit appearance
 		currentDisplayParams.unitRecord = nil;
+		currentDisplayParams.firstCallDoneUnitAppearance = false;
 		currentDisplayParams.timestampStartUnitAppearance = nil;
 	end
 }, MOD_NAME .. " - Unit Appearance");
