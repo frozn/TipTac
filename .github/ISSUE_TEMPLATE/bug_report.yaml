@@ -1,8 +1,6 @@
 name: Bug report
 description: Create a report to help improve TipTac Reborn
-title: ""
 labels: 1_bug
-assignees: ""
 body:
   - type: textarea
     id: description
