@@ -41,7 +41,7 @@ body:
     attributes:
       label: Flavor/Version of WoW
       placeholder: |
-        Flavor: [e.g. Retail, CataC, Classic Era]
+        Flavor [e.g. Retail, CataC, Classic Era]
         - or -
         Version [e.g. 10.2.6, 4.4.0, 1.15.2, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
     validations:
