@@ -188,7 +188,7 @@ local TT_DefaultConfig = {
 	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
 	barHeight = 6,
 	barEnableTipMinimumWidth = true,
-	barTipMinimumWidth = 160,
+	barTipMinimumWidth = 165,
 	
 	-- auras
 	enableAuras = true,
@@ -368,10 +368,11 @@ TT_ExtendedConfig.tipsToModify = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
 					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
 					if (TooltipUtil) then
-						tip:HookScript("OnHide", function(tip)
+						tip:HookScript("OnTooltipCleared", function(tip)
 							tip:ClearHandlerInfo();
 						end);
 					end
@@ -381,10 +382,11 @@ TT_ExtendedConfig.tipsToModify = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
 					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
 					if (TooltipUtil) then
-						tip:HookScript("OnHide", function(tip)
+						tip:HookScript("OnTooltipCleared", function(tip)
 							tip:ClearHandlerInfo();
 						end);
 					end
@@ -443,10 +445,11 @@ TT_ExtendedConfig.tipsToModify = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
 					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
 					if (TooltipUtil) then
-						tip:HookScript("OnHide", function(tip)
+						tip:HookScript("OnTooltipCleared", function(tip)
 							tip:ClearHandlerInfo();
 						end);
 					end
@@ -456,10 +459,11 @@ TT_ExtendedConfig.tipsToModify = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
 					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
 					if (TooltipUtil) then
-						tip:HookScript("OnHide", function(tip)
+						tip:HookScript("OnTooltipCleared", function(tip)
 							tip:ClearHandlerInfo();
 						end);
 					end
