@@ -669,6 +669,15 @@ f.btnAnchor:SetSize(75,24);
 f.btnAnchor:SetPoint("BOTTOMLEFT",f.outline,"BOTTOMRIGHT",12,2);
 local TipTac = _G[PARENT_MOD_NAME];
 f.btnAnchor:SetScript("OnClick",function() TipTac:SetShown(not TipTac:IsShown()) end);
+f.btnAnchor:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:AddLine("Anchor", 1, 1, 1);
+	GameTooltip:AddLine("Click to toggle visibility of TipTac's anchor to set the position for default anchored tooltips.", nil, nil, nil, 1);
+	GameTooltip:Show();
+end);
+f.btnAnchor:SetScript("OnLeave", function()
+	GameTooltip:Hide();
+end);
 f.btnAnchor:SetText("Anchor");
 
 local function Reset_OnClick(self)
@@ -685,6 +694,15 @@ f.btnReset = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnReset:SetSize(75,24);
 f.btnReset:SetPoint("LEFT",f.btnAnchor,"RIGHT",49,0);
 f.btnReset:SetScript("OnClick",Reset_OnClick);
+f.btnReset:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:AddLine("Defaults", 1, 1, 1);
+	GameTooltip:AddLine("Reset options of current page to default settings.", nil, nil, nil, 1);
+	GameTooltip:Show();
+end);
+f.btnReset:SetScript("OnLeave", function()
+	GameTooltip:Hide();
+end);
 f.btnReset:SetText("Defaults");
 
 f.btnClose = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
