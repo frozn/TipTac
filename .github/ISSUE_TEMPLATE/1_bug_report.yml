@@ -1,0 +1,48 @@
+name: Bug report
+description: Create a report to help improve TipTac Reborn
+labels: 1_bug
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      placeholder: A clear and concise description of what the bug is. If applicable, add screenshots to help explain your problem.
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        Steps to reproduce the behavior:
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      placeholder: A clear and concise description of what you expected to happen.
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      placeholder: Add any other context about the problem here.
+  - type: textarea
+    id: version-tiptac
+    attributes:
+      label: Version of TipTac Reborn
+      placeholder: e.g. 24.05.02, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
+    validations:
+      required: true
+  - type: textarea
+    id: version-wow
+    attributes:
+      label: Flavor/Version of WoW
+      placeholder: |
+        Flavor [e.g. Retail, CataC, Classic Era]
+        - or -
+        Version [e.g. 10.2.6, 4.4.0, 1.15.2, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
+    validations:
+      required: true
