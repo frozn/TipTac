@@ -752,9 +752,9 @@ local function Report_DropDownOnClick(dropDownMenuButton, arg1, arg2)
 	if (url) then
 		LibFroznFunctions:ShowPopupWithUrl(url, iconFile, function(self)
 			-- fix icon position
-			local alertIcon = self.AlertIcon;
+			local alertIcon = _G[self:GetName() .. "AlertIcon"];
 			
-			if (not self.AlertIcon) then
+			if (not alertIcon) then
 				return;
 			end
 			

@@ -1897,10 +1897,11 @@ function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
 	
 	if (not StaticPopupDialogs[popupName]) then
 		StaticPopupDialogs[popupName] = { -- hopefully no taint, see "StaticPopup.lua"
+			showAlertGear = 1,
 			text = "Open this link in your web browser:",
-			button1 = "Close",
 			hasEditBox = 1,
 			editBoxWidth = 400,
+			button1 = "Close",
 			OnShow = function(self, data)
 				-- fix width for greater edit box width
 				local which = self.which;
@@ -1916,11 +1917,16 @@ function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
 					end
 				end
 				
-				-- consider locked edit box text and OnShow handler
+				-- consider icon, locked edit box text and OnShow handler
 				local editBox = self.editBox;
 				
 				if (data) then
+					local alertIcon = _G[self:GetName() .. "AlertIcon"];
 					local lockedEditBoxText = data.lockedEditBoxText;
+					
+					if (alertIcon) then
+						alertIcon:SetTexture(data.iconFile);
+					end
 					
 					if (lockedEditBoxText) then
 						editBox:SetText(lockedEditBoxText);
@@ -1948,19 +1954,31 @@ function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
 					self:HighlightText();
 				end
 			end,
-			EditBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed,
+			EditBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed or function(self, data)
+				-- StaticPopup_StandardEditBoxOnEscapePressed() not available in catac 4.4.0 and classic era 1.15.2
+				local dialog = self:GetParent();
+				local which = dialog.which;
+				
+				if (not which) then
+					return;
+				end
+				
+				local info = StaticPopupDialogs[which];
+				
+				if (not info) or (not info.hideOnEscape) then
+					return;
+				end
+				
+				dialog:Hide();
+			end,
 			hideOnEscape = 1
 		};
 	end
 	
-	-- set popup config
-	local info = StaticPopupDialogs[popupName];
-	
-	info.customAlertIcon = iconFile;
-	
 	-- show popup with url
 	StaticPopup_Show(popupName, nil, nil, {
 		lockedEditBoxText = url,
+		iconFile = iconFile,
 		onShowHandler = onShowHandler
 	});
 end
