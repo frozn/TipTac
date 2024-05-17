@@ -620,7 +620,7 @@ end
 
 local f = CreateFrame("Frame",MOD_NAME,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
-tinsert(UISpecialFrames, f:GetName());
+tinsert(UISpecialFrames, f:GetName()); -- hopefully no taint
 
 f.options = options;
 

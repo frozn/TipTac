@@ -1896,7 +1896,7 @@ function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
 	local popupName = LIB_NAME .. "-" .. LIB_MINOR;
 	
 	if (not StaticPopupDialogs[popupName]) then
-		StaticPopupDialogs[popupName] = { -- see "StaticPopup.lua"
+		StaticPopupDialogs[popupName] = { -- hopefully no taint, see "StaticPopup.lua"
 			text = "Open this link in your web browser:",
 			button1 = "Close",
 			hasEditBox = 1,
