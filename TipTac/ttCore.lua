@@ -1845,6 +1845,11 @@ end
 
 -- set gradient to tip
 function tt:SetGradientToTip(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
 	
