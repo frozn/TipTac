@@ -1023,10 +1023,10 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- OnTipResize                         tooltip is being resized                                    TT_CacheForFrames, tooltip, currentDisplayParams, first
 -- OnTipPostStyle                      after tooltip has been styled and has the final size        TT_CacheForFrames, tooltip, currentDisplayParams, first
 --
+-- OnTipRescaled                       tooltip has been rescaled                                   TT_CacheForFrames, tooltip, currentDisplayParams
+--
 -- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset        TT_CacheForFrames, tooltip, currentDisplayParams
 -- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset  TT_CacheForFrames, tooltip, currentDisplayParams
---
--- OnTipRescaled                       tooltip has been rescaled                                   TT_CacheForFrames, tooltip, currentDisplayParams
 --
 -- SetDefaultAnchorHook                hook for set default anchor to tip                          tooltip, parent
 -- SetBackdropBorderColorLocked        set backdrop border color locked to tip                     tooltip, r, g, b, a
@@ -1152,11 +1152,12 @@ LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, func
 	end
 	
 	-- invalid command
-	local version, build = GetBuildInfo();
+	local versionWoW, build = GetBuildInfo();
+	local versionTipTac = LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Version");
 	
 	UpdateAddOnMemoryUsage();
 	
-	tt:AddMessageToChatFrame("----- {highlight:%s %s} ----- {highlight:%.2f kb} ----- {highlight:WoW " .. version .. "} ----- ", MOD_NAME, LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Version"), GetAddOnMemoryUsage(MOD_NAME));
+	tt:AddMessageToChatFrame("----- {highlight:%s %s} ----- {highlight:%.2f kb} ----- {highlight:WoW " .. versionWoW .. "} ----- ", MOD_NAME, versionTipTac, GetAddOnMemoryUsage(MOD_NAME));
 	tt:AddMessageToChatFrame("The following {highlight:parameters} are valid for this addon:");
 	tt:AddMessageToChatFrame("  {highlight:anchor} = Shows the anchor where the tooltip appears");
 	tt:AddMessageToChatFrame("  {highlight:reset} = Resets all settings back to their default values");
@@ -1415,6 +1416,7 @@ function tt:ApplyConfig()
 	-- unregister event "ADDON_LOADED" if all tips to modify are resolved
 	if (LibFroznFunctions:IsTableEmpty(TT_ExtendedConfig.tipsToModify)) then
 		self:UnregisterEvent("ADDON_LOADED");
+		self.ADDON_LOADED = nil;
 	end
 	
 	-- inform group that the config has been applied
@@ -1949,15 +1951,6 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reapply gradient to tip
 		tt:SetGradientToTip(tip);
-		
-		-- reapply backdrop to tip
-		tt:SetBackdropToTip(tip);
-		
-		-- reapply padding to tip
-		tt:SetPaddingToTip(tip);
-		
-		-- reapply anchor tip to mouse position
-		tt:AnchorTipToMouse(tip);
 	end
 }, MOD_NAME .. " - Apply Config");
 
@@ -2187,13 +2180,9 @@ end
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- HOOK: SharedTooltip_SetBackdropStyle() to reapply backdrop and padding if necessary (e.g. needed for OnTooltipSetItem() or AreaPOIPinMixin:OnMouseEnter() on world map (e.g. Torghast) or VignettePin on world map (e.g. weekly event in Maw))
-		hooksecurefunc("SharedTooltip_SetBackdropStyle", function(self, style, embedded)
-			for tip, frameParams in pairs(TT_CacheForFrames) do
-				if (tip == self) then
-					-- set backdrop to tip
-					tt:SetBackdropToTip(tip);
-				end
-			end
+		hooksecurefunc("SharedTooltip_SetBackdropStyle", function(tip, style, embedded)
+			-- set backdrop to tip
+			tt:SetBackdropToTip(tip);
 		end);
 		
 		-- HOOK: GameTooltip_CalculatePadding() to reapply padding
@@ -2208,6 +2197,13 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			-- set padding to tip
 			tt:SetPaddingToTip(tip);
 		end
+	end,
+	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- reapply backdrop to tip
+		tt:SetBackdropToTip(tip);
+		
+		-- reapply padding to tip
+		tt:SetPaddingToTip(tip);
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reset current display parameters for backdrop
@@ -2618,6 +2614,8 @@ function tt:SetAnchorToTip(tip)
 	elseif (anchorType == "mouse") then
 		-- although we anchor the tip continuously in OnUpdate, we must anchor it initially here to avoid flicker on the first frame its being shown.
 		self:AnchorTipToMouse(tip);
+		
+		return;
 	elseif (anchorType == "parent") then
 		tip:ClearAllPoints();
 		
@@ -2850,6 +2848,10 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- because after GameTooltip_ShowCompareItem() (hook see below) has been called within TooltipDataRules.FinalizeItemTooltip(), the tooltip isn't finished yet, e.g. if hovering over monthly activities reward button.
 		-- so the tooltip may change in size after finishing the remaining TooltipDataHandler calls/callbacks to finalize the tooltip.
 		LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
+	end,
+	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- reapply anchor tip to mouse position
+		tt:AnchorTipToMouse(tip);
 	end,
 	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- HOOK: GameTooltip_SetDefaultAnchor() for re-anchoring
