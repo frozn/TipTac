@@ -1188,6 +1188,11 @@ TT_LDB_DataObject = LibDataBroker:NewDataObject(MOD_NAME, {
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnConfigLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- creation of new table needed so that saving of minimap config is possible
+		if (LibFroznFunctions:IsTableEmpty(cfg.minimapConfig)) then
+			cfg.minimapConfig = {};
+		end
+		
 		-- register minimap icon to LibDBIcon-1.0
 		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, cfg.minimapConfig);
 	end,
