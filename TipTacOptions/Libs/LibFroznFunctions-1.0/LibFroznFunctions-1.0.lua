@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 21; -- bump on changes
+local LIB_MINOR = 22; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1884,6 +1884,85 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 	end
 	
 	return false;
+end
+
+-- show popup with url
+--
+-- @param url            url to show for copy & paste
+-- @param iconFile       optional. path to an icon (usually in Interface\\) or a FileDataID
+-- @param onShowHandler  optional. handler for OnShow event of popup. parameters: self, data
+function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
+	-- create initial popup config
+	local popupName = LIB_NAME .. "-" .. LIB_MINOR;
+	
+	if (not StaticPopupDialogs[popupName]) then
+		StaticPopupDialogs[popupName] = { -- see "StaticPopup.lua"
+			text = "Open this link in your web browser:",
+			button1 = "Close",
+			hasEditBox = 1,
+			editBoxWidth = 400,
+			OnShow = function(self, data)
+				-- fix width for greater edit box width
+				local which = self.which;
+				
+				if (which) then
+					local info = StaticPopupDialogs[which];
+					
+					if (info) and (info.editBoxWidth and info.editBoxWidth > 260) then
+						local width = self:GetWidth() + (info.editBoxWidth - 260);
+						
+						self:SetWidth(width);
+						self.maxWidthSoFar = width;
+					end
+				end
+				
+				-- consider locked edit box text and OnShow handler
+				local editBox = self.editBox;
+				
+				if (data) then
+					local lockedEditBoxText = data.lockedEditBoxText;
+					
+					if (lockedEditBoxText) then
+						editBox:SetText(lockedEditBoxText);
+						editBox:HighlightText();
+					end
+					
+					if (self.data.onShowHandler) then
+						self.data.onShowHandler(self);
+					end
+				end
+				
+				-- focus edit box
+				editBox:SetFocus();
+			end,
+			EditBoxOnTextChanged = function(self, data)
+				-- consider locked edit box text
+				if (not data) then
+					return;
+				end
+				
+				local lockedEditBoxText = data.lockedEditBoxText;
+				
+				if (lockedEditBoxText) then
+					self:SetText(lockedEditBoxText);
+					self:HighlightText();
+				end
+			end,
+			EditBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed,
+			hideOnEscape = 1
+		};
+	end
+	
+	-- set popup config
+	local info = StaticPopupDialogs[popupName];
+	
+	info.customAlertIcon = iconFile;
+	
+	-- show popup with url
+	StaticPopup_Show(popupName, nil, nil, {
+		lockedEditBoxText = url,
+		onShowHandler = onShowHandler
+	});
 end
 
 ----------------------------------------------------------------------------------------------------

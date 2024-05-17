@@ -49,11 +49,11 @@ local option;
 
 -- General
 local ttOptionsGeneral = {
-	{ type = "Check", var = "showMinimapIcon", label = "Enable Minimap Icon", tip = "Will show a minimap icon for TipTac" },
+	{ type = "Check", var = "showMinimapIcon", label = "Enable Minimap Icon", tip = "Will show a minimap icon for " .. PARENT_MOD_NAME },
 	{ type = "Slider", var = "gttScale", label = "Tooltip Scale", min = 0.2, max = 4, step = 0.05, y = 10 },
 	
 	{ type = "Header", label = "Unit Tip Appearance" },
-	{ type = "Check", var = "showUnitTip", label = "Enable TipTac Unit Tip Appearance", tip = "Will change the appearance of how unit tips look. Many options in TipTac only work with this setting enabled.\nNOTE: Using this options with a non English client may cause issues!" },
+	{ type = "Check", var = "showUnitTip", label = "Enable " .. PARENT_MOD_NAME .. " Unit Tip Appearance", tip = "Will change the appearance of how unit tips look. Many options in " .. PARENT_MOD_NAME .. " only work with this setting enabled.\nNOTE: Using this options with a non English client may cause issues!" },
 	
 	{ type = "Check", var = "showStatus", label = "Show DC, AFK and DND Status", tip = "Will show the <DC>, <AFK> and <DND> status after the player name", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 },
 	{ type = "Check", var = "showTargetedBy", label = "Show Who Targets the Unit", tip = "When in a raid or party, the tip will show who from your group is targeting the unit.\nWhen ungrouped, the visible nameplates (can be enabled under WoW options 'Game->Gameplay->Interface->Nameplates') are evaluated instead.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end },
@@ -321,7 +321,7 @@ local options = {
 	-- Font
 	{
 		category = "Font",
-		enabled = { type = "Check", var = "modifyFonts", tip = "For TipTac to change the GameTooltip font templates, and thus all tooltips in the User Interface, you have to enable this option.\nNOTE: If you have an addon such as ClearFont, it might conflict with this option." },
+		enabled = { type = "Check", var = "modifyFonts", tip = "For " .. PARENT_MOD_NAME .. " to change the GameTooltip font templates, and thus all tooltips in the User Interface, you have to enable this option.\nNOTE: If you have an addon such as ClearFont, it might conflict with this option." },
 		options = {
 			{ type = "DropDown", var = "fontFace", label = "Font Face", media = "font", enabled = function(factory) return factory:GetConfigValue("modifyFonts") end },
 			{ type = "DropDown", var = "fontFlags", label = "Font Flags", list = DROPDOWN_FONTFLAGS, enabled = function(factory) return factory:GetConfigValue("modifyFonts") end },
@@ -505,8 +505,8 @@ if (TipTacTalents) then
 	
 	tinsert(tttOptions, { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end });
 	
-	tinsert(tttOptions, { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show TipTac's GearScore of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end, y = 10 });
-	tinsert(tttOptions, { type = "DropDown", var = "t_gearScoreAlgorithm", label = "GearScore Algorithm", list = { ["TacoTip"] = { value = 1, tip = "The de-facto standard algorithm from addon TacoTip" }, ["TipTac"] = { value = 2, tip = "TipTac's own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." },}, tip = "Switch between different GearScore implementations", enabled = function(factory) return factory:GetConfigValue("t_enable") and factory:GetConfigValue("t_showGearScore") end });
+	tinsert(tttOptions, { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show " .. PARENT_MOD_NAME .. "'s GearScore of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end, y = 10 });
+	tinsert(tttOptions, { type = "DropDown", var = "t_gearScoreAlgorithm", label = "GearScore Algorithm", list = { ["TacoTip"] = { value = 1, tip = "The de-facto standard algorithm from addon TacoTip" }, ["TipTac"] = { value = 2, tip = PARENT_MOD_NAME .. "'s own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." },}, tip = "Switch between different GearScore implementations", enabled = function(factory) return factory:GetConfigValue("t_enable") and factory:GetConfigValue("t_showGearScore") end });
 	
 	tinsert(tttOptions, { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the quality", enabled = function(factory) return factory:GetConfigValue("t_enable") and (factory:GetConfigValue("t_showAverageItemLevel") or factory:GetConfigValue("t_showGearScore")) end, y = 10 });
 	
@@ -660,24 +660,29 @@ f.header:SetText(PARENT_MOD_NAME.." Options");
 
 f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 f.vers:SetPoint("TOPRIGHT",-15,-15);
-local version, build = GetBuildInfo();
-f.vers:SetText(PARENT_MOD_NAME .. ": " .. LibFroznFunctions:GetAddOnMetadata(PARENT_MOD_NAME, "Version") .. "\nWoW: " .. version);
+local versionTipTac = LibFroznFunctions:GetAddOnMetadata(PARENT_MOD_NAME, "Version");
+local versionWoW, build = GetBuildInfo();
+f.vers:SetText(PARENT_MOD_NAME .. ": " .. versionTipTac .. "\nWoW: " .. versionWoW);
 f.vers:SetTextColor(1,1,0.5);
+
+local function Anchor_OnEnter(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:AddLine("Anchor", 1, 1, 1);
+	GameTooltip:AddLine("Click to toggle visibility of " .. PARENT_MOD_NAME .. "'s anchor to set the position for default anchored tooltips.", nil, nil, nil, 1);
+	GameTooltip:Show();
+end
+
+local function Anchor_OnLeave(self)
+	GameTooltip:Hide();
+end
 
 f.btnAnchor = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnAnchor:SetSize(75,24);
-f.btnAnchor:SetPoint("BOTTOMLEFT",f.outline,"BOTTOMRIGHT",12,2);
+f.btnAnchor:SetPoint("BOTTOMLEFT",f.outline,"BOTTOMRIGHT",9,1);
 local TipTac = _G[PARENT_MOD_NAME];
 f.btnAnchor:SetScript("OnClick",function() TipTac:SetShown(not TipTac:IsShown()) end);
-f.btnAnchor:SetScript("OnEnter", function(self)
-	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	GameTooltip:AddLine("Anchor", 1, 1, 1);
-	GameTooltip:AddLine("Click to toggle visibility of TipTac's anchor to set the position for default anchored tooltips.", nil, nil, nil, 1);
-	GameTooltip:Show();
-end);
-f.btnAnchor:SetScript("OnLeave", function()
-	GameTooltip:Hide();
-end);
+f.btnAnchor:SetScript("OnEnter", Anchor_OnEnter);
+f.btnAnchor:SetScript("OnLeave", Anchor_OnLeave);
 f.btnAnchor:SetText("Anchor");
 
 local function Reset_OnClick(self)
@@ -690,24 +695,178 @@ local function Reset_OnClick(self)
 	f:BuildCategoryPage();
 end
 
-f.btnReset = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
-f.btnReset:SetSize(75,24);
-f.btnReset:SetPoint("LEFT",f.btnAnchor,"RIGHT",49,0);
-f.btnReset:SetScript("OnClick",Reset_OnClick);
-f.btnReset:SetScript("OnEnter", function(self)
+local function Reset_OnEnter(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	GameTooltip:AddLine("Defaults", 1, 1, 1);
 	GameTooltip:AddLine("Reset options of current page to default settings.", nil, nil, nil, 1);
 	GameTooltip:Show();
-end);
-f.btnReset:SetScript("OnLeave", function()
+end
+
+local function Reset_OnLeave(self)
 	GameTooltip:Hide();
-end);
+end
+
+f.btnReset = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
+f.btnReset:SetSize(75,24);
+f.btnReset:SetPoint("LEFT",f.btnAnchor,"RIGHT",9,0);
+f.btnReset:SetScript("OnClick",Reset_OnClick);
+f.btnReset:SetScript("OnEnter", Reset_OnEnter);
+f.btnReset:SetScript("OnLeave", Reset_OnLeave);
 f.btnReset:SetText("Defaults");
+
+local function Report_OnClick(self)
+	ToggleDropDownMenu(1, nil, f.btnReport.dropDownMenu, f.btnReport, 0, 0);
+end
+
+local function Report_DropDownOnClick(dropDownMenuButton, arg1, arg2)
+	-- build url
+	local url;
+	
+	if (arg1 == "reportBug") then
+		if (arg2 == "onGitHub") then
+			url = LibFroznFunctions:ReplaceText("https://github.com/frozn/TipTac/issues/new?template=1_bug_report.yml&labels=1_bug&version-tiptac={versionTipTac}&version-wow={versionWoW}", {
+				["{versionTipTac}"] = versionTipTac,
+				["{versionWoW}"] = versionWoW
+			});
+		elseif (arg2 == "onCurseForge") then
+			url = "https://www.curseforge.com/wow/addons/tiptac-reborn/comments";
+		end
+	elseif (arg1 == "requestFeature") then
+		if (arg2 == "onGitHub") then
+			url = "https://github.com/frozn/TipTac/issues/new?template=2_feature_request.yml&labels=1_enhancement";
+		elseif (arg2 == "onCurseForge") then
+			url = "https://www.curseforge.com/wow/addons/tiptac-reborn/comments";
+		end
+	end
+	
+	-- set icon
+	local iconFile;
+	
+	if (arg2 == "onGitHub") then
+		iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\github";
+	elseif (arg2 == "onCurseForge") then
+		iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\curseforge";
+	end
+	
+	-- open popup with url
+	if (url) then
+		LibFroznFunctions:ShowPopupWithUrl(url, iconFile, function(self)
+			-- fix icon position
+			local alertIcon = self.AlertIcon;
+			
+			if (not self.AlertIcon) then
+				return;
+			end
+			
+			alertIcon:ClearAllPoints();
+			alertIcon:SetPoint("LEFT", 24, 5);
+		end);
+	end
+	
+	-- close dropdown
+	CloseDropDownMenus();
+end
+
+local function Report_DropDownOnInitialize(dropDownMenu, level, menuList)
+	local list = LibFroznFunctions:CreatePushArray();
+	
+	if (level == 1) then
+		list:Push({
+			iconText = { "Interface\\HelpFrame\\HelpIcon-Bug", 64, 64, nil, nil, 0.1875, 0.78125, 0.1875, 0.78125 },
+			text = "Report bug",
+			menuList = "reportBug"
+		});
+		list:Push({
+			iconText = { "Interface\\HelpFrame\\HelpIcon-Suggestion", 64, 64, nil, nil, 0.21875, 0.765625, 0.234375, 0.78125 },
+			text = "Request feature",
+			menuList = "requestFeature"
+		});
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\CommonIcons", 64, 64, nil, nil, 0.126465, 0.251465, 0.504883, 0.754883 },
+			text = "Cancel",
+			func = Report_DropDownOnClick,
+			arg1 = "cancel"
+		});
+	elseif (menuList == "reportBug") then
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\github", 32, 32, nil, nil, 0, 1, 0, 1 },
+			text = "on GitHub (preferred)",
+			func = Report_DropDownOnClick,
+			arg1 = "reportBug",
+			arg2 = "onGitHub"
+		});
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\curseforge", 32, 32, nil, nil, 0, 1, 0, 1 },
+			text = "on CurseForge",
+			func = Report_DropDownOnClick,
+			arg1 = "reportBug",
+			arg2 = "onCurseForge"
+		});
+	elseif (menuList == "requestFeature") then
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\github", 32, 32, nil, nil, 0, 1, 0, 1 },
+			text = "on GitHub (preferred)",
+			func = Report_DropDownOnClick,
+			arg1 = "requestFeature",
+			arg2 = "onGitHub"
+		});
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\curseforge", 32, 32, nil, nil, 0, 1, 0, 1 },
+			text = "on CurseForge",
+			func = Report_DropDownOnClick,
+			arg1 = "requestFeature",
+			arg2 = "onCurseForge"
+		});
+	end
+	
+	if (list:GetCount() > 0) then
+		for _, item in ipairs(list) do
+			local info = UIDropDownMenu_CreateInfo();
+			
+			info.text = (item.iconText and (CreateTextureMarkup(unpack(item.iconText)) .. " ") or "") .. item.text;
+			
+			if (item.menuList) then
+				info.hasArrow = true;
+				info.menuList = item.menuList;
+				info.keepShownOnClick = true;
+			else
+				info.func = item.func;
+				info.arg1 = item.arg1;
+				info.arg2 = item.arg2;
+			end
+			
+			info.notCheckable = true;
+			
+			UIDropDownMenu_AddButton(info, level);
+		end
+	end
+end
+
+local function Report_OnEnter(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:AddLine("Report", 1, 1, 1);
+	GameTooltip:AddLine("Report bugs or request features on " .. PARENT_MOD_NAME .. "'s GitHub or CurseForge page.", nil, nil, nil, 1);
+	GameTooltip:Show();
+end
+
+local function Report_OnLeave(self)
+	GameTooltip:Hide();
+end
+
+f.btnReport = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
+f.btnReport:SetSize(75,24);
+f.btnReport:SetPoint("LEFT",f.btnReset,"RIGHT",9,0);
+f.btnReport:SetScript("OnClick", Report_OnClick);
+f.btnReport:SetScript("OnEnter", Report_OnEnter);
+f.btnReport:SetScript("OnLeave", Report_OnLeave);
+f.btnReport:SetText("Report");
+
+f.btnReport.dropDownMenu = CreateFrame("Frame", nil, f.btnReport, "UIDropDownMenuTemplate");
+UIDropDownMenu_Initialize(f.btnReport.dropDownMenu, Report_DropDownOnInitialize, "MENU");
 
 f.btnClose = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnClose:SetSize(75,24);
-f.btnClose:SetPoint("LEFT",f.btnReset,"RIGHT",49,0);
+f.btnClose:SetPoint("LEFT",f.btnReport,"RIGHT",10,0);
 f.btnClose:SetScript("OnClick",function() f:Hide(); end);
 f.btnClose:SetText("Close");
 
@@ -756,8 +915,8 @@ local function FixScroll(self)
 			self.scrollBarShown = nil;
 			f.scrollBar:Hide();
 			f.scrollBar:SetValue(0);
-			local scrollFrameBottomRightPoint, scrollFrameBottomRightRelativeTo, scrollFrameBottomRightRelativePoint, scrollFrameBottomRightXOfs, scrollFrameBottomRightYOfs = f.scrollFrame:GetPoint(2);
-			scrollFrameBottomRightXOfs = 0;
+			local scrollFrameBottomRightPoint, scrollFrameBottomRightRelativeTo, scrollFrameBottomRightRelativePoint, scrollFrameBottomRightXOfs, scrollFrameBottomRightYOfs = f.scrollFrame:GetPoint(3);
+			scrollFrameBottomRightXOfs = -13;
 			f.scrollFrame:SetPoint(scrollFrameBottomRightPoint, scrollFrameBottomRightRelativeTo, scrollFrameBottomRightRelativePoint, scrollFrameBottomRightXOfs, scrollFrameBottomRightYOfs);
 			if f.content.original_width then
 				f.content:SetWidth(f.content.original_width);
@@ -767,8 +926,8 @@ local function FixScroll(self)
 		if not self.scrollBarShown then
 			self.scrollBarShown = true;
 			f.scrollBar:Show();
-			local scrollFrameBottomRightPoint, scrollFrameBottomRightRelativeTo, scrollFrameBottomRightRelativePoint, scrollFrameBottomRightXOfs, scrollFrameBottomRightYOfs = f.scrollFrame:GetPoint(2);
-			scrollFrameBottomRightXOfs = -20;
+			local scrollFrameBottomRightPoint, scrollFrameBottomRightRelativeTo, scrollFrameBottomRightRelativePoint, scrollFrameBottomRightXOfs, scrollFrameBottomRightYOfs = f.scrollFrame:GetPoint(3);
+			scrollFrameBottomRightXOfs = -33;
 			f.scrollFrame:SetPoint(scrollFrameBottomRightPoint, scrollFrameBottomRightRelativeTo, scrollFrameBottomRightRelativePoint, scrollFrameBottomRightXOfs, scrollFrameBottomRightYOfs);
 			if f.content.original_width then
 				f.content:SetWidth(f.content.original_width - 20);
@@ -803,8 +962,10 @@ end
 
 f.scrollFrame = CreateFrame("ScrollFrame", nil, f);
 f.scrollFrame.status = {};
-f.scrollFrame:SetPoint("TOPLEFT", f.outline, "TOPRIGHT", 0, -38);
-f.scrollFrame:SetPoint("BOTTOMRIGHT", f.btnClose, "TOPRIGHT", 0, 8);
+f.scrollFrame:SetPoint("TOP", f.header, "BOTTOM", 0, -12);
+f.scrollFrame:SetPoint("LEFT", f.outline, "RIGHT", 0, 9);
+f.scrollFrame:SetPoint("BOTTOM", f.btnClose, "TOP", 0, 9);
+f.scrollFrame:SetPoint("RIGHT", f, "RIGHT", -13, 0);
 f.scrollFrame:EnableMouseWheel(true);
 f.scrollFrame:SetScript("OnMouseWheel", ScrollFrame_OnMouseWheel);
 f.scrollFrame:SetScript("OnSizeChanged", ScrollFrame_OnSizeChanged);
