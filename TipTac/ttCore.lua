@@ -188,7 +188,7 @@ local TT_DefaultConfig = {
 	barTexture = "Interface\\TargetingFrame\\UI-StatusBar",
 	barHeight = 6,
 	barEnableTipMinimumWidth = true,
-	barTipMinimumWidth = 165,
+	barTipMinimumWidth = 180,
 	
 	-- auras
 	enableAuras = true,
