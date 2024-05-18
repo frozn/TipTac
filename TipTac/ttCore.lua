@@ -1200,9 +1200,17 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- show/hide minimap icon
 		if (cfg.showMinimapIcon) then
-			LibDBIcon:Show(MOD_NAME);
+			local minimapButton = LibDBIcon:GetMinimapButton(MOD_NAME);
+			
+			if (minimapButton) and (not minimapButton:IsShown()) then
+				LibDBIcon:Show(MOD_NAME);
+			end
 		else
-			LibDBIcon:Hide(MOD_NAME);
+			local minimapButton = LibDBIcon:GetMinimapButton(MOD_NAME);
+			
+			if (minimapButton) and (minimapButton:IsShown()) then
+				LibDBIcon:Hide(MOD_NAME);
+			end
 		end
 	end
 }, MOD_NAME .. " - Minimap Icon");
