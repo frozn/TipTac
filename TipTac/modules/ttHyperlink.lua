@@ -164,7 +164,7 @@ function ttHyperlink:ShowTipForTypeBattlepet(chatFrame, refString, text)
 end
 
 -- show tip for hyperlink type "battlePetAbil"
-function ttHyperlink:ShowTipForTypeBattlePetAbil(chatFrame, refString, text)
+function ttHyperlink:ShowTipForTypeBattlepetabil(chatFrame, refString, text)
 	-- make shure that PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
 	if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
 		LibFroznFunctions:LoadAddOn("Blizzard_Collections");
@@ -183,7 +183,7 @@ function ttHyperlink:ShowTipForTypeBattlePetAbil(chatFrame, refString, text)
 end
 
 -- show tip for hyperlink type "dungeonScore"
-function ttHyperlink:ShowTipForTypeDungeonScore(chatFrame, refString, text)
+function ttHyperlink:ShowTipForTypeDungeonscore(chatFrame, refString, text)
 	-- see GetDungeonScoreLink() + DisplayDungeonScoreLink() in "ItemRef.lua"
 	local splits = StringSplitIntoTable(":", refString);
 	
@@ -231,7 +231,7 @@ function ttHyperlink:ShowTipForTypeDungeonScore(chatFrame, refString, text)
 	GameTooltip_AddBlankLineToTooltip(GameTooltip);
 	
 	local sortTable = { };
-	local DUNGEON_SCORE_LINK_INDEX_START = 9;
+	local DUNGEON_SCORE_LINK_INDEX_START = 11;
 	local DUNGEON_SCORE_LINK_ITERATE = 3;
 	
 	for i = DUNGEON_SCORE_LINK_INDEX_START, (#splits), DUNGEON_SCORE_LINK_ITERATE do
@@ -259,7 +259,7 @@ function ttHyperlink:ShowTipForTypeDungeonScore(chatFrame, refString, text)
 	
 	-- consider backdrop border color by Class
 	if (cfg.classColoredBorder) then
-		tt:SetBackdropBorderColorLocked(GameTooltip, true, classColor.r, classColor.g, classColor.b);
+		tt:SetBackdropBorderColorLocked(GameTooltip, classColor.r, classColor.g, classColor.b);
 	end
 	
 	showingTooltip = GameTooltip;
