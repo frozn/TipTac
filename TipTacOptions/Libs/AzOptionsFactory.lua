@@ -40,6 +40,8 @@
 	24.05.07 Rev 25 10.2.6/Dragonflight #frozn45
 	- added an "enabled" property for all objects
 	- added a tooltip for TextEdit and TextOnly
+	24.05.xx Rev 26 10.2.7/Dragonflight #frozn45
+	- considered empty options for BuildOptionsPage()
 --]]
 
 -- create new library
@@ -137,7 +139,7 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 	local lastTop = 0;
 	local firstOption = true;
 
-	for index, option in ipairs(options) do
+	for index, option in ipairs(options or {}) do
 		local restrictType = type(option.restrict);
 		local allowCreation = (
 			(restrictType == "nil")
