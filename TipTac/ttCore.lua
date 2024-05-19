@@ -2336,36 +2336,71 @@ function tt:ApplyColorLockingFeature(tip)
 	if (tip.NineSlice) then
 		if (tip.NineSlice.ApplyBackdrop) then
 			hooksecurefunc(tip.NineSlice, "ApplyBackdrop", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForApplySetClearBackdrop(tip:GetParent(), tip);
 			end);
 		end
 		if (tip.NineSlice.SetBackdrop) then
 			hooksecurefunc(tip.NineSlice, "SetBackdrop", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForApplySetClearBackdrop(tip:GetParent(), tip);
 			end);
 		end
 		if (tip.NineSlice.ClearBackdrop) then
 			hooksecurefunc(tip.NineSlice, "ClearBackdrop", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForApplySetClearBackdrop(tip:GetParent(), tip);
 			end);
 		end
 		if (tip.NineSlice.SetBackdropColor) then
 			hooksecurefunc(tip.NineSlice, "SetBackdropColor", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForSetBackdropColor(tip:GetParent(), tip);
 			end);
 		end
 		if (tip.NineSlice.SetBackdropBorderColor) then
 			hooksecurefunc(tip.NineSlice, "SetBackdropBorderColor", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForSetBackdropBorderColor(tip:GetParent(), tip);
 			end);
 		end
 		if (tip.NineSlice.SetCenterColor) then
 			hooksecurefunc(tip.NineSlice, "SetCenterColor", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForSetCenterColor(tip:GetParent(), tip);
 			end);
 		end
 		if (tip.NineSlice.SetBorderColor) then
 			hooksecurefunc(tip.NineSlice, "SetBorderColor", function(tip)
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				colorLockingFnForSetBorderColor(tip:GetParent(), tip);
 			end);
 		end

@@ -1991,7 +1991,7 @@ end
 --
 -- @param tip  GameTooltip
 function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
-	if (type(tip.GetObjectType) ~= "function") or (tip:GetObjectType() ~= "GameTooltip") then
+	if (tip:IsForbidden()) or (type(tip.GetObjectType) ~= "function") or (tip:GetObjectType() ~= "GameTooltip") then
 		return;
 	end
 	
