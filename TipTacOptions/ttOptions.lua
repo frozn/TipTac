@@ -452,9 +452,7 @@ local options = {
 	-- Hyperlink
 	{
 		category = "Hyperlink",
-		options = {
-			{ type = "Check", var = "enableChatHoverTips", label = "Enable (Guild & Community) ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the (Guild & Community) Chatframe, show the tooltip without having to click on it" },
-		}
+		enabled = { type = "Check", var = "enableChatHoverTips", label = "Enable (Guild & Community) ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the (Guild & Community) Chatframe, show the tooltip without having to click on it" }
  	},
 	-- Layouts
 	{
@@ -1047,7 +1045,9 @@ function f:BuildCategoryPage(noUpdateScrollFrame)
 		end
 	end
 	
-	f.content:SetHeight((newContentHeight or 0) + contentChildMostBottom:GetHeight());
+	local finalContentHeight = (newContentHeight or 0) + (contentChildMostBottom and contentChildMostBottom:GetHeight() or 0);
+	
+	f.content:SetHeight(finalContentHeight > 0 and finalContentHeight or 1);
 end
 
 --------------------------------------------------------------------------------------------------------
