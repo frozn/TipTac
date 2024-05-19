@@ -396,49 +396,45 @@ TT_ExtendedConfig.tipsToModify = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
 					-- HOOK: DisplayDungeonScoreLink() to set class colors to backdrop border, see "ItemRef.lua"
-					if (DisplayDungeonScoreLink) then
-						hooksecurefunc("DisplayDungeonScoreLink", function(link)
-							if (cfg.classColoredBorder) and (tip:IsShown()) then
-								local splits = StringSplitIntoTable(":", link);
-								
-								-- bad link, return.
-								if (not splits) then
-									return;
-								end
-								
-								local classID = splits[5];
-								local classColor = LibFroznFunctions:GetClassColor(classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
-								
-								tt:SetBackdropBorderColorLocked(tip, classColor.r, classColor.g, classColor.b);
-							end
-						end);
-					end
-					
-					-- HOOK: ItemRefTooltipMixin:ItemRefSetHyperlink() to adjust padding for close button if needed. additionally considering TextRight1 here.
-					if (ItemRefTooltip.ItemRefSetHyperlink) then
-						hooksecurefunc(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
-							-- get current display parameters
-							local frameParams = TT_CacheForFrames[self];
+					LibFroznFunctions:HookSecureFuncIfExists("DisplayDungeonScoreLink", function(link)
+						if (cfg.classColoredBorder) and (tip:IsShown()) then
+							local splits = StringSplitIntoTable(":", link);
 							
-							if (not frameParams) then
+							-- bad link, return.
+							if (not splits) then
 								return;
 							end
 							
-							local currentDisplayParams = frameParams.currentDisplayParams;
+							local classID = splits[5];
+							local classColor = LibFroznFunctions:GetClassColor(classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 							
-							-- adjust padding for close button if needed. additionally considering TextRight1 here.
-							local titleRight = _G[self:GetName() .. "TextRight1"];
-							local titleLeft = _G[self:GetName() .. "TextLeft1"];
+							tt:SetBackdropBorderColorLocked(tip, classColor.r, classColor.g, classColor.b);
+						end
+					end);
+					
+					-- HOOK: ItemRefTooltipMixin:ItemRefSetHyperlink() to adjust padding for close button if needed. additionally considering TextRight1 here.
+					LibFroznFunctions:HookSecureFuncIfExists(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
+						-- get current display parameters
+						local frameParams = TT_CacheForFrames[self];
+						
+						if (not frameParams) then
+							return;
+						end
+						
+						local currentDisplayParams = frameParams.currentDisplayParams;
+						
+						-- adjust padding for close button if needed. additionally considering TextRight1 here.
+						local titleRight = _G[self:GetName() .. "TextRight1"];
+						local titleLeft = _G[self:GetName() .. "TextLeft1"];
+						
+						if (titleRight) and (titleRight:GetText()) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
+							local xPadding = 16;
+							currentDisplayParams.extraPaddingRightForCloseButton = xPadding;
 							
-							if (titleRight) and (titleRight:GetText()) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
-								local xPadding = 16;
-								currentDisplayParams.extraPaddingRightForCloseButton = xPadding;
-								
-								-- set padding to tip
-								tt:SetPaddingToTip(self);
-							end
-						end);
-					end
+							-- set padding to tip
+							tt:SetPaddingToTip(self);
+						end
+					end);
 				end
 			},
 			["ItemRefShoppingTooltip1"] = {
