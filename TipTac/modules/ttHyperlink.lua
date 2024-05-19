@@ -40,6 +40,7 @@ local supportedHyperLinkTypes = {
 	item = "default",
 	keystone = "default",
 	mawpower = "default",
+	pvptal = "custom",
 	quest = "default",
 	spell = "default",
 	talent = "default",
@@ -89,7 +90,7 @@ function ttHyperlink:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	
 	if (not eventsForCommunitiesChatFrameHooked) then
 		if (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities")) then
-			local chatFrame = _G.CommunitiesFrame.Chat.MessageFrame;
+			local chatFrame = CommunitiesFrame.Chat.MessageFrame;
 			
 			hookChatFrameFn(chatFrame);
 			
@@ -261,6 +262,29 @@ function ttHyperlink:ShowTipForTypeDungeonscore(chatFrame, refString, text)
 	if (cfg.classColoredBorder) then
 		tt:SetBackdropBorderColorLocked(GameTooltip, classColor.r, classColor.g, classColor.b);
 	end
+	
+	showingTooltip = GameTooltip;
+	GameTooltip:Show();
+end
+
+-- show tip for hyperlink type "pvptal"
+function ttHyperlink:ShowTipForTypePvptal(chatFrame, refString, text)
+	-- see PvPTalentSlotButtonMixin:OnEnter() in "Blizzard_ClassTalentUI/Blizzard_PvPTalentSlotTemplates.lua"
+	local splits = StringSplitIntoTable(":", refString);
+	
+	--Bad Link, Return.
+	if (not splits) then
+		return;
+	end
+	
+	local talentID = tonumber(splits[2]);
+	
+	--Bad Link..
+	if (not talentID) then
+		return;
+	end
+	
+	GameTooltip:SetPvpTalent(talentID);
 	
 	showingTooltip = GameTooltip;
 	GameTooltip:Show();

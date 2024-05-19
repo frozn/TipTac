@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 22; -- bump on changes
+local LIB_MINOR = 23; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1857,7 +1857,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 	while (currentFrame) do
 		for _, frameAndNamePattern in ipairs(LibFroznFunctions:ConvertToTable(framesAndNamePatterns)) do
 			if (type(frameAndNamePattern) == "table") then
-				if (currentFrame == patternOrFrame) then
+				if (currentFrame == frameAndNamePattern) then
 					return true;
 				end
 			elseif (type(frameAndNamePattern) == "string") then
@@ -1871,7 +1871,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 			end
 		end
 		
-		if (maxLevel) and (currentLevel == maxLevel) then
+		if (maxLevel) and (currentLevel >= maxLevel) then
 			return false;
 		end
 		
