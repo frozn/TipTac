@@ -453,7 +453,7 @@ local options = {
 	{
 		category = "Hyperlink",
 		options = {
-			{ type = "Check", var = "enableChatHoverTips", label = "Enable ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the chatframe, show the tooltip without having to click on it" },
+			{ type = "Check", var = "enableChatHoverTips", label = "Enable (Guild & Community) ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the (Guild & Community) Chatframe, show the tooltip without having to click on it" },
 		}
  	},
 	-- Layouts
