@@ -425,7 +425,7 @@ function ttif:OnApplyConfig(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 	
 	local gameFont = GameFontNormal:GetFont();
 	for index, tip in ipairs(tipsToModify) do
-		if (type(tip) == "table") and (tipsToAddIcon[tip:GetName()]) and (tip.ttIcon) then
+		if (type(tip) == "table") and (not tip:IsForbidden()) and (tipsToAddIcon[tip:GetName()]) and (tip.ttIcon) then
 			if (cfg.if_showIcon) then
 				tip.ttIcon:SetSize(cfg.if_iconSize, cfg.if_iconSize);
 				tip.ttCount:SetFont(gameFont, (cfg.if_iconSize / 3), "OUTLINE");
