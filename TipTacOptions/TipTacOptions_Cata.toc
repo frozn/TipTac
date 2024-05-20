@@ -1,5 +1,5 @@
 ## Interface: 40400
-## Version: 24.05.18
+## Version: 24.05.20
 ## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
 ## Title: TipTacOptions
 ## Author: Aezay (Earthen Ring EU), Frozn45
