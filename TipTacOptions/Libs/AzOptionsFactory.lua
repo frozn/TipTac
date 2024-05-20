@@ -40,13 +40,13 @@
 	24.05.07 Rev 25 10.2.6/Dragonflight #frozn45
 	- added an "enabled" property for all objects
 	- added a tooltip for TextEdit and TextOnly
-	24.05.xx Rev 26 10.2.7/Dragonflight #frozn45
+	24.05.20 Rev 26 10.2.7/Dragonflight #frozn45
 	- made shure that evaluating the "enabled" property always returns a boolean value
 	- considered empty options for BuildOptionsPage()
 --]]
 
 -- create new library
-local REVISION = 24; -- bump on changes
+local REVISION = 26; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
