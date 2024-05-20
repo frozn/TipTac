@@ -1744,7 +1744,9 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
 	
 	-- recalculate size of tip to ensure that it has the correct dimensions
-	LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
+	if (tipContent ~= TT_TIP_CONTENT.unknownOnCleared) then -- prevent recalculating size of tip on tip content "unknownOnCleared" to prevent accidentally reducing tip's width/height to a tiny square e.g. on individual GameTooltips with tip:ClearLines(). test case: addon "Titan Panel" with broker addon "Profession Cooldown".
+		LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
+	end
 end
 
 -- reset tip's current display parameters
