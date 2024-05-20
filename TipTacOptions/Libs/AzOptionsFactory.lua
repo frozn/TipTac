@@ -41,6 +41,7 @@
 	- added an "enabled" property for all objects
 	- added a tooltip for TextEdit and TextOnly
 	24.05.xx Rev 26 10.2.7/Dragonflight #frozn45
+	- made shure that evaluating the "enabled" property always returns a boolean value
 	- considered empty options for BuildOptionsPage()
 --]]
 
@@ -199,7 +200,8 @@ end
 
 -- tooltip
 local function SliderEdit_OnEnter(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -221,7 +223,8 @@ local function SliderEdit_OnLeave(self)
 		end
 	end
 	
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -260,7 +263,7 @@ azof.objects.Slider = {
 		self.edit:SetNumber(cfgValue);
 		self.low:SetText(option.min);
 		self.high:SetText(option.max);
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		self.edit:SetEnabled(enabled);
 		self.slider:SetEnabled(enabled);
 		if (enabled) then
@@ -340,7 +343,8 @@ azof.objects.Slider = {
 
 -- tooltip
 local function Header_OnEnter(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -355,7 +359,8 @@ local function Header_OnEnter(self)
 end
 
 local function Header_OnLeave(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -370,7 +375,7 @@ azof.objects.Header = {
 	height = 18, -- 7px visible dimension height + 6px visible padding top + 5px extra padding bottom = 18px
 	extraPaddingTop = 15, -- 5px final visible yOffset + 10px extra padding top = 15px
 	Init = function(self, option, cfgValue)
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		if (enabled) then
 			self.text:SetTextColor(1, 0.82, 0);
 		else
@@ -439,7 +444,7 @@ azof.objects.Check = {
 	Init = function(self, option, cfgValue)
 		self:SetHitRectInsets(0, self.text:GetWidth() * -1, 0, 0);
 		self:SetChecked(cfgValue);
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		self:SetEnabled(enabled);
 		if (enabled) then
 			self.text:SetTextColor(1, 0.82, 0);
@@ -593,7 +598,7 @@ azof.objects.Color = {
 		else
 			self.color:SetRGBA(unpack(cfgValue));
 		end
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		self:SetEnabled(enabled);
 		if (enabled) then
 			self.texture:SetVertexColor(self.color:GetRGBA());
@@ -638,7 +643,8 @@ azof.objects.Color = {
 
 -- tooltip
 local function DropDown_OnEnter(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -660,7 +666,8 @@ local function DropDown_OnLeave(self)
 		end
 	end
 	
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -798,7 +805,7 @@ azof.objects.DropDown = {
 	Init = function(self,option,cfgValue)
 		self.initFunc = (option.init or option.media and SharedMediaLib_Init or Default_Init);
 		self:InitSelectedItem(cfgValue);
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		self.button:SetEnabled(enabled);
 		if (enabled) then
 			self.label:SetTextColor(1, 1, 1);
@@ -835,7 +842,8 @@ azof.objects.DropDown = {
 --------------------------------------------------------------------------------------------------------
 
 local function TextEdit_OnEnter(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -849,7 +857,8 @@ local function TextEdit_OnEnter(self)
 end
 
 local function TextEdit_OnLeave(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -876,7 +885,7 @@ azof.objects.Text = {
 	},
 	Init = function(self,option,cfgValue)
 		self:SetText(cfgValue:gsub("|","||"));
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		self:SetEnabled(enabled);
 		if (enabled) then
 			self:SetTextColor(1, 1, 1);
@@ -915,7 +924,8 @@ azof.objects.Text = {
 --------------------------------------------------------------------------------------------------------
 
 local function TextOnly_OnEnter(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -930,7 +940,8 @@ local function TextOnly_OnEnter(self)
 end
 
 local function TextOnly_OnLeave(self)
-	local enabled = (not self.option.enabled) or self.option.enabled(self.factory, self, self.option, self.factory:GetConfigValue(self.option.var));
+	local cfgValue = self.factory:GetConfigValue(self.option.var);
+	local enabled = (not self.option.enabled) or (not not self.option.enabled(self.factory, self, option, cfgValue));
 	if (not enabled) then
 		return;
 	end
@@ -945,7 +956,7 @@ azof.objects.TextOnly = {
 	height = 13, -- 7px visible dimension height + 6px visible padding top + 0px extra padding bottom = 13px
 	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	Init = function(self, option, cfgValue)
-		local enabled = (not option.enabled) or option.enabled(self.factory, self, option, cfgValue);
+		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		if (enabled) then
 			self.text:SetTextColor(1, 0.82, 0);
 		else
