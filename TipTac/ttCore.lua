@@ -23,6 +23,10 @@ local cfg;
 
 -- default config
 local TT_DefaultConfig = {
+	-- TipTac anchor
+	left = nil,  -- set during event ADDON_LOADED
+	top = nil,   -- set during event ADDON_LOADED
+	
 	-- general
 	showMinimapIcon = true,
 	minimapConfig = {},  -- set in LibDBIcon-1.0
