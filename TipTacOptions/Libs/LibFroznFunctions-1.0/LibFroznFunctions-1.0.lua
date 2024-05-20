@@ -746,7 +746,7 @@ function LibFroznFunctions:ChainTables(leadingTable, alternateTable)
 			-- check if value exists in alternate table
 			local value = alternateTable[index];
 			
-			if (value) then
+			if (value ~= nil) then
 				return value;
 			end
 			
