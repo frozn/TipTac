@@ -299,7 +299,7 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 		if (tip.TopOverlay) then
 			local isTopOverlayShown = tip.TopOverlay:IsShown();
 		
-			if (style) and (style.overlayTextureTop) then -- part from SharedTooltip_SetBackdropStyle() only for top overlay
+			if (style) and (style.overlayTextureTop) and (not isTopOverlayShown) then -- part from SharedTooltip_SetBackdropStyle() only for top overlay
 				-- tip.TopOverlay:SetAtlas(style.overlayAtlasTop, true); -- available in DF, but not available in WotLKC
 				tip.TopOverlay:SetTexture(style.overlayTextureTop);
 				tip.TopOverlay:SetSize(style.overlayTextureTopWidth, style.overlayTextureTopHeight);
@@ -308,13 +308,15 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 				tip.TopOverlay:SetScale(style.overlayAtlasTopScale or 1.0);
 				tip.TopOverlay:SetPoint("CENTER", tip, "TOP", style.overlayAtlasTopXOffset or 0, style.overlayAtlasTopYOffset or 0);
 				tip.TopOverlay:Show();
+				
+				currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper = true;
 			end
 		end
 		
 		if (tip.BottomOverlay) then
 			local isBottomOverlayShown = tip.BottomOverlay:IsShown();
 			
-			if (style) and (style.overlayTextureBottom) then -- part from SharedTooltip_SetBackdropStyle() only for bottom overlay
+			if (style) and (style.overlayTextureBottom) and (not isBottomOverlayShown) then -- part from SharedTooltip_SetBackdropStyle() only for bottom overlay
 				-- tip.BottomOverlay:SetAtlas(style.overlayAtlasBottom, true); -- available in DF, but not available in WotLKC
 				tip.BottomOverlay:SetTexture(style.overlayTextureBottom);
 				tip.BottomOverlay:SetSize(style.overlayTextureBottomWidth, style.overlayTextureBottomHeight);
@@ -323,6 +325,8 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 				tip.BottomOverlay:SetScale(style.overlayAtlasBottomScale or 1.0);
 				tip.BottomOverlay:SetPoint("CENTER", tip, "BOTTOM", style.overlayAtlasBottomXOffset or 0, style.overlayAtlasBottomYOffset or 0);
 				tip.BottomOverlay:Show();
+				
+				currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper = true;
 			end
 		end
 	end
@@ -758,6 +762,8 @@ function ttStyle:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDis
 	currentDisplayParams.tipLineTargetedByIndex = nil;
 	currentDisplayParams.petLineLevelIndex = nil;
 	currentDisplayParams.mergeLevelLineWithGuildName = nil;
+	currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper = nil;
+	currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper = nil;
 end
 
 function ttStyle:OnTipStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
@@ -787,4 +793,18 @@ function ttStyle:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentD
 	currentDisplayParams.tipLineTargetedByIndex = nil;
 	currentDisplayParams.petLineLevelIndex = nil;
 	currentDisplayParams.mergeLevelLineWithGuildName = nil;
+end
+
+function ttStyle:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
+	-- hide tip's top/bottom overlay currently highlighting TipTac developer
+	if (currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper) and (tip.TopOverlay) then
+		tip.TopOverlay:Hide();
+	end
+	if (currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper) and (tip.BottomOverlay) then
+		tip.BottomOverlay:Hide();
+	end
+	
+	-- reset current display params for unit appearance
+	currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper = nil;
+	currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper = nil;
 end

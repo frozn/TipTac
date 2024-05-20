@@ -783,60 +783,63 @@ local TT_TipsToModifyFromOtherMods = {};
 -- gradient              optional. gradient texture for frame
 
 -- params for 2nd key (currentDisplayParams):
--- isSet                                     true if current display parameters are set, false otherwise.
--- isSetTemporarily                          true if current display parameters are temporarily set, false otherwise.
+-- isSet                                         true if current display parameters are set, false otherwise.
+-- isSetTemporarily                              true if current display parameters are temporarily set, false otherwise.
 --
--- isSetTimestamp                            timestamp of current display parameters were set, nil otherwise.
+-- isSetTimestamp                                timestamp of current display parameters were set, nil otherwise.
 --
--- tipContent                                see TT_TIP_CONTENT
--- hideTip                                   true if tip will be hidden, false otherwise.
--- ignoreSetCurrentDisplayParamsOnTimestamp  timestamp of ignoring tooltip's current display parameters to be set, nil otherwise.
+-- tipContent                                    see TT_TIP_CONTENT
+-- hideTip                                       true if tip will be hidden, false otherwise.
+-- ignoreSetCurrentDisplayParamsOnTimestamp      timestamp of ignoring tooltip's current display parameters to be set, nil otherwise.
 --
--- lockedBackdropInfo                        locked backdropInfo, nil otherwise.
--- lockedBackdropColor                       locked backdrop color, nil otherwise.
--- lockedBackdropBorderColor                 locked backdrop border color, nil otherwise.
+-- lockedBackdropInfo                            locked backdropInfo, nil otherwise.
+-- lockedBackdropColor                           locked backdrop color, nil otherwise.
+-- lockedBackdropBorderColor                     locked backdrop border color, nil otherwise.
 --
--- extraPaddingRightForMinimumWidth          value for extra padding right for minimum width, nil otherwise.
--- extraPaddingRightForCloseButton           value for extra padding right to fit close button, nil otherwise.
--- extraPaddingBottomForBars                 value for extra padding bottom to fit health/power bars, nil otherwise.
+-- extraPaddingRightForMinimumWidth              value for extra padding right for minimum width, nil otherwise.
+-- extraPaddingRightForCloseButton               value for extra padding right to fit close button, nil otherwise.
+-- extraPaddingBottomForBars                     value for extra padding bottom to fit health/power bars, nil otherwise.
 --
--- defaultAnchored                           true if tip is default anchored, false otherwise.
--- defaultAnchoredParentFrame                tip's parent frame if default anchored, nil otherwise.
--- anchorFrameName                           anchor frame name of tip, values "WorldUnit", "WorldTip", "FrameUnit", "FrameTip"
--- anchorType                                anchor type for tip
--- anchorPoint                               anchor point for tip
+-- defaultAnchored                               true if tip is default anchored, false otherwise.
+-- defaultAnchoredParentFrame                    tip's parent frame if default anchored, nil otherwise.
+-- anchorFrameName                               anchor frame name of tip, values "WorldUnit", "WorldTip", "FrameUnit", "FrameTip"
+-- anchorType                                    anchor type for tip
+-- anchorPoint                                   anchor point for tip
 --
--- unitRecord                                table with information about the displayed unit, nil otherwise.
---   .guid                                   guid of unit
---   .id                                     id of unit
---   .isPlayer                               true if it's a player unit, false for other units.
---   .name                                   name of unit
---   .nameWithTitle                          name with title of unit
---   .rpName                                 role play name of unit (Mary Sue Protocol)
---   .originalName                           original name of unit in GameTooltip
+-- unitRecord                                    table with information about the displayed unit, nil otherwise.
+--   .guid                                       guid of unit
+--   .id                                         id of unit
+--   .isPlayer                                   true if it's a player unit, false for other units.
+--   .name                                       name of unit
+--   .nameWithTitle                              name with title of unit
+--   .rpName                                     role play name of unit (Mary Sue Protocol)
+--   .originalName                               original name of unit in GameTooltip
 --
---   .className                              localized class name of unit, e.g. "Warrior" or "Guerrier"
---   .classFile                              locale-independent class file of unit, e.g. "WARRIOR"
---   .classID                                class id of unit
+--   .className                                  localized class name of unit, e.g. "Warrior" or "Guerrier"
+--   .classFile                                  locale-independent class file of unit, e.g. "WARRIOR"
+--   .classID                                    class id of unit
 --
---   .reactionIndex                          unit reaction index, see LFF_UNIT_REACTION_INDEX
---   .health                                 unit health
---   .healthMax                              unit max health
+--   .reactionIndex                              unit reaction index, see LFF_UNIT_REACTION_INDEX
+--   .health                                     unit health
+--   .healthMax                                  unit max health
 --
---   .powerType                              unit power type
---   .power                                  unit power
---   .powerMax                               unit max power
+--   .powerType                                  unit power type
+--   .power                                      unit power
+--   .powerMax                                   unit max power
 --
---   .isColorBlind                           true if color blind mode is enabled, false otherwise.
---   .isTipTacDeveloper                      true if it's a unit of a TipTac developer, false for other units.
+--   .isColorBlind                               true if color blind mode is enabled, false otherwise.
+--   .isTipTacDeveloper                          true if it's a unit of a TipTac developer, false for other units.
 --
--- firstCallDoneUnitAppearance               true if first call of unit appearace is done, false otherwise.
--- timestampStartUnitAppearance              timestamp of start of unit appearance, nil otherwise.
--- timestampStartCustomUnitFadeout           timestamp of start of custom unit fadeout, nil otherwise.
+-- firstCallDoneUnitAppearance                   true if first call of unit appearace is done, false otherwise.
+-- timestampStartUnitAppearance                  timestamp of start of unit appearance, nil otherwise.
+-- timestampStartCustomUnitFadeout               timestamp of start of custom unit fadeout, nil otherwise.
 --
--- tipLineInfoIndex                          line index of ttStyle's info for tip, nil otherwise.
--- tipLineTargetedByIndex                    line index of ttStyle's target by for tip, nil otherwise.
--- petLineLevelIndex                         line index of ttStyle's level for pet, nil otherwise.
+-- tipLineInfoIndex                              line index of ttStyle's info for tip, nil otherwise.
+-- tipLineTargetedByIndex                        line index of ttStyle's target by for tip, nil otherwise.
+-- petLineLevelIndex                             line index of ttStyle's level for pet, nil otherwise.
+-- mergeLevelLineWithGuildName                   true if there is no separate line for the guild name. in this case the guild name has to be merged with the level line if not in color blind mode. nil otherwise.
+-- isSetTopOverlayToHighlightTipTacDeveloper     true if the top overlay has been set to highlight TipTac developer, nil otherwise.
+-- isSetBottomOverlayToHighlightTipTacDeveloper  true if the bottom overlay has been set to highlight TipTac developer, nil otherwise.
 --
 -- hint: resolved frames from "TT_ExtendedConfig.tipsToModify" will be added here. frames from other mods added with TipTac:AddModifiedTip(tip, noHooks) will be added here, too.
 local TT_CacheForFrames = {};
