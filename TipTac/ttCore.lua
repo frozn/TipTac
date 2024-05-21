@@ -205,7 +205,8 @@ local TT_DefaultConfig = {
 	auraMaxRows = 2,
 	aurasAtBottom = false,
 	
-	-- icon
+	-- icons
+	enableIcons = true,
 	iconRaid = true,
 	iconFaction = false,
 	iconCombat = false,

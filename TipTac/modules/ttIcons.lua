@@ -1,105 +1,265 @@
--- Addon
+-----------------------------------------------------------------------
+-- TipTac - Icons
+--
+-- Shows icons next to the tooltip.
+--
+
+-- create addon
 local MOD_NAME = ...;
 
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
--- TipTac refs
+-- register with TipTac core addon
 local tt = _G[MOD_NAME];
-local cfg;
-local TT_ExtendedConfig;
-local TT_CacheForFrames;
-
--- element registration
 local ttIcons = {};
 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttIcons, "Icons");
 
---ttIcons.icons = {};
+----------------------------------------------------------------------------------------------------
+--                                             Config                                             --
+----------------------------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------
---                                                Misc                                                --
---------------------------------------------------------------------------------------------------------
+-- config
+local cfg;
+local TT_ExtendedConfig;
+local TT_CacheForFrames;
 
-function ttIcons:SetIcon(icon, unitRecord)
-	if (not UnitExists(unitRecord.id)) then
-		return;
-	end
-	
-	local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
-	local englishFaction = UnitFactionGroup(unitRecord.id);
-	
-	if (englishFaction) and (LibFroznFunctions:UnitIsMercenary(unitRecord.id)) then
-		if (englishFaction == "Horde") then
-			englishFaction = "Alliance";
-		elseif (englishFaction == "Alliance") then
-			englishFaction = "Horde";
-		end
-	end
+----------------------------------------------------------------------------------------------------
+--                                         Element Events                                         --
+----------------------------------------------------------------------------------------------------
 
-	if (cfg.iconRaid) and (raidIconIndex) then
-		icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
-		SetRaidTargetIconTexture(icon,raidIconIndex);
-	elseif (cfg.iconFaction) and (UnitIsPVPFreeForAll(unitRecord.id)) then
-		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
-		icon:SetTexCoord(0, 0.62, 0, 0.62);
-	elseif (cfg.iconFaction) and (UnitIsPVP(unitRecord.id)) and (englishFaction) and (englishFaction ~= "Neutral") then
-		icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
-		icon:SetTexCoord(0, 0.62, 0, 0.62);
-	elseif (cfg.iconCombat) and (UnitAffectingCombat(unitRecord.id)) then
-		icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
-		icon:SetTexCoord(0.5, 1, 0, 0.5);
-	elseif (unitRecord.isPlayer) and (cfg.iconClass) then
-		local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
-		if (texCoord) then
-			icon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
-			icon:SetTexCoord(unpack(texCoord));
-		end
-	else
-		return false;
-	end
-
-	return true;
-end
-
---------------------------------------------------------------------------------------------------------
---                                           Element Events                                           --
---------------------------------------------------------------------------------------------------------
-
+-- config has been loaded
 function ttIcons:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+	-- set config
 	TT_CacheForFrames = _TT_CacheForFrames;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
+-- config settings need to be applied
 function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
-	self.wantIcon = (cfg.iconRaid or cfg.iconFaction or cfg.iconCombat or cfg.iconClass);
-
-	if (self.wantIcon) then
-		if (not self.icon) then
-			self.icon = GameTooltip:CreateTexture(nil,"BACKGROUND");
+	-- set size of icons
+	for icon, _ in self.iconPool:EnumerateActive() do
+		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	end
+	
+	for _, icon in self.iconPool:EnumerateInactive() do
+		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	end
+	
+	-- setup active tip's icons
+	local tipsProcessed = {};
+	
+	for icon, _ in self.iconPool:EnumerateActive() do
+		local tip = icon:GetParent();
+		
+		if (not tipsProcessed[tip]) then
+			self:SetupTipsIcon(tip);
+			
+			tipsProcessed[tip] = true;
 		end
-		self.icon:SetSize(cfg.iconSize,cfg.iconSize);
-		self.icon:ClearAllPoints();
-		self.icon:SetPoint(LibFroznFunctions:MirrorAnchorPointVertically(cfg.iconAnchor),GameTooltip,cfg.iconAnchor);
-	elseif (self.icon) then
-		self.icon:Hide();
 	end
 end
 
+-- after tooltip has been styled and has the final size
 function ttIcons:OnTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
-	if (not self.wantIcon) then
+	-- setup tip's icon
+	self:SetupTipsIcon(tip);
+end
+
+-- tooltip's current display parameters has to be reset
+function ttIcons:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
+	-- hide tip's icon
+	self:HideTipsIcon(tip);
+end
+
+----------------------------------------------------------------------------------------------------
+--                                          Setup Module                                          --
+----------------------------------------------------------------------------------------------------
+
+-- setup tip's icon
+function ttIcons:SetupTipsIcon(tip)
+	-- hide tip's icon
+	self:HideTipsIcon(tip);
+	
+	-- check if icons are enabled
+	if (not cfg.enableIcons) then
 		return;
 	end
 	
-	local unitRecord = currentDisplayParams.unitRecord;
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
 	
-	-- show icon
-	self.icon:SetShown(self:SetIcon(self.icon, unitRecord));
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	-- display tip's icons
+	local currentIconCount = 0;
+	local iconCount;
+	
+	if (cfg.iconRaid) then
+		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "RAID", currentIconCount + 1);
+		currentIconCount = currentIconCount + iconCount;
+	end
+	if (cfg.iconFaction) then
+		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "FACTION", currentIconCount + 1);
+		currentIconCount = currentIconCount + iconCount;
+	end
+	if (cfg.iconCombat) then
+		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "COMBAT", currentIconCount + 1);
+		currentIconCount = currentIconCount + iconCount;
+	end
+	if (cfg.iconClass) then
+		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "CLASS", currentIconCount + 1);
+		currentIconCount = currentIconCount + iconCount;
+	end
 end
 
-function ttIcons:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
-	if (self.icon) and (tip == GameTooltip) then
-		self.icon:Hide();
+-- display tip's icon
+function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIconFrameIndex)
+	-- no unit record
+	local unitRecord = currentDisplayParams.unitRecord;
+	
+	if (not unitRecord) then
+		return 0;
+	end
+	
+	-- unit doesn't exist
+	if (not UnitExists(unitRecord.id)) then
+		return 0;
+	end
+	
+	-- display tip's raid icon
+	local iconFrameIndex = startingIconFrameIndex - 1;
+	local icon;
+	local iconCount = 0;
+	
+	if (iconType == "RAID") then
+		local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
+		
+		if (raidIconIndex) then
+			-- acquire icon frame
+			iconFrameIndex = iconFrameIndex + 1;
+			
+			icon = self.iconPool:Acquire();
+			
+			icon:SetParent(tip);
+			
+			-- set icon
+			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
+			SetRaidTargetIconTexture(icon.icon, raidIconIndex);
+		end
+	-- display tip's faction icon
+	elseif (iconType == "FACTION") then
+		if (UnitIsPVPFreeForAll(unitRecord.id)) then
+			-- acquire icon frame
+			iconFrameIndex = iconFrameIndex + 1;
+			
+			icon = self.iconPool:Acquire();
+			
+			icon:SetParent(tip);
+			
+			-- set icon
+			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
+			icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+		elseif (UnitIsPVP(unitRecord.id)) then
+			-- get english faction
+			local englishFaction = UnitFactionGroup(unitRecord.id);
+			
+			if (englishFaction) and (LibFroznFunctions:UnitIsMercenary(unitRecord.id)) then
+				if (englishFaction == "Horde") then
+					englishFaction = "Alliance";
+				elseif (englishFaction == "Alliance") then
+					englishFaction = "Horde";
+				end
+			end
+			
+			-- set icon if faction isn't neutral
+			if (englishFaction) and (englishFaction ~= "Neutral") then
+				-- acquire icon frame
+				iconFrameIndex = iconFrameIndex + 1;
+				
+				icon = self.iconPool:Acquire();
+				
+				icon:SetParent(tip);
+				
+				-- set icon
+				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
+				icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+			end
+		end
+	-- display tip's combat icon
+	elseif (iconType == "COMBAT") then
+		if (UnitAffectingCombat(unitRecord.id)) then
+			-- acquire icon frame
+			iconFrameIndex = iconFrameIndex + 1;
+			
+			icon = self.iconPool:Acquire();
+			
+			icon:SetParent(tip);
+			
+			-- set icon
+			icon.icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
+			icon.icon:SetTexCoord(0.5, 1, 0, 0.5);
+		end
+	-- display tip's class icon
+	elseif (iconType == "CLASS") then
+		if (unitRecord.isPlayer) then
+			-- acquire icon frame
+			iconFrameIndex = iconFrameIndex + 1;
+			
+			icon = self.iconPool:Acquire();
+			
+			icon:SetParent(tip);
+			
+			-- set icon
+			local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
+			
+			if (texCoord) then
+				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
+				icon.icon:SetTexCoord(unpack(texCoord));
+			end
+		end
+	end
+	
+	-- anchor and show icon frame
+	if (icon) then
+		-- anchor icon frame
+		local yOffset = (cfg.iconSize + 2) * (iconFrameIndex - 1) + 1;
+		
+		icon:ClearAllPoints();
+		icon:SetPoint(LibFroznFunctions:MirrorAnchorPointVertically(cfg.iconAnchor), tip, cfg.iconAnchor, 0, -yOffset);
+		
+		-- show icon frame
+		icon:Show();
+	end
+	
+	return iconFrameIndex - startingIconFrameIndex + 1;
+end
+
+-- create icon frame
+ttIcons.iconPool = CreateFramePool("Frame", nil, nil, nil, false, function(icon)
+	icon.icon = icon:CreateTexture(nil, "BACKGROUND");
+	icon.icon:SetAllPoints();
+	
+	-- config settings need to be applied
+	function icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- set size of icons
+		self:SetSize(cfg.iconSize, cfg.iconSize);
+	end
+	
+	icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+end);
+
+-- hide tip's icon
+function ttIcons:HideTipsIcon(tip)
+	for icon, _ in self.iconPool:EnumerateActive() do
+		if (icon:GetParent() == tip) then
+			self.iconPool:Release(icon);
+		end
 	end
 end

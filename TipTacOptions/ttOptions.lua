@@ -425,16 +425,21 @@ local options = {
 			{ type = "Check", var = "aurasAtBottom", label = "Put Aura Icons at the Bottom Instead of Top", tip = "Puts the aura icons at the bottom of the tip instead of the default top", enabled = function(factory) return factory:GetConfigValue("enableAuras") and (factory:GetConfigValue("showBuffs") or factory:GetConfigValue("showDebuffs")) end, y = 10 },
 		}
 	},
-	-- Icon
+	-- Icons
 	{
-		category = "Icon",
+		category = "Icons",
+		enabled = { type = "Check", var = "enableIcons", tip = "Turns on or off all additional icons next to the tooltip" },
 		options = {
+			{ type = "Header", label = "Icons for Unit Tooltips" },
+			
 			{ type = "Check", var = "iconRaid", label = "Show Raid Icon", tip = "Shows the raid icon next to the tip" },
 			{ type = "Check", var = "iconFaction", label = "Show Faction Icon", tip = "Shows the faction icon next to the tip, if the unit is flagged for PvP" },
 			{ type = "Check", var = "iconCombat", label = "Show Combat Icon", tip = "Shows a combat icon next to the tip, if the unit is in combat" },
 			{ type = "Check", var = "iconClass", label = "Show Class Icon", tip = "For players, this will display the class icon next to the tooltip" },
 			
-			{ type = "DropDown", var = "iconAnchor", label = "Icon Anchor", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass") end, y = 10 },
+			{ type = "Header", label = "Others" },
+			
+			{ type = "DropDown", var = "iconAnchor", label = "Icon Anchor", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass") end },
 			{ type = "Slider", var = "iconSize", label = "Icon Dimension", min = 8, max = 100, step = 1, enabled = function(factory) return factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass") end },
 		}
 	},
