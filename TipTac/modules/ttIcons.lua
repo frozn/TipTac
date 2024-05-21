@@ -136,7 +136,6 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 	-- display tip's raid icon
 	local iconFrameIndex = startingIconFrameIndex - 1;
 	local icon;
-	local iconCount = 0;
 	
 	if (iconType == "RAID") then
 		local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
