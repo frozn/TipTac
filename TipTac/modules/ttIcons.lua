@@ -97,6 +97,13 @@ function ttIcons:SetupTipsIcon(tip)
 	
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
+	-- no unit record
+	local unitRecord = currentDisplayParams.unitRecord;
+	
+	if (not unitRecord) then
+		return;
+	end
+	
 	-- display tip's icons
 	local currentIconCount = 0;
 	local iconCount;
@@ -121,12 +128,7 @@ end
 
 -- display tip's icon
 function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIconFrameIndex)
-	-- no unit record
 	local unitRecord = currentDisplayParams.unitRecord;
-	
-	if (not unitRecord) then
-		return 0;
-	end
 	
 	-- unit doesn't exist
 	if (not UnitExists(unitRecord.id)) then
