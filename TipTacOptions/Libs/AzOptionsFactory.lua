@@ -43,10 +43,12 @@
 	24.05.20 Rev 26 10.2.7/Dragonflight #frozn45
 	- made shure that evaluating the "enabled" property always returns a boolean value
 	- considered empty options for BuildOptionsPage()
+	24.05.xx Rev 27 10.2.7/Dragonflight #frozn45
+	- only set config value by TextEdit if text has changed
 --]]
 
 -- create new library
-local REVISION = 26; -- bump on changes
+local REVISION = 27; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -84,7 +86,7 @@ function azof:GetObject(type)
 	local obj = self.objects[type];
 	if (not obj) then
 		local TipTac = _G[PARENT_MOD_NAME];
-		TipTac:AddMessageToChatFrame(PARENT_MOD_NAME .. ": {error:Invalid factory object type {highlight:[%s]}!}");
+		TipTac:AddMessageToChatFrame("{caption:" .. PARENT_MOD_NAME .. "}: {error:Invalid factory object type {highlight:[%s]}!}");
 		return;
 	end
 
@@ -868,7 +870,12 @@ end
 
 -- OnTextChange
 local function TextEdit_OnTextChanged(self)
-	self.factory:SetConfigValue(self.option.var,self:GetText():gsub("||","|"));
+	local oldText = self.factory:GetConfigValue(self.option.var);
+	local newText = self:GetText():gsub("||","|");
+	
+	if (oldText ~= newText) then
+		self.factory:SetConfigValue(self.option.var,newText);
+	end
 end
 
 -- New TextEdit (dimensions: 301x24, visible dimension: 301x24, visible padding: 0/0/0/0)
