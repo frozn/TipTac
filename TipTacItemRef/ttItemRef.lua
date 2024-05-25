@@ -139,6 +139,7 @@ local tipsToModify = {
 	"PerksProgramTooltip",
 	--"EncounterJournalTooltip", -- commented out for embedded tooltips, see description in tt:SetPadding()
 	-- 3rd party addon tooltips
+	"ElvUI_SpellBookTooltip",
 	"PlaterNamePlateAuraTooltip"
 };
 
@@ -153,6 +154,7 @@ local addOnsLoaded = {
 	["Blizzard_PetBattleUI"] = false,
 	["Blizzard_PlayerChoice"] = false,
 	["Blizzard_PVPUI"] = false,
+	["ElvUI"] = false,
 	["WorldQuestTracker"] = false
 };
 
@@ -2170,6 +2172,19 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PVPUI"] = true;
+		end
+	end
+	-- now ElvUI exists
+	if (addOnName == "ElvUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("ElvUI")) and (not addOnsLoaded['ElvUI'])) then
+		-- Hook Tips & Apply Settings
+		self:ApplyHooksToTips({
+			"ElvUI_SpellBookTooltip"
+		}, true, true);
+		
+		self:OnApplyConfig();
+		
+		if (addOnName == MOD_NAME) then
+			addOnsLoaded["ElvUI"] = true;
 		end
 	end
 	-- now WorldQuestTrackerAddon exists

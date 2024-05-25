@@ -731,10 +731,9 @@ TT_ExtendedConfig.tipsToModify = {
 	},
 	
 	-- 3rd party addon tooltips
-	["RaiderIO"] = {
+	["ElvUI"] = {
 		frames = {
-			["RaiderIO_ProfileTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = false, waitSecondsForLookupFrameName = 1 },
-			["RaiderIO_SearchTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = false, waitSecondsForLookupFrameName = 1 }
+			["ElvUI_SpellBookTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
 		}
 	},
 	["OPie"] = {
@@ -749,6 +748,12 @@ TT_ExtendedConfig.tipsToModify = {
 				});
 			end
 		end
+	},
+	["RaiderIO"] = {
+		frames = {
+			["RaiderIO_ProfileTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = false, waitSecondsForLookupFrameName = 1 },
+			["RaiderIO_SearchTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = false, waitSecondsForLookupFrameName = 1 }
+		}
 	}
 };
 
