@@ -1,0 +1,7 @@
+ignore:
+  - LICENSE
+  - LibSerialize.toc
+  - README.md
+  - buildreadme.lua
+  - tests.lua
+  - archive/*

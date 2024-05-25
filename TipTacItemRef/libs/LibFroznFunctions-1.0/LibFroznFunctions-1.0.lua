@@ -995,7 +995,7 @@ end
 --
 -- @param  obj   object
 -- @param  ...   mixins to mixin
--- @return object with mixins excluding already existing objects
+-- @return object with mixins excluding equal objects
 function LibFroznFunctions:MixinDifferingObjects(obj, ...)
 	for i = 1, select("#", ...) do -- see "Mixin.lua"
 		local mixin = select(i, ...);
@@ -1007,6 +1007,35 @@ function LibFroznFunctions:MixinDifferingObjects(obj, ...)
 		end
 	end
 
+	return obj;
+end
+
+-- mixin whole objects
+--
+-- @param  obj   object
+-- @param  ...   mixins to mixin
+-- @return object with mixins removing not existing objects
+function LibFroznFunctions:MixinWholeObjects(obj, ...)
+	local keysProcessed = {};
+	
+	for i = 1, select("#", ...) do -- see "Mixin.lua"
+		local mixin = select(i, ...);
+		
+		for k, v in pairs(mixin) do
+			if (obj[k] ~= v) then
+				obj[k] = v;
+			end
+			
+			keysProcessed[k] = true;
+		end
+	end
+	
+	for k, v in pairs(obj) do
+		if (not keysProcessed[k]) then
+			obj[k] = nil;
+		end
+	end
+	
 	return obj;
 end
 
@@ -1978,22 +2007,62 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 	return false;
 end
 
--- show popup with url
+-- show popup with text
 --
--- @param url            url to show for copy & paste
--- @param iconFile       optional. path to an icon (usually in Interface\\) or a FileDataID
--- @param onShowHandler  optional. handler for OnShow event of popup. parameters: self, data
-function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
+-- @param params               parameters
+--          .prompt              prompt to show
+--          .text                text to show
+--          .iconFile            optional. path to an icon (usually in Interface\\) or a FileDataID
+--          .iconTexCoord        optional.  coordinates for cropping the icon. object with four values:
+--            leftTexel            coordinate that identifies the left edge as a fraction of the image's width
+--            rightTexel           coordinate that identifies the right edge as a fraction of the image's width
+--            topTexel             coordinate that identifies the top edge as a fraction of the image's height
+--            bottomTexel          coordinate that identifies the bottom edge as a fraction of the image's height
+--          .acceptButtonText    accept button text
+--          .cancelButtonText    cancel button text
+--          .onShowHandler       optional. handler for OnShow event of popup. parameters: self, data
+--          .onAcceptHandler     optional. handler for OnAccept event (button pressed) of popup. parameters: self, data
+function LibFroznFunctions:ShowPopupWithText(params)
+	-- no params
+	if (not params) then
+		return;
+	end
+	
 	-- create initial popup config
-	local popupName = LIB_NAME .. "-" .. LIB_MINOR;
+	local popupName = LIB_NAME .. "-" .. LIB_MINOR .. "_ShowPopupWithText";
 	
 	if (not StaticPopupDialogs[popupName]) then
+		local editBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed or function(self, data)
+			-- StaticPopup_StandardEditBoxOnEscapePressed() not available in catac 4.4.0 and classic era 1.15.2
+			local dialog = self:GetParent();
+			local which = dialog.which;
+			
+			if (not which) then
+				return;
+			end
+			
+			local info = StaticPopupDialogs[which];
+			
+			if (not info) or (not info.hideOnEscape) then
+				return;
+			end
+			
+			dialog:Hide();
+		end
+		
+		local function setAndHighlightLockedEditBoxText(self, data)
+			local lockedEditBoxText = data.lockedEditBoxText;
+			
+			if (lockedEditBoxText) and (lockedEditBoxText ~= "") then
+				self:SetText(lockedEditBoxText);
+				self:HighlightText();
+			end
+		end
+		
 		StaticPopupDialogs[popupName] = { -- hopefully no taint, see "StaticPopup.lua"
 			showAlertGear = 1,
-			text = "Open this link in your web browser:",
 			hasEditBox = 1,
 			editBoxWidth = 400,
-			button1 = "Close",
 			OnShow = function(self, data)
 				-- fix width for greater edit box width
 				local which = self.which;
@@ -2014,19 +2083,23 @@ function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
 				
 				if (data) then
 					local alertIcon = _G[self:GetName() .. "AlertIcon"];
-					local lockedEditBoxText = data.lockedEditBoxText;
 					
 					if (alertIcon) then
 						alertIcon:SetTexture(data.iconFile);
+						
+						local iconTexCoord = data.iconTexCoord;
+						
+						if (iconTexCoord) then
+							alertIcon:SetTexCoord(unpack(iconTexCoord));
+						else
+							alertIcon:SetTexCoord(0, 1, 0, 1);
+						end
 					end
 					
-					if (lockedEditBoxText) then
-						editBox:SetText(lockedEditBoxText);
-						editBox:HighlightText();
-					end
+					setAndHighlightLockedEditBoxText(editBox, data);
 					
-					if (self.data.onShowHandler) then
-						self.data.onShowHandler(self);
+					if (data.onShowHandler) then
+						data.onShowHandler(self, data);
 					end
 				end
 				
@@ -2039,39 +2112,45 @@ function LibFroznFunctions:ShowPopupWithUrl(url, iconFile, onShowHandler)
 					return;
 				end
 				
-				local lockedEditBoxText = data.lockedEditBoxText;
+				setAndHighlightLockedEditBoxText(self, data);
+			end,
+			selectCallbackByIndex = true,
+			EditBoxOnEnterPressed = function(self, data)
+				local dialog = self:GetParent();
 				
-				if (lockedEditBoxText) then
-					self:SetText(lockedEditBoxText);
-					self:HighlightText();
+				if (dialog.button1:IsEnabled()) then
+					StaticPopup_OnClick(dialog, 1);
 				end
 			end,
-			EditBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed or function(self, data)
-				-- StaticPopup_StandardEditBoxOnEscapePressed() not available in catac 4.4.0 and classic era 1.15.2
-				local dialog = self:GetParent();
-				local which = dialog.which;
-				
-				if (not which) then
-					return;
+			EditBoxOnEscapePressed = editBoxOnEscapePressed,
+			OnAccept = function(self, data)
+				if (data.onAcceptHandler) then
+					data.onAcceptHandler(self, data);
 				end
+			end,
+			OnCancel = function(self, data)
+				local editBox = self.editBox;
 				
-				local info = StaticPopupDialogs[which];
-				
-				if (not info) or (not info.hideOnEscape) then
-					return;
-				end
-				
-				dialog:Hide();
+				editBoxOnEscapePressed(editBox, data);
 			end,
 			hideOnEscape = 1
 		};
 	end
 	
-	-- show popup with url
+	-- set popup config
+	local staticPopupDialog = StaticPopupDialogs[popupName];
+	
+	staticPopupDialog.text = params.prompt;
+	staticPopupDialog.button1 = params.acceptButtonText;
+	staticPopupDialog.button2 = params.cancelButtonText;
+	
+	-- show popup with text
 	StaticPopup_Show(popupName, nil, nil, {
-		lockedEditBoxText = url,
-		iconFile = iconFile,
-		onShowHandler = onShowHandler
+		lockedEditBoxText = params.text,
+		iconFile = params.iconFile,
+		iconTexCoord = params.iconTexCoord,
+		onShowHandler = params.onShowHandler,
+		onAcceptHandler = params.onAcceptHandler
 	});
 end
 

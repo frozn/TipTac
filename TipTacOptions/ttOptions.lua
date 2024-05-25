@@ -4,6 +4,8 @@ local PARENT_MOD_NAME = "TipTac";
 
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
+local LibSerialize = LibStub:GetLibrary("LibSerialize");
+local LibDeflate = LibStub:GetLibrary("LibDeflate");
 
 -- DropDown Lists
 local DROPDOWN_FONTFLAGS = {
@@ -733,19 +735,109 @@ local function Reset_OnLeave(self)
 	GameTooltip:Hide();
 end
 
-f.btnReset = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
-f.btnReset:SetSize(75,24);
-f.btnReset:SetPoint("LEFT",f.btnAnchor,"RIGHT",9,0);
-f.btnReset:SetScript("OnClick",Reset_OnClick);
-f.btnReset:SetScript("OnEnter", Reset_OnEnter);
-f.btnReset:SetScript("OnLeave", Reset_OnLeave);
-f.btnReset:SetText("Defaults");
+f.btnMisc = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
+f.btnMisc:SetSize(75,24);
+f.btnMisc:SetPoint("LEFT",f.btnAnchor,"RIGHT",9,0);
+f.btnMisc:SetScript("OnClick",Reset_OnClick);
+f.btnMisc:SetScript("OnEnter", Reset_OnEnter);
+f.btnMisc:SetScript("OnLeave", Reset_OnLeave);
+f.btnMisc:SetText("Defaults");
 
-local function Report_OnClick(self)
+local function Misc_OnClick(self)
 	ToggleDropDownMenu(1, nil, f.btnReport.dropDownMenu, f.btnReport, 0, 0);
 end
 
-local function Report_DropDownOnClick(dropDownMenuButton, arg1, arg2)
+local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
+	if (arg1 == "settingsImport") then
+		-- open popup to get import string with new config
+		LibFroznFunctions:ShowPopupWithText({
+			prompt = "Paste export string with new config:",
+			iconFile = "Interface\\TalentFrame\\Talents",
+			iconTexCoord = { 0.924316, 0.944824, 0.0380859, 0.0771484 },
+			acceptButtonText = "Import",
+			cancelButtonText = "Cancel",
+			onShowHandler = function(self, data)
+				-- fix icon position
+				local alertIcon = _G[self:GetName() .. "AlertIcon"];
+				
+				if (not alertIcon) then
+					return;
+				end
+				
+				alertIcon:ClearAllPoints();
+				alertIcon:SetPoint("LEFT", 24, 4);
+			end,
+			onAcceptHandler = function(self, data)
+				-- import export string with new config
+				local encodedConfig = self.editBox:GetText();
+				local compressedConfig = LibDeflate:DecodeForPrint(encodedConfig);
+				
+				local function addFailedMessageToChatFrame()
+					TipTac:AddMessageToChatFrame("{caption:" .. PARENT_MOD_NAME .. "}: {error:Couldn't import new config. Export string may be corrupt.}");
+				end
+				
+				if (not compressedConfig) then
+					addFailedMessageToChatFrame();
+					return;
+				end
+				
+				local serializedConfig = LibDeflate:DecompressDeflate(compressedConfig);
+				
+				if (not serializedConfig) then
+					addFailedMessageToChatFrame();
+					return;
+				end
+				
+				local success, newCfg = LibSerialize:Deserialize(serializedConfig);
+				
+				if (not success) then
+					addFailedMessageToChatFrame();
+					return;
+				end
+				
+				-- apply new config
+				LibFroznFunctions:MixinWholeObjects(cfg, newCfg);
+				
+				TipTac:ApplyConfig();
+				f:BuildCategoryPage();
+				
+				TipTac:AddMessageToChatFrame("{caption:" .. PARENT_MOD_NAME .. "}: Successfully imported new config.");
+			end
+		});
+	elseif (arg1 == "settingsExport") then
+		-- build export string with current config
+		local serializedConfig = LibSerialize:Serialize(cfg);
+		local compressedConfig = LibDeflate:CompressDeflate(serializedConfig);
+		local encodedConfig = LibDeflate:EncodeForPrint(compressedConfig);
+		
+		-- open popup with export string with current config
+		if (encodedConfig) then
+			LibFroznFunctions:ShowPopupWithText({
+				prompt = "Copy this export string with current config:",
+				text = encodedConfig,
+				iconFile = "Interface\\TalentFrame\\Talents",
+				iconTexCoord = { 0.924316, 0.942871, 0.000976562, 0.0361328 },
+				acceptButtonText = "Close",
+				onShowHandler = function(self, data)
+					-- fix icon position
+					local alertIcon = _G[self:GetName() .. "AlertIcon"];
+					
+					if (not alertIcon) then
+						return;
+					end
+					
+					alertIcon:ClearAllPoints();
+					alertIcon:SetPoint("LEFT", 24, 3);
+				end
+			});
+		end
+	end
+	
+	-- close dropdown
+	CloseDropDownMenus();
+end
+
+local function Misc_ReportDropDownOnClick(dropDownMenuButton, arg1, arg2)
 	-- build url
 	local url;
 	
@@ -777,27 +869,63 @@ local function Report_DropDownOnClick(dropDownMenuButton, arg1, arg2)
 	
 	-- open popup with url
 	if (url) then
-		LibFroznFunctions:ShowPopupWithUrl(url, iconFile, function(self)
-			-- fix icon position
-			local alertIcon = _G[self:GetName() .. "AlertIcon"];
-			
-			if (not alertIcon) then
-				return;
+		LibFroznFunctions:ShowPopupWithText({
+			prompt = "Open this link in your web browser:",
+			text = url,
+			iconFile = iconFile,
+			acceptButtonText = "Close",
+			onShowHandler = function(self, data)
+				-- fix icon position
+				local alertIcon = _G[self:GetName() .. "AlertIcon"];
+				
+				if (not alertIcon) then
+					return;
+				end
+				
+				alertIcon:ClearAllPoints();
+				alertIcon:SetPoint("LEFT", 24, 5);
 			end
-			
-			alertIcon:ClearAllPoints();
-			alertIcon:SetPoint("LEFT", 24, 5);
-		end);
+		});
 	end
 	
 	-- close dropdown
 	CloseDropDownMenus();
 end
 
-local function Report_DropDownOnInitialize(dropDownMenu, level, menuList)
+local function Misc_DropDownOnInitialize(dropDownMenu, level, menuList)
 	local list = LibFroznFunctions:CreatePushArray();
 	
 	if (level == 1) then
+		list:Push({
+			iconText = { "Interface\\HelpFrame\\HelpIcon-CharacterStuck", 64, 64, nil, nil, 0.1875, 0.796875, 0.203125, 0.796875 },
+			text = "Settings",
+			menuList = "settings"
+		});
+		list:Push({
+			iconText = { "Interface\\HelpFrame\\ReportLagIcon-Mail", 64, 64, nil, nil, 0.171875, 0.828125, 0.21875, 0.78125 },
+			text = "Report",
+			menuList = "report"
+		});
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\CommonIcons", 64, 64, nil, nil, 0.126465, 0.251465, 0.504883, 0.754883 },
+			text = "Cancel",
+			func = Misc_SettingsDropDownOnClick,
+			arg1 = "cancel"
+		});
+	elseif (menuList == "settings") then
+		list:Push({
+			iconText = { "Interface\\TalentFrame\\Talents", 2048, 1024, nil, nil, 0.924316, 0.944824, 0.0380859, 0.0771484 },
+			text = "Import",
+			func = Misc_SettingsDropDownOnClick,
+			arg1 = "settingsImport"
+		});
+		list:Push({
+			iconText = { "Interface\\TalentFrame\\Talents", 2048, 1024, nil, nil, 0.924316, 0.942871, 0.000976562, 0.0361328 },
+			text = "Export",
+			func = Misc_SettingsDropDownOnClick,
+			arg1 = "settingsExport"
+		});
+	elseif (menuList == "report") then
 		list:Push({
 			iconText = { "Interface\\HelpFrame\\HelpIcon-Bug", 64, 64, nil, nil, 0.1875, 0.78125, 0.1875, 0.78125 },
 			text = "Report bug",
@@ -808,24 +936,18 @@ local function Report_DropDownOnInitialize(dropDownMenu, level, menuList)
 			text = "Request feature",
 			menuList = "requestFeature"
 		});
-		list:Push({
-			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\CommonIcons", 64, 64, nil, nil, 0.126465, 0.251465, 0.504883, 0.754883 },
-			text = "Cancel",
-			func = Report_DropDownOnClick,
-			arg1 = "cancel"
-		});
 	elseif (menuList == "reportBug") then
 		list:Push({
 			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\github", 32, 32, nil, nil, 0, 1, 0, 1 },
 			text = "on GitHub (preferred)",
-			func = Report_DropDownOnClick,
+			func = Misc_ReportDropDownOnClick,
 			arg1 = "reportBug",
 			arg2 = "onGitHub"
 		});
 		list:Push({
 			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\curseforge", 32, 32, nil, nil, 0, 1, 0, 1 },
 			text = "on CurseForge",
-			func = Report_DropDownOnClick,
+			func = Misc_ReportDropDownOnClick,
 			arg1 = "reportBug",
 			arg2 = "onCurseForge"
 		});
@@ -833,14 +955,14 @@ local function Report_DropDownOnInitialize(dropDownMenu, level, menuList)
 		list:Push({
 			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\github", 32, 32, nil, nil, 0, 1, 0, 1 },
 			text = "on GitHub (preferred)",
-			func = Report_DropDownOnClick,
+			func = Misc_ReportDropDownOnClick,
 			arg1 = "requestFeature",
 			arg2 = "onGitHub"
 		});
 		list:Push({
 			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\curseforge", 32, 32, nil, nil, 0, 1, 0, 1 },
 			text = "on CurseForge",
-			func = Report_DropDownOnClick,
+			func = Misc_ReportDropDownOnClick,
 			arg1 = "requestFeature",
 			arg2 = "onCurseForge"
 		});
@@ -869,27 +991,27 @@ local function Report_DropDownOnInitialize(dropDownMenu, level, menuList)
 	end
 end
 
-local function Report_OnEnter(self)
+local function Misc_OnEnter(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	GameTooltip:AddLine("Report", 1, 1, 1);
-	GameTooltip:AddLine("Report bugs or request features on " .. PARENT_MOD_NAME .. "'s GitHub or CurseForge page.", nil, nil, nil, 1);
+	GameTooltip:AddLine("Misc", 1, 1, 1);
+	GameTooltip:AddLine("Import/Export settings, report bugs or request features.", nil, nil, nil, 1);
 	GameTooltip:Show();
 end
 
-local function Report_OnLeave(self)
+local function Misc_OnLeave(self)
 	GameTooltip:Hide();
 end
 
 f.btnReport = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnReport:SetSize(75,24);
-f.btnReport:SetPoint("LEFT",f.btnReset,"RIGHT",9,0);
-f.btnReport:SetScript("OnClick", Report_OnClick);
-f.btnReport:SetScript("OnEnter", Report_OnEnter);
-f.btnReport:SetScript("OnLeave", Report_OnLeave);
-f.btnReport:SetText("Report");
+f.btnReport:SetPoint("LEFT",f.btnMisc,"RIGHT",9,0);
+f.btnReport:SetScript("OnClick", Misc_OnClick);
+f.btnReport:SetScript("OnEnter", Misc_OnEnter);
+f.btnReport:SetScript("OnLeave", Misc_OnLeave);
+f.btnReport:SetText("Misc");
 
 f.btnReport.dropDownMenu = CreateFrame("Frame", nil, f.btnReport, "UIDropDownMenuTemplate");
-UIDropDownMenu_Initialize(f.btnReport.dropDownMenu, Report_DropDownOnInitialize, "MENU");
+UIDropDownMenu_Initialize(f.btnReport.dropDownMenu, Misc_DropDownOnInitialize, "MENU");
 
 f.btnClose = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnClose:SetSize(75,24);

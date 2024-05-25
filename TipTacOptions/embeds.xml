@@ -5,6 +5,9 @@
 <Script file="libs\LibSharedMedia-3.0\CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
 <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 
+<Include file="libs\LibSerialize\lib.xml"/>
+<Include file="libs\LibDeflate\lib.xml"/>
+
 <Script file="libs\AzDropDown.lua"/>
 <Script file="libs\AzOptionsFactory.lua"/>
 <Include file="libs\LibFroznFunctions-1.0\lib.xml"/>
