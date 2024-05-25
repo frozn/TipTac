@@ -118,17 +118,19 @@ function ttAuras:SetupTipsAuras(tip)
 	local auraCount, lastAura;
 	
 	if (cfg.showBuffs) then
-		auraCount, lastAura = self:DisplayTipsAuras(tip, unitRecord, "HELPFUL", currentAuraCount + 1);
+		auraCount, lastAura = self:DisplayTipsAuras(tip, currentDisplayParams, "HELPFUL", currentAuraCount + 1);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 	if (cfg.showDebuffs) then
-		auraCount, lastAura = self:DisplayTipsAuras(tip, unitRecord, "HARMFUL", currentAuraCount + 1);
+		auraCount, lastAura = self:DisplayTipsAuras(tip, currentDisplayParams, "HARMFUL", currentAuraCount + 1);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 end
 
 -- display tip's buffs and debuffs
-function ttAuras:DisplayTipsAuras(tip, unitRecord, auraType, startingAuraFrameIndex, lastAura)
+function ttAuras:DisplayTipsAuras(tip, currentDisplayParams, auraType, startingAuraFrameIndex, lastAura)
+	local unitRecord = currentDisplayParams.unitRecord;
+	
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
 	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2)); -- auras we can fit into one row based on the current size of the tooltip
 	local xOffsetBasis = (auraType == "HELPFUL" and 1 or -1);             -- is +1 or -1 based on horz anchoring
@@ -170,6 +172,16 @@ function ttAuras:DisplayTipsAuras(tip, unitRecord, auraType, startingAuraFrameIn
 				-- new aura line
 				local x = (xOffsetBasis * 2);
 				local y = (cfg.auraSize + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + 1 + cfg.auraOffset;
+				
+				if (cfg.aurasAtBottom) then
+					if (currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper) then
+						y = y + (math.max(4 - cfg.auraOffset, 0));
+					end
+				else
+					if (currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper) then
+						y = y + (math.max(9 - cfg.auraOffset, 0));
+					end
+				end
 				
 				y = (cfg.aurasAtBottom and -y or y);
 				
