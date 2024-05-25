@@ -899,6 +899,7 @@ local TT_CurrentRegionID = GetCurrentRegion();
 
 -- add message to (selected) chat frame
 local replacementsForChatFrame = {
+	["{caption:"] = TT_COLOR.text.caption:GenerateHexColorMarkup(),
 	["{highlight:"] = TT_COLOR.text.highlight:GenerateHexColorMarkup(),
 	["{error:"] = TT_COLOR.text.error:GenerateHexColorMarkup(),
 	["}"] = FONT_COLOR_CODE_CLOSE
@@ -1060,7 +1061,7 @@ function tt:ToggleOptions()
 		local TipTacOptions = _G[addOnName];
 		TipTacOptions:SetShown(not TipTacOptions:IsShown());
 	else
-		tt:AddMessageToChatFrame(MOD_NAME .. ": {error:Couldn't open " .. MOD_NAME .. " Options: [{highlight:" .. _G["ADDON_" .. reason] .. "}]. Please make sure the addon is enabled in the character selection screen.}"); -- see UIParentLoadAddOn()
+		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:Couldn't open " .. MOD_NAME .. " Options: [{highlight:" .. _G["ADDON_" .. reason] .. "}]. Please make sure the addon is enabled in the character selection screen.}"); -- see UIParentLoadAddOn()
 	end
 end
 
@@ -1163,7 +1164,7 @@ LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, func
 	if (parameters[1] == "reset") then
 		wipe(cfg);
 		tt:ApplyConfig();
-		tt:AddMessageToChatFrame(MOD_NAME .. ": All {highlight:" .. MOD_NAME .. "} settings has been reset to their default values.");
+		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: All {highlight:" .. MOD_NAME .. "} settings has been reset to their default values.");
 		return;
 	end
 	
@@ -1463,7 +1464,7 @@ function tt:SetFontToGameTooltip()
 		-- set default font if font in config is not valid
 		if (not LibFroznFunctions:FontExists(cfg.fontFace)) then
 			cfg.fontFace = nil;
-			self:AddMessageToChatFrame(MOD_NAME .. ": {error:No valid Font set in option tab {highlight:Font}. Switching to default Font.}");
+			self:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font set in option tab {highlight:Font}. Switching to default Font.}");
 		end
 		
 		-- set font to GameTooltip

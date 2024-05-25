@@ -56,13 +56,13 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	-- set default font if font in config is not valid
 	if (not LibFroznFunctions:FontExists(cfg.barFontFace)) then
 		cfg.barFontFace = nil;
-		tt:AddMessageToChatFrame(MOD_NAME .. ": {error:No valid Font set in option tab {highlight:Bars}. Switching to default Font.}");
+		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font set in option tab {highlight:Bars}. Switching to default Font.}");
 	end
 	
 	-- set default texture if texture in config is not valid
 	if (not LibFroznFunctions:TextureExists(cfg.barTexture)) then
 		cfg.barTexture = nil;
-		tt:AddMessageToChatFrame(MOD_NAME .. ": {error:No valid texture set in option tab {highlight:Bars}. Switching to default texture.}");
+		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid texture set in option tab {highlight:Bars}. Switching to default texture.}");
 	end
 	
 	-- set texture and height of GameTooltip's standard status bar
