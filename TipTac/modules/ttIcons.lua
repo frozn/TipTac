@@ -105,15 +105,15 @@ function ttIcons:SetupTipsIcon(tip)
 		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "RAID", currentIconCount + 1);
 		currentIconCount = currentIconCount + iconCount;
 	end
-	if (cfg.iconFaction) then
+	if (cfg.iconFaction) and (currentIconCount < cfg.iconMaxIcons) then
 		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "FACTION", currentIconCount + 1);
 		currentIconCount = currentIconCount + iconCount;
 	end
-	if (cfg.iconCombat) then
+	if (cfg.iconCombat) and (currentIconCount < cfg.iconMaxIcons) then
 		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "COMBAT", currentIconCount + 1);
 		currentIconCount = currentIconCount + iconCount;
 	end
-	if (cfg.iconClass) then
+	if (cfg.iconClass) and (currentIconCount < cfg.iconMaxIcons) then
 		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "CLASS", currentIconCount + 1);
 		currentIconCount = currentIconCount + iconCount;
 	end
@@ -228,13 +228,22 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 	-- anchor and show icon frame
 	if (icon) then
 		-- anchor icon frame
-		local yOffset = (cfg.iconSize + 2) * (iconFrameIndex - 1) + 1;
+		local iconAnchor, tipAnchor = LibFroznFunctions:GetAnchorPointsByAnchorPointAndAlignment(cfg.iconAnchor, cfg.iconAnchorHorizontalAlign, cfg.iconAnchorVerticalAlign);
 		
-		icon:ClearAllPoints();
-		icon:SetPoint(LibFroznFunctions:MirrorAnchorPointVertically(cfg.iconAnchor), tip, cfg.iconAnchor, 0, -yOffset);
-		
-		-- show icon frame
-		icon:Show();
+		if (iconAnchor) and (tipAnchor) then
+			local offsetForIconFrameIndex = (cfg.iconSize + 2) * (iconFrameIndex - 1);
+			local xOffset, yOffset = LibFroznFunctions:GetOffsetsByAnchorPointAndOffsetsAndGrowDirection(cfg.iconAnchor, 1, cfg.iconOffsetX, cfg.iconOffsetY, cfg.iconAnchorGrowDirection, offsetForIconFrameIndex);
+			
+			icon:ClearAllPoints();
+			icon:SetPoint(iconAnchor, tip, tipAnchor, xOffset, yOffset);
+			
+			-- show icon frame
+			icon:Show();
+		else
+			iconFrameIndex = iconFrameIndex - 1;
+			
+			self.iconPool:Release(icon);
+		end
 	end
 	
 	return iconFrameIndex - startingIconFrameIndex + 1;

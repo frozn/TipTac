@@ -204,6 +204,7 @@ local TT_DefaultConfig = {
 	auraSize = 16,
 	auraMaxRows = 2,
 	aurasAtBottom = false,
+	auraOffset = 0,
 	
 	-- icons
 	enableIcons = true,
@@ -211,8 +212,14 @@ local TT_DefaultConfig = {
 	iconFaction = false,
 	iconCombat = false,
 	iconClass = false,
-	iconAnchor = "TOPLEFT",
 	iconSize = 24,
+	iconMaxIcons = 4,
+	iconAnchor = "LEFT",
+	iconAnchorHorizontalAlign = "LEFT",
+	iconAnchorVerticalAlign = "TOP",
+	iconAnchorGrowDirection = "DOWN",
+	iconOffsetX = 0,
+	iconOffsetY = 0,
 	
 	-- anchors
 	enableAnchor = true,

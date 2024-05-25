@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 23; -- bump on changes
+local LIB_MINOR = 24; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1558,16 +1558,36 @@ end
 --                                           Anchoring                                            --
 ----------------------------------------------------------------------------------------------------
 
+-- get anchor point side
+--
+-- @param  anchorPoint  anchor point, e.g. "TOP" or "BOTTOMRIGHT"
+-- @return anchor point side.
+--         returns nil if no valid anchor point is supplied.
+local anchorToAnchorPointSideLookup = {
+	TOP = "TOP",
+	TOPLEFT = "TOP",
+	TOPRIGHT = "TOP",
+	BOTTOM = "BOTTOM",
+	BOTTOMLEFT = "BOTTOM",
+	BOTTOMRIGHT = "BOTTOM",
+	LEFT = "LEFT",
+	RIGHT = "RIGHT"
+};
+
+function LibFroznFunctions:GetAnchorPointSide(anchorPoint)
+	return anchorToAnchorPointSideLookup[anchorPoint];
+end
+
 -- mirror anchor point vertically
 --
 -- @param  anchorPoint  anchor point, e.g. "TOP" or "BOTTOMRIGHT"
 -- @return vertically mirrored anchor point.
 --         returns nil if no valid anchor point is supplied.
 local anchorToVerticallyMirroredAnchorPointLookup = {
-	TOP = "BOTTOM",
+	TOP = "TOP",
 	TOPLEFT = "TOPRIGHT",
 	TOPRIGHT = "TOPLEFT",
-	BOTTOM = "TOP",
+	BOTTOM = "BOTTOM",
 	BOTTOMLEFT = "BOTTOMRIGHT",
 	BOTTOMRIGHT = "BOTTOMLEFT",
 	LEFT = "RIGHT",
@@ -1591,8 +1611,8 @@ local anchorToHorizontallyMirroredAnchorPointLookup = {
 	BOTTOM = "TOP",
 	BOTTOMLEFT = "TOPLEFT",
 	BOTTOMRIGHT = "TOPRIGHT",
-	LEFT = "RIGHT",
-	RIGHT = "LEFT",
+	LEFT = "LEFT",
+	RIGHT = "RIGHT",
 	CENTER = "CENTER"
 };
 
@@ -1605,7 +1625,6 @@ end
 -- @param  anchorPoint  anchor point, e.g. "TOP" or "BOTTOMRIGHT"
 -- @return centered mirrored anchor point.
 --         returns nil if no valid anchor point is supplied.
-
 local anchorToCenteredMirroredAnchorPointLookup = {
 	TOP = "BOTTOM",
 	TOPLEFT = "BOTTOMRIGHT",
@@ -1620,6 +1639,79 @@ local anchorToCenteredMirroredAnchorPointLookup = {
 
 function LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint)
 	return anchorToCenteredMirroredAnchorPointLookup[anchorPoint];
+end
+
+-- get anchor points by anchor point and horizontal/vertical alignment between two frames
+--
+-- @param  anchorPoint  anchor point, e.g. "TOP" or "BOTTOMRIGHT"
+-- @param  hAlign       optional. horizontal alignment, e.g "LEFT", "CENTER" or "RIGHT"
+-- @param  vAlign       optional. vertical alignment, e.g "TOP", "MIDDLE" or "BOTTOM"
+-- @return anchor point for outer frame, anchor point for reference frame. nil, nil if no valid anchor point is supplied.
+function LibFroznFunctions:GetAnchorPointsByAnchorPointAndAlignment(anchorPoint, hAlign, vAlign)
+	local anchorPointForOuterFrame = self:MirrorAnchorPointCentered(anchorPoint);
+	
+	-- invalid anchor point
+	if (not anchorPointForOuterFrame) then
+		return nil, nil;
+	end
+	
+	local anchorPointForReferenceFrame = anchorPoint;
+	
+	if ((anchorPointForOuterFrame == "TOP") or (anchorPointForOuterFrame == "BOTTOM")) and (hAlign) and (hAlign ~= "CENTER") then
+		anchorPointForOuterFrame = anchorPointForOuterFrame .. hAlign;
+		anchorPointForReferenceFrame = self:MirrorAnchorPointHorizontally(anchorPointForOuterFrame);
+	end
+	if ((anchorPointForOuterFrame == "LEFT") or (anchorPointForOuterFrame == "RIGHT")) and (vAlign) and (vAlign ~= "MIDDLE") then
+		anchorPointForOuterFrame = vAlign .. anchorPointForOuterFrame;
+		anchorPointForReferenceFrame = self:MirrorAnchorPointVertically(anchorPointForOuterFrame);
+	end
+	
+	-- invalid anchor point
+	if (not anchorPointForReferenceFrame) then
+		return nil, nil;
+	end
+	
+	return anchorPointForOuterFrame, anchorPointForReferenceFrame;
+end
+
+-- get offsets by anchor point and offsets and grow direction
+--
+-- @param  anchorPoint       anchor point, e.g. "TOP" or "BOTTOMRIGHT"
+-- @param  fixedOuterOffset  optional. fixed outer offset
+-- @param  xOffset           optional. x offset
+-- @param  yOffset           optional. y offset
+-- @param  growDirection     optional. grow direction, e.g. "UP", "RIGHT", "DOWN" or "LEFT"
+-- @param  growOffset        optional. grow offset
+-- @return x offset, y offset (inverted)
+function LibFroznFunctions:GetOffsetsByAnchorPointAndOffsetsAndGrowDirection(anchorPoint, fixedOuterOffset, _xOffset, _yOffset, growDirection, growOffset)
+	local xOffset, yOffset = (_xOffset or 0), (-_yOffset or 0);
+	local anchorPointSide = LibFroznFunctions:GetAnchorPointSide(anchorPoint);
+	
+	if (fixedOuterOffset) then
+		if (anchorPointSide == "TOP") then
+			yOffset = yOffset - fixedOuterOffset;
+		elseif (anchorPointSide == "BOTTOM") then
+			yOffset = yOffset + fixedOuterOffset;
+		elseif (anchorPointSide == "RIGHT") then
+			xOffset = xOffset + fixedOuterOffset;
+		elseif (anchorPointSide == "LEFT") then
+			xOffset = xOffset - fixedOuterOffset;
+		end
+	end
+	
+	if (growDirection) and (growOffset) then
+		if (growDirection == "UP") then
+			yOffset = yOffset + growOffset;
+		elseif (growDirection == "DOWN") then
+			yOffset = yOffset - growOffset;
+		elseif (growDirection == "LEFT") then
+			xOffset = xOffset - growOffset;
+		elseif (growDirection == "RIGHT") then
+			xOffset = xOffset + growOffset;
+		end
+	end
+	
+	return xOffset, yOffset;
 end
 
 -- get offsets for anchor point between two frames

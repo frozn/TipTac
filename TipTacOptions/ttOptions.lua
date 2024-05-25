@@ -29,6 +29,25 @@ local DROPDOWN_ANCHORPOS = {
 	["Center"] = "CENTER",
 };
 
+local DROPDOWN_ANCHORHALIGN = {
+	["Left"] = "LEFT",
+	["Center"] = "CENTER",
+	["Right"] = "RIGHT",
+};
+
+local DROPDOWN_ANCHORVALIGN = {
+	["Top"] = "TOP",
+	["Middle"] = "MIDDLE",
+	["Bottom"] = "BOTTOM",
+};
+
+local DROPDOWN_ANCHORGROWDIRECTION = {
+	["Up"] = "UP",
+	["Right"] = "RIGHT",
+	["Down"] = "DOWN",
+	["Left"] = "LEFT",
+};
+
 local DROPDOWN_BARTEXTFORMAT = {
 	["|cffffa0a0None"] = "none",
 	["Percentage"] = "percent",
@@ -423,6 +442,7 @@ local options = {
 			{ type = "Slider", var = "auraMaxRows", label = "Max Aura Rows", min = 1, max = 8, step = 1, enabled = function(factory) return factory:GetConfigValue("enableAuras") and (factory:GetConfigValue("showBuffs") or factory:GetConfigValue("showDebuffs")) end },
 		
 			{ type = "Check", var = "aurasAtBottom", label = "Put Aura Icons at the Bottom Instead of Top", tip = "Puts the aura icons at the bottom of the tip instead of the default top", enabled = function(factory) return factory:GetConfigValue("enableAuras") and (factory:GetConfigValue("showBuffs") or factory:GetConfigValue("showDebuffs")) end, y = 10 },
+			{ type = "Slider", var = "auraOffset", label = "Aura Offset", min = 0, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableAuras") and (factory:GetConfigValue("showBuffs") or factory:GetConfigValue("showDebuffs")) end },
 		}
 	},
 	-- Icons
@@ -437,10 +457,14 @@ local options = {
 			{ type = "Check", var = "iconCombat", label = "Show Combat Icon", tip = "Shows a combat icon next to the tip, if the unit is in combat", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
 			{ type = "Check", var = "iconClass", label = "Show Class Icon", tip = "For players, this will display the class icon next to the tooltip", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
 			
-			{ type = "Header", label = "Others" },
-			
-			{ type = "DropDown", var = "iconAnchor", label = "Icon Anchor", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
-			{ type = "Slider", var = "iconSize", label = "Icon Dimension", min = 8, max = 100, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
+			{ type = "Slider", var = "iconSize", label = "Icon Size", min = 8, max = 100, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
+			{ type = "Slider", var = "iconMaxIcons", label = "Max Icons", min = 1, max = 4, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
+			{ type = "DropDown", var = "iconAnchor", label = "Icon Anchor", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end, y = 10 },
+			{ type = "DropDown", var = "iconAnchorHorizontalAlign", label = "Horizontal Alignment", list = DROPDOWN_ANCHORHALIGN, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) and (factory:GetConfigValue("iconAnchor") == "TOP" or factory:GetConfigValue("iconAnchor") == "BOTTOM") end },
+			{ type = "DropDown", var = "iconAnchorVerticalAlign", label = "Vertical Alignment", list = DROPDOWN_ANCHORVALIGN, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) and (factory:GetConfigValue("iconAnchor") == "LEFT" or factory:GetConfigValue("iconAnchor") == "RIGHT") end },
+			{ type = "DropDown", var = "iconAnchorGrowDirection", label = "Grow Direction", list = DROPDOWN_ANCHORGROWDIRECTION, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
+			{ type = "Slider", var = "iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
+			{ type = "Slider", var = "iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
 		}
 	},
 	-- Anchors

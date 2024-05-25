@@ -142,7 +142,7 @@ function ttAuras:DisplayTipsAuras(tip, unitRecord, auraType, startingAuraFrameIn
 	
 	local vertAnchor = (cfg.aurasAtBottom and "TOP" or "BOTTOM");
 	local anchor1 = (vertAnchor .. horzAnchor1);
-	local anchor2 = (LibFroznFunctions:MirrorAnchorPointVertically(vertAnchor) .. horzAnchor1);
+	local anchor2 = (LibFroznFunctions:MirrorAnchorPointHorizontally(vertAnchor) .. horzAnchor1);
 	
 	-- query auras
 	while (true) do
@@ -169,7 +169,7 @@ function ttAuras:DisplayTipsAuras(tip, unitRecord, auraType, startingAuraFrameIn
 			if ((auraFrameIndex - 1) % aurasPerRow == 0) or (auraFrameIndex == startingAuraFrameIndex) then
 				-- new aura line
 				local x = (xOffsetBasis * 2);
-				local y = (cfg.auraSize + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + 1;
+				local y = (cfg.auraSize + 2) * floor((auraFrameIndex - 1) / aurasPerRow) + 1 + cfg.auraOffset;
 				
 				y = (cfg.aurasAtBottom and -y or y);
 				
