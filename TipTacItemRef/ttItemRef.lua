@@ -2174,7 +2174,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			addOnsLoaded["Blizzard_PVPUI"] = true;
 		end
 	end
-	-- now ElvUI exists
+	-- now ElvUI_SpellBookTooltip exists
 	if (addOnName == "ElvUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("ElvUI")) and (not addOnsLoaded['ElvUI'])) then
 		-- Hook Tips & Apply Settings
 		self:ApplyHooksToTips({
