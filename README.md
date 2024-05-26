@@ -46,7 +46,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added class border color for member list in guild/community->chat and guild/community->guild roster, dungeon score tooltip and attendees in LFG list if config option "Colors->Color Tip Border by Class Color" is checked
 - changes regarding (added) config options under "ItemRef":
   - added border color for spells, unit auras, tradeskills, currencies (in chatframe), achievements, guild challenges (in guild/community->info) and pvp enlistment bonus (in pvp->quick match)
-  - added border color and infos for battle pet, battle pet abilities, (world/party) quests in worldmap/questlog/questtracker, questtracker of addon WorldQuestTracker, trade skill reagents (in TradeSkillUI), toys (in ToyBox), items, illusions and sets (in Wardrobe), sets (at Transmogrifier), currencies, achievements in guild/community->info->news, rewards in quest(log)/LFG-browser, azerite essences, runeforge power (in adventure journal), (enhanced) conduits, spells in macros on action bar, torghast anima powers, mini achievement shields in achievement buttons, items/illusions in dress up frame, flyouts (e.g. mage portals), pet actions, keystones (including RewardLevel, WeeklyRewardLevel, ItemID, TimeLimit and AffixInfos)
+  - added border color and infos for battle pet, battle pet abilities, (world/party) quests in worldmap/questlog/questtracker, questtracker of addon WorldQuestTracker, trade skill reagents (in TradeSkillUI), toys (in ToyBox), items, illusions and sets (in Wardrobe), sets (at Transmogrifier), currencies, achievements in guild/community->info->news, rewards in quest(log)/LFG-browser, azerite essences, runeforge power (in adventure journal), (enhanced) conduits, spells in macros on action bar, torghast anima powers, mini achievement shields in achievement buttons, items/illusions in dress up frame, flyouts (e.g. mage portals), pet actions, keystones (including RewardLevel, WeeklyRewardLevel, ItemID, TimeLimit and AffixInfos), instance locks
   - fixed "Smart Icon Appearance" for mounts and mount equipment (in mount journal), items (in adventure journal), spells and items (in guild/community->perks)
 - added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
 - applied transparency from standard backdrop and backdrop border to special backdrop and backdrop border
@@ -58,7 +58,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
 - added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
 - added showing of role and talent/specialization icon, coloring talents by class color, average item level, the de facto standard GearScore algorithm from addon TacoTip and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
-- completely rewritten ttCore. also applied necessary changes to ttStyle, ttBars, ttAuras and ttIcons.
+- completely rewritten ttCore, ttBars, ttAuras, ttHyperlink and ttIcons. also applied necessary changes to ttStyle.
 - scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat or during dragonriding and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
