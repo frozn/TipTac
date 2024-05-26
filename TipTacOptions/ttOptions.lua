@@ -790,7 +790,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 				
 				local success, newCfg = LibSerialize:Deserialize(serializedConfig);
 				
-				if (not success) then
+				if (not success) or (type(newCfg) ~= "table") then
 					addFailedMessageToChatFrame();
 					return;
 				end
