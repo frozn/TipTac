@@ -752,7 +752,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 		-- open popup to get import string with new config
 		LibFroznFunctions:ShowPopupWithText({
 			prompt = "Paste export string with new config:",
-			iconFile = "Interface\\TalentFrame\\Talents",
+			iconFile = "Interface\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
 			iconTexCoord = { 0.924316, 0.944824, 0.0380859, 0.0771484 },
 			acceptButtonText = "Import",
 			cancelButtonText = "Cancel",
@@ -815,7 +815,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 			LibFroznFunctions:ShowPopupWithText({
 				prompt = "Copy this export string with current config:",
 				text = encodedConfig,
-				iconFile = "Interface\\TalentFrame\\Talents",
+				iconFile = "Interface\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
 				iconTexCoord = { 0.924316, 0.942871, 0.000976562, 0.0361328 },
 				acceptButtonText = "Close",
 				onShowHandler = function(self, data)
@@ -914,13 +914,13 @@ local function Misc_DropDownOnInitialize(dropDownMenu, level, menuList)
 		});
 	elseif (menuList == "settings") then
 		list:Push({
-			iconText = { "Interface\\TalentFrame\\Talents", 2048, 1024, nil, nil, 0.924316, 0.944824, 0.0380859, 0.0771484 },
+			iconText = { "Interface\\" .. PARENT_MOD_NAME .. "\\media\\Talents", 2048, 1024, nil, nil, 0.924316, 0.944824, 0.0380859, 0.0771484 },
 			text = "Import",
 			func = Misc_SettingsDropDownOnClick,
 			arg1 = "settingsImport"
 		});
 		list:Push({
-			iconText = { "Interface\\TalentFrame\\Talents", 2048, 1024, nil, nil, 0.924316, 0.942871, 0.000976562, 0.0361328 },
+			iconText = { "Interface\\" .. PARENT_MOD_NAME .. "\\media\\Talents", 2048, 1024, nil, nil, 0.924316, 0.942871, 0.000976562, 0.0361328 },
 			text = "Export",
 			func = Misc_SettingsDropDownOnClick,
 			arg1 = "settingsExport"
