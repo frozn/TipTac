@@ -54,7 +54,7 @@ end
 local TTIF_DefaultConfig = {
 	if_enable = true,
 	if_infoColor = { 0.2, 0.6, 1 },
-
+	
 	if_itemQualityBorder = true,
 	if_showItemLevel = false,					-- Used to be true, but changed due to the itemLevel issues
 	if_showItemId = false,
@@ -103,7 +103,8 @@ local TTIF_DefaultConfig = {
 	if_showFlyoutId = false,
 	if_petActionColoredBorder = true,
 	if_showPetActionId = false,
-
+	if_showInstanceLockDifficulty = true,
+	
 	if_showIcon = true,
 	if_smartIcons = true,
 	if_stackCountToTooltip = "none",
@@ -2378,12 +2379,21 @@ function ttif:SetBackdropBorderColorLocked(tip, r, g, b, a)
 end
 
 -- instancelock
-function LinkTypeFuncs:instancelock(link,linkType,guid,mapId,difficulty,encounterBits)
-	--AzDump(guid,mapId,difficulty,encounterBits)
-  	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
---	if (cfg.if_itemQualityBorder) then
---      ttif:SetBackdropBorderColorLocked(self, 1, .5, 0, 1);
---	end
+function LinkTypeFuncs:instancelock(link, linkType, guid, mapID, difficulty, defeatedEncounters)
+  	-- Colored Border
+	if (cfg.if_itemQualityBorder) then
+		ttif:SetBackdropBorderColorLocked(self, INSTANCE_LOCK_LINK_COLOR:GetRGBA());
+	end
+	
+	-- Difficulty
+	local showDifficulty = (difficulty and cfg.if_showInstanceLockDifficulty);
+	
+	if (showDifficulty) then
+		local difficultyName = GetDifficultyInfo(difficulty);
+		if (difficultyName) then
+			self:AddLine(format("Difficulty: %s", difficultyName), unpack(cfg.if_infoColor));
+		end
+	end
 end
 
 -- item

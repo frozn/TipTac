@@ -629,6 +629,8 @@ if (TipTacItemRef) then
 	tinsert(ttifOptions, { type = "Check", var = "if_petActionColoredBorder", label = "Show Pet Action Tips with Colored Border", tip = "When enabled and the tip is showing a pet action, the tip border will have the the standard spell color", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showPetActionId", label = "Show Pet Action ID", tip = "For flyout tooltips, show their petActionID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
 	
+	tinsert(ttifOptions, { type = "Check", var = "if_showInstanceLockDifficulty", label = "Show Instance Lock Difficulty", tip = "For instance lock tooltips, show their difficulty", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
+	
 	tinsert(ttifOptions, { type = "Header", label = "Icon", tip = "Settings about tooltip icon", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_showIcon", label = "Show Icon Texture and Stack Count (when available)", tip = "Shows an icon next to the tooltip. For items, the stack count will also be shown", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
