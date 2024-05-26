@@ -822,7 +822,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 		if (encodedConfig) then
 			LibFroznFunctions:ShowPopupWithText({
 				prompt = "Copy this export string with current config:",
-				text = encodedConfig,
+				lockedText = encodedConfig,
 				iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
 				iconTexCoord = { 0.924316, 0.942871, 0.000976562, 0.0361328 },
 				acceptButtonText = "Close",
@@ -879,7 +879,7 @@ local function Misc_ReportDropDownOnClick(dropDownMenuButton, arg1, arg2)
 	if (url) then
 		LibFroznFunctions:ShowPopupWithText({
 			prompt = "Open this link in your web browser:",
-			text = url,
+			lockedText = url,
 			iconFile = iconFile,
 			acceptButtonText = "Close",
 			onShowHandler = function(self, data)

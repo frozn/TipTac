@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 24; -- bump on changes
+local LIB_MINOR = 25; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2011,7 +2011,7 @@ end
 --
 -- @param params               parameters
 --          .prompt              prompt to show
---          .text                text to show
+--          .lockedText          locked text to show
 --          .iconFile            optional. path to an icon (usually in Interface\\) or a FileDataID
 --          .iconTexCoord        optional.  coordinates for cropping the icon. object with four values:
 --            leftTexel            coordinate that identifies the left edge as a fraction of the image's width
@@ -2146,7 +2146,7 @@ function LibFroznFunctions:ShowPopupWithText(params)
 	
 	-- show popup with text
 	StaticPopup_Show(popupName, nil, nil, {
-		lockedEditBoxText = params.text,
+		lockedEditBoxText = params.lockedText,
 		iconFile = params.iconFile,
 		iconTexCoord = params.iconTexCoord,
 		onShowHandler = params.onShowHandler,
