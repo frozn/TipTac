@@ -69,10 +69,10 @@ function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	end
 end
 
--- after tooltip has been styled and has the final size
+-- after unit tooltip has been styled and has the final size
 --
 -- hint: auras has to be updated last because it depends on the tip's new dimension
-function ttAuras:OnTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
+function ttAuras:OnUnitTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
 	-- setup tip's auras
 	self:SetupTipsAuras(tip);
 end

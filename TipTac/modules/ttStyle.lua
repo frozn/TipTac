@@ -766,10 +766,15 @@ function ttStyle:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDis
 	currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper = nil;
 end
 
-function ttStyle:OnTipStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
-	local unitRecord = currentDisplayParams.unitRecord;
+function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
+	-- check if modification of unit tip content is enabled
+	if (not cfg.showUnitTip) then
+		return;
+	end
 	
 	-- some things only need to be done once initially when the tip is first displayed
+	local unitRecord = currentDisplayParams.unitRecord;
+	
 	if (first) then
 		-- find pet, battle pet or NPC title
 		if (unitRecord.isPet) or (unitRecord.isBattlePet) or (unitRecord.isNPC) then

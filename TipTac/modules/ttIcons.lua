@@ -62,8 +62,8 @@ function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	end
 end
 
--- after tooltip has been styled and has the final size
-function ttIcons:OnTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
+-- after unit tooltip has been styled and has the final size
+function ttIcons:OnUnitTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
 	-- setup tip's icon
 	self:SetupTipsIcon(tip);
 end
