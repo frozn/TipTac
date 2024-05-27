@@ -130,7 +130,7 @@ end
 
 -- unit tooltip is being resized
 function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, first)
-	-- set minimum width for bars, so that numbers are not out of bounds.
+	-- consider minimum width for bars, so that numbers are not out of bounds.
 	if (not cfg.barEnableTipMinimumWidth) then
 		return;
 	end
