@@ -116,19 +116,35 @@ function ttAuras:SetupTipsAuras(tip)
 	-- display tip's buffs and debuffs
 	local currentAuraCount = 0;
 	local auraCount, lastAura;
+	local offsetForClampRectInsets = 0;
 	
 	if (cfg.showBuffs) then
-		auraCount, lastAura = self:DisplayTipsAuras(tip, currentDisplayParams, "HELPFUL", currentAuraCount + 1);
+		auraCount, lastAura, offsetForClampRectInsets = self:DisplayTipsAuras(tip, currentDisplayParams, "HELPFUL", currentAuraCount + 1, lastAura, offsetForClampRectInsets);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 	if (cfg.showDebuffs) then
-		auraCount, lastAura = self:DisplayTipsAuras(tip, currentDisplayParams, "HARMFUL", currentAuraCount + 1);
+		auraCount, lastAura, offsetForClampRectInsets = self:DisplayTipsAuras(tip, currentDisplayParams, "HARMFUL", currentAuraCount + 1, lastAura, offsetForClampRectInsets);
 		currentAuraCount = currentAuraCount + auraCount;
+	end
+	
+	-- prevent auras from moving off-screen
+	if (offsetForClampRectInsets > 0) and (tip:IsClampedToScreen()) then
+		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
+		
+		if (cfg.aurasAtBottom) then
+			if (bottomOffset > -offsetForClampRectInsets) then
+				tip:SetClampRectInsets(leftOffset, rightOffset, topOffset, -offsetForClampRectInsets);
+			end
+		else
+			if (topOffset < offsetForClampRectInsets) then
+				tip:SetClampRectInsets(leftOffset, rightOffset, offsetForClampRectInsets, bottomOffset);
+			end
+		end
 	end
 end
 
 -- display tip's buffs and debuffs
-function ttAuras:DisplayTipsAuras(tip, currentDisplayParams, auraType, startingAuraFrameIndex, lastAura)
+function ttAuras:DisplayTipsAuras(tip, currentDisplayParams, auraType, startingAuraFrameIndex, lastAura, offsetForClampRectInsets)
 	local unitRecord = currentDisplayParams.unitRecord;
 	
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
@@ -183,9 +199,14 @@ function ttAuras:DisplayTipsAuras(tip, currentDisplayParams, auraType, startingA
 					end
 				end
 				
-				y = (cfg.aurasAtBottom and -y or y);
+				aura:SetPoint(anchor1, tip, anchor2, x, cfg.aurasAtBottom and -y or y);
 				
-				aura:SetPoint(anchor1, tip, anchor2, x, y);
+				-- set offset to prevent auras from moving off-screen
+				local newOffsetForClampRectInsets = y + (cfg.auraSize + 2);
+				
+				if (newOffsetForClampRectInsets > offsetForClampRectInsets) then
+					offsetForClampRectInsets = newOffsetForClampRectInsets;
+				end
 			else
 				-- anchor to last
 				aura:SetPoint(horzAnchor1, lastAura, horzAnchor2, xOffsetBasis * 2, 0);
@@ -222,7 +243,7 @@ function ttAuras:DisplayTipsAuras(tip, currentDisplayParams, auraType, startingA
 	-- return the number of auras displayed
 	local auraCount = auraFrameIndex - startingAuraFrameIndex + 1;
 	
-	return auraCount, lastAura;
+	return auraCount, lastAura, offsetForClampRectInsets;
 end
 
 -- create aura frame
