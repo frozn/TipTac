@@ -2633,7 +2633,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = nil, nil, nil, nil;
 		end
 	end,
-	OnTipPostResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- restore original offsets for preventing additional elements from moving off-screen
 		if (not tip:IsForbidden()) and (currentDisplayParams.originalLeftOffsetForPreventingOffScreen) and (currentDisplayParams.originalRightOffsetForPreventingOffScreen) and (currentDisplayParams.originalTopOffsetForPreventingOffScreen) and (currentDisplayParams.originalBottomOffsetForPreventingOffScreen) then
 			tip:SetClampRectInsets(currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen);

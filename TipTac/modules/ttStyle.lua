@@ -793,14 +793,6 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 end
 
 function ttStyle:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
-	-- reset current display params for unit appearance
-	currentDisplayParams.tipLineInfoIndex = nil;
-	currentDisplayParams.tipLineTargetedByIndex = nil;
-	currentDisplayParams.petLineLevelIndex = nil;
-	currentDisplayParams.mergeLevelLineWithGuildName = nil;
-end
-
-function ttStyle:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
 	-- hide tip's top/bottom overlay currently highlighting TipTac developer
 	if (currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper) and (tip.TopOverlay) then
 		tip.TopOverlay:Hide();
@@ -810,6 +802,10 @@ function ttStyle:OnTipPostResetCurrentDisplayParams(TT_CacheForFrames, tip, curr
 	end
 	
 	-- reset current display params for unit appearance
+	currentDisplayParams.tipLineInfoIndex = nil;
+	currentDisplayParams.tipLineTargetedByIndex = nil;
+	currentDisplayParams.petLineLevelIndex = nil;
+	currentDisplayParams.mergeLevelLineWithGuildName = nil;
 	currentDisplayParams.isSetTopOverlayToHighlightTipTacDeveloper = nil;
 	currentDisplayParams.isSetBottomOverlayToHighlightTipTacDeveloper = nil;
 end
