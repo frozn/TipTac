@@ -817,6 +817,11 @@ local TT_TipsToModifyFromOtherMods = {};
 -- extraPaddingRightForCloseButton               value for extra padding right to fit close button, nil otherwise.
 -- extraPaddingBottomForBars                     value for extra padding bottom to fit health/power bars, nil otherwise.
 --
+-- originalLeftOffsetForPreventingOffScreen      original left offset for preventing additional elements from moving off-screen
+-- originalRightOffsetForPreventingOffScreen     original right offset for preventing additional elements from moving off-screen
+-- originalTopOffsetForPreventingOffScreen       original top offset for preventing additional elements from moving off-screen
+-- originalBottomOffsetForPreventingOffScreen    original bottom offset for preventing additional elements from moving off-screen
+--
 -- defaultAnchored                               true if tip is default anchored, false otherwise.
 -- defaultAnchoredParentFrame                    tip's parent frame if default anchored, nil otherwise.
 -- anchorFrameName                               anchor frame name of tip, values "WorldUnit", "WorldTip", "FrameUnit", "FrameTip"
@@ -2613,6 +2618,31 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		tt:SetBackdropBorderColorLocked(tip, r, g, b, a);
 	end
 }, MOD_NAME .. " - Color Locking Feature");
+
+----------------------------------------------------------------------------------------------------
+--                       Prevent additional elements from moving off-screen                       --
+----------------------------------------------------------------------------------------------------
+
+-- register for group events
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnTipSetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
+		-- set current display params for preventing additional elements from moving off-screen
+		if (not tip:IsForbidden()) then
+			currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = tip:GetClampRectInsets();
+		else
+			currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = nil, nil, nil, nil;
+		end
+	end,
+	OnTipPostResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- restore original offsets for preventing additional elements from moving off-screen
+		if (not tip:IsForbidden()) and (currentDisplayParams.originalLeftOffsetForPreventingOffScreen) and (currentDisplayParams.originalRightOffsetForPreventingOffScreen) and (currentDisplayParams.originalTopOffsetForPreventingOffScreen) and (currentDisplayParams.originalBottomOffsetForPreventingOffScreen) then
+			tip:SetClampRectInsets(currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen);
+		end
+		
+		-- reset current display params for preventing additional elements from moving off-screen
+		currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = nil, nil, nil, nil;
+	end
+}, MOD_NAME .. " - Preventing Off-Screen");
 
 ----------------------------------------------------------------------------------------------------
 --                                           Anchoring                                            --
