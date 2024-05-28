@@ -128,7 +128,7 @@ function ttAuras:SetupTipsAuras(tip)
 	end
 	
 	-- prevent auras from moving off-screen
-	if (offsetForClampRectInsets > 0) and (tip:IsClampedToScreen()) then
+	if (offsetForClampRectInsets > 0) then
 		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
 		
 		if (cfg.aurasAtBottom) then
