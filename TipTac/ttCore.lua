@@ -1720,8 +1720,11 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	currentDisplayParams.ignoreSetCurrentDisplayParamsOnTimestamp = nil;
 	
 	-- consider missing reset of tip's current display parameters, e.g. if hovering over unit auras which will be hidden. there will be subsequent calls of GameTooltip:SetUnitAura() without a new GameTooltip:OnShow().
+	local noFireGroupEvent = false;
+	
 	if ((currentDisplayParams.isSet) or (currentDisplayParams.isSetTemporarily)) and (currentDisplayParams.isSetTimestamp ~= currentTime) then
-		self:ResetCurrentDisplayParams(tip, true);
+		noFireGroupEvent = true;
+		self:ResetCurrentDisplayParams(tip, noFireGroupEvent);
 	end
 	
 	-- tip will be hidden
@@ -1738,8 +1741,10 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 		currentDisplayParams.tipContent = tipContent;
 		
 		-- inform group that the tip's current display parameters has to be set
-		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+		if (not noFireGroupEvent) then
+			LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+			LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+		end
 		
 		if (tipContentUnknown) then
 			currentDisplayParams.isSetTemporarily = true;
@@ -1760,7 +1765,9 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	end
 	
 	-- inform group that the tip's styling needs to be set
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+	if (not noFireGroupEvent) then
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+	end
 	
 	-- recalculate size of tip to ensure that it has the correct dimensions
 	if (tipContent ~= TT_TIP_CONTENT.unknownOnCleared) then -- prevent recalculating size of tip on tip content "unknownOnCleared" to prevent accidentally reducing tip's width/height to a tiny square e.g. on individual GameTooltips with tip:ClearLines(). test case: addon "Titan Panel" with broker addon "Profession Cooldown".
