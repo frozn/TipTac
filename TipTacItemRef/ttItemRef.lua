@@ -47,7 +47,7 @@ local ttif = CreateFrame("Frame", MOD_NAME);
 -- Register with TipTac core addon if available
 local TipTac = _G[PARENT_MOD_NAME];
 if (TipTac) then
-	LibFroznFunctions:RegisterForGroupEvents(PARENT_MOD_NAME, ttif, "ItemRef");
+	LibFroznFunctions:RegisterForGroupEvents(PARENT_MOD_NAME, ttif, PARENT_MOD_NAME .. " - ItemRef Module");
 end
 
 -- Default Config
@@ -407,7 +407,7 @@ function ttif:VARIABLES_LOADED(event)
 
 	-- Hook Tips & Apply Settings
 	self:HookTips();
-	self:OnApplyConfig();
+	self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	
 	-- Re-Trigger event ADDON_LOADED for TipTacItemRef if config wasn't ready
 	self:ADDON_LOADED("ADDON_LOADED", MOD_NAME);
@@ -2021,7 +2021,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PetJournalSecondaryAbilityTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig();
+		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame
 		if (WardrobeCollectionFrame) then
@@ -2097,7 +2097,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			-- "EncounterJournalTooltip"
 		-- }, true, true);
 
-		-- self:OnApplyConfig();
+		-- self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_EncounterJournal"] = true;
@@ -2125,7 +2125,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PerksProgramTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig();
+		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PerksProgram"] = true;
@@ -2142,7 +2142,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PetBattlePrimaryAbilityTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig();
+		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PetBattleUI"] = true;
@@ -2182,7 +2182,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"ElvUI_SpellBookTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig();
+		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["ElvUI"] = true;
