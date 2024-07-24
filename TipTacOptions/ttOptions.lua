@@ -7,6 +7,9 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 local LibSerialize = LibStub:GetLibrary("LibSerialize");
 local LibDeflate = LibStub:GetLibrary("LibDeflate");
 
+-- constants
+local TT_OPTIONS_CATEGORY_LIST_WIDTH = 117;
+
 -- DropDown Lists
 local DROPDOWN_FONTFLAGS = {
 	["|cffffa0a0None"] = "",
@@ -661,7 +664,7 @@ tinsert(UISpecialFrames, f:GetName()); -- hopefully no taint
 
 f.options = options;
 
-f:SetSize(467,378);
+f:SetSize(360 + TT_OPTIONS_CATEGORY_LIST_WIDTH,378);
 f:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 16, edgeSize = 16, insets = { left = 3, right = 3, top = 3, bottom = 3 } });
 f:SetBackdropColor(0.1,0.22,0.35,1);
 f:SetBackdropBorderColor(0.1,0.1,0.1,1);
@@ -670,7 +673,7 @@ f:SetMovable(true);
 f:SetFrameStrata("DIALOG");
 f:SetToplevel(true);
 f:SetClampedToScreen(true);
-f:SetScript("OnShow",function(self) self:BuildCategoryPage(); end);
+f:SetScript("OnShow",function(self) self:BuildCategoryList(); self:BuildCategoryPage(); end);
 f:Hide();
 
 f.outline = CreateFrame("Frame",nil,f,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
@@ -679,7 +682,7 @@ f.outline:SetBackdropColor(0.1,0.1,0.2,1);
 f.outline:SetBackdropBorderColor(0.8,0.8,0.9,0.4);
 f.outline:SetPoint("TOPLEFT",12,-12);
 f.outline:SetPoint("BOTTOMLEFT",12,12);
-f.outline:SetWidth(107);
+f.outline:SetWidth(TT_OPTIONS_CATEGORY_LIST_WIDTH);
 
 f:SetScript("OnMouseDown",f.StartMoving);
 f:SetScript("OnMouseUp",function(self) self:StopMovingOrSizing(); cfg.optionsLeft = self:GetLeft(); cfg.optionsBottom = self:GetBottom(); end);
@@ -693,7 +696,7 @@ end
 f.header = f:CreateFontString(nil,"ARTWORK","GameFontHighlight");
 f.header:SetFont(GameFontNormal:GetFont(),22,"THICKOUTLINE");
 f.header:SetPoint("TOPLEFT",f.outline,"TOPRIGHT",9,-4);
-f.header:SetText(PARENT_MOD_NAME.." Options");
+f.header:SetText(CreateTextureMarkup("Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\tiptac_logo", 256, 256, nil, nil, 0, 1, 0, 1) .. " " .. PARENT_MOD_NAME.." Options");
 
 f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 f.vers:SetPoint("TOPRIGHT",-15,-15);
@@ -730,6 +733,7 @@ local function Reset_OnClick(self)
 	end
 	TipTac:ApplyConfig();
 	f:BuildCategoryPage();
+	f:BuildCategoryList();
 end
 
 local function Reset_OnEnter(self)
@@ -806,8 +810,13 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 				-- apply new config
 				LibFroznFunctions:MixinWholeObjects(cfg, newCfg);
 				
+				-- inform group that the config has been loaded
+				-- LibFroznFunctions:FireGroupEvent(PARENT_MOD_NAME, "OnConfigLoaded", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+				
+				-- apply config
 				TipTac:ApplyConfig();
 				f:BuildCategoryPage();
+				f:BuildCategoryList();
 				
 				TipTac:AddMessageToChatFrame("{caption:" .. PARENT_MOD_NAME .. "}: Successfully imported new config.");
 			end
@@ -1173,6 +1182,7 @@ local function SetConfigValue(self,var,value,noBuildCategoryPage)
 		TipTac:ApplyConfig();
 		if (not noBuildCategoryPage) then
 			f:BuildCategoryPage(true);
+			f:BuildCategoryList();
 		end
 	end
 end
@@ -1290,34 +1300,38 @@ local function CreateCategoryButtonEntry(parent)
 	return b;
 end
 
-for index, table in ipairs(f.options) do
-	local button = listButtons[index] or CreateCategoryButtonEntry(f.outline);
-	button.text:SetText(table.category);
-	button.text:SetTextColor(1,0.82,0);
-	if (table.enabled) then
-		local option = table.enabled;
-		local checked = GetConfigValue(f.factory, option.var);
-		button.check.option = option;
-		if (not option.label) then
-			option.label = table.category;
+-- Build Category List
+function f:BuildCategoryList()
+	for index, table in ipairs(f.options) do
+		local button = listButtons[index] or CreateCategoryButtonEntry(f.outline);
+		button.text:SetText(table.category);
+		button.text:SetTextColor(1,0.82,0);
+		if (table.enabled) then
+			local option = table.enabled;
+			local cfgValue = GetConfigValue(f.factory, option.var);
+			button.check.option = option;
+			if (not option.label) then
+				option.label = table.category;
+			end
+			button.check:SetChecked(cfgValue);
+			local enabled = (not option.enabled) or (not not option.enabled(f.factory, button.check, option, cfgValue));
+			button.check:SetEnabled(enabled);
+			if (not cfgValue) or (not enabled) then
+				button.text:SetTextColor(0.5, 0.5, 0.5);
+			end
+			button.check:Show();
 		end
-		if (checked) then
-			button.check:SetChecked(true);
+		button.index = index;
+		if (index == 1) then
+			button:SetPoint("TOPLEFT",f.outline,"TOPLEFT",5,-6);
 		else
-			button.text:SetTextColor(0.5, 0.5, 0.5);
+			button:SetPoint("TOPLEFT",listButtons[index - 1],"BOTTOMLEFT");
 		end
-		button.check:Show();
-	end
-	button.index = index;
-	if (index == 1) then
-		button:SetPoint("TOPLEFT",f.outline,"TOPLEFT",5,-6);
-	else
-		button:SetPoint("TOPLEFT",listButtons[index - 1],"BOTTOMLEFT");
-	end
-	if (index == activePage) then
-		button.text:SetTextColor(1,1,1);
-		button:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight");
-		button:GetHighlightTexture():SetAlpha(0.7);
-		button:LockHighlight();
+		if (index == activePage) then
+			button.text:SetTextColor(1,1,1);
+			button:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight");
+			button:GetHighlightTexture():SetAlpha(0.7);
+			button:LockHighlight();
+		end
 	end
 end

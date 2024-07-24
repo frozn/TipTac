@@ -807,6 +807,7 @@ local TT_TipsToModifyFromOtherMods = {};
 --
 -- tipContent                                    see TT_TIP_CONTENT
 -- hideTip                                       true if tip will be hidden, false otherwise.
+-- ignoreNextSetCurrentDisplayParams             true if ignoring next tooltip's current display parameters to be set, nil otherwise.
 -- ignoreSetCurrentDisplayParamsOnTimestamp      timestamp of ignoring tooltip's current display parameters to be set, nil otherwise.
 --
 -- lockedBackdropInfo                            locked backdropInfo, nil otherwise.
@@ -967,7 +968,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			tt:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", cfg.left, cfg.top);
 		end
 	end
-}, MOD_NAME .. " - TipTac anchor");
+}, MOD_NAME .. " - TipTac Anchor");
 
 tt:Hide();
 
@@ -1026,32 +1027,37 @@ tt:RegisterEvent("PLAYER_LOGIN");
 
 -- group events: TipTac (see MOD_NAME)
 --
--- eventName                           description                                                 additional payload
--- ----------------------------------  ----------------------------------------------------------  ------------------------------------------------------------
--- OnConfigLoaded                      config has been loaded                                      TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyConfig                       config settings need to be applied                          TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied  TT_CacheForFrames, cfg, TT_ExtendedConfig
---
--- OnTipAddedToCache                   tooltip has been added to cache for frames                  TT_CacheForFrames, tooltip
---
--- OnTipSetCurrentDisplayParams        tooltip's current display parameters has to be set          TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
--- OnTipPostSetCurrentDisplayParams    after tooltip's current display parameters has to be set    TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
---
--- OnTipSetHidden                      check if tooltip needs to be hidden                         TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
--- OnTipSetStyling                     tooltip's styling needs to be set                           TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
---
--- OnUnitTipPreStyle                   before unit tooltip is being styled                         TT_CacheForFrames, tooltip, currentDisplayParams, first
--- OnUnitTipStyle                      unit tooltip is being styled                                TT_CacheForFrames, tooltip, currentDisplayParams, first
--- OnUnitTipResize                     unit tooltip is being resized                               TT_CacheForFrames, tooltip, currentDisplayParams, first
--- OnUnitTipPostStyle                  after unit tooltip has been styled and has the final size   TT_CacheForFrames, tooltip, currentDisplayParams, first
---
--- OnTipRescaled                       tooltip has been rescaled                                   TT_CacheForFrames, tooltip, currentDisplayParams
---
--- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset        TT_CacheForFrames, tooltip, currentDisplayParams
--- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset  TT_CacheForFrames, tooltip, currentDisplayParams
---
--- SetDefaultAnchorHook                hook for set default anchor to tip                          tooltip, parent
--- SetBackdropBorderColorLocked        set backdrop border color locked to tip                     tooltip, r, g, b, a
+-- eventName                           description                                                                    additional payload
+-- ----------------------------------  -----------------------------------------------------------------------------  ------------------------------------------------------------
+-- OnConfigLoaded                      config has been loaded                                                         TT_CacheForFrames, cfg, TT_ExtendedConfig
+-- OnApplyConfig                       config settings need to be applied                                             TT_CacheForFrames, cfg, TT_ExtendedConfig
+-- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied                     TT_CacheForFrames, cfg, TT_ExtendedConfig
+--                                                                                                                    
+-- OnTipAddedToCache                   tooltip has been added to cache for frames                                     TT_CacheForFrames, tooltip
+--                                                                                                                    
+-- OnTipSetCurrentDisplayParams        tooltip's current display parameters has to be set                             TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+-- OnTipPostSetCurrentDisplayParams    after tooltip's current display parameters has to be set                       TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+--                                                                                                                    
+-- OnTipSetHidden                      check if tooltip needs to be hidden                                            TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+-- OnTipSetStyling                     tooltip's styling needs to be set                                              TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+--                                                                                                                    
+-- OnUnitTipPreStyle                   before unit tooltip is being styled                                            TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnUnitTipStyle                      unit tooltip is being styled                                                   TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnUnitTipResize                     unit tooltip is being resized                                                  TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnUnitTipPostStyle                  after unit tooltip has been styled and has the final size                      TT_CacheForFrames, tooltip, currentDisplayParams, first
+--                                                                                                                    
+-- OnTipRescaled                       tooltip has been rescaled                                                      TT_CacheForFrames, tooltip, currentDisplayParams
+--                                                                                                                    
+-- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset                           TT_CacheForFrames, tooltip, currentDisplayParams
+-- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset                     TT_CacheForFrames, tooltip, currentDisplayParams
+--                                                                                                                    
+-- SetDefaultAnchorHook                hook for set default anchor to tip                                             tooltip, parent
+-- SetBackdropBorderColorLocked        set backdrop border color locked to tip                                        tooltip, r, g, b, a
+--                                                                                                                    
+-- OnPlayerRegenEnabled                player regen has been enabled (after ending combat)                            TT_CacheForFrames
+-- OnPlayerRegenDisabled               player regen has been disabled (whenever entering combat)                      TT_CacheForFrames
+-- OnUpdateBonusActionbar              bonus bar has been updated                                                     TT_CacheForFrames
+-- OnModifierStateChanged              modifier state has been changed (shift/ctrl/alt keys are pressed or released)  TT_CacheForFrames
 
 ----------------------------------------------------------------------------------------------------
 --                                       Interface Options                                        --
@@ -1209,8 +1215,15 @@ TT_LDB_DataObject = LibDataBroker:NewDataObject(MOD_NAME, {
 ----------------------------------------------------------------------------------------------------
 
 -- register for group events
+local minimapIconRegistered = false;
+
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnConfigLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- minimap icon already registered to LibDBIcon-1.0
+		if (minimapIconRegistered) then
+			return;
+		end
+		
 		-- creation of new table needed so that saving of minimap config is possible
 		if (LibFroznFunctions:IsTableEmpty(cfg.minimapConfig)) then
 			cfg.minimapConfig = {};
@@ -1218,6 +1231,8 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		-- register minimap icon to LibDBIcon-1.0
 		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, cfg.minimapConfig);
+		
+		minimapIconRegistered = true;
 	end,
 	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- show/hide minimap icon
@@ -1276,16 +1291,19 @@ tt:UpdatePixelPerfectScale();
 
 -- EVENT: UI scale changed
 function tt:UI_SCALE_CHANGED(event)
+	-- apply config
 	self:ApplyConfig();
 end
 
 -- HOOK: UIParent scale changed
 hooksecurefunc(UIParent, "SetScale", function()
+	-- apply config
 	tt:ApplyConfig();
 end);
 
 -- EVENT: display size changed
 function tt:DISPLAY_SIZE_CHANGED(event)
+	-- apply config
 	self:ApplyConfig();
 end
 
@@ -1710,6 +1728,13 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
+	-- ignore next setting tip's current display parameters
+	if (currentDisplayParams.ignoreNextSetCurrentDisplayParams) then
+		currentDisplayParams.ignoreNextSetCurrentDisplayParams = nil;
+		
+		return;
+	end
+	
 	-- ignore setting tip's current display parameters on timestamp
 	local currentTime = GetTime();
 	
@@ -1803,6 +1828,7 @@ function tt:ResetCurrentDisplayParams(tip, noFireGroupEvent)
 	currentDisplayParams.isSetTimestamp = nil;
 	
 	currentDisplayParams.hideTip = false;
+	currentDisplayParams.ignoreNextSetCurrentDisplayParams = nil;
 end
 
 -- hide tip
@@ -1813,12 +1839,61 @@ function tt:HideTip(tip)
 	end
 end
 
+-- hide tips if need to be hidden
+function tt:HideTipsIfNeedToBeHidden()
+	-- hide tip if needs to be hidden
+	for tip, frameParams in pairs(TT_CacheForFrames) do
+		self:HideTipIfNeedsToBeHidden(tip);
+	end
+end
+
+-- hide tip if needs to be hidden
+function tt:HideTipIfNeedsToBeHidden(tip)
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	-- current display parameters aren't set
+	if (not currentDisplayParams.isSet) and (not currentDisplayParams.isSetTemporarily) then
+		return;
+	end
+	
+	-- tip already hidden
+	if (currentDisplayParams.hideTip) then
+		return;
+	end
+	
+	-- inform group that the tip has to be checked if it needs to be hidden
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, currentDisplayParams.tipContent);
+	
+	-- tip will be hidden
+	if (currentDisplayParams.hideTip) then
+		self:HideTip(tip);
+	end
+end
+
 -- set scale to tip
+--
+-- use isSettingScaleToTip to prevent endless loop when calling tt:SetScaleToTip()
+local isSettingScaleToTip = false;
+
 function tt:SetScaleToTip(tip, noFireGroupEvent)
 	-- check if insecure interaction with the tip is currently forbidden
 	if (tip:IsForbidden()) then
 		return;
 	end
+	
+	-- check if we're already setting scale to tip
+	if (isSettingScaleToTip) then
+		return;
+	end
+	
+	isSettingScaleToTip = false;
 	
 	-- get current display and tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -1881,7 +1956,9 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	end
 	
 	-- set scale to tip
+	isSettingScaleToTip = true;
 	tip:SetScale(newTipScale);
+	isSettingScaleToTip = false;
 	
 	-- inform group that the tip has been rescaled
 	if (not noFireGroupEvent) then
@@ -1981,8 +2058,61 @@ function tt:AddModifiedTipExtended(tipNameOrFrame, tipParams)
 	self:ApplyConfig();
 end
 
+-- EVENT: player regen enabled (after ending combat)
+function tt:PLAYER_REGEN_ENABLED(event)
+	-- inform group that the player regen has been enabled (after ending combat)
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnPlayerRegenEnabled", TT_CacheForFrames);
+end
+
+-- EVENT: player regen disabled (whenever entering combat)
+function tt:PLAYER_REGEN_DISABLED(event)
+	-- inform group that the player regen has been disabled (whenever entering combat)
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnPlayerRegenDisabled", TT_CacheForFrames);
+end
+
+-- EVENT: bonus bar updated
+function tt:UPDATE_BONUS_ACTIONBAR(event)
+	-- inform group that the bonus bar has been updated
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnUpdateBonusActionbar", TT_CacheForFrames);
+end
+
+-- EVENT: modifier state changed (shift/ctrl/alt keys are pressed or released)
+function tt:MODIFIER_STATE_CHANGED(event)
+	-- inform group that the modifier state has been changed (shift/ctrl/alt keys are pressed or released)
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnModifierStateChanged", TT_CacheForFrames);
+end
+
+-- register events
+tt:RegisterEvent("PLAYER_REGEN_ENABLED");
+tt:RegisterEvent("PLAYER_REGEN_DISABLED");
+tt:RegisterEvent("UPDATE_BONUS_ACTIONBAR");
+tt:RegisterEvent("MODIFIER_STATE_CHANGED");
+
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- get tip parameters
+		local frameParams = TT_CacheForFrames[tip];
+		
+		if (not frameParams) then
+			return;
+		end
+		
+		local tipParams = frameParams.config;
+		
+		-- no hooking allowed
+		if (tipParams.noHooks) then
+			return;
+		end
+		
+		-- HOOK: tip's SetScale() to reapply scale to tip. test case: install addons "Bulk Mail" and "Bulk Mail Inbox" and open mail inbox. tips are mostly empty. the downside of this reapply scale is, that e.g. the individual scale of LibQTip from addon "Broker_Currencyflow" is overriden.
+		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			hooksecurefunc(tip, "SetScale", function(tip)
+				-- reapply scale to tip
+				tt:SetScaleToTip(tip);
+			end);
+		end);
+	end,
 	OnTipSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- reapply scale to tip
 		tt:SetScaleToTip(tip);
@@ -1990,6 +2120,22 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reapply gradient to tip
 		tt:SetGradientToTip(tip);
+	end,
+	OnPlayerRegenEnabled = function(self, TT_CacheForFrames)
+		-- hide tips if need to be hidden
+		tt:HideTipsIfNeedToBeHidden();
+	end,
+	OnPlayerRegenDisabled = function(self, TT_CacheForFrames)
+		-- hide tips if need to be hidden
+		tt:HideTipsIfNeedToBeHidden();
+	end,
+	OnUpdateBonusActionbar = function(self, TT_CacheForFrames)
+		-- hide tips if need to be hidden
+		tt:HideTipsIfNeedToBeHidden();
+	end,
+	OnModifierStateChanged = function(self, TT_CacheForFrames)
+		-- hide tips if need to be hidden
+		tt:HideTipsIfNeedToBeHidden();
 	end
 }, MOD_NAME .. " - Apply Config");
 
@@ -2834,7 +2980,7 @@ function tt:GetAnchorPosition(tip)
 	-- check for GameTooltip anchor overrides
 	if (tip == GameTooltip) then
 		-- override GameTooltip anchor for (Guild & Community) ChatFrame
-		if (not tip:IsForbidden()) and (cfg.enableAnchorOverrideCF) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
+		if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (not tip:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
 					"ChatFrame(%d+)",
 					(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
 				}, 1)) then
@@ -2870,7 +3016,50 @@ function tt:SetDefaultAnchorHook(tip, parent)
 	currentDisplayParams.defaultAnchoredParentFrame = parent;
 	
 	-- set anchor to tip
-	tt:SetAnchorToTip(tip);
+	self:SetAnchorToTip(tip);
+end
+
+-- set anchor to tips if need to be set
+function tt:SetAnchorToTipsIfNeedToBeSet()
+	-- set anchor to tip if needs to be set
+	for tip, frameParams in pairs(TT_CacheForFrames) do
+		self:SetAnchorToTipIfNeedsToBeSet(tip);
+	end
+end
+
+-- set anchor to tip if needs to be set
+function tt:SetAnchorToTipIfNeedsToBeSet(tip)
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	-- current display parameters aren't set
+	if (not currentDisplayParams.isSet) and (not currentDisplayParams.isSetTemporarily) then
+		return;
+	end
+	
+	-- set anchor to tip not possible
+	local tipParams = frameParams.config;
+	
+	if (not cfg.enableAnchor) or (not tipParams.applyAnchor) then
+		return;
+	end
+	
+	-- tip not default anchored
+	if (not currentDisplayParams.defaultAnchored) then
+		return;
+	end
+	
+	-- get anchor position
+	currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType, currentDisplayParams.anchorPoint = self:GetAnchorPosition(tip);
+	
+	-- set anchor to tip
+	self:SetAnchorToTip(tip);
 end
 
 -- reset current display params for anchoring
@@ -2969,6 +3158,18 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	SetDefaultAnchorHook = function(self, tip, parent)
 		-- hook after set default anchor to tip
 		tt:SetDefaultAnchorHook(tip, parent);
+	end,
+	OnPlayerRegenEnabled = function(self, TT_CacheForFrames)
+		-- set anchor to tips if need to be set
+		tt:SetAnchorToTipsIfNeedToBeSet();
+	end,
+	OnPlayerRegenDisabled = function(self, TT_CacheForFrames)
+		-- set anchor to tips if need to be set
+		tt:SetAnchorToTipsIfNeedToBeSet();
+	end,
+	OnUpdateBonusActionbar = function(self, TT_CacheForFrames)
+		-- set anchor to tips if need to be set
+		tt:SetAnchorToTipsIfNeedToBeSet();
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reset current display params for anchoring
@@ -3157,15 +3358,6 @@ function tt:UpdateUnitAppearanceToTip(tip, force)
 		return;
 	end
 	
-	-- inform group that the tip has to be checked if it needs to be hidden
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetHidden", TT_CacheForFrames, tip, currentDisplayParams, currentDisplayParams.tipContent);
-	
-	-- tip will be hidden
-	if (currentDisplayParams.hideTip) then
-		tt:HideTip(tip);
-		return;
-	end
-	
 	-- update unit record
 	LibFroznFunctions:UpdateUnitRecord(unitRecord);
 	
@@ -3285,6 +3477,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 				end
 				
 				-- enable custom unit fadeout
+				currentDisplayParams.ignoreNextSetCurrentDisplayParams = true;
 				tip:Show(); -- cancels default unit fadeout
 				currentDisplayParams.timestampStartCustomUnitFadeout = GetTime();
 			end);
@@ -3366,6 +3559,7 @@ end
 
 -- EVENT: cursor changed
 function tt:CURSOR_CHANGED(event)
+	-- hide world tips instantly
 	self:HideWorldTipsInstantly();
 end
 

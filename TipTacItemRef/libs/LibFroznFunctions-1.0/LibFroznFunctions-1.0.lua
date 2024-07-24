@@ -716,17 +716,20 @@ end
 
 -- remove all items from table
 --
--- @param tab[]  table to remove all items from
-function LibFroznFunctions:RemoveAllFromTable(tab)
+-- @param tab[]    table to remove all items from
+-- @param shallow  optional. true if only values on the first level should be compared, false/nil if deeper nested values should also be compared.
+function LibFroznFunctions:RemoveAllFromTable(tab, shallow)
 	-- no table
 	if (type(tab) ~= "table") then
 		return;
 	end
 	
 	-- remove all items from table
-	for key, value in pairs(tab) do
-		if (type(value) == "table") then
-			self:RemoveAllFromTable(value);
+	if (not shallow) then
+		for key, value in pairs(tab) do
+			if (type(value) == "table") then
+				self:RemoveAllFromTable(value);
+			end
 		end
 	end
 	
@@ -2581,7 +2584,7 @@ end
 --           .nameWithForeignServerSuffix  name of unit with additional foreign server suffix if needed, e.g. "Rugnaer (*)"
 --           .nameWithServerName           name with server name of unit, e.g. "Rugnaer-DunMorogh"
 --           .nameWithTitle                name with title of unit, e.g. "Sternenrufer Rugnaer". if the unit is currently not visible to the client, the title is missing and it only contains the unit name (.name).
---           .serverName                   server name of unit, e.g. "DunMorogh"
+--           .serverName                   server name of unit, e.g. "DunMorogh". nil if the unit is from the same realm.
 --           .sex                          sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female)
 --           .className                    localized class name of unit, e.g. "Warrior" or "Guerrier"
 --           .classFile                    locale-independent class file of unit, e.g. "WARRIOR"
