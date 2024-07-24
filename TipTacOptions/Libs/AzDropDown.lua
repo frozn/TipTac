@@ -38,7 +38,7 @@
 	- anchored tooltip of menu items to the top
 	——— 23.11.06 ——— Rev 18 ——— 10.1.7/Dragonflight ——— #frozn45
 	- since df 10.1.5 READY_CHECK_READY_TEXTURE switched from texture to atlas
-	——— 24.07.24 ——— Rev 19 ——— 11.0.0/Dragonflight ——— #frozn45
+	——— 24.07.25 ——— Rev 19 ——— 11.0.0/Dragonflight ——— #frozn45
 	- adjusted hit rect insets for Dropdown Menu Item Button
 	- enabled mouse events for DropDown Menu to prevent firing OnEnter/OnLeave events for underlying frames
 

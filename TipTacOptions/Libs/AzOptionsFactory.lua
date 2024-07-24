@@ -45,7 +45,7 @@
 	- considered empty options for BuildOptionsPage()
 	24.05.26 Rev 27 10.2.7/Dragonflight #frozn45
 	- only set config value by TextEdit if text has changed
-	24.07.24 Rev 28 11.0.0/Dragonflight #frozn45
+	24.07.25 Rev 28 11.0.0/Dragonflight #frozn45
 	- fixed processing of OnEnter/OnLeave events for dropdown and slider
 	- aligned text of slider, color picker, TextEdit horizontally to left
 	- no build category page on OnTextChanged of TextEdit
@@ -222,7 +222,7 @@ end
 
 local function SliderEdit_OnLeave(self)
 	local frames = { self, self:GetChildren() };
-	local frameWithMouseFocus = GetMouseFocus();
+	local frameWithMouseFocus = LibFroznFunctions:GetMouseFocus();
 	
 	for _, frame in ipairs(frames) do
 		if (frame == frameWithMouseFocus) then
@@ -668,7 +668,7 @@ end
 
 local function DropDown_OnLeave(self)
 	local frames = { self, self:GetChildren() };
-	local frameWithMouseFocus = GetMouseFocus();
+	local frameWithMouseFocus = LibFroznFunctions:GetMouseFocus();
 	
 	for _, frame in ipairs(frames) do
 		if (frame == frameWithMouseFocus) then
