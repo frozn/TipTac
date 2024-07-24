@@ -14,7 +14,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 local tt = _G[MOD_NAME];
 local ttBars = {};
 
-LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttBars, "Bars");
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttBars, MOD_NAME .. " - Bars Module");
 
 ----------------------------------------------------------------------------------------------------
 --                                             Config                                             --
@@ -99,8 +99,8 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 					self:UnregisterUnitEvents(tip);
 				end
 				
-				-- update tip's bars
-				self:UpdateTipsBars(tip);
+				-- update unit tip's bars
+				self:UpdateUnitTipsBars(tip);
 				
 				tipsProcessed[tip] = true;
 			end
@@ -124,8 +124,8 @@ function ttBars:OnUnitTipPreStyle(TT_CacheForFrames, tip, currentDisplayParams, 
 		GameTooltipStatusBar:Hide();
 	end
 	
-	-- setup tip's bars
-	self:SetupTipsBars(tip);
+	-- setup unit tip's bars
+	self:SetupUnitTipsBars(tip);
 end
 
 -- unit tooltip is being resized
@@ -149,6 +149,8 @@ function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, fi
 					if (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs((newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) * tipEffectiveScale) > 0.5) then
 						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
 					end
+				else
+					currentDisplayParams.extraPaddingRightForMinimumWidth = nil; -- #test: zurücksetzen ist erforderlich, da ansonsten bei nachträglicher textänderung unnötiger rechter rand entsteht. bei zurücksetzen entsteht aber ein unnötiges titschen bei z.b. todesritter.
 				end
 				
 				breakFor = true;
@@ -167,18 +169,18 @@ function ttBars:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDi
 	-- unregister unit events
 	self:UnregisterUnitEvents(tip);
 	
-	-- hide tip's bars
-	self:HideTipsBars(tip);
+	-- hide unit tip's bars
+	self:HideUnitTipsBars(tip);
 end
 
 ----------------------------------------------------------------------------------------------------
 --                                          Setup Module                                          --
 ----------------------------------------------------------------------------------------------------
 
--- setup tip's bars
-function ttBars:SetupTipsBars(tip)
-	-- hide tip's bars
-	self:HideTipsBars(tip);
+-- setup unit tip's bars
+function ttBars:SetupUnitTipsBars(tip)
+	-- hide unit tip's bars
+	self:HideUnitTipsBars(tip);
 	
 	-- check if bars are enabled
 	if (not cfg.enableBars) then
@@ -207,20 +209,20 @@ function ttBars:SetupTipsBars(tip)
 	local offsetY = TT_GTT_BARS_MARGIN_Y;
 	
 	if (cfg.castBar) then
-		offsetY = self:DisplayTipsBar(self.barPools.castBarsPool, frameParams, tip, unitRecord, offsetY);
+		offsetY = self:DisplayUnitTipsBar(self.barPools.castBarsPool, frameParams, tip, unitRecord, offsetY);
 	end
 	
 	if (cfg.manaBar) or (cfg.powerBar) then
-		offsetY = self:DisplayTipsBar(self.barPools.powerBarsPool, frameParams, tip, unitRecord, offsetY);
+		offsetY = self:DisplayUnitTipsBar(self.barPools.powerBarsPool, frameParams, tip, unitRecord, offsetY);
 	end
 	
 	if (cfg.healthBar) then
-		offsetY = self:DisplayTipsBar(self.barPools.healthBarsPool, frameParams, tip, unitRecord, offsetY);
+		offsetY = self:DisplayUnitTipsBar(self.barPools.healthBarsPool, frameParams, tip, unitRecord, offsetY);
 	end
 end
 
--- display tip's bar
-function ttBars:DisplayTipsBar(barsPool, frameParams, tip, unitRecord, offsetY)
+-- display unit tip's bar
+function ttBars:DisplayUnitTipsBar(barsPool, frameParams, tip, unitRecord, offsetY)
 	-- set anchoring position and color for each bar and update its value
 	local bar = barsPool:Acquire();
 	
@@ -314,7 +316,7 @@ local function barUpdateValueFunc(bar)
 	if (bar:GetVisibility(tip, unitRecord)) then
 		bar:UpdateValue(tip, unitRecord);
 	else
-		ttBars:UpdateTipsBars(tip);
+		ttBars:UpdateUnitTipsBars(tip);
 	end
 end
 
@@ -371,17 +373,17 @@ function ttBars:IsActiveSpellCast(unitCastingSpell)
 		(unitCastingSpell.startTime) and (unitCastingSpell.endTime) and (unitCastingSpell.spellID));
 end
 
--- update tip's bars
-function ttBars:UpdateTipsBars(tip)
-	-- setup tip's bars
-	self:SetupTipsBars(tip);
+-- update unit tip's bars
+function ttBars:UpdateUnitTipsBars(tip)
+	-- setup unit tip's bars
+	self:SetupUnitTipsBars(tip);
 	
 	-- set padding to tip
 	tt:SetPaddingToTip(tip);
 end
 
--- hide tip's bars
-function ttBars:HideTipsBars(tip)
+-- hide unit tip's bars
+function ttBars:HideUnitTipsBars(tip)
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
 			if (bar:GetParent() == tip) then
@@ -562,10 +564,10 @@ ttBars.unitEventsPool = CreateFramePool("Frame", nil, nil, nil, false, function(
 		
 		self:TryEnablingFadingOut(unitEventConfig, spellID);
 		
-		-- update tip's bars
+		-- update unit tip's bars
 		local tip = self:GetParent();
 		
-		ttBars:UpdateTipsBars(tip);
+		ttBars:UpdateUnitTipsBars(tip);
 	end);
 end);
 

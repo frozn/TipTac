@@ -14,7 +14,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 local tt = _G[MOD_NAME];
 local ttHyperlink = {};
 
-LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttHyperlink, "Hyperlink");
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttHyperlink, MOD_NAME .. " - Hyperlink Module");
 
 ----------------------------------------------------------------------------------------------------
 --                                             Config                                             --

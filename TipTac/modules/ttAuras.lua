@@ -14,7 +14,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 local tt = _G[MOD_NAME];
 local ttAuras = {};
 
-LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttAuras, "Auras");
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttAuras, MOD_NAME .. " - Auras Module");
 
 ----------------------------------------------------------------------------------------------------
 --                                             Config                                             --
@@ -25,7 +25,7 @@ local cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
--- valid units to filter the auras in DisplayTipsAuras() with the "cfg.selfAurasOnly" setting on
+-- valid units to filter the auras in DisplayUnitTipsAuras() with the "cfg.selfAurasOnly" setting on
 local validSelfCasterUnits = {
 	player = true,
 	pet = true,
@@ -55,14 +55,14 @@ function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	end
 	
-	-- setup active tip's auras
+	-- setup active unit tip's auras
 	local tipsProcessed = {};
 	
 	for aura, _ in self.aurasPool:EnumerateActive() do
 		local tip = aura:GetParent();
 		
 		if (not tipsProcessed[tip]) then
-			self:SetupTipsAuras(tip);
+			self:SetupUnitTipsAuras(tip);
 			
 			tipsProcessed[tip] = true;
 		end
@@ -73,24 +73,24 @@ end
 --
 -- hint: auras has to be updated last because it depends on the tip's new dimension
 function ttAuras:OnUnitTipPostStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
-	-- setup tip's auras
-	self:SetupTipsAuras(tip);
+	-- setup unit tip's auras
+	self:SetupUnitTipsAuras(tip);
 end
 
 -- tooltip's current display parameters has to be reset
 function ttAuras:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
-	-- hide tip's auras
-	self:HideTipsAuras(tip);
+	-- hide unit tip's auras
+	self:HideUnitTipsAuras(tip);
 end
 
 ----------------------------------------------------------------------------------------------------
 --                                          Setup Module                                          --
 ----------------------------------------------------------------------------------------------------
 
--- setup tip's auras
-function ttAuras:SetupTipsAuras(tip)
+-- setup unit tip's auras
+function ttAuras:SetupUnitTipsAuras(tip)
 	-- hide tip's auras
-	self:HideTipsAuras(tip);
+	self:HideUnitTipsAuras(tip);
 	
 	-- check if auras are enabled
 	if (not cfg.enableAuras) then
@@ -119,11 +119,11 @@ function ttAuras:SetupTipsAuras(tip)
 	local offsetForClampRectInsets = 0;
 	
 	if (cfg.showBuffs) then
-		auraCount, lastAura, offsetForClampRectInsets = self:DisplayTipsAuras(tip, currentDisplayParams, "HELPFUL", currentAuraCount + 1, lastAura, offsetForClampRectInsets);
+		auraCount, lastAura, offsetForClampRectInsets = self:DisplayUnitTipsAuras(tip, currentDisplayParams, "HELPFUL", currentAuraCount + 1, lastAura, offsetForClampRectInsets);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 	if (cfg.showDebuffs) then
-		auraCount, lastAura, offsetForClampRectInsets = self:DisplayTipsAuras(tip, currentDisplayParams, "HARMFUL", currentAuraCount + 1, lastAura, offsetForClampRectInsets);
+		auraCount, lastAura, offsetForClampRectInsets = self:DisplayUnitTipsAuras(tip, currentDisplayParams, "HARMFUL", currentAuraCount + 1, lastAura, offsetForClampRectInsets);
 		currentAuraCount = currentAuraCount + auraCount;
 	end
 	
@@ -143,8 +143,8 @@ function ttAuras:SetupTipsAuras(tip)
 	end
 end
 
--- display tip's buffs and debuffs
-function ttAuras:DisplayTipsAuras(tip, currentDisplayParams, auraType, startingAuraFrameIndex, lastAura, offsetForClampRectInsets)
+-- display unit tip's buffs and debuffs
+function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, startingAuraFrameIndex, lastAura, offsetForClampRectInsets)
 	local unitRecord = currentDisplayParams.unitRecord;
 	
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
@@ -277,8 +277,8 @@ ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura
 	aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 end);
 
--- hide tip's auras
-function ttAuras:HideTipsAuras(tip)
+-- hide unit tip's auras
+function ttAuras:HideUnitTipsAuras(tip)
 	for aura, _ in self.aurasPool:EnumerateActive() do
 		if (aura:GetParent() == tip) then
 			self.aurasPool:Release(aura);
