@@ -150,7 +150,7 @@ function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, fi
 						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
 					end
 				else
-					currentDisplayParams.extraPaddingRightForMinimumWidth = nil; -- #test: zurücksetzen ist erforderlich, da ansonsten bei nachträglicher textänderung unnötiger rechter rand entsteht. bei zurücksetzen entsteht aber ein unnötiges titschen bei z.b. todesritter.
+					currentDisplayParams.extraPaddingRightForMinimumWidth = nil; -- #test: zurÃ¼cksetzen ist erforderlich, da ansonsten bei nachtrÃ¤glicher textÃ¤nderung unnÃ¶tiger rechter rand entsteht. bei zurÃ¼cksetzen entsteht aber ein unnÃ¶tiges titschen bei z.b. todesritter.
 				end
 				
 				breakFor = true;
