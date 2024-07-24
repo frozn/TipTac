@@ -79,8 +79,10 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	end
 	
 	for _, barsPool in pairs(self.barPools) do
-		for _, bar in barsPool:EnumerateInactive() do
-			bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		if (barsPool.EnumerateInactive) then
+			for _, bar in barsPool:EnumerateInactive() do
+				bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			end
 		end
 	end
 	

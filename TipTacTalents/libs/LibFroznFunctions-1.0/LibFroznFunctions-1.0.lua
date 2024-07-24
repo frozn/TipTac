@@ -562,6 +562,36 @@ function LibFroznFunctions:IsMountCollected(mountID)
 	end
 end
 
+-- gets the focus of the mouse cursor
+--
+-- @return return the focus of the mouse cursor
+function LibFroznFunctions:GetMouseFocus()
+	if GetMouseFocus then
+		return GetMouseFocus()
+	elseif GetMouseFoci then
+		local mouseFoci = GetMouseFoci()
+		return mouseFoci[1] or nil
+	end
+
+	return nil
+end
+
+-- returns spell information for a given spell ID
+--
+-- @param  spellID  spell id
+-- @return name, _, icon, castTime, minRange, maxRange, _spellID
+function LibFroznFunctions:GetSpellInfo(spellID)
+	if not spellID then return nil end
+
+	if GetSpellInfo then
+		return GetSpellInfo(spellID)
+	else
+		local si = C_Spell.GetSpellInfo(spellID)
+		if si then
+			return si.name, nil, si.iconID, si.castTime, si.minRange, si.maxRange, si.spellID
+		end
+	end
+end
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
 ----------------------------------------------------------------------------------------------------

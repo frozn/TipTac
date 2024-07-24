@@ -51,8 +51,10 @@ function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	end
 	
-	for _, aura in self.aurasPool:EnumerateInactive() do
-		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	if (self.aurasPool.EnumerateInactive) then
+		for _, aura in self.aurasPool:EnumerateInactive() do
+			aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		end
 	end
 	
 	-- setup active tip's auras

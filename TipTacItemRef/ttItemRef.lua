@@ -14,11 +14,17 @@ local ejtt = EncounterJournalTooltip;
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-local GetSpellLink = GetSpellLink;
+local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink;
+local GetSpellSubtext = GetSpellSubtext or C_Spell.GetSpellSubtext;
+local GetSpellBookItemName = GetSpellBookItemName or C_SpellBook.GetSpellBookItemName
+local SpellBookItemTypeMap = Enum.SpellBookItemType and {[Enum.SpellBookItemType.Spell] = "SPELL", [Enum.SpellBookItemType.None] = "NONE", [Enum.SpellBookItemType.Flyout] = "FLYOUT", [Enum.SpellBookItemType.FutureSpell] = "FUTURESPELL", [Enum.SpellBookItemType.PetAction] = "PETACTION" } or {}
+local GetSpellBookItemInfo = GetSpellBookItemInfo or function(...) local si = C_SpellBook.GetSpellBookItemInfo(...) if si then return SpellBookItemTypeMap[si.itemType] or "NONE", si.spellID end end
+local GetSpellBookItemTexture = GetSpellBookItemTexture or function(...) local si = C_SpellBook.GetSpellBookItemTexture(...) if si then return SpellBookItemTypeMap[si.itemType] or "NONE", si.spellID end end
+
 
 if (not LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable) then
 	GetSpellLink = function(spellID)
-		local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+		local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
 	end
 end
@@ -1913,7 +1919,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				tip:HookScript("OnTooltipCleared", OnTooltipCleared);
 				if (tipName == "GameTooltip") then
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
-					hooksecurefunc(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
+					LibFroznFunctions:HookSecureFuncIfExists(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
 						hooksecurefunc(pin, "UpdateTooltip", QBPM_UpdateTooltip_Hook);
 					end
@@ -1932,6 +1938,8 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					LibFroznFunctions:HookSecureFuncIfExists(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
 					-- since df
 					LibFroznFunctions:HookSecureFuncIfExists(TalentDisplayMixin, "OnEnter", TDM_OnEnter_Hook);
+					-- since tww
+					LibFroznFunctions:HookSecureFuncIfExists(QuestOfferPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 				end
 				tipHooked = true;
 			else
@@ -2664,7 +2672,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	end
 	
 	-- spell
-	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
@@ -2778,7 +2786,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		spellID = LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID].spellID;
 	end
 	
-	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
 	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
@@ -3205,7 +3213,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType));
 	local spellID = C_Soulbinds.GetConduitSpellID(conduitID, conduitRank);
-	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);
+	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);
 	
 	if (showIcon) then
 		self:ttSetIconTextureAndText(icon);

@@ -44,8 +44,10 @@ function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	end
 	
-	for _, icon in self.iconPool:EnumerateInactive() do
-		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	if (self.iconPool.EnumerateInactive) then
+		for _, icon in self.iconPool:EnumerateInactive() do
+			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		end
 	end
 	
 	-- setup active tip's icons
