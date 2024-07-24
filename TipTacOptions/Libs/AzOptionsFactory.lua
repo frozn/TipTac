@@ -1,12 +1,12 @@
 --[[
-	覧覧覧覧覧覧覧覧 Rev 09 覧・	- Fixed GetChecked() now returning a boolean instead of nil/1
-	覧・16.07.23 覧・Rev 10 覧・7.0.3/Legion 覧・
+	隕ｧ隕ｧ隕ｧ隕ｧ隕ｧ隕ｧ隕ｧ隕ｧ Rev 09 隕ｧ繝ｻ	- Fixed GetChecked() now returning a boolean instead of nil/1
+	隕ｧ繝ｻ16.07.23 隕ｧ繝ｻRev 10 隕ｧ繝ｻ7.0.3/Legion 隕ｧ繝ｻ
 	- Changed SetTexture(r,g,b,a) -> SetColorTexture(r,g,b,a)
-	覧・18.08.12 覧・Rev 11 覧・8.0/BfA 覧・
+	隕ｧ繝ｻ18.08.12 隕ｧ繝ｻRev 11 隕ｧ繝ｻ8.0/BfA 隕ｧ繝ｻ
 	- Added native LSM support to the dropdown
 	- The building of the options page is now done internally, instead of in the client addon.
 	- Some code restructure.
-	覧・20.10.31 覧・Rev 12 覧・9.0.1/Shadowlands 覧・
+	隕ｧ繝ｻ20.10.31 隕ｧ繝ｻRev 12 隕ｧ繝ｻ9.0.1/Shadowlands 隕ｧ繝ｻ
 	- CreateFrame() now uses the "BackdropTemplate"
 	21.12.22 Rev 13 9.1.5/Shadowlands #frozn45
 	- fixed selecting of "None" for backdrop/border texture and saving this settings.

@@ -1,43 +1,46 @@
 --[[
 	Changelog
-	——— Rev 04 ———
+	â€”â€”â€” Rev 04 â€”â€”â€”
 	- Dropdowns can now overwrite the label in their init and selectvalue funcs.
 	- Empty menus now show "No items".
-	——— Rev 05 ———
+	â€”â€”â€” Rev 05 â€”â€”â€”
 	- A menu entry now supports a .tip key, and will show a tooltip if it's a string.
 	- The SelectValueFunc() now has a third parameter, the menu item index that was clicked.
 	- The checkmark texture is now the green one used for readychecks in the raid tab.
 	- Will now obey the .checked key if set, not only when it's true.
 	- The autoselect feature of the last selected value, will not just select everything when nil.
 	- The InitSelectedItem() function will not ignore an initialisation with nil anymore.
-	——— Rev 06 ———
+	â€”â€”â€” Rev 06 â€”â€”â€”
 	- The "menu.list" table now has a meta table which will automatically create a table or take one from storage.
 	- If tables are creates through the new metatable index method, it will recycle old tables from storage.
-	——— Rev 07 ———
+	â€”â€”â€” Rev 07 â€”â€”â€”
 	- The menu will now hide itself, if any of it's parents was hidden.
-	——— Rev 09 ———
+	â€”â€”â€” Rev 09 â€”â€”â€”
 	- DropDown Text Object can no longer be wider than the width of the DropDown itself.
-	——— Rev 10 ——— 7.0.3/Legion ———
+	â€”â€”â€” Rev 10 â€”â€”â€” 7.0.3/Legion â€”â€”â€”
 	- Fixed issue related to frame level, making the dropdown appear behind other frames. Thanks vincentSDSH.
-	——— Rev 11 ——— 7.3 ———
+	â€”â€”â€” Rev 11 â€”â€”â€” 7.3 â€”â€”â€”
 	- Fixed the PlaySound() issue
-	——— Rev 12 ——— 8.0/BfA ———
+	â€”â€”â€” Rev 12 â€”â€”â€” 8.0/BfA â€”â€”â€”
 	- Disabled wordwrap for the labels
 	- Rewrote some parts of the code
 	- Added some documentation
 	- The dropdown menu will now copy the backdrop from the parent frame
-	——— Rev 13 ——— 8.0 ———
+	â€”â€”â€” Rev 13 â€”â€”â€” 8.0 â€”â€”â€”
 	- QueryItems() now returns the table of the queried items
-	——— 20.10.31 ——— Rev 14 ——— 9.0.1/Shadowlands ———
+	â€”â€”â€” 20.10.31 â€”â€”â€” Rev 14 â€”â€”â€” 9.0.1/Shadowlands â€”â€”â€”
 	- CreateFrame() now uses the "BackdropTemplate"
-	——— 22.01.03 ——— Rev 15 ——— 9.1.5/Shadowlands ——— #frozn45
+	â€”â€”â€” 22.01.03 â€”â€”â€” Rev 15 â€”â€”â€” 9.1.5/Shadowlands â€”â€”â€” #frozn45
 	- parent of menu set to UIParent and comment out corresponding SetParent() to fix cut off dropdown menus by scroll frames. "menu.parent" stays at dropdown frame.
-	——— 22.02.09 ——— Rev 16 ——— 9.1.5/Shadowlands ——— #frozn45
+	â€”â€”â€” 22.02.09 â€”â€”â€” Rev 16 â€”â€”â€” 9.1.5/Shadowlands â€”â€”â€” #frozn45
 	- fix for rev 15: fixed hiding the menu if parent is hidden
-	——— 23.10.15 ——— Rev 17 ——— 10.1.7/Dragonflight ——— #frozn45
+	â€”â€”â€” 23.10.15 â€”â€”â€” Rev 17 â€”â€”â€” 10.1.7/Dragonflight â€”â€”â€” #frozn45
 	- anchored tooltip of menu items to the top
-	——— 23.11.06 ——— Rev 18 ——— 10.1.7/Dragonflight ——— #frozn45
+	â€”â€”â€” 23.11.06 â€”â€”â€” Rev 18 â€”â€”â€” 10.1.7/Dragonflight â€”â€”â€” #frozn45
 	- since df 10.1.5 READY_CHECK_READY_TEXTURE switched from texture to atlas
+	â€”â€”â€” 24.07.24 â€”â€”â€” Rev 19 â€”â€”â€” 11.0.0/Dragonflight â€”â€”â€” #frozn45
+	- adjusted hit rect insets for Dropdown Menu Item Button
+	- enabled mouse events for DropDown Menu to prevent firing OnEnter/OnLeave events for underlying frames
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -57,7 +60,7 @@
 	tip			Tooltip will be shown when mouse is over item
 --]]
 
-local REVISION = 18; -- bump on changes
+local REVISION = 19; -- bump on changes
 if (type(AzDropDown) == "table") and (AzDropDown.vers >= REVISION) then
 	return;
 end
@@ -260,7 +263,7 @@ end
 local function CreateMenuItem()
 	local item = CreateFrame("Button",nil,menu);
 	item:SetHeight(MENU_ITEM_HEIGHT);
-	item:SetHitRectInsets(-12,-10,0,0);
+	item:SetHitRectInsets(-18,-14,0,0);
 	item:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight");
 	item:SetScript("OnClick",MenuItem_OnClick);
 	item:SetScript("OnEnter",MenuItem_OnEnter);
@@ -325,6 +328,7 @@ end
 local function CreateDropDownMenu()
 	menu = CreateFrame("Frame",nil,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
+	menu:EnableMouse(true); -- to prevent firing OnEnter/OnLeave events for underlying frames
 	menu:SetToplevel(true);
 	menu:SetClampedToScreen(true);
 	menu:SetFrameStrata("FULLSCREEN_DIALOG");
