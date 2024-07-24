@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 110000
 ## Version: 24.05.26
 ## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
 ## Title: TipTacItemRef
