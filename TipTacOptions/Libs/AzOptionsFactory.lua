@@ -43,12 +43,16 @@
 	24.05.20 Rev 26 10.2.7/Dragonflight #frozn45
 	- made shure that evaluating the "enabled" property always returns a boolean value
 	- considered empty options for BuildOptionsPage()
-	24.05.xx Rev 27 10.2.7/Dragonflight #frozn45
+	24.05.26 Rev 27 10.2.7/Dragonflight #frozn45
 	- only set config value by TextEdit if text has changed
+	24.07.24 Rev 28 10.2.7/Dragonflight #frozn45
+	- fixed processing of OnEnter/OnLeave events for dropdown and slider
+	- aligned text of slider, color picker, TextEdit horizontally to left
+	- no build category page on OnTextChanged of TextEdit
 --]]
 
 -- create new library
-local REVISION = 27; -- bump on changes
+local REVISION = 28; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -218,9 +222,10 @@ end
 
 local function SliderEdit_OnLeave(self)
 	local frames = { self, self:GetChildren() };
+	local frameWithMouseFocus = GetMouseFocus();
 	
 	for _, frame in ipairs(frames) do
-		if (frame:IsMouseOver()) then
+		if (frame == frameWithMouseFocus) then
 			return;
 		end
 	end
@@ -328,6 +333,7 @@ azof.objects.Slider = {
 
 		f.text = _G[sliderName.."Text"];
 		f.text:SetTextColor(1.0,0.82,0);
+		f.text:SetJustifyH("LEFT");
 		f.low = _G[sliderName.."Low"];
 		f.low:ClearAllPoints();
 		f.low:SetPoint("BOTTOMLEFT",f.slider,"TOPLEFT",0,0);
@@ -632,7 +638,8 @@ azof.objects.Color = {
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 		f.text:SetPoint("LEFT",f,"RIGHT",5,0); -- vertically centered to ColorButton (without text shadow and near to bottom in case of odd number of pixels) and 5px final visible padding to ColorButton - 0px visible padding right for text = 5px
-
+		f.text:SetJustifyH("LEFT");
+		
 		f.color = CreateColor();
 
 		return f;
@@ -661,9 +668,10 @@ end
 
 local function DropDown_OnLeave(self)
 	local frames = { self, self:GetChildren() };
+	local frameWithMouseFocus = GetMouseFocus();
 	
 	for _, frame in ipairs(frames) do
-		if (frame:IsMouseOver()) then
+		if (frame == frameWithMouseFocus) then
 			return;
 		end
 	end
@@ -874,7 +882,7 @@ local function TextEdit_OnTextChanged(self)
 	local newText = self:GetText():gsub("||","|");
 	
 	if (oldText ~= newText) then
-		self.factory:SetConfigValue(self.option.var,newText);
+		self.factory:SetConfigValue(self.option.var, newText, true);
 	end
 end
 
@@ -921,7 +929,8 @@ azof.objects.Text = {
 
 		f.text = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 		f.text:SetPoint("LEFT",-121,0); -- vertically centered to TextEdit (without text shadow and near to bottom in case of odd number of pixels)
-
+		f.text:SetJustifyH("LEFT");
+		
 		return f;
 	end,
 };
