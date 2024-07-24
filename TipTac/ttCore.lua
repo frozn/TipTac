@@ -2811,7 +2811,7 @@ function tt:GetAnchorPosition(tip)
 		end
 	end
 	
-	local mouseFocus = GetMouseFoci();
+	local mouseFocus = LibFroznFunctions:GetMouseFocus();
 	
 	if (isUnit == nil) then
 		isUnit = (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")); -- GetAttribute("unit") here is bad, as that will find things like buff frames too.
