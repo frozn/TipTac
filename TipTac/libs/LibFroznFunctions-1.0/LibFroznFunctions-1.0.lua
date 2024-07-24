@@ -926,6 +926,20 @@ function LibFroznFunctions:TableEqualsTable(tab, otherTab, shallow)
 	return true;
 end
 
+-- gets the focus of the mouse cursor
+--
+-- @return return the focus of the mouse cursor
+function LibFroznFunctions:GetMouseFocus()
+	if GetMouseFocus then
+		return GetMouseFocus()
+	elseif GetMouseFoci then
+		local mouseFoci = GetMouseFoci()
+		return mouseFoci[1] or nil
+	end
+
+	return nil
+end
+
 -- call function and suppress error message and speech
 --
 -- @param  func()  function to call
