@@ -2811,7 +2811,7 @@ function tt:GetAnchorPosition(tip)
 		end
 	end
 	
-	local mouseFocus = GetMouseFocus();
+	local mouseFocus = GetMouseFoci();
 	
 	if (isUnit == nil) then
 		isUnit = (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")); -- GetAttribute("unit") here is bad, as that will find things like buff frames too.
@@ -3008,7 +3008,7 @@ function tt:SetUnitRecordFromTip(tip)
 	-- and it will return as "mouseover", but the "mouseover" unit id is still invalid at this point for those unitframes!
 	-- to overcome this problem, we look if the mouse is over a unitframe, and if that unitframe has a unit attribute set?
 	if (not unitID) then
-		local mouseFocus = GetMouseFocus();
+		local mouseFocus = GetMouseFoci();
 		
 		unitID = mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit");
 	end
