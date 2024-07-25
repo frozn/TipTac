@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 25; -- bump on changes
+local LIB_MINOR = 26; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -646,20 +646,77 @@ end
 
 -- get spell book item name
 --
--- @param  index     spellbook slot index, ranging from 1 through the total number of spells across all tabs and pages.
--- @param  bookType  BOOKTYPE_SPELL or BOOKTYPE_PET depending on if you wish to query the player or pet spellbook.
+-- @param  index                spellbook slot index, ranging from 1 through the total number of spells across all tabs and pages.
+-- @param  bookTypeOrSpellBank  LFF_BOOKTYPE_SPELL_OR_SPELLBANK_PLAYER or LFF_BOOKTYPE_PET_OR_SPELLBANK_PET depending on if you wish to query the player or pet spellbook.
 -- @return spellName, spellSubName, spellID
-function LibFroznFunctions:GetSpellBookItemName(index, bookType)
+LFF_BOOKTYPE_SPELL_OR_SPELLBANK_PLAYER = (C_SpellBook) and (C_SpellBook.GetSpellBookItemName) and (Enum.SpellBookSpellBank.Player) or BOOKTYPE_SPELL; -- see SpellBookSpellBank in "SpellBookConstantsDocumentation.lua"
+LFF_BOOKTYPE_PET_OR_SPELLBANK_PET = (C_SpellBook) and (C_SpellBook.GetSpellBookItemName) and (Enum.SpellBookSpellBank.Pet) or BOOKTYPE_PET;
+
+function LibFroznFunctions:GetSpellBookItemName(index, bookTypeOrSpellBank)
 	-- since tww 11.0.0
 	if (C_SpellBook) and (C_SpellBook.GetSpellBookItemName) then
-		local BOOKTYPE_SPELL = "spell";
-		local spellBank = (bookType == BOOKTYPE_SPELL) and Enum.SpellBookSpellBank.Player or Enum.SpellBookSpellBank.Pet;
-		
-		return C_SpellBook.GetSpellBookItemName(index, spellBank);
+		return C_SpellBook.GetSpellBookItemName(index, bookTypeOrSpellBank);
 	end
 	
 	-- before tww 11.0.0
-	return GetSpellBookItemName(index, bookType);
+	return GetSpellBookItemName(index, bookTypeOrSpellBank);
+end
+
+-- get spell book item texture
+--
+-- @param  index                spellbook slot index, ranging from 1 through the total number of spells across all tabs and pages.
+-- @param  bookTypeOrSpellBank  LFF_BOOKTYPE_SPELL_OR_SPELLBANK_PLAYER or LFF_BOOKTYPE_PET_OR_SPELLBANK_PET depending on if you wish to query the player or pet spellbook.
+-- @return spellName, spellSubName, spellID
+function LibFroznFunctions:GetSpellBookItemTexture(index, bookTypeOrSpellBank)
+	-- since tww 11.0.0
+	if (C_SpellBook) and (C_SpellBook.GetSpellBookItemTexture) then
+		return C_SpellBook.GetSpellBookItemTexture(index, bookTypeOrSpellBank);
+	end
+	
+	-- before tww 11.0.0
+	return GetSpellBookItemTexture(index, bookTypeOrSpellBank);
+end
+
+-- get spell book item info
+--
+-- @param  index                spellbook slot index, ranging from 1 through the total number of spells across all tabs and pages.
+-- @param  bookTypeOrSpellBank  LFF_BOOKTYPE_SPELL_OR_SPELLBANK_PLAYER or LFF_BOOKTYPE_PET_OR_SPELLBANK_PET depending on if you wish to query the player or pet spellbook.
+-- @return spellType, id
+function LibFroznFunctions:GetSpellBookItemInfo(index, bookTypeOrSpellBank)
+	-- since tww 11.0.0
+	if (C_SpellBook) and (C_SpellBook.GetSpellBookItemInfo) then
+		local spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(index, bookTypeOrSpellBank);
+		
+		if (not spellBookItemInfo) then
+			return nil;
+		end
+		
+		local spellBookItemTypeToSpellTypeLookup = { -- see SpellBookItemType in "SpellBookConstantsDocumentation.lua"
+			[Enum.SpellBookItemType.None] = nil,
+			[Enum.SpellBookItemType.Spell] = "SPELL",
+			[Enum.SpellBookItemType.FutureSpell] = "FUTURESPELL",
+			[Enum.SpellBookItemType.PetAction] = "PETACTION",
+			[Enum.SpellBookItemType.Flyout] = "FLYOUT"
+		};
+		
+		return spellBookItemTypeToSpellTypeLookup[spellBookItemInfo.itemType], spellBookItemInfo.actionID;
+	end
+	
+	-- before tww 11.0.0
+	return GetSpellBookItemInfo(index, bookTypeOrSpellBank);
+end
+
+-- has pet spells
+--
+-- @return numPetSpells, petNameToken. returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc.
+function LibFroznFunctions:HasPetSpells()
+	-- since tww 11.0.0
+	if (C_SpellBook) and (C_SpellBook.HasPetSpells) then
+		return C_SpellBook.HasPetSpells();
+	end
+	
+	-- before tww 11.0.0
+	return HasPetSpells();
 end
 
 ----------------------------------------------------------------------------------------------------

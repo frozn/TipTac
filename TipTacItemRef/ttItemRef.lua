@@ -708,15 +708,15 @@ local function SetAction_Hook(self, slot)
 			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
 			local name = line and (line:GetText() or "");
 			if (name ~= "" and PetHasSpellbook()) then
-				local numPetSpells, petToken = HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
+				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
 				if (numPetSpells) then
 					for i = 1, numPetSpells do
-						local spellType, _id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+						local spellType, _id = LibFroznFunctions:GetSpellBookItemInfo(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
 						if (spellType == "PETACTION") then
-							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, BOOKTYPE_PET);
+							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET);
 							if (spellName == name) then
-								local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET);
+								local icon = LibFroznFunctions:GetSpellBookItemTexture(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET);
 								tipDataAdded[self] = "petAction";
 								CustomTypeFuncs.petAction(self, nil, "petAction", _id, icon);
 								break;
@@ -795,15 +795,15 @@ local function SetAction_Hook(self, slot)
 end
 
 -- HOOK: GameTooltip:SetSpellBookItem
-local function SetSpellBookItem_Hook(self, slot, bookType)
+local function SetSpellBookItem_Hook(self, slot, bookTypeOrSpellBank)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local spellType, id = GetSpellBookItemInfo(slot, bookType); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+		local spellType, id = LibFroznFunctions:GetSpellBookItemInfo(slot, bookTypeOrSpellBank); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
 		if (spellType == "FLYOUT") then
-			local icon = GetSpellBookItemTexture(slot, bookType);
+			local icon = LibFroznFunctions:GetSpellBookItemTexture(slot, bookTypeOrSpellBank);
 			tipDataAdded[self] = "flyout";
 			CustomTypeFuncs.flyout(self, nil, "flyout", id, icon);
 		elseif (spellType == "PETACTION") then
-			local icon = GetSpellBookItemTexture(slot, bookType);
+			local icon = LibFroznFunctions:GetSpellBookItemTexture(slot, bookTypeOrSpellBank);
 			tipDataAdded[self] = "petAction";
 			CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
 		end
@@ -814,6 +814,7 @@ end
 local function SetPetAction_Hook(self, slot)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, isToken, isActive, autoCastAllowed, autoCastEnabled, spellID = GetPetActionInfo(slot); -- see PetActionBar_Update() in "PetActionBarFrame.lua"
+		
 		if (spellID) then
 			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
@@ -834,13 +835,13 @@ local function SetPetAction_Hook(self, slot)
 			end
 			
 			if (_name ~= "" and PetHasSpellbook()) then -- id is missing. as a workaround find pet action in pet spell book by name.
-				local numPetSpells, petToken = HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
+				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
 				if (numPetSpells) then
 					for i = 1, numPetSpells do
-						local spellType, id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+						local spellType, id = LibFroznFunctions:GetSpellBookItemInfo(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
 						if (spellType == "PETACTION") then
-							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, BOOKTYPE_PET);
+							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET);
 							if (spellName == _name) then
 								tipDataAdded[self] = "petAction";
 								CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
