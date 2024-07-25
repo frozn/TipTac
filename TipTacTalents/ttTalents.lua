@@ -140,7 +140,7 @@ local function GTT_OnTooltipSetUnit(self, ...)
 	local _, unitID = LibFroznFunctions:GetUnitFromTooltip(self);
 	
 	if (not unitID) then
-		local mouseFocus = GetMouseFocus();
+		local mouseFocus = LibFroznFunctions:GetMouseFocus();
 		if (mouseFocus) and (mouseFocus.unit) then
 			unitID = mouseFocus.unit;
 		end

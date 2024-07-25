@@ -562,6 +562,106 @@ function LibFroznFunctions:IsMountCollected(mountID)
 	end
 end
 
+-- get mouse focus
+--
+-- @return frame that currently has mouse focus
+function LibFroznFunctions:GetMouseFocus()
+	-- since tww 11.0.0
+	if (GetMouseFoci) then
+		local frames = GetMouseFoci();
+		
+		return frames and frames[1];
+	end
+	
+	-- before tww 11.0.0
+	return GetMouseFocus();
+end
+
+-- get spell info
+--
+-- @param  spell  spell id or name
+-- @return name, rank, icon, castTime, minRange, maxRange, spellID, originalIcon
+function LibFroznFunctions:GetSpellInfo(spell)
+	-- since tww 11.0.0
+	if (C_Spell) and (C_Spell.GetSpellInfo) then
+		if (not spell) then
+			return nil;
+		end
+		
+		local spellInfo = C_Spell.GetSpellInfo(spell);
+		
+		if (not spellInfo) then
+			return nil;
+		end
+		
+		return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange, spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID;
+	end
+	
+	-- before tww 11.0.0
+	return GetSpellInfo(spell);
+end
+
+-- get spell subtext
+--
+-- @param  spell  spell id or name
+-- @return name, rank, icon, castTime, minRange, maxRange, spellID, originalIcon
+function LibFroznFunctions:GetSpellSubtext(spell)
+	-- since tww 11.0.0
+	if (C_Spell) and (C_Spell.GetSpellSubtext) then
+		if (not spell) then
+			return nil;
+		end
+		
+		return C_Spell.GetSpellSubtext(spell);
+	end
+	
+	-- before tww 11.0.0
+	return GetSpellSubtext(spell);
+end
+
+-- get spell link
+--
+-- @param  spell    spell id or name
+-- @param  glyphID  optional. glyph id.
+-- @return spellLink
+function LibFroznFunctions:GetSpellLink(spell, glyphID)
+	-- since tww 11.0.0
+	if (C_Spell) and (C_Spell.GetSpellLink) then
+		if (not spell) then
+			return nil;
+		end
+		
+		return C_Spell.GetSpellLink(spell, glyphID);
+	end
+	
+	-- before tww 11.0.0
+	if (not LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable) then
+		local name, _, icon, castTime, minRange, maxRange, _spellID = self:GetSpellInfo(spell);
+		
+		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
+	end
+	
+	return GetSpellLink(spell);
+end
+
+-- get spell book item name
+--
+-- @param  index     spellbook slot index, ranging from 1 through the total number of spells across all tabs and pages.
+-- @param  bookType  BOOKTYPE_SPELL or BOOKTYPE_PET depending on if you wish to query the player or pet spellbook.
+-- @return spellName, spellSubName, spellID
+function LibFroznFunctions:GetSpellBookItemName(index, bookType)
+	-- since tww 11.0.0
+	if (C_SpellBook) and (C_SpellBook.GetSpellBookItemName) then
+		local BOOKTYPE_SPELL = "spell";
+		local spellBank = (bookType == BOOKTYPE_SPELL) and Enum.SpellBookSpellBank.Player or Enum.SpellBookSpellBank.Pet;
+		
+		return C_SpellBook.GetSpellBookItemName(index, spellBank);
+	end
+	
+	-- before tww 11.0.0
+	return GetSpellBookItemName(index, bookType);
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
 ----------------------------------------------------------------------------------------------------

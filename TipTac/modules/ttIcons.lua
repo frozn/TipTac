@@ -44,10 +44,6 @@ function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	end
 	
-	for _, icon in self.iconPool:EnumerateInactive() do
-		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
-	end
-	
 	-- setup active tip's icons
 	local tipsProcessed = {};
 	
@@ -149,6 +145,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
+			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
@@ -164,6 +161,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
+			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
@@ -188,6 +186,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 				icon = self.iconPool:Acquire();
 				
 				icon:SetParent(tip);
+				icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 				
 				-- set icon
 				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
@@ -204,6 +203,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
+			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			icon.icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
@@ -219,6 +219,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
+			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];

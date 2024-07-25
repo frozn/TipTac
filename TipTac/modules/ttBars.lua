@@ -78,12 +78,6 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		end
 	end
 	
-	for _, barsPool in pairs(self.barPools) do
-		for _, bar in barsPool:EnumerateInactive() do
-			bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
-		end
-	end
-	
 	-- setup active tip's bars
 	local tipsProcessed = {};
 	
@@ -227,6 +221,7 @@ function ttBars:DisplayUnitTipsBar(barsPool, frameParams, tip, unitRecord, offse
 	local bar = barsPool:Acquire();
 	
 	bar:SetParent(tip);
+	bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	
 	local newOffsetY = offsetY;
 	

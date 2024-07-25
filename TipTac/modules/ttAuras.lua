@@ -51,10 +51,6 @@ function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 	end
 	
-	for _, aura in self.aurasPool:EnumerateInactive() do
-		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
-	end
-	
 	-- setup active unit tip's auras
 	local tipsProcessed = {};
 	
@@ -180,6 +176,7 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			local aura = self.aurasPool:Acquire();
 			
 			aura:SetParent(tip);
+			aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
 			
 			-- anchor aura frame
 			aura:ClearAllPoints();

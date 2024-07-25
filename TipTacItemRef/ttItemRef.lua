@@ -14,15 +14,6 @@ local ejtt = EncounterJournalTooltip;
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-local GetSpellLink = GetSpellLink;
-
-if (not LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable) then
-	GetSpellLink = function(spellID)
-		local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
-		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
-	end
-end
-
 local C_CurrencyInfo_GetCurrencyLink = C_CurrencyInfo.GetCurrencyLink;
 
 if (not C_CurrencyInfo_GetCurrencyLink) then
@@ -639,7 +630,7 @@ local function SetUnitAura_Hook(self, unit, index, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local auraData = LibFroznFunctions:GetAuraDataByIndex(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
 		if (auraData) and (auraData.spellId) then
-			local link = GetSpellLink(auraData.spellId);
+			local link = LibFroznFunctions:GetSpellLink(auraData.spellId);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
@@ -662,7 +653,7 @@ local function SetUnitBuffByAuraInstanceID_Hook(self, unit, auraInstanceID, filt
 			local spellID = aura.spellId;
 			local source = aura.sourceUnit;
 			if (spellID) then
-				local link = GetSpellLink(spellID);
+				local link = LibFroznFunctions:GetSpellLink(spellID);
 				if (link) then
 					local linkType, _spellID = link:match("H?(%a+):(%d+)");
 					if (_spellID) then
@@ -682,7 +673,7 @@ end
 local function SetMountBySpellID_Hook(self, spellID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		if (spellID) then
-			local link = GetSpellLink(spellID);
+			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
@@ -723,7 +714,7 @@ local function SetAction_Hook(self, slot)
 					for i = 1, numPetSpells do
 						local spellType, _id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
 						if (spellType == "PETACTION") then
-							local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
+							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, BOOKTYPE_PET);
 							if (spellName == name) then
 								local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET);
 								tipDataAdded[self] = "petAction";
@@ -763,7 +754,7 @@ local function SetAction_Hook(self, slot)
 			if (mountID) then
 				local spellID = C_MountJournal.GetMountInfoByID(mountID);
 				if (spellID) then
-					local link = GetSpellLink(spellID);
+					local link = LibFroznFunctions:GetSpellLink(spellID);
 					if (link) then
 						local linkType, _spellID = link:match("H?(%a+):(%d+)");
 						if (_spellID) then
@@ -790,7 +781,7 @@ local function SetAction_Hook(self, slot)
 		elseif (actionType == "macro") then
 			local spellID = GetMacroSpell(id);
 			if (spellID) then
-				local link = GetSpellLink(spellID);
+				local link = LibFroznFunctions:GetSpellLink(spellID);
 				if (link) then
 					local linkType, _spellID = link:match("H?(%a+):(%d+)");
 					if (_spellID) then
@@ -824,7 +815,7 @@ local function SetPetAction_Hook(self, slot)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, isToken, isActive, autoCastAllowed, autoCastEnabled, spellID = GetPetActionInfo(slot); -- see PetActionBar_Update() in "PetActionBarFrame.lua"
 		if (spellID) then
-			local link = GetSpellLink(spellID);
+			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
@@ -849,7 +840,7 @@ local function SetPetAction_Hook(self, slot)
 					for i = 1, numPetSpells do
 						local spellType, id = GetSpellBookItemInfo(i, BOOKTYPE_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
 						if (spellType == "PETACTION") then
-							local spellName, spellSubName, spellID = GetSpellBookItemName(i, BOOKTYPE_PET);
+							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, BOOKTYPE_PET);
 							if (spellName == _name) then
 								tipDataAdded[self] = "petAction";
 								CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
@@ -1287,7 +1278,7 @@ local function OnTooltipSetSpell(self, ...)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, id = LibFroznFunctions:GetSpellFromTooltip(self);	-- [18.07.19] 8.0/BfA: "dropped second parameter (nameSubtext)"
 		if (id) then
-			local link = GetSpellLink(id);
+			local link = LibFroznFunctions:GetSpellLink(id);
 			if (link) then
 				local linkType, spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
@@ -1444,7 +1435,7 @@ local function EITT_SetSpellByQuestReward_Hook(self, rewardIndex, questID)
 		local texture, name, isTradeskillSpell, isSpellLearned, hideSpellLearnText, isBoostSpell, garrFollowerID, genericUnlock, spellID = GetQuestLogRewardSpell(rewardIndex, questID);
 		
 		if (name) and (texture) then
-			local link = GetSpellLink(spellID);
+			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
@@ -1461,7 +1452,7 @@ local function EITT_SetSpellWithTextureByID_Hook(self, spellID, texture)
 	local targetTooltip = self.Tooltip;
 	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
 		if (texture) then
-			local link = GetSpellLink(spellID);
+			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (spellID) then
@@ -1525,7 +1516,7 @@ local function TDM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) then
 		local spellID = self:GetSpellID();
 		if (spellID) then
-			local link = GetSpellLink(spellID);
+			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
@@ -1542,7 +1533,7 @@ local function PCPCTM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
 		local spellID = (self.optionInfo and self.optionInfo.spellID);
 		if (spellID) then
-			local link = GetSpellLink(spellID);
+			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
@@ -1913,7 +1904,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				tip:HookScript("OnTooltipCleared", OnTooltipCleared);
 				if (tipName == "GameTooltip") then
 					hooksecurefunc(QuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
-					hooksecurefunc(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
+					LibFroznFunctions:HookSecureFuncIfExists(StorylineQuestPinMixin, "OnMouseEnter", QPM_OnMouseEnter_Hook);
 					for pin in WorldMapFrame:EnumeratePinsByTemplate("QuestBlobPinTemplate") do
 						hooksecurefunc(pin, "UpdateTooltip", QBPM_UpdateTooltip_Hook);
 					end
@@ -2664,8 +2655,8 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	end
 	
 	-- spell
-	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
-	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
+	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local rank = LibFroznFunctions:GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
 	local mawPowerID = nil;
@@ -2764,7 +2755,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		end
 		
 		if (not spellColor) then
-			spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+			spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see LibFroznFunctions:GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
 		
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
@@ -2778,8 +2769,8 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		spellID = LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID].spellID;
 	end
 	
-	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
-	local rank = GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
+	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local rank = LibFroznFunctions:GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
 	-- Icon
@@ -2831,7 +2822,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		end
 		
 		if (not spellColor) then
-			spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+			spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see LibFroznFunctions:GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		end
 		
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
@@ -3205,7 +3196,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType));
 	local spellID = C_Soulbinds.GetConduitSpellID(conduitID, conduitRank);
-	local name, _, icon, castTime, minRange, maxRange, _spellID = GetSpellInfo(spellID);
+	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);
 	
 	if (showIcon) then
 		self:ttSetIconTextureAndText(icon);
@@ -3512,7 +3503,7 @@ function CustomTypeFuncs:flyout(link, linkType, flyoutID, icon)
 	
   	-- Colored Border
 	if (cfg.if_flyoutColoredBorder) then
-		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see LibFroznFunctions:GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
 end
@@ -3543,7 +3534,7 @@ function CustomTypeFuncs:petAction(link, linkType, petActionID, icon)
 	
   	-- Colored Border
 	if (cfg.if_petActionColoredBorder) then
-		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
+		local spellColor = LibFroznFunctions:CreateColorFromHexString("FF71D5FF"); -- see LibFroznFunctions:GetSpellLink(). extraction of color code from this function not used, because in classic it only returns the spell name instead of a link.
 		ttif:SetBackdropBorderColorLocked(self, spellColor:GetRGBA());
 	end
 end
