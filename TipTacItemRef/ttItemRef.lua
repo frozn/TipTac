@@ -284,6 +284,16 @@ local TTIF_ExpansionIcon = {
 		rightTexel = 0.828125,
 		topTexel = 0.21875,
 		bottomTexel = 0.75
+	},
+	[10] = {  -- The War Within
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\tww_logo",
+		textureWidth = 64,
+		textureHeight = 32,
+		aspectRatio = 42 / 17,
+		leftTexel = 0.171875,
+		rightTexel = 0.828125,
+		topTexel = 0.21875,
+		bottomTexel = 0.75
 	}
 };
 
@@ -865,7 +875,7 @@ local function SetQuestItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
 		if (itemID) then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 			if (itemLink) then
 				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
 				if (_itemID) then
@@ -892,7 +902,7 @@ local function SetQuestLogItem_Hook(self, _type, index)
 			numItems = _numItems;
 		end
 		if (itemID) then
-			local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
+			local itemName, itemLink, itemRarity, _itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 			if (itemLink) then
 				local linkType, __itemID = itemLink:match("H?(%a+):(%d+)");
 				if (__itemID) then
@@ -988,7 +998,7 @@ local function SetLFGDungeonReward_Hook(self, dungeonID, rewardIndex)
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonRewardInfo(dungeonID, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
 		if (rewardID) then
 			if (rewardType == "item") then
-				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(rewardID);
+				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(rewardID);
 				if (itemLink) then
 					local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
 					if (itemID) then
@@ -1016,7 +1026,7 @@ local function SetLFGDungeonShortageReward_Hook(self, dungeonID, rewardArg, rewa
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonShortageRewardInfo(dungeonID, rewardArg, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
 		if (rewardID) then
 			if (rewardType == "item") then
-				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(rewardID);
+				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(rewardID);
 				if (itemLink) then
 					local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
 					if (itemID) then
@@ -1386,7 +1396,7 @@ local function EITT_SetItemByID_Hook(self, id, count)
 	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
 		local itemID = id;
 		if (itemID) then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 			if (itemLink) then
 				local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
 				if (_itemID) then
@@ -1417,7 +1427,7 @@ local function EITT_SetItemByQuestReward_Hook(self, questLogIndex, questID, rewa
 		local name, texture, numItems, quality, isUsable, itemID = getterFunc(questLogIndex, questID);
 		
 		if (itemID) and (name) and (texture) then
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 			if (itemLink) then
 				local linkType, itemID = itemLink:match("H?(%a+):(%d+)");
 				if (itemID) then
@@ -1489,7 +1499,7 @@ local function DUODSM_OnEnter_Hook(self)
 		if (self.item) then -- item
 			local itemID = self.item.itemID;
 			if (itemID) then
-				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
+				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 				if (itemLink) then
 					local linkType, _itemID = itemLink:match("H?(%a+):(%d+)");
 					if (_itemID) then
@@ -2394,7 +2404,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 		return;
 	end
 	
-	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(link);
+	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(link);
 	if (classID == 5) and (subClassID == 1) then -- keystone
 		local splits = StringSplitIntoTable(":", link);
 		local mapID = splits[17];
@@ -2408,8 +2418,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 	end
 	
 	local mountID = LibFroznFunctions:GetMountFromItem(id);
-	local expansionIcon = expacID and TTIF_ExpansionIcon[expacID];
-	local expansionName = expacID and _G["EXPANSION_NAME" .. expacID];
+	local expansionIcon = expansionID and TTIF_ExpansionIcon[expansionID];
+	local expansionName = expansionID and _G["EXPANSION_NAME" .. expansionID];
 	
 	-- Icon
 	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
@@ -2538,14 +2548,14 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		return;
 	end
 	
-	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
+	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 	local trueItemLevel = LibItemString:GetTrueItemLevel(link);
 	if (trueItemLevel) then
 		itemLevel = trueItemLevel;
 	end
 	
-	local expansionIcon = expacID and TTIF_ExpansionIcon[expacID];
-	local expansionName = expacID and _G["EXPANSION_NAME" .. expacID];
+	local expansionIcon = expansionID and TTIF_ExpansionIcon[expansionID];
+	local expansionName = expansionID and _G["EXPANSION_NAME" .. expansionID];
 	
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
@@ -3257,7 +3267,7 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 		return;
 	end
 
-	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(_link);
+	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(_link);
 	local trueItemLevel = LibItemString:GetTrueItemLevel(_link);
 	if (trueItemLevel) then
 		itemLevel = trueItemLevel;
