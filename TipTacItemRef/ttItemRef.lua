@@ -1185,7 +1185,7 @@ local function PBUTT_UpdateForUnit_Hook(self, petOwner, petIndex)
 			local speed = C_PetBattles.GetSpeed(petOwner, petIndex);
 			local displayID = C_PetBattles.GetDisplayID(petOwner, petIndex);
 			tipDataAdded[pbputt] = "battlepet";
-			LinkTypeFuncs.battlepet(pbputt, nil, "battlepet", speciesID, level, breedQuality and breedQuality - 1 or nil, maxHealth, power, speed, nil, displayID, true);
+			LinkTypeFuncs.battlepet(pbputt, nil, "battlepet", speciesID, level, breedQuality, maxHealth, power, speed, nil, displayID, true);
 		end
 	end
 end
