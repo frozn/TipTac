@@ -5,7 +5,7 @@
 <Include file="libs\AceHook-3.0\AceHook-3.0.xml"/>
 <Include file="libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
 <Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
-<Include file="libs\LibDBIcon-1.0\lib.xml"/>
+<Include file="libs\LibDBIcon-1.0\LibDBIcon-1.0\lib.xml"/>
 <Include file="libs\LibFroznFunctions-1.0\lib.xml"/>
 
 </Ui>

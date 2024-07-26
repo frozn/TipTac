@@ -1,8 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 
-<Script file="libs\LibSharedMedia-3.0\LibStub\LibStub.lua"/>
-<Script file="libs\LibSharedMedia-3.0\CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
+<Script file="libs\LibStub\LibStub.lua"/>
+<Include file="libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
+
 <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 
 <Include file="libs\LibSerialize\lib.xml"/>

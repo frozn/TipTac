@@ -1,15 +1,15 @@
-## Interface: 100206
+## Interface: 11502, 11503, 20504, 30403, 40400, 100207, 110000, 110002
 ## LoadOnDemand: 1
 
 ## Title: Lib: SharedMedia-3.0
 ## Notes: Shared handling of media data (fonts, sounds, textures, ...) between addons.
 ## Author: Elkano
-## Version: 3.0-149
+## Version: 3.0-152
 ## X-Website: https://www.curseforge.com/wow/addons/libsharedmedia-3-0
 ## X-Category: Library
 
-## X-Revision: 149
-## X-Date: 2024-05-01T16:02:00Z
+## X-Revision: 152
+## X-Date: 2024-07-09T18:28:54Z
 
 LibStub\LibStub.lua
 CallbackHandler-1.0\CallbackHandler-1.0.lua

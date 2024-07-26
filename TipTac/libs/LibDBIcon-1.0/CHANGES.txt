@@ -1,0 +1,12 @@
+------------------------------------------------------------------------
+r137 | funkehdude | 2024-07-09 18:35:23 +0000 (Tue, 09 Jul 2024) | 1 line
+Changed paths:
+   M /trunk/LibDBIcon-1.0.toc
+   D /trunk/LibDBIcon-1.0_Cata.toc
+   D /trunk/LibDBIcon-1.0_TBC.toc
+   D /trunk/LibDBIcon-1.0_Vanilla.toc
+   D /trunk/LibDBIcon-1.0_Wrath.toc
+
+Merge toc files
+------------------------------------------------------------------------
+
