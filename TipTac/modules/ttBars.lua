@@ -66,9 +66,17 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	end
 	
 	-- set texture and height of GameTooltip's standard status bar
-	GameTooltipStatusBar:SetStatusBarTexture(cfg.barTexture);
-	GameTooltipStatusBar:GetStatusBarTexture():SetHorizTile(false); -- Az: 3.3.3 fix
-	GameTooltipStatusBar:GetStatusBarTexture():SetVertTile(false);  -- Az: 3.3.3 fix
+	local statusBarTexture = GameTooltipStatusBar:GetStatusBarTexture();
+	
+	if (not statusBarTexture) then -- repeatedly calling SetStatusBarTexture() causes flickering of bar. repeatedly calling SetTexture() on already available bar texture instead works fine.
+		GameTooltipStatusBar:SetStatusBarTexture(cfg.barTexture);
+		statusBarTexture = GameTooltipStatusBar:GetStatusBarTexture();
+	else
+		statusBarTexture:SetTexture(cfg.barTexture);
+	end
+	
+	statusBarTexture:SetHorizTile(false); -- Az: 3.3.3 fix
+	statusBarTexture:SetVertTile(false);  -- Az: 3.3.3 fix
 	GameTooltipStatusBar:SetHeight(cfg.barHeight);
 	
 	-- set texture, height and font of bars
@@ -265,9 +273,17 @@ local function barInitFunc(bar, tblMixin)
 	-- config settings need to be applied
 	function bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- set texture and height of bar
-		self:SetStatusBarTexture(cfg.barTexture);
-		self:GetStatusBarTexture():SetHorizTile(false); -- Az: 3.3.3 fix
-		self:GetStatusBarTexture():SetVertTile(false);  -- Az: 3.3.3 fix
+		local statusBarTexture = self:GetStatusBarTexture();
+		
+		if (not statusBarTexture) then -- repeatedly calling SetStatusBarTexture() causes flickering of bar. repeatedly calling SetTexture() on already available bar texture instead works fine.
+			self:SetStatusBarTexture(cfg.barTexture);
+			statusBarTexture = self:GetStatusBarTexture();
+		else
+			statusBarTexture:SetTexture(cfg.barTexture);
+		end
+		
+		statusBarTexture:SetHorizTile(false); -- Az: 3.3.3 fix
+		statusBarTexture:SetVertTile(false);  -- Az: 3.3.3 fix
 		self:SetHeight(cfg.barHeight);
 		
 		-- set font of bar
