@@ -1,5 +1,5 @@
 <picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/219820911-344b64c3-8aab-43e3-abbc-6bf79c6d85b7.jpg" align="right"></picture>
-<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(df)%20%2B%20classic%20(catac)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
+<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(tww)%20%2B%20classic%20(catac)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
 
 [![Install](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
 &nbsp; 
@@ -11,7 +11,7 @@
 [![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 # TipTac Reborn
-WoW AddOn TipTac Reborn [DF] [CataC] [Classic Era]
+WoW AddOn TipTac Reborn [TWW] [CataC] [Classic Era]
 
 TipTac Reborn is a tooltip enchancement addon, it allows you to configure various aspects of the tooltip, such as moving where it's shown, the font, the scale of tips, plus a lot more. It's the successor of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac) (abandoned since Nov 2020) with massive modifications since then.
 
@@ -19,9 +19,9 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 10.2.7 - Dragonflight [DF]
+  * 11.0.0 - The War Within [TWW]
   * 4.4.0 - Cataclysm Classic [CataC]
-  * 1.15.2 - Classic Era / Vanilla [Classic Era]
+  * 1.15.3 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -42,7 +42,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
-  - added mouseover for chatlinks: torghast anima power, transmog item/set, azerite essences and dungeon score
+  - added mouseover for chatlinks: torghast anima power, transmog item/set, azerite essences, dungeon score and instance lock
 - added class border color for member list in guild/community->chat and guild/community->guild roster, dungeon score tooltip and attendees in LFG list if config option "Colors->Color Tip Border by Class Color" is checked
 - changes regarding (added) config options under "ItemRef":
   - added border color for spells, unit auras, tradeskills, currencies (in chatframe), achievements, guild challenges (in guild/community->info) and pvp enlistment bonus (in pvp->quick match)
@@ -77,6 +77,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 - considered debuff border for aura positions
 - splitted options for auras from spells
+- prevented auras from moving off-screen
 - automatically reduce tip's scale if its size exceeds UIParent width/height
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
 - added option "Reactions->Show the unit's reaction as icon"
