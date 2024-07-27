@@ -43,6 +43,6 @@ body:
       placeholder: |
         Flavor [e.g. Retail, CataC, Classic Era]
         - or -
-        Version [e.g. 10.2.7, 4.4.0, 1.15.2, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
+        Version [e.g. 11.0.0, 4.4.0, 1.15.3, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
     validations:
       required: true
