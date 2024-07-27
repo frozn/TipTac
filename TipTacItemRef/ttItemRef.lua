@@ -722,13 +722,13 @@ local function SetAction_Hook(self, slot)
 				
 				if (numPetSpells) then
 					for i = 1, numPetSpells do
-						local spellType, _id = LibFroznFunctions:GetSpellBookItemInfo(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
-						if (spellType == "PETACTION") then
+						local spellBookItemInfo = LibFroznFunctions:GetSpellBookItemInfo(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+						if (spellBookItemInfo.itemType == LFF_SPELLBOOK_ITEM_TYPE.PetAction) then
 							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET);
 							if (spellName == name) then
 								local icon = LibFroznFunctions:GetSpellBookItemTexture(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET);
 								tipDataAdded[self] = "petAction";
-								CustomTypeFuncs.petAction(self, nil, "petAction", _id, icon);
+								CustomTypeFuncs.petAction(self, nil, "petAction", spellBookItemInfo.actionID, icon);
 								break;
 							end
 						end
@@ -807,15 +807,15 @@ end
 -- HOOK: GameTooltip:SetSpellBookItem
 local function SetSpellBookItem_Hook(self, slot, bookTypeOrSpellBank)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local spellType, id = LibFroznFunctions:GetSpellBookItemInfo(slot, bookTypeOrSpellBank); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
-		if (spellType == "FLYOUT") then
+		local spellBookItemInfo = LibFroznFunctions:GetSpellBookItemInfo(slot, bookTypeOrSpellBank); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+		if (spellBookItemInfo.itemType == LFF_SPELLBOOK_ITEM_TYPE.Flyout) then
 			local icon = LibFroznFunctions:GetSpellBookItemTexture(slot, bookTypeOrSpellBank);
 			tipDataAdded[self] = "flyout";
-			CustomTypeFuncs.flyout(self, nil, "flyout", id, icon);
-		elseif (spellType == "PETACTION") then
+			CustomTypeFuncs.flyout(self, nil, "flyout", spellBookItemInfo.actionID, icon);
+		elseif (spellBookItemInfo.itemType == LFF_SPELLBOOK_ITEM_TYPE.PetAction) then
 			local icon = LibFroznFunctions:GetSpellBookItemTexture(slot, bookTypeOrSpellBank);
 			tipDataAdded[self] = "petAction";
-			CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
+			CustomTypeFuncs.petAction(self, nil, "petAction", spellBookItemInfo.actionID, icon);
 		end
 	end
 end
@@ -849,12 +849,12 @@ local function SetPetAction_Hook(self, slot)
 				
 				if (numPetSpells) then
 					for i = 1, numPetSpells do
-						local spellType, id = LibFroznFunctions:GetSpellBookItemInfo(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
-						if (spellType == "PETACTION") then
+						local spellBookItemInfo = LibFroznFunctions:GetSpellBookItemInfo(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET); -- see SpellButton_OnEnter() in "SpellBookFrame.lua"
+						if (spellBookItemInfo.itemType == LFF_SPELLBOOK_ITEM_TYPE.PetAction) then
 							local spellName, spellSubName, spellID = LibFroznFunctions:GetSpellBookItemName(i, LFF_BOOKTYPE_PET_OR_SPELLBANK_PET);
 							if (spellName == _name) then
 								tipDataAdded[self] = "petAction";
-								CustomTypeFuncs.petAction(self, nil, "petAction", id, icon);
+								CustomTypeFuncs.petAction(self, nil, "petAction", spellBookItemInfo.actionID, icon);
 								break;
 							end
 						end
@@ -2666,7 +2666,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	end
 	
 	-- spell
-	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local spellInfo = LibFroznFunctions:GetSpellInfo(spellID);
 	local rank = LibFroznFunctions:GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
@@ -2690,7 +2690,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	
 	if (showIcon) then
-		self:ttSetIconTextureAndText(icon);
+		self:ttSetIconTextureAndText(spellInfo and spellInfo.iconID);
 	end
 	
 	-- Caster
@@ -2724,7 +2724,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID);
 	local showSpellIdAndRank = (((isSpell and cfg.if_showSpellIdAndRank) or (isAura and cfg.if_showAuraSpellIdAndRank)) and spellID and (spellID ~= 0));
 	local showMountID = (cfg.if_showMountId and mountID and (mountID ~= 0));
-	local showIconID = (cfg.if_showIconId and icon);
+	local showIconID = (cfg.if_showIconId and spellInfo and spellInfo.iconID);
 	
 	if (showMawPowerID or showSpellIdAndRank) then
 		if (not showMawPowerID) then
@@ -2739,7 +2739,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		self:AddLine(format("MountID: %d", mountID), unpack(cfg.if_infoColor));
 	end
 	if (showIconID) then
-		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor));
+		self:AddLine(format("IconID: %d", spellInfo.iconID), unpack(cfg.if_infoColor));
 	end
 	
 	if (showAuraCaster or showMawPowerID or showSpellIdAndRank or showMountID or showIconID) then
@@ -2780,7 +2780,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		spellID = LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID].spellID;
 	end
 	
-	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);	-- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	local spellInfo = LibFroznFunctions:GetSpellInfo(spellID);
 	local rank = LibFroznFunctions:GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
 	rank = (rank and rank ~= "" and ", "..rank or "");
 
@@ -2788,13 +2788,13 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	
 	if (showIcon) then
-		self:ttSetIconTextureAndText(icon);
+		self:ttSetIconTextureAndText(spellInfo and spellInfo.iconID);
 	end
 	
 	-- (SpellID + Rank) + MawPowerID + IconID -- pre-16.08.25 only caster was formatted as this: "<Applied by %s>"
 	local showMawPowerID = (cfg.if_showMawPowerId and mawPowerID and (mawPowerID ~= 0));
 	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID);
-	local showIconID = (cfg.if_showIconId and icon);
+	local showIconID = (cfg.if_showIconId and spellInfo and spellInfo.iconID);
 	
 	if (showMawPowerID or showSpellIdAndRank) then
 		if (not showMawPowerID) then
@@ -2806,7 +2806,7 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		end
 	end
 	if (showIconID) then
-		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor));
+		self:AddLine(format("IconID: %d", spellInfo.iconID), unpack(cfg.if_infoColor));
 	end
 	
 	if (showMawPowerID or showSpellIdAndRank or showIconID) then
@@ -3207,10 +3207,10 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	-- Icon
 	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType));
 	local spellID = C_Soulbinds.GetConduitSpellID(conduitID, conduitRank);
-	local name, _, icon, castTime, minRange, maxRange, _spellID = LibFroznFunctions:GetSpellInfo(spellID);
+	local spellInfo = LibFroznFunctions:GetSpellInfo(spellID);
 	
 	if (showIcon) then
-		self:ttSetIconTextureAndText(icon);
+		self:ttSetIconTextureAndText(spellInfo and spellInfo.iconID);
 	end
 
 	-- ItemLevel + ConduitID + IconID
@@ -3219,7 +3219,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 	
 	local showLevel = (conduitItemLevel and cfg.if_showConduitItemLevel);
 	local showId = (conduitID and cfg.if_showConduitId);
-	local showIconID = (cfg.if_showIconId and icon);
+	local showIconID = (cfg.if_showIconId and spellInfo and spellInfo.iconID);
 
 	if (showLevel or showId) then
 		if (showLevel) then
@@ -3241,7 +3241,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 		end
 	end
 	if (showIconID) then
-		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor));
+		self:AddLine(format("IconID: %d", spellInfo.iconID), unpack(cfg.if_infoColor));
 	end
 	
 	if (showLevel or showId or showIconID) then

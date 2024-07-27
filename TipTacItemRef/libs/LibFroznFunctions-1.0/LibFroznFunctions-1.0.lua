@@ -584,26 +584,30 @@ end
 
 -- get spell info
 --
--- @param  spell  spell id or name
--- @return name, rank, icon, castTime, minRange, maxRange, spellID, originalIcon
-function LibFroznFunctions:GetSpellInfo(spell)
+-- @param  spellIdentifier  spell id, name, name(subtext) or link
+-- @return spellInfo
+function LibFroznFunctions:GetSpellInfo(spellIdentifier)
 	-- since tww 11.0.0
 	if (C_Spell) and (C_Spell.GetSpellInfo) then
-		if (not spell) then
+		if (not spellIdentifier) then
 			return nil;
 		end
 		
-		local spellInfo = C_Spell.GetSpellInfo(spell);
-		
-		if (not spellInfo) then
-			return nil;
-		end
-		
-		return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange, spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID;
+		return C_Spell.GetSpellInfo(spellIdentifier);
 	end
 	
 	-- before tww 11.0.0
-	return GetSpellInfo(spell);
+	local name, rank, iconID, castTime, minRange, maxRange, spellID, originalIconID = GetSpellInfo(spellIdentifier); -- [18.07.19] 8.0/BfA: 2nd param "rank/nameSubtext" now returns nil
+	
+	return {
+		name = name,
+		iconID = iconID,
+		castTime = castTime,
+		minRange = minRange,
+		maxRange = maxRange,
+		spellID = spellID,
+		originalIconID = originalIconID
+	};
 end
 
 -- get spell subtext
@@ -686,29 +690,46 @@ end
 --
 -- @param  index                spellbook slot index, ranging from 1 through the total number of spells across all tabs and pages.
 -- @param  bookTypeOrSpellBank  LFF_BOOKTYPE_SPELL_OR_SPELLBANK_PLAYER or LFF_BOOKTYPE_PET_OR_SPELLBANK_PET depending on if you wish to query the player or pet spellbook.
--- @return spellType, id
+-- @return spellBookItemInfo
+LFF_SPELLBOOK_ITEM_TYPE = Enum.SpellBookItemType; -- see SpellBookItemType in "SpellBookConstantsDocumentation.lua"
+
+if (not LFF_SPELLBOOK_ITEM_TYPE) then
+	LFF_SPELLBOOK_ITEM_TYPE = {
+		None = 0,
+		Spell = 1,
+		FutureSpell = 2,
+		PetAction = 3,
+		Flyout = 4
+	};
+end
+
 function LibFroznFunctions:GetSpellBookItemInfo(index, bookTypeOrSpellBank)
 	-- since tww 11.0.0
 	if (C_SpellBook) and (C_SpellBook.GetSpellBookItemInfo) then
-		local spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(index, bookTypeOrSpellBank);
-		
-		if (not spellBookItemInfo) then
-			return nil;
-		end
-		
-		local spellBookItemTypeToSpellTypeLookup = { -- see SpellBookItemType in "SpellBookConstantsDocumentation.lua"
-			[Enum.SpellBookItemType.None] = nil,
-			[Enum.SpellBookItemType.Spell] = "SPELL",
-			[Enum.SpellBookItemType.FutureSpell] = "FUTURESPELL",
-			[Enum.SpellBookItemType.PetAction] = "PETACTION",
-			[Enum.SpellBookItemType.Flyout] = "FLYOUT"
-		};
-		
-		return spellBookItemTypeToSpellTypeLookup[spellBookItemInfo.itemType], spellBookItemInfo.actionID;
+		return C_SpellBook.GetSpellBookItemInfo(index, bookTypeOrSpellBank);
 	end
 	
 	-- before tww 11.0.0
-	return GetSpellBookItemInfo(index, bookTypeOrSpellBank);
+	local spellType, id = GetSpellBookItemInfo(index, bookTypeOrSpellBank);
+	
+	local spellTypeToSpellBookItemTypeLookup = { -- see SpellBookItemType in "SpellBookConstantsDocumentation.lua"
+		SPELL = LFF_SPELLBOOK_ITEM_TYPE.Spell,
+		FUTURESPELL = LFF_SPELLBOOK_ITEM_TYPE.FutureSpell,
+		PETACTION = LFF_SPELLBOOK_ITEM_TYPE.PetAction,
+		FLYOUT = LFF_SPELLBOOK_ITEM_TYPE.Flyout
+	};
+	
+	return {
+		actionID = id,
+		spellID = nil,
+		itemType = (spellTypeToSpellBookItemTypeLookup[spellType] or LFF_SPELLBOOK_ITEM_TYPE.None),
+		name = nil,
+		subName = nil,
+		iconID = nil,
+		isPassive = nil,
+		isOffSpec = nil,
+		skillLineIndex = nil
+	};
 end
 
 -- has pet spells
