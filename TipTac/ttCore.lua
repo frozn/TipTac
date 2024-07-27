@@ -1746,12 +1746,12 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	
 	currentDisplayParams.ignoreSetCurrentDisplayParamsOnTimestamp = nil;
 	
-	-- consider missing reset of tip's current display parameters, e.g. if hovering over unit auras which will be hidden. there will be subsequent calls of GameTooltip:SetUnitAura() without a new GameTooltip:OnShow().
-	local noFireGroupEvent = false;
-	
+	-- consider missing reset of tip's current display parameters
+	-- - e.g. if hovering over unit auras which will be hidden. there will be subsequent calls of GameTooltip:SetUnitAura() without a new GameTooltip:OnShow().
+	-- - e.g. if hovering over empty action bar buttons the GameTooltip:SetAction() will be called, but there's no tooltip. therefore no OnTooltipCleared() will
+	--	      be fired if leaving the button and the currentDisplayParams are still set. afterwards if moving to a world unit, we need firing the group event.
 	if ((currentDisplayParams.isSet) or (currentDisplayParams.isSetTemporarily)) and (currentDisplayParams.isSetTimestamp ~= currentTime) then
-		noFireGroupEvent = true;
-		self:ResetCurrentDisplayParams(tip, noFireGroupEvent);
+		self:ResetCurrentDisplayParams(tip, true); -- necessary to fire no group events here, e.g because "currentDisplayParams.defaultAnchored" will be lost.
 	end
 	
 	-- tip will be hidden
@@ -1768,10 +1768,8 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 		currentDisplayParams.tipContent = tipContent;
 		
 		-- inform group that the tip's current display parameters has to be set
-		if (not noFireGroupEvent) then
-			LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-			LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-		end
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
+		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetCurrentDisplayParams", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
 		
 		if (tipContentUnknown) then
 			currentDisplayParams.isSetTemporarily = true;
@@ -1792,9 +1790,7 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	end
 	
 	-- inform group that the tip's styling needs to be set
-	if (not noFireGroupEvent) then
-		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
-	end
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
 	
 	-- recalculate size of tip to ensure that it has the correct dimensions
 	if (tipContent ~= TT_TIP_CONTENT.unknownOnCleared) then -- prevent recalculating size of tip on tip content "unknownOnCleared" to prevent accidentally reducing tip's width/height to a tiny square e.g. on individual GameTooltips with tip:ClearLines(). test case: addon "Titan Panel" with broker addon "Profession Cooldown".
