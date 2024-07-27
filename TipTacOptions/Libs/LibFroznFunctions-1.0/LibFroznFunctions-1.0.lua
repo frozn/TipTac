@@ -3497,7 +3497,11 @@ function LibFroznFunctions:GetTalents(unitID)
 						if (treeCurrencyInfo) then
 							for _, treeCurrencyInfoItem in ipairs(treeCurrencyInfo) do
 								if (treeCurrencyInfoItem.spent) then
-									tinsert(pointsSpent, treeCurrencyInfoItem.spent);
+									local traitCurrencyFlags, traitCurrencyType, currencyTypesID, traitCurrencyIcon = C_Traits.GetTraitCurrencyInfo(treeCurrencyInfoItem.traitCurrencyID);
+									
+									if (LibFroznFunctions:ExistsInTable(traitCurrencyFlags, { Enum.TraitCurrencyFlag.UseClassIcon, Enum.TraitCurrencyFlag.UseSpecIcon })) and (treeCurrencyInfoItem.spent) then
+										tinsert(pointsSpent, treeCurrencyInfoItem.spent);
+									end
 								end
 							end
 						end
