@@ -612,45 +612,45 @@ end
 
 -- get spell subtext
 --
--- @param  spell  spell id or name
--- @return name, rank, icon, castTime, minRange, maxRange, spellID, originalIcon
-function LibFroznFunctions:GetSpellSubtext(spell)
+-- @param  spellIdentifier  spell id, name, name(subtext) or link
+-- @return subtext
+function LibFroznFunctions:GetSpellSubtext(spellIdentifier)
 	-- since tww 11.0.0
 	if (C_Spell) and (C_Spell.GetSpellSubtext) then
-		if (not spell) then
+		if (not spellIdentifier) then
 			return nil;
 		end
 		
-		return C_Spell.GetSpellSubtext(spell);
+		return C_Spell.GetSpellSubtext(spellIdentifier);
 	end
 	
 	-- before tww 11.0.0
-	return GetSpellSubtext(spell);
+	return GetSpellSubtext(spellIdentifier);
 end
 
 -- get spell link
 --
--- @param  spell    spell id or name
--- @param  glyphID  optional. glyph id.
+-- @param  spellIdentifier  spell id, name, name(subtext) or link
+-- @param  glyphID          optional. glyph id.
 -- @return spellLink
-function LibFroznFunctions:GetSpellLink(spell, glyphID)
+function LibFroznFunctions:GetSpellLink(spellIdentifier, glyphID)
 	-- since tww 11.0.0
 	if (C_Spell) and (C_Spell.GetSpellLink) then
-		if (not spell) then
+		if (not spellIdentifier) then
 			return nil;
 		end
 		
-		return C_Spell.GetSpellLink(spell, glyphID);
+		return C_Spell.GetSpellLink(spellIdentifier, glyphID);
 	end
 	
 	-- before tww 11.0.0
 	if (not LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable) then
-		local name, _, icon, castTime, minRange, maxRange, spellID = self:GetSpellInfo(spell);
+		local spellInfo = self:GetSpellInfo(spellIdentifier);
 		
-		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
+		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellInfo and spellInfo.spellID, spellInfo and spellInfo.name);
 	end
 	
-	return GetSpellLink(spell);
+	return GetSpellLink(spellIdentifier);
 end
 
 -- get spell book item name
