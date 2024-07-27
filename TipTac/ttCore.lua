@@ -131,6 +131,7 @@ local TT_DefaultConfig = {
 	-- backdrop
 	enableBackdrop = true,
 	tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
+	tipBackdropBGLayout = "tile",
 	tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
 	pixelPerfectBackdrop = false,
 	backdropEdgeSize = 14,
@@ -328,7 +329,7 @@ TT_ExtendedConfig.oldGameTooltipFontsRemembered = false;
 TT_ExtendedConfig.tipBackdrop = {
 	bgFile = "",                                           -- set during event ADDON_LOADED and tt:ApplyConfig()
 	edgeFile = "",                                         -- set during event ADDON_LOADED and tt:ApplyConfig()
-	tile = true,
+	tile = true,                                           -- set during event ADDON_LOADED and tt:ApplyConfig()
 	tileSize = 16,
 	tileEdge = false,
 	edgeSize = 0,                                          -- set during event ADDON_LOADED and tt:ApplyConfig()
@@ -1398,6 +1399,7 @@ function tt:SetTipBackdropConfig()
 		TT_ExtendedConfig.tipBackdrop.edgeFile = currentConfig.tipBackdropEdge;
 	end
 	
+	TT_ExtendedConfig.tipBackdrop.tile = (currentConfig.tipBackdropBGLayout == "tile");
 	TT_ExtendedConfig.tipBackdrop.edgeSize = currentConfig.backdropEdgeSize;
 	
 	TT_ExtendedConfig.tipBackdrop.insets.left = currentConfig.backdropInsets;

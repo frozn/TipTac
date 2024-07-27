@@ -329,11 +329,12 @@ local options = {
 		enabled = { type = "Check", var = "enableBackdrop", tip = "Turns on or off all modifications of the backdrop\nNOTE: A Reload of the UI (/reload) is required for the setting to take affect" },
 		options = {
 			{ type = "DropDown", var = "tipBackdropBG", label = "Background Texture", media = "background", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
+			{ type = "DropDown", var = "tipBackdropBGLayout", label = "BG Texture Layout", list = { ["Repeat to fit tip"] = "tile", ["Stretch to fit tip"] = "stretch" }, enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
 			{ type = "DropDown", var = "tipBackdropEdge", label = "Border Texture", media = "border", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
 			
-			{ type = "Check", var = "pixelPerfectBackdrop", label = "Pixel Perfect Backdrop Edge Size and Insets", tip = "Backdrop Edge Size and Insets corresponds to real pixels", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, y = 10 },
-			{ type = "Slider", var = "backdropEdgeSize", label = "Backdrop Edge Size", min = -20, max = 64, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
+			{ type = "Slider", var = "backdropEdgeSize", label = "Backdrop Edge Size", min = -20, max = 64, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, y = 10 },
 			{ type = "Slider", var = "backdropInsets", label = "Backdrop Insets", min = -20, max = 20, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
+			{ type = "Check", var = "pixelPerfectBackdrop", label = "Pixel Perfect Backdrop Edge Size and Insets", tip = "Backdrop Edge Size and Insets corresponds to real pixels", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
 			
 			{ type = "Color", var = "tipColor", label = "Tip Background Color", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, y = 10 },
 			{ type = "Color", var = "tipBorderColor", label = "Tip Border Color", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, x = 160 },
