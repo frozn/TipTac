@@ -62,6 +62,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - scanning/inspecting of talents and average item level completely rewritten
 - added option in "Anchors" to override GTT anchor for world/frame units/tips in combat or during dragonriding and (Guild & Community) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
+- added option "Backdrop->BG Texture Layout" to set if the background texture should be repeated or stretched to fit the tip
 - added option "Combat->Hide Tips Out Of Combat" and "Combat->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action bar tips in/out of combat or during dragonriding
 - added option "General->Show Player Guild" to show/hide guild name/rank
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
