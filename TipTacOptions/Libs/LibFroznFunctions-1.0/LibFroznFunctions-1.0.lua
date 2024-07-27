@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 26; -- bump on changes
+local LIB_MINOR = 27; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -641,7 +641,7 @@ function LibFroznFunctions:GetSpellLink(spell, glyphID)
 	
 	-- before tww 11.0.0
 	if (not LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable) then
-		local name, _, icon, castTime, minRange, maxRange, _spellID = self:GetSpellInfo(spell);
+		local name, _, icon, castTime, minRange, maxRange, spellID = self:GetSpellInfo(spell);
 		
 		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellID, name);
 	end
