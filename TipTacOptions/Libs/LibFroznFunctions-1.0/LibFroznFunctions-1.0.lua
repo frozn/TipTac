@@ -23,6 +23,8 @@ if (not LibFroznFunctions) then
 	return;
 end
 
+local IsAddOnLoaded = (C_AddOns and C_AddOns.IsAddOnLoaded) and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+
 ----------------------------------------------------------------------------------------------------
 --                                           Table API                                            --
 ----------------------------------------------------------------------------------------------------
