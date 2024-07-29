@@ -499,6 +499,63 @@ TT_ExtendedConfig.tipsToModify = {
 			["PlaterNamePlateAuraTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
 		},
 		hookFnForAddOn = function(TT_CacheForFrames)
+			-- HOOK: LFGListFrame.ApplicationViewer.ScrollBox:OnEnter() respectively LFGListApplicantMember_OnEnter() to set class colors to backdrop border, see "LFGList.lua"
+			if (LFGListFrame) then
+				local function LFGLFAVSB_OnEnter_Hook(self)
+					if (cfg.classColoredBorder) and (GameTooltip:IsShown()) then
+						local applicantID = self:GetParent().applicantID;
+						local memberIdx = self.memberIdx;
+						
+						local name, classFile, localizedClass, level, itemLevel, honorLevel, tank, healer, damage, assignedRole, relationship, dungeonScore, pvpItemLevel = C_LFGList.GetApplicantMemberInfo(applicantID, memberIdx);
+						
+						if (name) then
+							local classColor = LibFroznFunctions:GetClassColorByClassFile(classFile, "PRIEST", cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
+							
+							tt:SetBackdropBorderColorLocked(GameTooltip, classColor.r, classColor.g, classColor.b);
+						end
+					end
+				end
+				
+				local LFGLFAVSBhooked = {};
+				
+				local function applyHooksToLFGLFAVSBFn(button, applicantID)
+					local applicantInfo = C_LFGList.GetApplicantInfo(applicantID);
+					
+					for i = 1, applicantInfo.numMembers do
+						local member = button.Members[i];
+						
+						if (not LFGLFAVSBhooked[member]) then
+							member:HookScript("OnEnter", LFGLFAVSB_OnEnter_Hook);
+							LFGLFAVSBhooked[member] = true;
+						end
+					end
+				end
+				
+				local function applyHooksToLFGLFAVSBFn2(button, applicantID)
+					if (button) then
+						applyHooksToLFGLFAVSBFn(button, applicantID); -- see LFGListApplicationViewer_UpdateApplicant() in "LFGList.lua"
+					else
+						local self = LFGListFrame.ApplicationViewer; -- see LFGListApplicationViewer_UpdateResults() and LFGListApplicationViewer_OnEvent() in "LFGList.lua"
+						if (self.applicants) then
+							for index = 1, #self.applicants do
+								local applicantID = self.applicants[index];
+								local frame = self.ScrollBox:FindFrameByPredicate(function(frame, elementData)
+									return elementData.id == applicantID;
+								end);
+								
+								if (frame) then
+									applyHooksToLFGLFAVSBFn(button, applicantID);
+								end
+							end
+						end
+					end
+				end
+				
+				applyHooksToLFGLFAVSBFn2();
+				hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", applyHooksToLFGLFAVSBFn2);
+				hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSB_OnEnter_Hook);
+			end
+			
 			-- LibQTip-1.0, e.g. used by addon Broker_Location
 			local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
 			
@@ -598,61 +655,23 @@ TT_ExtendedConfig.tipsToModify = {
 				end
 			end
 			
-			-- HOOK: LFGListFrame.ApplicationViewer.ScrollBox:OnEnter() respectively LFGListApplicantMember_OnEnter() to set class colors to backdrop border, see "LFGList.lua"
-			if (LFGListFrame) then
-				local function LFGLFAVSB_OnEnter_Hook(self)
-					if (cfg.classColoredBorder) and (GameTooltip:IsShown()) then
-						local applicantID = self:GetParent().applicantID;
-						local memberIdx = self.memberIdx;
-						
-						local name, classFile, localizedClass, level, itemLevel, honorLevel, tank, healer, damage, assignedRole, relationship, dungeonScore, pvpItemLevel = C_LFGList.GetApplicantMemberInfo(applicantID, memberIdx);
-						
-						if (name) then
-							local classColor = LibFroznFunctions:GetClassColorByClassFile(classFile, "PRIEST", cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
-							
-							tt:SetBackdropBorderColorLocked(GameTooltip, classColor.r, classColor.g, classColor.b);
-						end
-					end
-				end
+			-- LibExtraTip-1, e.g used by addon BiS-Tooltip
+			local LibExtraTip = LibStub:GetLibrary("LibExtraTip-1", true);
+			
+			if (LibExtraTip) then
+				local oldLibExtraTipGetFreeExtraTipObject = LibExtraTip.GetFreeExtraTipObject;
+				local LETEThooked = {};
 				
-				local LFGLFAVSBhooked = {};
-				
-				local function applyHooksToLFGLFAVSBFn(button, applicantID)
-					local applicantInfo = C_LFGList.GetApplicantInfo(applicantID);
+				LibExtraTip.GetFreeExtraTipObject = function(self, ...)
+					local extraTip = oldLibExtraTipGetFreeExtraTipObject(self, ...);
 					
-					for i = 1, applicantInfo.numMembers do
-						local member = button.Members[i];
-						
-						if (not LFGLFAVSBhooked[member]) then
-							member:HookScript("OnEnter", LFGLFAVSB_OnEnter_Hook);
-							LFGLFAVSBhooked[member] = true;
-						end
+					if (not LETEThooked[extraTip]) then
+						tt:AddModifiedTip(extraTip);
+						LETEThooked[extraTip] = true;
 					end
+					
+					return extraTip;
 				end
-				
-				local function applyHooksToLFGLFAVSBFn2(button, applicantID)
-					if (button) then
-						applyHooksToLFGLFAVSBFn(button, applicantID); -- see LFGListApplicationViewer_UpdateApplicant() in "LFGList.lua"
-					else
-						local self = LFGListFrame.ApplicationViewer; -- see LFGListApplicationViewer_UpdateResults() and LFGListApplicationViewer_OnEvent() in "LFGList.lua"
-						if (self.applicants) then
-							for index = 1, #self.applicants do
-								local applicantID = self.applicants[index];
-								local frame = self.ScrollBox:FindFrameByPredicate(function(frame, elementData)
-									return elementData.id == applicantID;
-								end);
-								
-								if (frame) then
-									applyHooksToLFGLFAVSBFn(button, applicantID);
-								end
-							end
-						end
-					end
-				end
-				
-				applyHooksToLFGLFAVSBFn2();
-				hooksecurefunc("LFGListApplicationViewer_UpdateApplicant", applyHooksToLFGLFAVSBFn2);
-				hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSB_OnEnter_Hook);
 			end
 		end
 	},
