@@ -1067,7 +1067,7 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- toggle options
 function tt:ToggleOptions()
 	local addOnName = MOD_NAME .. "Options";
-	local loaded, reason = LibFroznFunctions:LoadAddOn(addOnName);
+	local loaded, reason = C_AddOns.LoadAddOn(addOnName);
 	
 	if (loaded) then
 		local TipTacOptions = _G[addOnName];
@@ -1097,12 +1097,12 @@ LibFroznFunctions:RegisterAddOnCategory((function()
 		self.vers2:SetFontObject(GameFontHighlight);
 		self.vers2:SetJustifyH("LEFT");
 		self.vers2:SetPoint("TOPLEFT", self.vers1, "TOPRIGHT");
-		self.vers2:SetText(LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Version") .. "\n" .. GetBuildInfo());
+		self.vers2:SetText(C_AddOns.GetAddOnMetadata(MOD_NAME, "Version") .. "\n" .. GetBuildInfo());
 		
 		self.notes = self:CreateFontString(nil, "ARTWORK");
 		self.notes:SetFontObject(GameFontHighlight);
 		self.notes:SetPoint("TOPLEFT", self.vers1, "BOTTOMLEFT", 0, -8);
-		self.notes:SetText(LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Notes"));
+		self.notes:SetText(C_AddOns.GetAddOnMetadata(MOD_NAME, "Notes"));
 		
 		self.btnOptions = CreateFrame("Button", nil, self, "UIPanelButtonTemplate");
 		self.btnOptions:SetPoint("TOPLEFT", self.notes, "BOTTOMLEFT", -2, -8);
@@ -1182,7 +1182,7 @@ LibFroznFunctions:RegisterNewSlashCommands(MOD_NAME, { "/tip", "/tiptac" }, func
 	
 	-- invalid command
 	local versionWoW, build = GetBuildInfo();
-	local versionTipTac = LibFroznFunctions:GetAddOnMetadata(MOD_NAME, "Version");
+	local versionTipTac = C_AddOns.GetAddOnMetadata(MOD_NAME, "Version");
 	
 	UpdateAddOnMemoryUsage();
 	

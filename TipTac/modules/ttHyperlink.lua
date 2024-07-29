@@ -168,7 +168,7 @@ end
 function ttHyperlink:ShowTipForTypeBattlepetabil(chatFrame, refString, text)
 	-- make shure that PetJournalPrimaryAbilityTooltip and PetJournalSecondaryAbilityTooltip exist
 	if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
-		LibFroznFunctions:LoadAddOn("Blizzard_Collections");
+		C_AddOns.LoadAddOn("Blizzard_Collections");
 	end
 	
 	-- show tip
@@ -339,7 +339,7 @@ function ttHyperlink:ShowTipForTypeTransmogset(chatFrame, refString, text)
 	
 	-- makes shure that WardrobeCollectionFrame exists
 	if (not LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) then
-		LibFroznFunctions:LoadAddOn("Blizzard_Collections");
+		C_AddOns.LoadAddOn("Blizzard_Collections");
 	end
 	
 	-- show tooltip

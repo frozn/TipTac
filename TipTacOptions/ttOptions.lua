@@ -701,7 +701,7 @@ f.header:SetText(CreateTextureMarkup("Interface\\AddOns\\" .. PARENT_MOD_NAME ..
 
 f.vers = f:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 f.vers:SetPoint("TOPRIGHT",-15,-15);
-local versionTipTac = LibFroznFunctions:GetAddOnMetadata(PARENT_MOD_NAME, "Version");
+local versionTipTac = C_AddOns.GetAddOnMetadata(PARENT_MOD_NAME, "Version");
 local versionWoW, build = GetBuildInfo();
 f.vers:SetText(PARENT_MOD_NAME .. ": " .. versionTipTac .. "\nWoW: " .. versionWoW);
 f.vers:SetTextColor(1,1,0.5);

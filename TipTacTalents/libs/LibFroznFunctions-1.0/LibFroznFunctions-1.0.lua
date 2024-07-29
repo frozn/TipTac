@@ -177,49 +177,6 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.DF         and 395 or -- Lost Landcaller's Robes (Druid, Tier 29)
 	LibFroznFunctions.isWoWFlavor.TWW        and 571;   -- Hide of the Greatlynx (Druid, Tier 32)
 
--- get addon metadata
---
--- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
--- @param  field        field name (case insensitive), e.g. "Title", "Version" or "Notes"
--- @return value of the field in TOC metadata of an addon
-function LibFroznFunctions:GetAddOnMetadata(indexOrName, field)
-	-- since df 10.1.0
-	if (C_AddOns) and (C_AddOns.GetAddOnMetadata) then
-		return C_AddOns.GetAddOnMetadata(indexOrName, field);
-	end
-	
-	-- before df 10.1.0
-	return GetAddOnMetadata(indexOrName, field);
-end
-
--- load addon
---
--- @param  indexOrName     index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
--- @return loaded, reason  if the addon is succesfully loaded or was already loaded. locale-independent reason why the addon could not be loaded e.g. "DISABLED", otherwise returns nil if the addon was loaded.
-function LibFroznFunctions:LoadAddOn(indexOrName)
-	-- since df 10.2.0
-	if (C_AddOns) and (C_AddOns.LoadAddOn) then
-		return C_AddOns.LoadAddOn(indexOrName);
-	end
-	
-	-- before df 10.2.0
-	return LoadAddOn(indexOrName);
-end
-
--- is addon loaded
---
--- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
--- @return true if the addon is loaded, false otherwise.
-function LibFroznFunctions:IsAddOnLoaded(indexOrName)
-	-- since df 10.2.0
-	if (C_AddOns) and (C_AddOns.IsAddOnLoaded) then
-		return C_AddOns.IsAddOnLoaded(indexOrName);
-	end
-	
-	-- before df 10.2.0
-	return IsAddOnLoaded(indexOrName);
-end
-
 -- aura filters, see "AuraUtil.lua"
 LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
 	Helpful = "HELPFUL",
@@ -1566,7 +1523,7 @@ end
 -- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
 -- @return true if the addon finished loading, false otherwise.
 function LibFroznFunctions:IsAddOnFinishedLoading(indexOrName)
-	local loaded, finished = self:IsAddOnLoaded(indexOrName)
+	local loaded, finished = C_AddOns.IsAddOnLoaded(indexOrName)
 	
 	return loaded and finished;
 end
