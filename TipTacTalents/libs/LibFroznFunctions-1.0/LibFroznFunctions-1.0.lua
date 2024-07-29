@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 27; -- bump on changes
+local LIB_MINOR = 28; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -22,8 +22,6 @@ local LibFroznFunctions = LibStub:NewLibrary(LIB_NAME, LIB_MINOR);
 if (not LibFroznFunctions) then
 	return;
 end
-
-local IsAddOnLoaded = (C_AddOns and C_AddOns.IsAddOnLoaded) and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
 ----------------------------------------------------------------------------------------------------
 --                                           Table API                                            --
@@ -181,7 +179,7 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 
 -- get addon metadata
 --
--- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (case insensitive)
+-- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
 -- @param  field        field name (case insensitive), e.g. "Title", "Version" or "Notes"
 -- @return value of the field in TOC metadata of an addon
 function LibFroznFunctions:GetAddOnMetadata(indexOrName, field)
@@ -196,7 +194,7 @@ end
 
 -- load addon
 --
--- @param  indexOrName     index in the addon list (cannot query Blizzard addons by index) or name of the addon (case insensitive)
+-- @param  indexOrName     index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
 -- @return loaded, reason  if the addon is succesfully loaded or was already loaded. locale-independent reason why the addon could not be loaded e.g. "DISABLED", otherwise returns nil if the addon was loaded.
 function LibFroznFunctions:LoadAddOn(indexOrName)
 	-- since df 10.2.0
@@ -206,6 +204,20 @@ function LibFroznFunctions:LoadAddOn(indexOrName)
 	
 	-- before df 10.2.0
 	return LoadAddOn(indexOrName);
+end
+
+-- is addon loaded
+--
+-- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
+-- @return true if the addon is loaded, false otherwise.
+function LibFroznFunctions:IsAddOnLoaded(indexOrName)
+	-- since df 10.2.0
+	if (C_AddOns) and (C_AddOns.IsAddOnLoaded) then
+		return C_AddOns.IsAddOnLoaded(indexOrName);
+	end
+	
+	-- before df 10.2.0
+	return IsAddOnLoaded(indexOrName);
 end
 
 -- aura filters, see "AuraUtil.lua"
@@ -1551,10 +1563,10 @@ end
 
 -- is addon finished loading
 --
--- @param  indexOrName  index or name of the addon (as in TOC/folder filename), case insensitive
+-- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
 -- @return true if the addon finished loading, false otherwise.
 function LibFroznFunctions:IsAddOnFinishedLoading(indexOrName)
-	local loaded, finished = IsAddOnLoaded(indexOrName)
+	local loaded, finished = self:IsAddOnLoaded(indexOrName)
 	
 	return loaded and finished;
 end
