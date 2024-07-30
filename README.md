@@ -119,7 +119,7 @@ In [WowUp](https://wowup.io/), go to `Get Addons->Install From URL` and enter `h
 Get [latest release](https://github.com/frozn/TipTac/releases) and replace the folders `TipTac`, `TipTacItemRef`, `TipTacOptions` and `TipTacTalents` with those from the zip file.
 
 The War Within: `\World of Warcraft\_retail_\Interface\AddOns`  
-Cataclysm: `\World of Warcraft\_classic_\Interface\AddOns`  
+Cataclysm Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
 Classic Era: `\World of Warcraft\_classic_era_\Interface\AddOns`  
 
 ## Buy me a coffee
