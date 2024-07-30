@@ -873,7 +873,7 @@ end
 -- HOOK: GameTooltip:SetQuestItem
 local function SetQuestItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
+		local name, texture, numItems, quality, isUsable, itemID = GetQuestItemInfo(_type, index); -- see QuestInfoRewardItemMixin:OnEnter() in "QuestInfo.lua"
 		if (itemID) then
 			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
 			if (itemLink) then
@@ -890,7 +890,7 @@ end
 -- HOOK: GameTooltip:SetQuestLogItem
 local function SetQuestLogItem_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local isChoice = (_type == "choice"); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
+		local isChoice = (_type == "choice"); -- see QuestInfoRewardItemMixin:OnEnter() in "QuestInfo.lua"
 		local itemID, numItems;
 		if (isChoice) then
 			local name, texture, _numItems, quality, isUsable, _itemID = GetQuestLogChoiceInfo(index);
@@ -917,9 +917,9 @@ end
 -- HOOK: GameTooltip:SetQuestCurrency
 local function SetQuestCurrency_Hook(self, _type, index)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local currencyID = GetQuestCurrencyID(_type, index); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
-		local name, texture, quantity, quality = GetQuestCurrencyInfo(_type, index);
-		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
+		local currencyID = GetQuestCurrencyID(_type, index); -- see QuestInfoRewardItemMixin:OnEnter() in "QuestInfo.lua"
+		local questRewardCurrencyInfo = LibFroznFunctions:GetQuestCurrencyInfo(_type, index);
+		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, questRewardCurrencyInfo and questRewardCurrencyInfo.totalRewardAmount);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
 			if (_currencyID) then
@@ -933,15 +933,17 @@ end
 -- HOOK: GameTooltip:SetQuestLogCurrency
 local function SetQuestLogCurrency_Hook(self, _type, index, questID)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local _questID = questID or C_QuestLog_GetSelectedQuest(); -- see QuestInfoRewardItemCodeTemplate_OnEnter() in "QuestInfo.lua"
+		local _questID = questID or C_QuestLog_GetSelectedQuest(); -- see QuestInfoRewardItemMixin:OnEnter() in "QuestInfo.lua"
 		local isChoice = (_type == "choice");
-		local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(index, _questID, isChoice);
-		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
-		if (link) then
-			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
-			if (_currencyID) then
-				tipDataAdded[gtt] = linkType;
-				LinkTypeFuncs.currency(gtt, link, linkType, _currencyID, _quantity);
+		local questRewardCurrencyInfo = LibFroznFunctions:GetQuestLogRewardCurrencyInfo(_questID, index, isChoice);
+		if (questRewardCurrencyInfo) then
+			local link = C_CurrencyInfo_GetCurrencyLink(questRewardCurrencyInfo.currencyID, questRewardCurrencyInfo.totalRewardAmount);
+			if (link) then
+				local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
+				if (_currencyID) then
+					tipDataAdded[gtt] = linkType;
+					LinkTypeFuncs.currency(gtt, link, linkType, _currencyID, _quantity);
+				end
 			end
 		end
 	end

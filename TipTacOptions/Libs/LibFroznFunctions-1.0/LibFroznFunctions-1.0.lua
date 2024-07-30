@@ -716,6 +716,60 @@ function LibFroznFunctions:HasPetSpells()
 	return HasPetSpells();
 end
 
+-- get quest currency info
+--
+-- @param  itemType       category of the currency to query. currently "reward" is the only category in use for currencies.
+-- @param  currencyIndex  index of the currency to query, in the range [1, before tww 11.0.0: GetNumRewardCurrencies(); since tww 11.0.0: #C_QuestInfoSystem.GetQuestRewardCurrencies()].
+-- @return questRewardCurrencyInfo
+function LibFroznFunctions:GetQuestCurrencyInfo(itemType, index)
+	-- since tww 11.0.0
+	if (C_QuestOffer) and (C_QuestOffer.GetQuestRewardCurrencyInfo) then
+		return C_QuestOffer.GetQuestRewardCurrencyInfo(itemType, index);
+	end
+	
+	-- before tww 11.0.0
+	local name, texture, quantity, quality = GetQuestCurrencyInfo(itemType, index);
+	local currencyID = GetQuestCurrencyID(itemType, index);
+	
+	return {
+		texture = texture,
+		name = name,
+		currencyID = currencyID,
+		quality = quality,
+		baseRewardAmount = nil,
+		bonusRewardAmount = nil,
+		totalRewardAmount = quantity,
+		questRewardContextFlags = nil
+	};
+end
+
+-- get quest log reward currency info
+--
+-- @param  questID        quest id
+-- @param  currencyIndex  index of the currency to query, in the range [1, before tww 11.0.0: GetNumQuestLogRewardCurrencies(); since tww 11.0.0: #C_QuestInfoSystem.GetQuestRewardCurrencies()].
+-- @param  isChoice       true if reward is choice reward
+-- @return questRewardCurrencyInfo
+function LibFroznFunctions:GetQuestLogRewardCurrencyInfo(questID, currencyIndex, isChoice)
+	-- since tww 11.0.0
+	if (C_QuestLog) and (C_QuestLog.GetQuestRewardCurrencyInfo) then
+		return C_QuestLog.GetQuestRewardCurrencyInfo(questID, currencyIndex, isChoice);
+	end
+	
+	-- before tww 11.0.0
+	local name, texture, quantity, currencyID, quality = GetQuestLogRewardCurrencyInfo(currencyIndex, questID, isChoice);
+	
+	return {
+		texture = texture,
+		name = name,
+		currencyID = currencyID,
+		quality = quality,
+		baseRewardAmount = nil,
+		bonusRewardAmount = nil,
+		totalRewardAmount = quantity,
+		questRewardContextFlags = nil
+	};
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
 ----------------------------------------------------------------------------------------------------
