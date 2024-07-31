@@ -721,15 +721,15 @@ end
 -- @param  itemType       category of the currency to query. currently "reward" is the only category in use for currencies.
 -- @param  currencyIndex  index of the currency to query, in the range [1, before tww 11.0.0: GetNumRewardCurrencies(); since tww 11.0.0: #C_QuestInfoSystem.GetQuestRewardCurrencies()].
 -- @return questRewardCurrencyInfo
-function LibFroznFunctions:GetQuestCurrencyInfo(itemType, index)
+function LibFroznFunctions:GetQuestCurrencyInfo(itemType, currencyIndex)
 	-- since tww 11.0.0
 	if (C_QuestOffer) and (C_QuestOffer.GetQuestRewardCurrencyInfo) then
-		return C_QuestOffer.GetQuestRewardCurrencyInfo(itemType, index);
+		return C_QuestOffer.GetQuestRewardCurrencyInfo(itemType, currencyIndex);
 	end
 	
 	-- before tww 11.0.0
-	local name, texture, quantity, quality = GetQuestCurrencyInfo(itemType, index);
-	local currencyID = GetQuestCurrencyID(itemType, index);
+	local name, texture, quantity, quality = GetQuestCurrencyInfo(itemType, currencyIndex);
+	local currencyID = GetQuestCurrencyID(itemType, currencyIndex);
 	
 	return {
 		texture = texture,
