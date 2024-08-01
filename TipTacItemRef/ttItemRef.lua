@@ -688,7 +688,7 @@ local function SetMountBySpellID_Hook(self, spellID)
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
 				if (_spellID) then
 					tipDataAdded[self] = linkType;
-					LinkTypeFuncs.spell(self, false, source, link, linkType, _spellID);
+					LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
 				end
 			end
 		end
@@ -2696,12 +2696,12 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	end
 	
 	-- Caster
-	local showAuraCaster = (cfg.if_showAuraCaster and UnitExists(source));
+	local showAuraCaster = (isAura and cfg.if_showAuraCaster and UnitExists(source));
 	
 	if (showAuraCaster) then
 		local sourceName = UnitName(source);
 		
-		if (sourceName) and (sourceName ~= TTIF_UnknownObject and sourceName ~= "" or UnitExists(source)) then
+		if (sourceName) and (sourceName ~= TTIF_UnknownObject and sourceName ~= "") then
 			local colorAuraCaster;
 			
 			if (UnitIsPlayer(source)) and (cfg.if_colorAuraCasterByClass) then
