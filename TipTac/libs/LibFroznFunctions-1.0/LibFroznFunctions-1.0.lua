@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 28; -- bump on changes
+local LIB_MINOR = 29; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1445,15 +1445,37 @@ end
 function LibFroznFunctions:OpenAddOnCategory(categoryName, subcategoryName)
 	-- since df 10.0.0 and wotlkc 3.4.2
 	if (Settings) and (Settings.OpenToCategory) then
+		-- open category
 		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
-			for index, category in ipairs(tbl.categories) do
+			local categories = tbl.categories;
+			
+			for index, category in ipairs(categories) do
 				if (category:GetName() == categoryName) then
-					Settings.OpenToCategory(category:GetID(), category:GetName());
+					Settings.OpenToCategory(category:GetID());
 					
+					-- scroll to category (see OnSelectionChanged() in "Blizzard_CategoryList.lua"
+					local categoryList = SettingsPanel:GetCategoryList();
+					local categoryElementData = categoryList:FindCategoryElementData(category)
+					
+					if (categoryElementData) then
+						categoryList.ScrollBox:ScrollToElementData(categoryElementData, ScrollBoxConstants.AlignNearest);
+					end
+					
+					-- open subcategory
 					if (subcategoryName) then
-						for index, subcategory in ipairs(category:GetSubcategories()) do
+						local subCategories = category:GetSubcategories();
+						
+						for index, subcategory in ipairs(subCategories) do
 							if (subcategory:GetName() == subcategoryName) then
 								SettingsPanel:SelectCategory(subcategory);
+								
+								-- scroll to category (see OnSelectionChanged() in "Blizzard_CategoryList.lua"
+								local subCategoryElementData = categoryList:FindCategoryElementData(subcategory)
+								
+								if (subCategoryElementData) then
+									categoryList.ScrollBox:ScrollToElementData(subCategoryElementData, ScrollBoxConstants.AlignNearest);
+								end
+								
 								return;
 							end
 						end
