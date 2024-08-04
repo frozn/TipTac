@@ -1453,7 +1453,7 @@ function LibFroznFunctions:OpenAddOnCategory(categoryName, subcategoryName)
 				if (category:GetName() == categoryName) then
 					Settings.OpenToCategory(category:GetID());
 					
-					-- scroll to category (see OnSelectionChanged() in "Blizzard_CategoryList.lua"
+					-- scroll to category, see OnSelectionChanged() in "Blizzard_CategoryList.lua"
 					local categoryList = SettingsPanel:GetCategoryList();
 					local categoryElementData = categoryList:FindCategoryElementData(category)
 					
@@ -1469,7 +1469,7 @@ function LibFroznFunctions:OpenAddOnCategory(categoryName, subcategoryName)
 							if (subcategory:GetName() == subcategoryName) then
 								SettingsPanel:SelectCategory(subcategory);
 								
-								-- scroll to category (see OnSelectionChanged() in "Blizzard_CategoryList.lua"
+								-- scroll to category, see OnSelectionChanged() in "Blizzard_CategoryList.lua"
 								local subCategoryElementData = categoryList:FindCategoryElementData(subcategory)
 								
 								if (subCategoryElementData) then
