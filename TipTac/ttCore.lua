@@ -778,7 +778,7 @@ TT_ExtendedConfig.tipsToModify = {
 };
 
 for i = 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
-	TT_ExtendedConfig.tipsToModify[MOD_NAME].frames["DropDownList" .. i] = { applyAppearance = true, applyScaling = false, applyAnchor = true }; -- #test: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "UIDropDownMenu.lua"
+	TT_ExtendedConfig.tipsToModify[MOD_NAME].frames["DropDownList" .. i] = { applyAppearance = true, applyScaling = false, applyAnchor = true }; -- #todo: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "UIDropDownMenu.lua"
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -814,10 +814,14 @@ local TT_TipsToModifyFromOtherMods = {};
 -- 1st key = real frame
 --
 -- params for 1st key:
--- frameName             frame name, nil for anonymous frames without a parent.
--- config                see params from "TT_ExtendedConfig.tipsToModify"
--- currentDisplayParams  current display parameters
--- gradient              optional. gradient texture for frame
+-- frameName                                   frame name, nil for anonymous frames without a parent.
+-- config                                      see params from "TT_ExtendedConfig.tipsToModify"
+-- originalLeftOffsetForPreventingOffScreen    original left offset for preventing additional elements from moving off-screen
+-- originalRightOffsetForPreventingOffScreen   original right offset for preventing additional elements from moving off-screen
+-- originalTopOffsetForPreventingOffScreen     original top offset for preventing additional elements from moving off-screen
+-- originalBottomOffsetForPreventingOffScreen  original bottom offset for preventing additional elements from moving off-screen
+-- currentDisplayParams                        current display parameters
+-- gradient                                    optional. gradient texture for frame
 
 -- params for 2nd key (currentDisplayParams):
 -- isSet                                         true if current display parameters are set, false otherwise.
@@ -838,10 +842,7 @@ local TT_TipsToModifyFromOtherMods = {};
 -- extraPaddingRightForCloseButton               value for extra padding right to fit close button, nil otherwise.
 -- extraPaddingBottomForBars                     value for extra padding bottom to fit health/power bars, nil otherwise.
 --
--- originalLeftOffsetForPreventingOffScreen      original left offset for preventing additional elements from moving off-screen
--- originalRightOffsetForPreventingOffScreen     original right offset for preventing additional elements from moving off-screen
--- originalTopOffsetForPreventingOffScreen       original top offset for preventing additional elements from moving off-screen
--- originalBottomOffsetForPreventingOffScreen    original bottom offset for preventing additional elements from moving off-screen
+-- modifiedOffsetsForPreventingOffScreen         modified offsets for preventing additional elements from moving off-screen
 --
 -- defaultAnchored                               true if tip is default anchored, false otherwise.
 -- defaultAnchoredParentFrame                    tip's parent frame if default anchored, nil otherwise.
@@ -1047,37 +1048,38 @@ tt:RegisterEvent("PLAYER_LOGIN");
 
 -- group events: TipTac (see MOD_NAME)
 --
--- eventName                           description                                                                    additional payload
--- ----------------------------------  -----------------------------------------------------------------------------  ------------------------------------------------------------
--- OnConfigLoaded                      config has been loaded                                                         TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyConfig                       config settings need to be applied                                             TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied                     TT_CacheForFrames, cfg, TT_ExtendedConfig
---                                                                                                                    
--- OnTipAddedToCache                   tooltip has been added to cache for frames                                     TT_CacheForFrames, tooltip
---                                                                                                                    
--- OnTipSetCurrentDisplayParams        tooltip's current display parameters has to be set                             TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
--- OnTipPostSetCurrentDisplayParams    after tooltip's current display parameters has to be set                       TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
---                                                                                                                    
--- OnTipSetHidden                      check if tooltip needs to be hidden                                            TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
--- OnTipSetStyling                     tooltip's styling needs to be set                                              TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
---                                                                                                                    
--- OnUnitTipPreStyle                   before unit tooltip is being styled                                            TT_CacheForFrames, tooltip, currentDisplayParams, first
--- OnUnitTipStyle                      unit tooltip is being styled                                                   TT_CacheForFrames, tooltip, currentDisplayParams, first
--- OnUnitTipResize                     unit tooltip is being resized                                                  TT_CacheForFrames, tooltip, currentDisplayParams, first
--- OnUnitTipPostStyle                  after unit tooltip has been styled and has the final size                      TT_CacheForFrames, tooltip, currentDisplayParams, first
---                                                                                                                    
--- OnTipRescaled                       tooltip has been rescaled                                                      TT_CacheForFrames, tooltip, currentDisplayParams
---                                                                                                                    
--- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset                           TT_CacheForFrames, tooltip, currentDisplayParams
--- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset                     TT_CacheForFrames, tooltip, currentDisplayParams
---                                                                                                                    
--- SetDefaultAnchorHook                hook for set default anchor to tip                                             tooltip, parent
--- SetBackdropBorderColorLocked        set backdrop border color locked to tip                                        tooltip, r, g, b, a
---                                                                                                                    
--- OnPlayerRegenEnabled                player regen has been enabled (after ending combat)                            TT_CacheForFrames
--- OnPlayerRegenDisabled               player regen has been disabled (whenever entering combat)                      TT_CacheForFrames
--- OnUpdateBonusActionbar              bonus bar has been updated                                                     TT_CacheForFrames
--- OnModifierStateChanged              modifier state has been changed (shift/ctrl/alt keys are pressed or released)  TT_CacheForFrames
+-- eventName                           description                                                                             additional payload
+-- ----------------------------------  --------------------------------------------------------------------------------------  ------------------------------------------------------------
+-- OnConfigLoaded                      config has been loaded                                                                  TT_CacheForFrames, cfg, TT_ExtendedConfig
+-- OnApplyConfig                       config settings need to be applied                                                      TT_CacheForFrames, cfg, TT_ExtendedConfig
+-- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied                              TT_CacheForFrames, cfg, TT_ExtendedConfig
+--                                                                                                                             
+-- OnTipAddedToCache                   tooltip has been added to cache for frames                                              TT_CacheForFrames, tooltip
+--                                                                                                                             
+-- OnTipSetCurrentDisplayParams        tooltip's current display parameters has to be set                                      TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+-- OnTipPostSetCurrentDisplayParams    after tooltip's current display parameters has to be set                                TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+--                                                                                                                             
+-- OnTipSetHidden                      check if tooltip needs to be hidden                                                     TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+-- OnTipSetStyling                     tooltip's styling needs to be set                                                       TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+--                                                                                                                             
+-- OnUnitTipPreStyle                   before unit tooltip is being styled                                                     TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnUnitTipStyle                      unit tooltip is being styled                                                            TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnUnitTipResize                     unit tooltip is being resized                                                           TT_CacheForFrames, tooltip, currentDisplayParams, first
+-- OnUnitTipPostStyle                  after unit tooltip has been styled and has the final size                               TT_CacheForFrames, tooltip, currentDisplayParams, first
+--                                                                                                                             
+-- OnTipRescaled                       tooltip has been rescaled                                                               TT_CacheForFrames, tooltip, currentDisplayParams
+--                                                                                                                             
+-- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset                                    TT_CacheForFrames, tooltip, currentDisplayParams
+-- OnTipPostResetCurrentDisplayParams  after tooltip's current display parameters has to be reset                              TT_CacheForFrames, tooltip, currentDisplayParams
+--                                                                                                                             
+-- SetDefaultAnchorHook                hook for set default anchor to tip                                                      tooltip, parent
+-- SetClampRectInsetsToTip             set clamp rect insets to tip for preventing additional elements from moving off-screen  tooltip, left, right, top, bottom
+-- SetBackdropBorderColorLocked        set backdrop border color locked to tip                                                 tooltip, r, g, b, a
+--                                                                                                                             
+-- OnPlayerRegenEnabled                player regen has been enabled (after ending combat)                                     TT_CacheForFrames
+-- OnPlayerRegenDisabled               player regen has been disabled (whenever entering combat)                               TT_CacheForFrames
+-- OnUpdateBonusActionbar              bonus bar has been updated                                                              TT_CacheForFrames
+-- OnModifierStateChanged              modifier state has been changed (shift/ctrl/alt keys are pressed or released)           TT_CacheForFrames
 
 ----------------------------------------------------------------------------------------------------
 --                                       Interface Options                                        --
@@ -2785,6 +2787,7 @@ end
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	SetBackdropBorderColorLocked = function(self, tip, r, g, b, a)
+		-- set backdrop border color locked
 		tt:SetBackdropBorderColorLocked(tip, r, g, b, a);
 	end
 }, MOD_NAME .. " - Color Locking Feature");
@@ -2793,24 +2796,66 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 --                       Prevent additional elements from moving off-screen                       --
 ----------------------------------------------------------------------------------------------------
 
+-- SetClampRectInsetsToTip          set clamp rect insets to tip                                                tooltip, left, right, top, bottom
+
+
+-- set clamp rect insets to tip for preventing additional elements from moving off-screen
+function tt:SetClampRectInsetsToTip(tip, left, right, top, bottom)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	-- set current display params for preventing additional elements from moving off-screen
+	currentDisplayParams.modifiedOffsetsForPreventingOffScreen = true;
+	
+	-- set clamp rect insets to tip for preventing additional elements from moving off-screen
+	tip:SetClampRectInsets(left, right, top, bottom);
+end
+
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
-	OnTipSetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
-		-- set current display params for preventing additional elements from moving off-screen
-		if (not tip:IsForbidden()) then
-			currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = tip:GetClampRectInsets();
-		else
-			currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = nil, nil, nil, nil;
+	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- get frame parameters
+		local frameParams = TT_CacheForFrames[tip];
+		
+		if (not frameParams) then
+			return;
 		end
+		
+		-- set original left/right/top/bottom offset for preventing additional elements from moving off-screen
+		frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen = tip:GetClampRectInsets();
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- get current display parameters
+		local frameParams = TT_CacheForFrames[tip];
+		
+		if (not frameParams) then
+			return;
+		end
+		
+		local currentDisplayParams = frameParams.currentDisplayParams;
+		
 		-- restore original offsets for preventing additional elements from moving off-screen
-		if (not tip:IsForbidden()) and (currentDisplayParams.originalLeftOffsetForPreventingOffScreen) and (currentDisplayParams.originalRightOffsetForPreventingOffScreen) and (currentDisplayParams.originalTopOffsetForPreventingOffScreen) and (currentDisplayParams.originalBottomOffsetForPreventingOffScreen) then
-			tip:SetClampRectInsets(currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen);
+		if (not tip:IsForbidden()) and (currentDisplayParams.modifiedOffsetsForPreventingOffScreen) then
+			tip:SetClampRectInsets(frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen);
 		end
 		
 		-- reset current display params for preventing additional elements from moving off-screen
-		currentDisplayParams.originalLeftOffsetForPreventingOffScreen, currentDisplayParams.originalRightOffsetForPreventingOffScreen, currentDisplayParams.originalTopOffsetForPreventingOffScreen, currentDisplayParams.originalBottomOffsetForPreventingOffScreen = nil, nil, nil, nil;
+		currentDisplayParams.modifiedOffsetsForPreventingOffScreen = nil;
+	end,
+	SetClampRectInsetsToTip = function(self, tip, left, right, top, bottom)
+		-- set clamp rect insets to tip for preventing additional elements from moving off-screen
+		tt:SetClampRectInsetsToTip(tip, left, right, top, bottom);
 	end
 }, MOD_NAME .. " - Preventing Off-Screen");
 
