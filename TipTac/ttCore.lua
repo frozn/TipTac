@@ -246,18 +246,18 @@ local TT_DefaultConfig = {
 	anchorFrameTipTypeInCombat = "normal",
 	anchorFrameTipPointInCombat = "BOTTOMRIGHT",
 	
-	enableAnchorOverrideWorldUnitDuringDragonriding = false,
-	anchorWorldUnitTypeDuringDragonriding = "normal",
-	anchorWorldUnitPointDuringDragonriding = "BOTTOMRIGHT",
-	enableAnchorOverrideWorldTipDuringDragonriding = false,
-	anchorWorldTipTypeDuringDragonriding = "normal",
-	anchorWorldTipPointDuringDragonriding = "BOTTOMRIGHT",
-	enableAnchorOverrideFrameUnitDuringDragonriding = false,
-	anchorFrameUnitTypeDuringDragonriding = "normal",
-	anchorFrameUnitPointDuringDragonriding = "BOTTOMRIGHT",
-	enableAnchorOverrideFrameTipDuringDragonriding = false,
-	anchorFrameTipTypeDuringDragonriding = "normal",
-	anchorFrameTipPointDuringDragonriding = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldUnitDuringSkyriding = false,
+	anchorWorldUnitTypeDuringSkyriding = "normal",
+	anchorWorldUnitPointDuringSkyriding = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldTipDuringSkyriding = false,
+	anchorWorldTipTypeDuringSkyriding = "normal",
+	anchorWorldTipPointDuringSkyriding = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameUnitDuringSkyriding = false,
+	anchorFrameUnitTypeDuringSkyriding = "normal",
+	anchorFrameUnitPointDuringSkyriding = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameTipDuringSkyriding = false,
+	anchorFrameTipTypeDuringSkyriding = "normal",
+	anchorFrameTipPointDuringSkyriding = "BOTTOMRIGHT",
 	
 	enableAnchorOverrideCF = false,
 	anchorOverrideCFType = "normal",
@@ -285,14 +285,14 @@ local TT_DefaultConfig = {
 	hideTipsInCombatItemTips = false,
 	hideTipsInCombatActionTips = false,
 	
-	hideTipsDuringDragonridingWorldUnits = false,
-	hideTipsDuringDragonridingFrameUnits = false,
-	hideTipsDuringDragonridingWorldTips = false,
-	hideTipsDuringDragonridingFrameTips = false,
-	hideTipsDuringDragonridingUnitTips = false,
-	hideTipsDuringDragonridingSpellTips = false,
-	hideTipsDuringDragonridingItemTips = false,
-	hideTipsDuringDragonridingActionTips = false,
+	hideTipsDuringSkyridingWorldUnits = false,
+	hideTipsDuringSkyridingFrameUnits = false,
+	hideTipsDuringSkyridingWorldTips = false,
+	hideTipsDuringSkyridingFrameTips = false,
+	hideTipsDuringSkyridingUnitTips = false,
+	hideTipsDuringSkyridingSpellTips = false,
+	hideTipsDuringSkyridingItemTips = false,
+	hideTipsDuringSkyridingActionTips = false,
 	
 	showHiddenModifierKey = "shift",
 	
@@ -1013,6 +1013,9 @@ function tt:ADDON_LOADED(event, addOnName, containsBindings)
 	-- setup config
 	self:SetupConfig();
 	
+	-- inform group that the config is about to be loaded
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnConfigPreLoaded", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	
 	-- inform group that the config has been loaded
 	TT_IsConfigLoaded = true;
 	
@@ -1050,6 +1053,7 @@ tt:RegisterEvent("PLAYER_LOGIN");
 --
 -- eventName                           description                                                                             additional payload
 -- ----------------------------------  --------------------------------------------------------------------------------------  ------------------------------------------------------------
+-- OnConfigPreLoaded                   before config has been loaded                                                           TT_CacheForFrames, cfg, TT_ExtendedConfig
 -- OnConfigLoaded                      config has been loaded                                                                  TT_CacheForFrames, cfg, TT_ExtendedConfig
 -- OnApplyConfig                       config settings need to be applied                                                      TT_CacheForFrames, cfg, TT_ExtendedConfig
 -- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied                              TT_CacheForFrames, cfg, TT_ExtendedConfig
@@ -3028,13 +3032,13 @@ function tt:GetAnchorPosition(tip)
 	local anchorFrameName = (mouseFocus == WorldFrame and "World" or "Frame") .. (isUnit and "Unit" or "Tip");
 	local var = "anchor" .. anchorFrameName;
 	
-	-- consider anchor override for in combat or during dragonriding
+	-- consider anchor override for in combat or during skyriding
 	local anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"] and UnitAffectingCombat("player") and "InCombat" or "");
 	
 	if (anchorOverride == "") then
-		local bonusBarIndex = GetBonusBarIndex(); -- dragonriding bonus bar is 11
+		local bonusBarIndex = GetBonusBarIndex(); -- skyriding bonus bar is 11
 		
-		anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringDragonriding"] and (bonusBarIndex == 11) and "DuringDragonriding" or "");
+		anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringSkyriding"] and (bonusBarIndex == 11) and "DuringSkyriding" or "");
 	end
 	
 	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverride], cfg[var .. "Point" .. anchorOverride];
@@ -3712,13 +3716,13 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
-		-- consider hiding tips in combat or during dragonriding
+		-- consider hiding tips in combat or during skyriding
 		local hidingTip = (UnitAffectingCombat("player") and "InCombat" or "");
 		
 		if (hidingTip == "") then
-			local bonusBarIndex = GetBonusBarIndex(); -- dragonriding bonus bar is 11
+			local bonusBarIndex = GetBonusBarIndex(); -- skyriding bonus bar is 11
 			
-			hidingTip = ((bonusBarIndex == 11) and "DuringDragonriding" or "");
+			hidingTip = ((bonusBarIndex == 11) and "DuringSkyriding" or "");
 		end
 		
 		if (currentDisplayParams.anchorFrameName) then
@@ -3736,3 +3740,94 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		end
 	end
 }, MOD_NAME .. " - Hide Tips");
+
+----------------------------------------------------------------------------------------------------
+--                                    Upgrading TipTac_Config                                     --
+----------------------------------------------------------------------------------------------------
+
+-- register for group events
+LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnConfigPreLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- consider upgrading TipTac_Config on version change (necessary if e.g. options are renamed or reused differently)
+		local versionTipTacWithConfigChanges;
+		
+		-- changes in config with 24.08.05:
+		--
+		-- - renamed options with "Dragonriding" to "Skyriding":
+		--   enableAnchorOverrideWorldUnitDuringDragonriding -> enableAnchorOverrideWorldUnitDuringSkyriding
+		--   anchorWorldUnitTypeDuringDragonriding           -> anchorWorldUnitTypeDuringSkyriding
+		--   anchorWorldUnitPointDuringDragonriding          -> anchorWorldUnitPointDuringSkyriding
+		--   enableAnchorOverrideWorldTipDuringDragonriding  -> enableAnchorOverrideWorldTipDuringSkyriding
+		--   anchorWorldTipTypeDuringDragonriding            -> anchorWorldTipTypeDuringSkyriding
+		--   anchorWorldTipPointDuringDragonriding           -> anchorWorldTipPointDuringSkyriding
+		--   enableAnchorOverrideFrameUnitDuringDragonriding -> enableAnchorOverrideFrameUnitDuringSkyriding
+		--   anchorFrameUnitTypeDuringDragonriding           -> anchorFrameUnitTypeDuringSkyriding
+		--   anchorFrameUnitPointDuringDragonriding          -> anchorFrameUnitPointDuringSkyriding
+		--   enableAnchorOverrideFrameTipDuringDragonriding  -> enableAnchorOverrideFrameTipDuringSkyriding
+		--   anchorFrameTipTypeDuringDragonriding            -> anchorFrameTipTypeDuringSkyriding
+		--   anchorFrameTipPointDuringDragonriding           -> anchorFrameTipPointDuringSkyriding
+		--
+		--   hideTipsDuringDragonridingWorldUnits -> hideTipsDuringSkyridingWorldUnits
+		--   hideTipsDuringDragonridingFrameUnits -> hideTipsDuringSkyridingFrameUnits
+		--   hideTipsDuringDragonridingWorldTips  -> hideTipsDuringSkyridingWorldTips
+		--   hideTipsDuringDragonridingFrameTips  -> hideTipsDuringSkyridingFrameTips
+		--   hideTipsDuringDragonridingUnitTips   -> hideTipsDuringSkyridingUnitTips
+		--   hideTipsDuringDragonridingSpellTips  -> hideTipsDuringSkyridingSpellTips
+		--   hideTipsDuringDragonridingItemTips   -> hideTipsDuringSkyridingItemTips
+		--   hideTipsDuringDragonridingActionTips -> hideTipsDuringSkyridingActionTips
+		versionTipTacWithConfigChanges = "24.08.05";
+		
+		if (not cfg.version_TipTac_Config) or (cfg.version_TipTac_Config < versionTipTacWithConfigChanges) then
+			-- changes in config with 24.08.05
+			cfg.enableAnchorOverrideWorldUnitDuringSkyriding = cfg.enableAnchorOverrideWorldUnitDuringDragonriding;
+			cfg.enableAnchorOverrideWorldUnitDuringDragonriding = nil;
+			cfg.anchorWorldUnitTypeDuringSkyriding = cfg.anchorWorldUnitTypeDuringDragonriding;
+			cfg.anchorWorldUnitTypeDuringDragonriding = nil;
+			cfg.anchorWorldUnitPointDuringSkyriding = cfg.anchorWorldUnitPointDuringDragonriding;
+			cfg.anchorWorldUnitPointDuringDragonriding = nil;
+			cfg.enableAnchorOverrideWorldTipDuringSkyriding = cfg.enableAnchorOverrideWorldTipDuringDragonriding;
+			cfg.enableAnchorOverrideWorldTipDuringDragonriding = nil;
+			cfg.anchorWorldTipTypeDuringSkyriding = cfg.anchorWorldTipTypeDuringDragonriding;
+			cfg.anchorWorldTipTypeDuringDragonriding = nil;
+			cfg.anchorWorldTipPointDuringSkyriding = cfg.anchorWorldTipPointDuringDragonriding;
+			cfg.anchorWorldTipPointDuringDragonriding = nil;
+			cfg.enableAnchorOverrideFrameUnitDuringSkyriding = cfg.enableAnchorOverrideFrameUnitDuringDragonriding;
+			cfg.enableAnchorOverrideFrameUnitDuringDragonriding = nil;
+			cfg.anchorFrameUnitTypeDuringSkyriding = cfg.anchorFrameUnitTypeDuringDragonriding;
+			cfg.anchorFrameUnitTypeDuringDragonriding = nil;
+			cfg.anchorFrameUnitPointDuringSkyriding = cfg.anchorFrameUnitPointDuringDragonriding;
+			cfg.anchorFrameUnitPointDuringDragonriding = nil;
+			cfg.enableAnchorOverrideFrameTipDuringSkyriding = cfg.enableAnchorOverrideFrameTipDuringDragonriding;
+			cfg.enableAnchorOverrideFrameTipDuringDragonriding = nil;
+			cfg.anchorFrameTipTypeDuringSkyriding = cfg.anchorFrameTipTypeDuringDragonriding;
+			cfg.anchorFrameTipTypeDuringDragonriding = nil;
+			cfg.anchorFrameTipPointDuringSkyriding = cfg.anchorFrameTipPointDuringDragonriding;
+			cfg.anchorFrameTipPointDuringDragonriding = nil;
+			
+			cfg.hideTipsDuringSkyridingWorldUnits = cfg.hideTipsDuringDragonridingWorldUnits;
+			cfg.hideTipsDuringDragonridingWorldUnits = nil;
+			cfg.hideTipsDuringSkyridingFrameUnits = cfg.hideTipsDuringDragonridingFrameUnits;
+			cfg.hideTipsDuringDragonridingFrameUnits = nil;
+			cfg.hideTipsDuringSkyridingWorldTips = cfg.hideTipsDuringDragonridingWorldTips;
+			cfg.hideTipsDuringDragonridingWorldTips = nil;
+			cfg.hideTipsDuringSkyridingFrameTips = cfg.hideTipsDuringDragonridingFrameTips;
+			cfg.hideTipsDuringDragonridingFrameTips = nil;
+			cfg.hideTipsDuringSkyridingUnitTips = cfg.hideTipsDuringDragonridingUnitTips;
+			cfg.hideTipsDuringDragonridingUnitTips = nil;
+			cfg.hideTipsDuringSkyridingSpellTips = cfg.hideTipsDuringDragonridingSpellTips;
+			cfg.hideTipsDuringDragonridingSpellTips = nil;
+			cfg.hideTipsDuringSkyridingItemTips = cfg.hideTipsDuringDragonridingItemTips;
+			cfg.hideTipsDuringDragonridingItemTips = nil;
+			cfg.hideTipsDuringSkyridingActionTips = cfg.hideTipsDuringDragonridingActionTips;
+			cfg.hideTipsDuringDragonridingActionTips = nil;
+			
+			-- set version of TipTac_Config to version with config changes
+			cfg.version_TipTac_Config = versionTipTacWithConfigChanges;
+		end
+		
+		-- set version of TipTac_Config to current version
+		local versionTipTac = C_AddOns.GetAddOnMetadata(MOD_NAME, "Version");
+		
+		cfg.version_TipTac_Config = versionTipTac;
+	end
+}, MOD_NAME .. " - Options Module TEMP");

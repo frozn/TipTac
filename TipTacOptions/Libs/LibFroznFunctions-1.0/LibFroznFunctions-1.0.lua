@@ -116,7 +116,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .relatedExpansionForItemAvailable                           = true/false if C_Item.GetItemInfo() return the related expansion for an item (parameter expansionID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 and catac 4.4.0 "UISliderTemplateWithLabels")
---         .dragonriding                                               = true/false if dragonriding is available (since df)
+--         .skyriding                                                  = true/false if skyriding is available (since df 10.0.2)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
@@ -135,7 +135,7 @@ LibFroznFunctions.hasWoWFlavor = {
 	relatedExpansionForItemAvailable = true,
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
-	dragonriding = (GetAchievementInfo(15794) and true or false) -- see DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID in "Blizzard_DragonflightLandingPage.lua"
+	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false) -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
 };
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
@@ -168,6 +168,9 @@ if (LibFroznFunctions.isWoWFlavor.CataC) then
 end
 if (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 0;
+end
+if (LibFroznFunctions.isWoWFlavor.DF) then
+	LibFroznFunctions.hasWoWFlavor.skyriding = (GetAchievementInfo(15794) and true or false) -- see DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID in "Blizzard_DragonflightLandingPage.lua"
 end
 LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet = 
 	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)

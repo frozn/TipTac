@@ -191,24 +191,24 @@ local ttOptionsAnchors = {
 	{ type = "DropDown", var = "anchorFrameTipPointInCombat", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameTipInCombat") end }
 };
 
-if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
-	tinsert(ttOptionsAnchors, { type = "Header", label = "Anchor Overrides During Dragonriding", tip = "Special anchor overrides during dragonriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
+if (LibFroznFunctions.hasWoWFlavor.skyriding) then
+	tinsert(ttOptionsAnchors, { type = "Header", label = "Anchor Overrides During Skyriding", tip = "Special anchor overrides during skyriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
 
-	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldUnitDuringDragonriding", label = "World Unit during dragonriding", tip = "This option will override the anchor for World Unit during dragonriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitTypeDuringDragonriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldUnitDuringDragonriding") end });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitPointDuringDragonriding", label = "World Unit Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldUnitDuringDragonriding") end });
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldUnitDuringSkyriding", label = "World Unit during skyriding", tip = "This option will override the anchor for World Unit during skyriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitTypeDuringSkyriding", label = "World Unit Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldUnitDuringSkyriding") end });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldUnitPointDuringSkyriding", label = "World Unit Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldUnitDuringSkyriding") end });
 	
-	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldTipDuringDragonriding", label = "World Tip during dragonriding", tip = "This option will override the anchor for World Tip during dragonriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end, y = 10 });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldTipTypeDuringDragonriding", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldTipDuringDragonriding") end });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldTipPointDuringDragonriding", label = "World Tip Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldTipDuringDragonriding") end });
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideWorldTipDuringSkyriding", label = "World Tip during skyriding", tip = "This option will override the anchor for World Tip during skyriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end, y = 10 });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldTipTypeDuringSkyriding", label = "World Tip Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldTipDuringSkyriding") end });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorWorldTipPointDuringSkyriding", label = "World Tip Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideWorldTipDuringSkyriding") end });
 	
-	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideFrameUnitDuringDragonriding", label = "Frame Unit during dragonriding", tip = "This option will override the anchor for Frame Unit during dragonriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end, y = 10 });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameUnitTypeDuringDragonriding", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameUnitDuringDragonriding") end });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameUnitPointDuringDragonriding", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameUnitDuringDragonriding") end });
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideFrameUnitDuringSkyriding", label = "Frame Unit during skyriding", tip = "This option will override the anchor for Frame Unit during skyriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end, y = 10 });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameUnitTypeDuringSkyriding", label = "Frame Unit Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameUnitDuringSkyriding") end });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameUnitPointDuringSkyriding", label = "Frame Unit Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameUnitDuringSkyriding") end });
 	
-	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideFrameTipDuringDragonriding", label = "Frame Tip during dragonriding", tip = "This option will override the anchor for Frame Tip during dragonriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end, y = 10 });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameTipTypeDuringDragonriding", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameTipDuringDragonriding") end });
-	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameTipPointDuringDragonriding", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameTipDuringDragonriding") end });
+	tinsert(ttOptionsAnchors, { type = "Check", var = "enableAnchorOverrideFrameTipDuringSkyriding", label = "Frame Tip during skyriding", tip = "This option will override the anchor for Frame Tip during skyriding", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end, y = 10 });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameTipTypeDuringSkyriding", label = "Frame Tip Type", list = DROPDOWN_ANCHORTYPE, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameTipDuringSkyriding") end });
+	tinsert(ttOptionsAnchors, { type = "DropDown", var = "anchorFrameTipPointDuringSkyriding", label = "Frame Tip Point", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableAnchor") and factory:GetConfigValue("enableAnchorOverrideFrameTipDuringSkyriding") end });
 end
 
 tinsert(ttOptionsAnchors, { type = "Header", label = "Other Anchor Overrides", tip = "Other special anchor overrides", enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
@@ -249,18 +249,18 @@ local ttOptionsCombat = {
 	{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." }
 };
 
-if (LibFroznFunctions.hasWoWFlavor.dragonriding) then
-	tinsert(ttOptionsCombat, { type = "Header", label = "Hide Tips During Dragonriding" });
+if (LibFroznFunctions.hasWoWFlavor.skyriding) then
+	tinsert(ttOptionsCombat, { type = "Header", label = "Hide Tips During Skyriding" });
 	
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during dragonriding." });
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during dragonriding.", x = 160 });
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during dragonriding." });
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during dragonriding.", x = 160 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during skyriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during skyriding.", x = 160 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during skyriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during skyriding.", x = 160 });
 	
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during dragonriding.", y = 10 });
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during dragonriding.", x = 160 });
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during dragonriding." });
-	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringDragonridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during dragonriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during skyriding.", y = 10 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during skyriding.", x = 160 });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during skyriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during skyriding." });
 end
 
 tinsert(ttOptionsCombat, { type = "Header", label = "Others" });
