@@ -275,6 +275,7 @@ local TT_DefaultConfig = {
 	hideTipsSpellTips = false,
 	hideTipsItemTips = false,
 	hideTipsActionTips = false,
+	hideTipsExpBarTips = false,
 	
 	hideTipsInCombatWorldUnits = false,
 	hideTipsInCombatWorldTips = false,
@@ -284,6 +285,7 @@ local TT_DefaultConfig = {
 	hideTipsInCombatSpellTips = false,
 	hideTipsInCombatItemTips = false,
 	hideTipsInCombatActionTips = false,
+	hideTipsInCombatExpBarTips = false,
 	
 	hideTipsDuringSkyridingWorldUnits = false,
 	hideTipsDuringSkyridingFrameUnits = false,
@@ -293,6 +295,7 @@ local TT_DefaultConfig = {
 	hideTipsDuringSkyridingSpellTips = false,
 	hideTipsDuringSkyridingItemTips = false,
 	hideTipsDuringSkyridingActionTips = false,
+	hideTipsDuringSkyridingExpBarTips = false,
 	
 	showHiddenModifierKey = "shift",
 	
@@ -3701,7 +3704,9 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipSetHidden = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- unhandled tip content
-		if (not LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unit, TT_TIP_CONTENT.aura, TT_TIP_CONTENT.spell, TT_TIP_CONTENT.item, TT_TIP_CONTENT.action })) then
+		local tipOwner = tip:GetOwner();
+		
+		if (not LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unit, TT_TIP_CONTENT.aura, TT_TIP_CONTENT.spell, TT_TIP_CONTENT.item, TT_TIP_CONTENT.action })) and ((not LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) or ((LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) and (tipOwner ~= LibFroznFunctions.hasWoWFlavor.experienceBarFrame))) then
 			return;
 		end
 		
@@ -3732,7 +3737,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			end
 		end
 		
-		local tipContentName = ((tipContent == TT_TIP_CONTENT.unit) and "Unit") or (((tipContent == TT_TIP_CONTENT.aura) or (tipContent == TT_TIP_CONTENT.spell)) and "Spell") or ((tipContent == TT_TIP_CONTENT.item) and "Item") or ((tipContent == TT_TIP_CONTENT.action) and "Action");
+		local tipContentName = ((tipContent == TT_TIP_CONTENT.unit) and "Unit") or (((tipContent == TT_TIP_CONTENT.aura) or (tipContent == TT_TIP_CONTENT.spell)) and "Spell") or ((tipContent == TT_TIP_CONTENT.item) and "Item") or ((tipContent == TT_TIP_CONTENT.action) and "Action") or ((LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) and (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) and "ExpBar");
 		
 		if (cfg["hideTips" .. hidingTip .. tipContentName .. "Tips"]) then
 			currentDisplayParams.hideTip = true;

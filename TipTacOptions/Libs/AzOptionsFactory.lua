@@ -49,10 +49,12 @@
 	- fixed processing of OnEnter/OnLeave events for dropdown and slider
 	- aligned text of slider, color picker, TextEdit horizontally to left
 	- no build category page on OnTextChanged of TextEdit
+	24.08.xx Rev 29 11.0.0/The War Within #frozn45
+	- added an "hidden" property for all objects
 --]]
 
 -- create new library
-local REVISION = 28; -- bump on changes
+local REVISION = 29; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -153,8 +155,9 @@ function azof:BuildOptionsPage(options,anchor,left,top,restrictToken)
 			or (restrictType == "string" and restrictToken == option.restrict)
 			or (restrictType == "table" and tIndexOf(option.restrict,restrictToken))
 		);
+		local hidden = (not not option.hidden) and (not not option.hidden(self, option));
 
-		if (option.type) and (allowCreation) then
+		if (option.type) and (allowCreation) and (not hidden) then
 			local obj = self:GetObject(option.type);
 
 			obj.option = option;

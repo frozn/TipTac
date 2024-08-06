@@ -235,6 +235,7 @@ local ttOptionsCombat = {
 	{ type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160 },
 	{ type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden." },
 	{ type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden." },
+	{ type = "Check", var = "hideTipsExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden.", x = 160, hidden = function(factory) return (not LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) end },
 	
 	{ type = "Header", label = "Hide Tips In Combat" },
 	
@@ -246,7 +247,8 @@ local ttOptionsCombat = {
 	{ type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10 },
 	{ type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160 },
 	{ type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat." },
-	{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." }
+	{ type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." },
+	{ type = "Check", var = "hideTipsInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden in combat.", x = 160, hidden = function(factory) return (not LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) end }
 };
 
 if (LibFroznFunctions.hasWoWFlavor.skyriding) then
@@ -261,6 +263,7 @@ if (LibFroznFunctions.hasWoWFlavor.skyriding) then
 	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during skyriding.", x = 160 });
 	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during skyriding." });
 	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during skyriding." });
+	tinsert(ttOptionsCombat, { type = "Check", var = "hideTipsDuringSkyridingExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during skyriding.", x = 160, hidden = function(factory) return (not LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) end });
 end
 
 tinsert(ttOptionsCombat, { type = "Header", label = "Others" });
