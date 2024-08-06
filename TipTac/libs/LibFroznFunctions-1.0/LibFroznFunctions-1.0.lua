@@ -133,15 +133,14 @@ LibFroznFunctions.hasWoWFlavor = {
 	GameTooltipSetPaddingWithLeftAndTop = true,
 	GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = false,
 	barMarginAdjustment = 0,
-	experienceBarFrame = MainMenuExpBar,
+	experienceBarFrame = MainStatusTrackingBarContainer,
+	experienceBarDockedToInterfaceBar = false,
 	realGetSpellLinkAvailable = true,
 	relatedExpansionForItemAvailable = true,
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
 	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false) -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
 };
-
-LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = (LibFroznFunctions.hasWoWFlavor.experienceBarFrame and true or false);
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
 	LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip = false;
@@ -167,6 +166,8 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
+	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = MainMenuExpBar;
+	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
 end
 if (LibFroznFunctions.isWoWFlavor.CataC) then
 	LibFroznFunctions.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC = true;

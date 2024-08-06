@@ -3049,7 +3049,9 @@ function tt:GetAnchorPosition(tip)
 	-- check for GameTooltip anchor overrides
 	if (tip == GameTooltip) then
 		-- override GameTooltip anchor for (Guild & Community) ChatFrame
-		if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (not tip:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(tip:GetOwner(), {
+		local tipOwner = tip:GetOwner();
+		
+		if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (not tip:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
 					"ChatFrame(%d+)",
 					(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
 				}, 1)) then
@@ -3704,9 +3706,23 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipSetHidden = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- unhandled tip content
-		local tipOwner = tip:GetOwner();
+		local isTipFromExpBar = false;
 		
-		if (not LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unit, TT_TIP_CONTENT.aura, TT_TIP_CONTENT.spell, TT_TIP_CONTENT.item, TT_TIP_CONTENT.action })) and ((not LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) or ((LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) and (tipOwner ~= LibFroznFunctions.hasWoWFlavor.experienceBarFrame))) then
+		if (LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) then
+			local tipOwner = tip:GetOwner();
+			
+			if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
+				isTipFromExpBar = true;
+			end
+		else
+			local mouseFocus = LibFroznFunctions:GetMouseFocus();
+			
+			if (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
+				isTipFromExpBar = true;
+			end
+		end
+		
+		if (not LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unit, TT_TIP_CONTENT.aura, TT_TIP_CONTENT.spell, TT_TIP_CONTENT.item, TT_TIP_CONTENT.action })) and (not isTipFromExpBar) then
 			return;
 		end
 		
@@ -3737,7 +3753,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			end
 		end
 		
-		local tipContentName = ((tipContent == TT_TIP_CONTENT.unit) and "Unit") or (((tipContent == TT_TIP_CONTENT.aura) or (tipContent == TT_TIP_CONTENT.spell)) and "Spell") or ((tipContent == TT_TIP_CONTENT.item) and "Item") or ((tipContent == TT_TIP_CONTENT.action) and "Action") or ((LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) and (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) and "ExpBar");
+		local tipContentName = ((tipContent == TT_TIP_CONTENT.unit) and "Unit") or (((tipContent == TT_TIP_CONTENT.aura) or (tipContent == TT_TIP_CONTENT.spell)) and "Spell") or ((tipContent == TT_TIP_CONTENT.item) and "Item") or ((tipContent == TT_TIP_CONTENT.action) and "Action") or (isTipFromExpBar and "ExpBar");
 		
 		if (cfg["hideTips" .. hidingTip .. tipContentName .. "Tips"]) then
 			currentDisplayParams.hideTip = true;
