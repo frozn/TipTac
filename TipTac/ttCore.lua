@@ -3705,23 +3705,26 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipSetHidden = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
-		-- unhandled tip content
+		-- determine if tip comes from experience bar
 		local isTipFromExpBar = false;
 		
-		if (LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) then
-			local tipOwner = tip:GetOwner();
-			
-			if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
-				isTipFromExpBar = true;
-			end
-		else
-			local mouseFocus = LibFroznFunctions:GetMouseFocus();
-			
-			if (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
-				isTipFromExpBar = true;
+		if (tip == GameTooltip) then
+			if (LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) then
+				local tipOwner = tip:GetOwner();
+				
+				if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
+					isTipFromExpBar = true;
+				end
+			else
+				local mouseFocus = LibFroznFunctions:GetMouseFocus();
+				
+				if (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
+					isTipFromExpBar = true;
+				end
 			end
 		end
 		
+		-- unhandled tip content
 		if (not LibFroznFunctions:ExistsInTable(tipContent, { TT_TIP_CONTENT.unit, TT_TIP_CONTENT.aura, TT_TIP_CONTENT.spell, TT_TIP_CONTENT.item, TT_TIP_CONTENT.action })) and (not isTipFromExpBar) then
 			return;
 		end
