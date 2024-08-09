@@ -6,7 +6,7 @@
 --
 
 local DBICON10 = "LibDBIcon-1.0"
-local DBICON10_MINOR = 52 -- Bump on changes
+local DBICON10_MINOR = 55 -- Bump on changes
 if not LibStub then error(DBICON10 .. " requires LibStub.") end
 local ldb = LibStub("LibDataBroker-1.1", true)
 if not ldb then error(DBICON10 .. " requires LibDataBroker-1.1.") end
@@ -25,6 +25,15 @@ function lib:IconCallback(event, name, key, value)
 	if lib.objects[name] then
 		if key == "icon" then
 			lib.objects[name].icon:SetTexture(value)
+			if lib:IsButtonInCompartment(name) and lib:IsButtonCompartmentAvailable() then
+				local addonList = AddonCompartmentFrame.registeredAddons
+				for i =1, #addonList do
+					if addonList[i].text == name then
+						addonList[i].icon = value
+						return
+					end
+				end
+			end
 		elseif key == "iconCoords" then
 			lib.objects[name].icon:UpdateCoord()
 		elseif key == "iconR" then
@@ -94,8 +103,8 @@ local function onLeave(self)
 	end
 end
 
-local function onEnterCompartment(self)
-	local buttonName = self.value
+local function onEnterCompartment(self, menu)
+	local buttonName = menu.text
 	local object = lib.objects[buttonName]
 	if object and object.dataObject then
 		if object.dataObject.OnTooltipShow then
@@ -109,10 +118,10 @@ local function onEnterCompartment(self)
 	end
 end
 
-local function onLeaveCompartment(self)
+local function onLeaveCompartment(self, menu)
 	lib.tooltip:Hide()
 
-	local buttonName = self.value
+	local buttonName = menu.text
 	local object = lib.objects[buttonName]
 	if object and object.dataObject then
 		if object.dataObject.OnLeave then
@@ -497,39 +506,43 @@ function lib:IsButtonInCompartment(buttonName)
 end
 
 function lib:AddButtonToCompartment(buttonName, customIcon)
-	local object = lib.objects[buttonName]
-	if object and not object.compartmentData and AddonCompartmentFrame then
-		if object.db then
-			object.db.showInCompartment = true
+	if lib:IsButtonCompartmentAvailable() then
+		local object = lib.objects[buttonName]
+		if object and not object.compartmentData then
+			if object.db then
+				object.db.showInCompartment = true
+			end
+			object.compartmentData = {
+				text = buttonName,
+				icon = customIcon or object.dataObject.icon,
+				notCheckable = true,
+				registerForAnyClick = true,
+				func = function(_, menuInputData, menu)
+					object.dataObject.OnClick(menu, menuInputData.buttonName)
+				end,
+				funcOnEnter = onEnterCompartment,
+				funcOnLeave = onLeaveCompartment,
+			}
+			AddonCompartmentFrame:RegisterAddon(object.compartmentData)
 		end
-		object.compartmentData = {
-			text = buttonName,
-			icon = customIcon or object.dataObject.icon,
-			notCheckable = true,
-			registerForAnyClick = true,
-			func = function(frame, _, _, _, clickType)
-				object.dataObject.OnClick(frame, clickType)
-			end,
-			funcOnEnter = onEnterCompartment,
-			funcOnLeave = onLeaveCompartment,
-		}
-		AddonCompartmentFrame:RegisterAddon(object.compartmentData)
 	end
 end
 
 function lib:RemoveButtonFromCompartment(buttonName)
-	local object = lib.objects[buttonName]
-	if object and object.compartmentData then
-		for i = 1, #AddonCompartmentFrame.registeredAddons do
-			local entry = AddonCompartmentFrame.registeredAddons[i]
-			if entry == object.compartmentData then
-				object.compartmentData = nil
-				if object.db then
-					object.db.showInCompartment = nil
+	if lib:IsButtonCompartmentAvailable() then
+		local object = lib.objects[buttonName]
+		if object and object.compartmentData then
+			for i = 1, #AddonCompartmentFrame.registeredAddons do
+				local entry = AddonCompartmentFrame.registeredAddons[i]
+				if entry == object.compartmentData then
+					object.compartmentData = nil
+					if object.db then
+						object.db.showInCompartment = nil
+					end
+					table.remove(AddonCompartmentFrame.registeredAddons, i)
+					AddonCompartmentFrame:UpdateDisplay()
+					return
 				end
-				table.remove(AddonCompartmentFrame.registeredAddons, i)
-				AddonCompartmentFrame:UpdateDisplay()
-				return
 			end
 		end
 	end
