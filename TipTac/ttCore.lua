@@ -2416,7 +2416,6 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			tip:HookScript("OnSizeChanged", function(tip)
 				-- check if we're currently handling size change
 				if (isHandlingSizeChange) then
-				print(isHandlingSizeChange);
 					return;
 				end
 				
