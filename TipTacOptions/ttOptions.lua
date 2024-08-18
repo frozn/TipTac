@@ -437,7 +437,7 @@ local options = {
 		category = "Bars",
 		enabled = { type = "Check", var = "enableBars", tip = "Enable bars for unit tooltips" },
 		options = {
-			{ type = "Header", label = "Health Bar for Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
+			{ type = "Header", label = "Unit Tip Bars: Health Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "healthBar", label = "Show Health Bar", tip = "Will show a health bar of the unit.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
@@ -445,18 +445,18 @@ local options = {
 			{ type = "Check", var = "healthBarClassColor", label = "Class Colored Health Bar", tip = "This options colors the health bar in the same color as the player class", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end, y = 2, x = 130 },
 			{ type = "Check", var = "hideDefaultBar", label = "Hide the Default Health Bar", tip = "Check this to hide the default health bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
-			{ type = "Header", label = "Mana Bar for Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
+			{ type = "Header", label = "Unit Tip Bars: Mana Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "manaBar", label = "Show Mana Bar", tip = "If the unit has mana, a mana bar will be shown.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			{ type = "DropDown", var = "manaBarText", label = "Mana Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
 			{ type = "Color", var = "manaBarColor", label = "Mana Bar Color", tip = "The color of the mana bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
 			
-			{ type = "Header", label = "Bar for other Power Types and Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
+			{ type = "Header", label = "Unit Tip Bars: Bar for other Power Types", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "powerBar", label = "Show Bar for other Power Types\n(e.g. Energy, Rage, Runic Power or Focus)", tip = "If the unit uses other power types than mana (e.g. energy, rage, runic power or focus), a bar for that will be shown.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("powerBar") end },
 			
-			{ type = "Header", label = "Cast Bar for Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
+			{ type = "Header", label = "Unit Tip Bars: Cast Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "castBar", label = "Show Cast Bar", tip = "Will show a cast bar of the unit.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			{ type = "Check", var = "castBarAlwaysShow", label = "Always Show Cast Bar", tip = "Check this to always show the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end, x = 130 },
@@ -467,7 +467,7 @@ local options = {
 			{ type = "Color", var = "castBarFailColor", label = "Cast Bar Fail Color", tip = "The fail color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end },
 			{ type = "Color", var = "castBarSparkColor", label = "Cast Bar Spark Color", tip = "The spark color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end },
 			
-			{ type = "Header", label = "Others for Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end },
+			{ type = "Header", label = "Unit Tip Bars: Others", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end },
 			
 			{ type = "Check", var = "barsCondenseValues", label = "Show Condensed Bar Values", tip = "You can enable this option to condense values shown on the bars. It does this by showing 57254 as 57.3k as an example", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end },
 			
@@ -487,7 +487,7 @@ local options = {
 		category = "Auras",
 		enabled = { type = "Check", var = "enableAuras", tip = "Enable auras for unit tooltips" },
 		options = {
-			{ type = "Header", label = "Auras for Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableAuras") end },
+			{ type = "Header", label = "Unit Tip Auras", enabled = function(factory) return factory:GetConfigValue("enableAuras") end },
 			
 			{ type = "Check", var = "showBuffs", label = "Show Unit Buffs", tip = "Show buffs of the unit", enabled = function(factory) return factory:GetConfigValue("enableAuras") end },
 			{ type = "Check", var = "showDebuffs", label = "Show Unit Debuffs", tip = "Show debuffs of the unit", enabled = function(factory) return factory:GetConfigValue("enableAuras") end },
@@ -509,7 +509,7 @@ local options = {
 		category = "Icons",
 		enabled = { type = "Check", var = "enableIcons", tip = "Turns on or off all additional icons next to the tooltip" },
 		options = {
-			{ type = "Header", label = "Icons for Unit Tooltips", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
+			{ type = "Header", label = "Unit Tip Icons", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
 			
 			{ type = "Check", var = "iconRaid", label = "Show Raid Icon", tip = "Shows the raid icon next to the tip", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
 			{ type = "Check", var = "iconFaction", label = "Show Faction Icon", tip = "Shows the faction icon next to the tip, if the unit is flagged for PvP", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
@@ -591,7 +591,7 @@ if (TipTacTalents) then
 	
 	tinsert(tttOptions, { type = "Check", var = "t_showAverageItemLevel", label = "Show Average Item Level (AIL)", tip = "This option makes the tip show the average item level (AIL) of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end });
 	
-	tinsert(tttOptions, { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show " .. PARENT_MOD_NAME .. "'s GearScore of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end, y = 10 });
+	tinsert(tttOptions, { type = "Check", var = "t_showGearScore", label = "Show GearScore", tip = "This option makes the tip show the GearScore of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end, y = 10 });
 	tinsert(tttOptions, { type = "DropDown", var = "t_gearScoreAlgorithm", label = "GearScore Algorithm", list = { ["TacoTip"] = { value = 1, tip = "The de-facto standard algorithm from addon TacoTip" }, ["TipTac"] = { value = 2, tip = PARENT_MOD_NAME .. "'s own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." },}, tip = "Switch between different GearScore implementations", enabled = function(factory) return factory:GetConfigValue("t_enable") and factory:GetConfigValue("t_showGearScore") end });
 	
 	tinsert(tttOptions, { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the quality", enabled = function(factory) return factory:GetConfigValue("t_enable") and (factory:GetConfigValue("t_showAverageItemLevel") or factory:GetConfigValue("t_showGearScore")) end, y = 10 });
