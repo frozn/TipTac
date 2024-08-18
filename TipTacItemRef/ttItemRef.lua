@@ -2598,8 +2598,8 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
 		local tipName = self:GetName();
 		local infoColorMixin = CreateColor(cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], (cfg.if_infoColor[4] or 1));
-		local endOfRunRewardLevelText = ((endOfRunRewardLevel == 0) and "-" or endOfRunRewardLevel);
-		local weeklyRewardLevelText = ((weeklyRewardLevel == 0) and "-" or weeklyRewardLevel);
+		local endOfRunRewardLevelText = (endOfRunRewardLevel == 0 and "-" or endOfRunRewardLevel);
+		local weeklyRewardLevelText = (weeklyRewardLevel == 0 and "-" or weeklyRewardLevel);
 
 		if (showId) then
 			self:AddLine(format("ItemID: %d", itemID), unpack(cfg.if_infoColor));
