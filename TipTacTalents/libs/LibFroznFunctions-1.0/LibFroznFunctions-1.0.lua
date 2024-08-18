@@ -2177,6 +2177,26 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	-- secondaryTooltip:SetShown(secondaryShown); -- removed
 end
 
+-- get cursor position
+--
+-- @return x coordinate, y coordinate (unaffected by UI scale)
+function LibFroznFunctions:GetCursorPosition()
+	-- get cursor position
+	local x, y = GetCursorPosition();
+	
+	-- workaround for blizzard bug (tested under tww 11.0.2): if centering of the cursor when mouse freelooking is enabled, GetCursorPosition() returns the real cursor position for the first frame instead of the centered position when left-clicking. reproduced with addon "Combat Mode". for more info, see: https://github.com/Stanzilla/WoWUIBugs/issues/504
+	if (IsMouselooking()) and (GetCVar("CursorFreelookCentering") == "1") then
+		local UIScale = UIParent:GetEffectiveScale();
+		local UIParentWidth = UIParent:GetWidth() * UIScale;
+		local UIParentHeight = UIParent:GetHeight() * UIScale;
+		
+		x, y = (UIParentWidth / 2), (UIParentHeight * tonumber(GetCVar("CursorCenteredYPos")));
+	end
+	
+	-- return cursor position
+	return x, y;
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                             Frames                                             --
 ----------------------------------------------------------------------------------------------------
