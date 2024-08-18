@@ -224,6 +224,7 @@ local TT_DefaultConfig = {
 	
 	-- anchors
 	enableAnchor = true,
+	
 	anchorWorldUnitType = "normal",
 	anchorWorldUnitPoint = "BOTTOMRIGHT",
 	anchorWorldTipType = "normal",
@@ -233,18 +234,18 @@ local TT_DefaultConfig = {
 	anchorFrameTipType = "normal",
 	anchorFrameTipPoint = "BOTTOMRIGHT",
 	
-	enableAnchorOverrideWorldUnitInCombat = false,
-	anchorWorldUnitTypeInCombat = "normal",
-	anchorWorldUnitPointInCombat = "BOTTOMRIGHT",
-	enableAnchorOverrideWorldTipInCombat = false,
-	anchorWorldTipTypeInCombat = "normal",
-	anchorWorldTipPointInCombat = "BOTTOMRIGHT",
-	enableAnchorOverrideFrameUnitInCombat = false,
-	anchorFrameUnitTypeInCombat = "normal",
-	anchorFrameUnitPointInCombat = "BOTTOMRIGHT",
-	enableAnchorOverrideFrameTipInCombat = false,
-	anchorFrameTipTypeInCombat = "normal",
-	anchorFrameTipPointInCombat = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldUnitDuringChallengeMode = false,
+	anchorWorldUnitTypeDuringChallengeMode = "normal",
+	anchorWorldUnitPointDuringChallengeMode = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldTipDuringChallengeMode = false,
+	anchorWorldTipTypeDuringChallengeMode = "normal",
+	anchorWorldTipPointDuringChallengeMode = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameUnitDuringChallengeMode = false,
+	anchorFrameUnitTypeDuringChallengeMode = "normal",
+	anchorFrameUnitPointDuringChallengeMode = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameTipDuringChallengeMode = false,
+	anchorFrameTipTypeDuringChallengeMode = "normal",
+	anchorFrameTipPointDuringChallengeMode = "BOTTOMRIGHT",
 	
 	enableAnchorOverrideWorldUnitDuringSkyriding = false,
 	anchorWorldUnitTypeDuringSkyriding = "normal",
@@ -259,6 +260,19 @@ local TT_DefaultConfig = {
 	anchorFrameTipTypeDuringSkyriding = "normal",
 	anchorFrameTipPointDuringSkyriding = "BOTTOMRIGHT",
 	
+	enableAnchorOverrideWorldUnitInCombat = false,
+	anchorWorldUnitTypeInCombat = "normal",
+	anchorWorldUnitPointInCombat = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldTipInCombat = false,
+	anchorWorldTipTypeInCombat = "normal",
+	anchorWorldTipPointInCombat = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameUnitInCombat = false,
+	anchorFrameUnitTypeInCombat = "normal",
+	anchorFrameUnitPointInCombat = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameTipInCombat = false,
+	anchorFrameTipTypeInCombat = "normal",
+	anchorFrameTipPointInCombat = "BOTTOMRIGHT",
+	
 	enableAnchorOverrideCF = false,
 	anchorOverrideCFType = "normal",
 	anchorOverrideCFPoint = "BOTTOMRIGHT",
@@ -266,16 +280,26 @@ local TT_DefaultConfig = {
 	mouseOffsetX = 0,
 	mouseOffsetY = 0,
 	
-	-- combat
-	hideTipsWorldUnits = false,
-	hideTipsWorldTips = false,
-	hideTipsFrameUnits = false,
-	hideTipsFrameTips = false,
-	hideTipsUnitTips = false,
-	hideTipsSpellTips = false,
-	hideTipsItemTips = false,
-	hideTipsActionTips = false,
-	hideTipsExpBarTips = false,
+	-- hiding
+	hideTipsDuringChallengeModeWorldUnits = false,
+	hideTipsDuringChallengeModeWorldTips = false,
+	hideTipsDuringChallengeModeFrameUnits = false,
+	hideTipsDuringChallengeModeFrameTips = false,
+	hideTipsDuringChallengeModeUnitTips = false,
+	hideTipsDuringChallengeModeSpellTips = false,
+	hideTipsDuringChallengeModeItemTips = false,
+	hideTipsDuringChallengeModeActionTips = false,
+	hideTipsDuringChallengeModeExpBarTips = false,
+	
+	hideTipsDuringSkyridingWorldUnits = false,
+	hideTipsDuringSkyridingWorldTips = false,
+	hideTipsDuringSkyridingFrameUnits = false,
+	hideTipsDuringSkyridingFrameTips = false,
+	hideTipsDuringSkyridingUnitTips = false,
+	hideTipsDuringSkyridingSpellTips = false,
+	hideTipsDuringSkyridingItemTips = false,
+	hideTipsDuringSkyridingActionTips = false,
+	hideTipsDuringSkyridingExpBarTips = false,
 	
 	hideTipsInCombatWorldUnits = false,
 	hideTipsInCombatWorldTips = false,
@@ -287,15 +311,15 @@ local TT_DefaultConfig = {
 	hideTipsInCombatActionTips = false,
 	hideTipsInCombatExpBarTips = false,
 	
-	hideTipsDuringSkyridingWorldUnits = false,
-	hideTipsDuringSkyridingFrameUnits = false,
-	hideTipsDuringSkyridingWorldTips = false,
-	hideTipsDuringSkyridingFrameTips = false,
-	hideTipsDuringSkyridingUnitTips = false,
-	hideTipsDuringSkyridingSpellTips = false,
-	hideTipsDuringSkyridingItemTips = false,
-	hideTipsDuringSkyridingActionTips = false,
-	hideTipsDuringSkyridingExpBarTips = false,
+	hideTipsWorldUnits = false,
+	hideTipsWorldTips = false,
+	hideTipsFrameUnits = false,
+	hideTipsFrameTips = false,
+	hideTipsUnitTips = false,
+	hideTipsSpellTips = false,
+	hideTipsItemTips = false,
+	hideTipsActionTips = false,
+	hideTipsExpBarTips = false,
 	
 	showHiddenModifierKey = "shift",
 	
@@ -3093,18 +3117,42 @@ function tt:GetAnchorPosition(tip)
 	local anchorFrameName = (mouseFocus == WorldFrame and "World" or "Frame") .. (isUnit and "Unit" or "Tip");
 	local var = "anchor" .. anchorFrameName;
 	
-	-- consider anchor override for in combat or during skyriding
-	local anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"] and UnitAffectingCombat("player") and "InCombat" or "");
+	-- consider anchor override during challenge mode, during skyriding or in combat
+	local anchorOverride = "";
 	
-	if (anchorOverride == "") then
-		local bonusBarIndex = GetBonusBarIndex(); -- skyriding bonus bar is 11
+	if (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringChallengeMode"]) and (LibFroznFunctions.hasWoWFlavor.challengeMode) and (C_ChallengeMode.IsChallengeModeActive()) then
+		local difficultyID = select(3, GetInstanceInfo());
 		
-		anchorOverride = (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringSkyriding"] and (bonusBarIndex == 11) and "DuringSkyriding" or "");
+		if (difficultyID) then
+			local isChallengeMode = select(4, GetDifficultyInfo(difficultyID));
+			
+			if (isChallengeMode) then
+				local timerID = GetWorldElapsedTimers();
+				local _, elapsedTime, timerType = GetWorldElapsedTime(timerID);
+				
+				if (timerType == LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE) and (elapsedTime >= 0) then
+					anchorOverride = "DuringChallengeMode";
+				end
+			end
+		end
 	end
 	
+	if (anchorOverride == "") and (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringSkyriding"]) and (LibFroznFunctions.hasWoWFlavor.skyriding) then
+		local bonusBarIndex = GetBonusBarIndex(); -- skyriding bonus bar is 11
+		
+		if (bonusBarIndex == 11) then
+			anchorOverride = "DuringSkyriding";
+		end
+	end
+	
+	if (anchorOverride == "") and (cfg["enableAnchorOverride" .. anchorFrameName .. "InCombat"]) and (UnitAffectingCombat("player")) then
+		anchorOverride = "InCombat";
+	end
+	
+	-- get anchor position
 	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverride], cfg[var .. "Point" .. anchorOverride];
 	
-	-- check for GameTooltip anchor overrides
+	-- check for other GameTooltip anchor overrides
 	if (tip == GameTooltip) then
 		-- override GameTooltip anchor for (Guild & Community) ChatFrame
 		local tipOwner = tip:GetOwner();
@@ -3798,15 +3846,39 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
-		-- consider hiding tips in combat or during skyriding
-		local hidingTip = (UnitAffectingCombat("player") and "InCombat" or "");
+		-- consider hiding tips during challenge mode, during skyriding or in combat
+		local hidingTip = "";
 		
-		if (hidingTip == "") then
-			local bonusBarIndex = GetBonusBarIndex(); -- skyriding bonus bar is 11
+		if (LibFroznFunctions.hasWoWFlavor.challengeMode) and (C_ChallengeMode.IsChallengeModeActive()) then
+			local difficultyID = select(3, GetInstanceInfo());
 			
-			hidingTip = ((bonusBarIndex == 11) and "DuringSkyriding" or "");
+			if (difficultyID) then
+				local isChallengeMode = select(4, GetDifficultyInfo(difficultyID));
+				
+				if (isChallengeMode) then
+					local timerID = GetWorldElapsedTimers();
+					local _, elapsedTime, timerType = GetWorldElapsedTime(timerID);
+					
+					if (timerType == LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE) and (elapsedTime >= 0) then
+						hidingTip = "DuringChallengeMode";
+					end
+				end
+			end
 		end
 		
+		if (hidingTip == "") and (LibFroznFunctions.hasWoWFlavor.skyriding) then
+			local bonusBarIndex = GetBonusBarIndex(); -- skyriding bonus bar is 11
+			
+			if (bonusBarIndex == 11) then
+				hidingTip = "DuringSkyriding";
+			end
+		end
+		
+		if (hidingTip == "") and (UnitAffectingCombat("player")) then
+			hidingTip = "InCombat";
+		end
+		
+		-- check if tooltip needs to be hidden
 		if (currentDisplayParams.anchorFrameName) then
 			if (cfg["hideTips" .. hidingTip .. currentDisplayParams.anchorFrameName .. "s"]) then
 				currentDisplayParams.hideTip = true;

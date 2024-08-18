@@ -119,6 +119,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate", since df 10.0.0 and catac 4.4.0 "UISliderTemplateWithLabels")
 --         .skyriding                                                  = true/false if skyriding is available (since df 10.0.2)
+--         .challengeMode                                              = true/false if challenge mode is available (since Legion 7.0.3)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
@@ -139,7 +140,8 @@ LibFroznFunctions.hasWoWFlavor = {
 	relatedExpansionForItemAvailable = true,
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
-	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false) -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
+	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
+	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false)
 };
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
