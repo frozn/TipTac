@@ -2598,6 +2598,8 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	if (showId or showRewardLevel or showWeeklyRewardLevel or showTimeLimit or showAffixInfo) then
 		local tipName = self:GetName();
 		local infoColorMixin = CreateColor(cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], (cfg.if_infoColor[4] or 1));
+		local endOfRunRewardLevelText = ((endOfRunRewardLevel == 0) and "-" or endOfRunRewardLevel);
+		local weeklyRewardLevelText = ((weeklyRewardLevel == 0) and "-" or weeklyRewardLevel);
 
 		if (showId) then
 			self:AddLine(format("ItemID: %d", itemID), unpack(cfg.if_infoColor));
@@ -2606,20 +2608,20 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		if (cfg.if_modifyKeystoneTips) then
 			local textRight2 = _G[tipName.."TextRight2"];
 			if (not showRewardLevel and showWeeklyRewardLevel) then
-				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("WRL: %d", weeklyRewardLevel)));
+				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("WRL: %s", weeklyRewardLevelText)));
 			elseif (showRewardLevel and showWeeklyRewardLevel) then
-				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("RL: %d, WRL: %d", endOfRunRewardLevel, weeklyRewardLevel)));
+				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("RL: %s, WRL: %s", endOfRunRewardLevelText, weeklyRewardLevelText)));
 			elseif (showRewardLevel and not showWeeklyRewardLevel) then
-				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("RL: %d", endOfRunRewardLevel)));
+				textRight2:SetText(infoColorMixin:WrapTextInColorCode(format("RL: %s", endOfRunRewardLevelText)));
 			end
 			textRight2:Show();
 		else
 			if (not showRewardLevel and showWeeklyRewardLevel) then
-				self:AddLine(format("WeeklyRewardLevel: %d", weeklyRewardLevel), unpack(cfg.if_infoColor));
+				self:AddLine(format("WeeklyRewardLevel: %s", weeklyRewardLevelText), unpack(cfg.if_infoColor));
 			elseif (showRewardLevel and showWeeklyRewardLevel) then
-				self:AddLine(format("RewardLevel: %d, WeeklyRewardLevel: %d", endOfRunRewardLevel, weeklyRewardLevel), unpack(cfg.if_infoColor));
+				self:AddLine(format("RewardLevel: %s, WeeklyRewardLevel: %s", endOfRunRewardLevelText, weeklyRewardLevelText), unpack(cfg.if_infoColor));
 			elseif (showRewardLevel and not showWeeklyRewardLevel) then
-				self:AddLine(format("RewardLevel: %d", endOfRunRewardLevel), unpack(cfg.if_infoColor));
+				self:AddLine(format("RewardLevel: %s", endOfRunRewardLevelText), unpack(cfg.if_infoColor));
 			end
 		end
 		
