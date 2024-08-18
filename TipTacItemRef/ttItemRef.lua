@@ -996,7 +996,7 @@ end
 
 -- HOOK: GameTooltip:SetLFGDungeonReward
 local function SetLFGDungeonReward_Hook(self, dungeonID, rewardIndex)
-	if (cfg.if_enable) and (not tipDataAdded[self]) then
+	if (cfg.if_enable) and (not tipDataAdded[self]) and (self:IsShown()) then
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonRewardInfo(dungeonID, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
 		if (rewardID) then
 			if (rewardType == "item") then
@@ -1024,7 +1024,7 @@ end
 
 -- HOOK: GameTooltip:SetLFGDungeonShortageReward
 local function SetLFGDungeonShortageReward_Hook(self, dungeonID, rewardArg, rewardIndex)
-	if (cfg.if_enable) and (not tipDataAdded[self]) then
+	if (cfg.if_enable) and (not tipDataAdded[self]) and (self:IsShown()) then
 		local name, texture, numItems, isBonusReward, rewardType, rewardID, quality = GetLFGDungeonShortageRewardInfo(dungeonID, rewardArg, rewardIndex); -- see LFGDungeonReadyDialogReward_OnEnter in "LFGFrame.lua"
 		if (rewardID) then
 			if (rewardType == "item") then
