@@ -32,10 +32,12 @@
 	- Replaced hidden scanning tooltip with new C_TooltipInfo function for df
 	## REV-04 (24.05.07) - 10.2.6/DF ## #frozn45
 	- replaced deprecated function GetItemInfo() with new function C_Item.GetItemInfo()
+	## REV-05 (24.08.18) - 11.0.2/TWW ## #frozn45
+	- removed calling TooltipUtil.SurfaceArgs() because it's not necessary any longer (since df 10.1.0)
 --]]----------------------------------------------------
 
 -- Abort if library has already loaded with the same or newer revision
-local REVISION = 4;
+local REVISION = 5;
 if (type(LibItemString) == "table") and (REVISION <= LibItemString.REVISION) then
 	return;
 end
@@ -318,13 +320,9 @@ function LIS:GetTooltipItemLevel(itemLink)
 		local tooltipData = C_TooltipInfo.GetHyperlink(itemLink);
 		
 		if (tooltipData) then
-			TooltipUtil.SurfaceArgs(tooltipData);
-			
 			-- Line 1 is item name; Line 2 could simply be the itemLevel, or it could be the upgrade type such as "Mythic Warforged"
 			for i = 2, min(#tooltipData.lines, LIS.TOOLTIP_MAXLINE_LEVEL) do
 				local line = tooltipData.lines[i];
-				
-				TooltipUtil.SurfaceArgs(line);
 				
 				if line.leftText then
 					local itemLevel = tonumber(line.leftText:match(LIS.ITEM_LEVEL_PATTERN));
