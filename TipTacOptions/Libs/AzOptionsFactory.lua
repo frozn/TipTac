@@ -49,7 +49,7 @@
 	- fixed processing of OnEnter/OnLeave events for dropdown and slider
 	- aligned text of slider, color picker, TextEdit horizontally to left
 	- no build category page on OnTextChanged of TextEdit
-	24.08.xx Rev 29 11.0.0/The War Within #frozn45
+	24.08.18 Rev 29 11.0.2/The War Within #frozn45
 	- added an "hidden" property for all objects
 --]]
 
