@@ -383,7 +383,7 @@ TT_ExtendedConfig.tipsToModify = {
 			["ShoppingTooltip1"] = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
-					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. this call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
 					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
@@ -397,7 +397,7 @@ TT_ExtendedConfig.tipsToModify = {
 			["ShoppingTooltip2"] = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
-					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. this call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
 					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
@@ -456,7 +456,7 @@ TT_ExtendedConfig.tipsToModify = {
 			["ItemRefShoppingTooltip1"] = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
-					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. this call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
 					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
@@ -470,7 +470,7 @@ TT_ExtendedConfig.tipsToModify = {
 			["ItemRefShoppingTooltip2"] = {
 				applyAppearance = true, applyScaling = true, applyAnchor = false,
 				hookFnForFrame = function(TT_CacheForFrames, tip)
-					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. This call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
+					-- workaround for blizzard bug in df 10.1.0: tooltipData won't be reset for (ItemRef)ShoopingTooltip1/2 because ClearHandlerInfo() won't be called in event OnHide. this call is missing in script handlers of ShoppingTooltipTemplate (see GameTooltip.xml). For GameTooltip this is included in function GameTooltip_OnHide().
 					-- update: fixed in df 10.1.5, but not in catac 4.4.0 or classic era 1.15.2.
 					
 					-- since df 10.0.2
@@ -3060,8 +3060,18 @@ function tt:AnchorTipToMouse(tip)
 	
 	-- anchor tip to mouse position
 	if (anchorType == "mouse") then
+		-- get mouse position
 		local x, y = GetCursorPosition();
 		
+		-- workaround for blizzard bug (tested under tww 11.0.2): if centering of the cursor when mouse freelooking is enabled, GetCursorPosition() returns the real cursor position for the first frame instead of the centered position when left-clicking. reproduced with addon "Combat Mode". for more info, see: https://github.com/Stanzilla/WoWUIBugs/issues/504
+		if (IsMouselooking()) and (GetCVar("CursorFreelookCentering") == "1") then
+			local UIParentWidth = UIParent:GetWidth() * TT_UIScale;
+			local UIParentHeight = UIParent:GetHeight() * TT_UIScale;
+			
+			x, y = (UIParentWidth / 2), (UIParentHeight * tonumber(GetCVar("CursorCenteredYPos")));
+		end
+		
+		-- anchor tip to mouse position
 		tip:ClearAllPoints();
 		tip:SetPoint(anchorPoint, UIParent, "BOTTOMLEFT", self:GetNearestPixelSize(tip, x + cfg.mouseOffsetX, false, true), self:GetNearestPixelSize(tip, y + cfg.mouseOffsetY, false, true));
 	end
