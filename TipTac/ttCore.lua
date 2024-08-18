@@ -1074,6 +1074,7 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- OnUnitTipResize                     unit tooltip is being resized                                                           TT_CacheForFrames, tooltip, currentDisplayParams, first
 -- OnUnitTipPostStyle                  after unit tooltip has been styled and has the final size                               TT_CacheForFrames, tooltip, currentDisplayParams, first
 --                                                                                                                             
+-- OnTipResized                        tooltip has been resized                                                                TT_CacheForFrames, tooltip, currentDisplayParams
 -- OnTipRescaled                       tooltip has been rescaled                                                               TT_CacheForFrames, tooltip, currentDisplayParams
 --                                                                                                                             
 -- OnTipResetCurrentDisplayParams      tooltip's current display parameters has to be reset                                    TT_CacheForFrames, tooltip, currentDisplayParams
@@ -2348,6 +2349,7 @@ function tt:SetPaddingToTip(tip)
 	
 	if (isItemTooltipShown) then
 		tip:SetPadding(0, 0, 0, 0);
+		tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.
 		
 		GameTooltip_CalculatePadding(tip);
 		
@@ -2375,6 +2377,7 @@ function tt:SetPaddingToTip(tip)
 	
 	-- set padding to tip
 	tip:SetPadding(newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop);
+	tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.
 	
 	if (isItemTooltipShown) then
 		if (isBottomFontStringShown) then
@@ -2388,7 +2391,63 @@ function tt:SetPaddingToTip(tip)
 end
 
 -- register for group events
+--
+-- use isHandlingSizeChange to prevent endless loop when handling size change
+local isHandlingSizeChange = false;
+ 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- get tip parameters
+		local frameParams = TT_CacheForFrames[tip];
+		
+		if (not frameParams) then
+			return;
+		end
+		
+		local tipParams = frameParams.config;
+		
+		-- no hooking allowed
+		if (tipParams.noHooks) then
+			return;
+		end
+		
+		-- HOOK: tip's OnSizeChanged to monitor size changes
+		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			tip:HookScript("OnSizeChanged", function(tip)
+				-- check if we're currently handling size change
+				if (isHandlingSizeChange) then
+				print(isHandlingSizeChange);
+					return;
+				end
+				
+				isHandlingSizeChange = false;
+				
+				-- get current display parameters
+				local frameParams = TT_CacheForFrames[tip];
+				
+				if (not frameParams) then
+					return;
+				end
+				
+				local currentDisplayParams = frameParams.currentDisplayParams;
+				
+				-- current display parameters aren't set
+				if (not currentDisplayParams.isSet) and (not currentDisplayParams.isSetTemporarily) then
+					return;
+				end
+				
+				-- inform group that the tip has been resized
+				isHandlingSizeChange = true;
+				
+				LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipResized", TT_CacheForFrames, tip, currentDisplayParams);
+				
+				-- set padding to tip
+				tt:SetPaddingToTip(tip);
+				
+				isHandlingSizeChange = false;
+			end);
+		end);
+	end,
 	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- HOOK: SharedTooltip_SetBackdropStyle() to reapply backdrop and padding if necessary (e.g. needed for OnTooltipSetItem() or AreaPOIPinMixin:OnMouseEnter() on world map (e.g. Torghast) or VignettePin on world map (e.g. weekly event in Maw))
 		hooksecurefunc("SharedTooltip_SetBackdropStyle", function(tip, style, embedded)

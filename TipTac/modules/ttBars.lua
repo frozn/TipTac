@@ -131,9 +131,11 @@ function ttBars:OnUnitTipPreStyle(TT_CacheForFrames, tip, currentDisplayParams, 
 end
 
 -- unit tooltip is being resized
-function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, first)
-	-- consider minimum width for bars, so that numbers are not out of bounds.
+
+-- consider minimum width for bars, so that numbers are not out of bounds.
+local function setExtraPaddingRightForMinimumWidth(self, TT_CacheForFrames, tip, currentDisplayParams, first)
 	if (not cfg.barEnableTipMinimumWidth) then
+		currentDisplayParams.extraPaddingRightForMinimumWidth = nil;
 		return;
 	end
 	
@@ -152,7 +154,7 @@ function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, fi
 						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
 					end
 				else
-					currentDisplayParams.extraPaddingRightForMinimumWidth = nil; -- #test: zurücksetzen ist erforderlich, da ansonsten bei nachträglicher textänderung unnötiger rechter rand entsteht. bei zurücksetzen entsteht aber ein unnötiges titschen bei z.b. todesritter.
+					currentDisplayParams.extraPaddingRightForMinimumWidth = nil;
 				end
 				
 				breakFor = true;
@@ -164,6 +166,17 @@ function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, fi
 			break;
 		end
 	end
+end
+
+function ttBars:OnUnitTipResize(TT_CacheForFrames, tip, currentDisplayParams, first)
+	-- consider minimum width for bars, so that numbers are not out of bounds.
+	setExtraPaddingRightForMinimumWidth(self, TT_CacheForFrames, tip, currentDisplayParams, first);
+end
+
+-- tooltip has been resized
+function ttBars:OnTipResized(TT_CacheForFrames, tip, currentDisplayParams, first)
+	-- consider minimum width for bars, so that numbers are not out of bounds.
+	setExtraPaddingRightForMinimumWidth(self, TT_CacheForFrames, tip, currentDisplayParams, first);
 end
 
 -- tooltip's current display parameters has to be reset
