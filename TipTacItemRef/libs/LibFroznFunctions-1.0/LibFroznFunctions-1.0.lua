@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 30; -- bump on changes
+local LIB_MINOR = 31; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1517,7 +1517,7 @@ end
 -- @param categoryName  name of category
 function LibFroznFunctions:ExpandAddOnCategory(categoryName)
 	-- since df 10.0.0 and wotlkc 3.4.2
-	if (Settings) and (Settings.CreateCategories) then
+	if (Settings) and (Settings.CreateCategory) then
 		for index, tbl in ipairs(SettingsPanel:GetCategoryList().groups) do -- see SettingsPanelMixin:OpenToCategory() in "Blizzard_SettingsPanel.lua"
 			for index, category in ipairs(tbl.categories) do
 				if (category:GetName() == categoryName) then
