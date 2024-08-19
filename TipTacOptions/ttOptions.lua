@@ -804,6 +804,7 @@ f.btnMisc:SetScript("OnLeave", Reset_OnLeave);
 f.btnMisc:SetText("Defaults");
 
 local function Misc_OnClick(self)
+print(UIDROPDOWNMENU_OPEN_MENU);
 	ToggleDropDownMenu(1, nil, f.btnReport.dropDownMenu, f.btnReport, 0, 0);
 end
 

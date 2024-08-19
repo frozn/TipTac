@@ -584,6 +584,8 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- UIDropDownMenu
+			
+			-- HOOK: UIDropDownMenu_CreateFrames() to add the new frames
 			local last_UIDROPDOWNMENU_MAXLEVELS = 0;
 			
 			hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
@@ -598,8 +600,9 @@ TT_ExtendedConfig.tipsToModify = {
 				last_UIDROPDOWNMENU_MAXLEVELS = UIDROPDOWNMENU_MAXLEVELS;
 			end);
 			
+			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly
 			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
-				-- set appearance to tip
+				-- reapply appearance to tip
 				local tip = _G["DropDownList" .. (level or 1)];
 				
 				tt:SetAppearanceToTip(tip);
