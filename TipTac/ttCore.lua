@@ -2373,7 +2373,6 @@ function tt:SetPaddingToTip(tip)
 	
 	if (isItemTooltipShown) then
 		tip:SetPadding(0, 0, 0, 0);
-		tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.
 		
 		GameTooltip_CalculatePadding(tip);
 		
@@ -2401,7 +2400,6 @@ function tt:SetPaddingToTip(tip)
 	
 	-- set padding to tip
 	tip:SetPadding(newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop);
-	tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.
 	
 	if (isItemTooltipShown) then
 		if (isBottomFontStringShown) then
@@ -2466,6 +2464,9 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 				
 				-- set padding to tip
 				tt:SetPaddingToTip(tip);
+				
+				-- recalculate size of tip to ensure that it has the correct dimensions
+				LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
 				
 				isHandlingSizeChange = false;
 			end);
