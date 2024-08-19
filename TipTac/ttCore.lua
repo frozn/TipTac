@@ -583,6 +583,28 @@ TT_ExtendedConfig.tipsToModify = {
 				hooksecurefunc("LFGListApplicantMember_OnEnter", LFGLFAVSB_OnEnter_Hook);
 			end
 			
+			-- UIDropDownMenu
+			local last_UIDROPDOWNMENU_MAXLEVELS = 0;
+			
+			hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
+				for i = last_UIDROPDOWNMENU_MAXLEVELS + 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
+					tt:AddModifiedTipExtended("DropDownList" .. i, {
+						applyAppearance = true,
+						applyScaling = false, -- #todo: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "UIDropDownMenu.lua"
+						applyAnchor = false
+					});
+				end
+				
+				last_UIDROPDOWNMENU_MAXLEVELS = UIDROPDOWNMENU_MAXLEVELS;
+			end);
+			
+			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
+				-- set appearance to tip
+				local tip = _G["DropDownList" .. (level or 1)];
+				
+				tt:SetAppearanceToTip(tip);
+			end);
+			
 			-- LibQTip-1.0, e.g. used by addon Broker_Location
 			local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
 			
@@ -803,10 +825,6 @@ TT_ExtendedConfig.tipsToModify = {
 		}
 	}
 };
-
-for i = 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
-	TT_ExtendedConfig.tipsToModify[MOD_NAME].frames["DropDownList" .. i] = { applyAppearance = true, applyScaling = false, applyAnchor = true }; -- #todo: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "UIDropDownMenu.lua"
-end
 
 ----------------------------------------------------------------------------------------------------
 --                                           Variables                                            --
