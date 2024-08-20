@@ -862,14 +862,15 @@ local TT_TipsToModifyFromOtherMods = {};
 -- 1st key = real frame
 --
 -- params for 1st key:
--- frameName                                   frame name, nil for anonymous frames without a parent.
--- config                                      see params from "TT_ExtendedConfig.tipsToModify"
--- originalLeftOffsetForPreventingOffScreen    original left offset for preventing additional elements from moving off-screen
--- originalRightOffsetForPreventingOffScreen   original right offset for preventing additional elements from moving off-screen
--- originalTopOffsetForPreventingOffScreen     original top offset for preventing additional elements from moving off-screen
--- originalBottomOffsetForPreventingOffScreen  original bottom offset for preventing additional elements from moving off-screen
--- currentDisplayParams                        current display parameters
--- gradient                                    optional. gradient texture for frame
+-- frameName                                       frame name, nil for anonymous frames without a parent.
+-- config                                          see params from "TT_ExtendedConfig.tipsToModify"
+-- originalOffsetsForPreventingOffScreenAvailable  original offsets for preventing additional elements from moving off-screen available
+-- originalLeftOffsetForPreventingOffScreen        original left offset for preventing additional elements from moving off-screen
+-- originalRightOffsetForPreventingOffScreen       original right offset for preventing additional elements from moving off-screen
+-- originalTopOffsetForPreventingOffScreen         original top offset for preventing additional elements from moving off-screen
+-- originalBottomOffsetForPreventingOffScreen      original bottom offset for preventing additional elements from moving off-screen
+-- currentDisplayParams                            current display parameters
+-- gradient                                        optional. gradient texture for frame
 
 -- params for 2nd key (currentDisplayParams):
 -- isSet                                         true if current display parameters are set, false otherwise.
@@ -1691,6 +1692,11 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 		
 		if (not tipParams.noHooks) then
 			LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+				-- check if insecure interaction with the tip is currently forbidden
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
 				tip:HookScript("OnSizeChanged", function(...)
 					-- check if insecure interaction with the tip is currently forbidden
 					if (tip:IsForbidden()) then
@@ -1716,6 +1722,11 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 	
 	if (not tipParams.noHooks) then
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			-- check if insecure interaction with the tip is currently forbidden
+			if (tip:IsForbidden()) then
+				return;
+			end
+			
 			tip:HookScript("OnShow", function(tip)
 				tt:SetCurrentDisplayParams(tip, TT_TIP_CONTENT.unknownOnShow);
 			end);
@@ -2456,6 +2467,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		-- HOOK: tip's OnSizeChanged to monitor size changes
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			-- check if insecure interaction with the tip is currently forbidden
+			if (tip:IsForbidden()) then
+				return;
+			end
+			
 			tip:HookScript("OnSizeChanged", function(tip)
 				-- check if we're currently handling size change
 				if (isHandlingSizeChange) then
@@ -2926,6 +2942,11 @@ function tt:SetClampRectInsetsToTip(tip, left, right, top, bottom)
 	
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
+	-- don't set clamp rect insets to tip if original offsets for preventing additional elements from moving off-screen aren't available
+	if (not frameParams.originalOffsetsForPreventingOffScreenAvailable) then
+		return;
+	end
+	
 	-- set current display params for preventing additional elements from moving off-screen
 	currentDisplayParams.modifiedOffsetsForPreventingOffScreen = true;
 	
@@ -2936,6 +2957,11 @@ end
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- check if insecure interaction with the tip is currently forbidden
+		if (tip:IsForbidden()) then
+			return;
+		end
+		
 		-- get frame parameters
 		local frameParams = TT_CacheForFrames[tip];
 		
@@ -2944,7 +2970,12 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		end
 		
 		-- set original left/right/top/bottom offset for preventing additional elements from moving off-screen
-		frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen = tip:GetClampRectInsets();
+		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
+		
+		if (leftOffset) and (rightOffset) and (topOffset) and (bottomOffset) then
+			frameParams.originalOffsetsForPreventingOffScreenAvailable = true;
+			frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen = leftOffset, rightOffset, topOffset, bottomOffset;
+		end
 	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- get current display parameters
@@ -2957,7 +2988,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		local currentDisplayParams = frameParams.currentDisplayParams;
 		
 		-- restore original offsets for preventing additional elements from moving off-screen
-		if (not tip:IsForbidden()) and (currentDisplayParams.modifiedOffsetsForPreventingOffScreen) then
+		if (not tip:IsForbidden()) and (not frameParams.originalOffsetsForPreventingOffScreenAvailable) and (currentDisplayParams.modifiedOffsetsForPreventingOffScreen) then
 			tip:SetClampRectInsets(frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen);
 		end
 		
@@ -3177,14 +3208,16 @@ function tt:GetAnchorPosition(tip)
 	-- check for other GameTooltip anchor overrides
 	if (tip == GameTooltip) then
 		-- override GameTooltip anchor for (Guild & Community) ChatFrame
-		local tipOwner = tip:GetOwner();
-		
-		if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (not tip:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
-					"ChatFrame(%d+)",
-					(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
-				}, 1)) then
+		if (not tip:IsForbidden()) then
+			local tipOwner = tip:GetOwner();
 			
-			return anchorFrameName, cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
+			if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
+						"ChatFrame(%d+)",
+						(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
+					}, 1)) then
+				
+				return anchorFrameName, cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
+			end
 		end
 	end
 	
@@ -3193,6 +3226,11 @@ end
 
 -- HOOK: tip's OnUpdate for anchoring to mouse
 function tt:AnchorTipToMouseOnUpdate(tip)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
 	tip:HookScript("OnUpdate", function(tip)
 		-- anchor tip to mouse position
 		tt:AnchorTipToMouse(tip);
@@ -3309,6 +3347,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		-- HOOK: tip's SetOwner to reset current display params for anchoring
 		LibFroznFunctions:CallFunctionDelayed(tipParams.waitSecondsForHooking, function()
+			-- check if insecure interaction with the tip is currently forbidden
+			if (tip:IsForbidden()) then
+				return;
+			end
+			
 			if (tip:GetObjectType() == "GameTooltip") then
 				hooksecurefunc(tip, "SetOwner", function(tip, owner, anchor, xOffset, yOffset)
 					tt:ResetCurrentDisplayParamsForAnchoring(tip, true);
@@ -3568,6 +3611,11 @@ end
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- check if insecure interaction with the tip is currently forbidden
+		if (tip:IsForbidden()) then
+			return;
+		end
+		
 		-- only for GameTooltip tips
 		if (tip:GetObjectType() ~= "GameTooltip") then
 			return;
@@ -3626,6 +3674,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- check if insecure interaction with the tip is currently forbidden
+		if (tip:IsForbidden()) then
+			return;
+		end
+		
 		-- only for GameTooltip tips
 		if (tip:GetObjectType() ~= "GameTooltip") then
 			return;
@@ -3781,6 +3834,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		end
 	end,
 	OnTipAddedToCache = function(self, TT_CacheForFrames, tip)
+		-- check if insecure interaction with the tip is currently forbidden
+		if (tip:IsForbidden()) then
+			return;
+		end
+		
 		-- only for GameTooltip tips
 		if (tip:GetObjectType() ~= "GameTooltip") then
 			return;
@@ -3838,15 +3896,17 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		if (tip == GameTooltip) then
 			if (LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar) then
-				local tipOwner = tip:GetOwner();
-				
-				if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
-					isTipFromExpBar = true;
+				if (not tip:IsForbidden()) then
+					local tipOwner = tip:GetOwner();
+					
+					if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
+						isTipFromExpBar = true;
+					end
 				end
 			else
 				local mouseFocus = LibFroznFunctions:GetMouseFocus();
 				
-				if (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
+				if (not mouseFocus:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
 					isTipFromExpBar = true;
 				end
 			end
