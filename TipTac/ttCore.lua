@@ -588,11 +588,7 @@ TT_ExtendedConfig.tipsToModify = {
 			
 			local function addUIDropDownMenuFrames()
 				for i = last_UIDROPDOWNMENU_MAXLEVELS + 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
-					tt:AddModifiedTipExtended("DropDownList" .. i, {
-						applyAppearance = true,
-						applyScaling = false, -- #todo: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "UIDropDownMenu.lua"
-						applyAnchor = false
-					});
+					tt:AddModifiedTip("DropDownList" .. i);
 				end
 				
 				last_UIDROPDOWNMENU_MAXLEVELS = UIDROPDOWNMENU_MAXLEVELS;
@@ -612,6 +608,32 @@ TT_ExtendedConfig.tipsToModify = {
 				
 				tt:SetAppearanceToTip(tip);
 			end);
+			
+			-- LibDropDownMenu, e.g used by addon Broker_Everything
+			local LibDropDownMenu = LibStub("LibDropDownMenu");
+			
+			if (LibDropDownMenu) then
+				local function addLibDropDownMenuFrame(name)
+					tt:AddModifiedTip(name);
+				end
+				
+				for i = 1, UIDROPDOWNMENU_MAXLEVELS do
+					addLibDropDownMenuFrame("LibDropDownMenu_List" .. i);
+				end
+				
+				-- HOOK: LibDropDownMenu.Create_DropDownList() to add the new frames
+				hooksecurefunc(LibDropDownMenu, "Create_DropDownList", function(name, parent, opts)
+					addLibDropDownMenuFrame(name);
+				end);
+				
+				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly
+				hooksecurefunc(LibDropDownMenu, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
+					-- reapply appearance to tip
+					local tip = _G["LibDropDownMenu_List" .. (level or 1)];
+					
+					tt:SetAppearanceToTip(tip);
+				end);
+			end
 			
 			-- LibQTip-1.0, e.g. used by addon Broker_Location
 			local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
@@ -710,28 +732,6 @@ TT_ExtendedConfig.tipsToModify = {
 					
 					return openMenu;
 				end
-			end
-			
-			-- LibDropDownMenu, e.g used by addon Broker_Everything
-			local LibDropDownMenu = LibStub("LibDropDownMenu");
-			
-			if (LibDropDownMenu) then
-				local function addLibDropDownMenuFrame(name)
-					tt:AddModifiedTipExtended(name, {
-						applyAppearance = true,
-						applyScaling = false, -- #todo: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "LibDropDownMenu.lua"
-						applyAnchor = false
-					});
-				end
-				
-				for i = 1, UIDROPDOWNMENU_MAXLEVELS do
-					addLibDropDownMenuFrame("LibDropDownMenu_List" .. i);
-				end
-				
-				-- HOOK: LibDropDownMenu.Create_DropDownList() to add the new frames
-				hooksecurefunc(LibDropDownMenu, "Create_DropDownList", function(name, parent, opts)
-					addLibDropDownMenuFrame(name);
-				end);
 			end
 			
 			-- LibExtraTip-1, e.g used by addon BiS-Tooltip
