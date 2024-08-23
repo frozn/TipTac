@@ -601,7 +601,7 @@ TT_ExtendedConfig.tipsToModify = {
 				addUIDropDownMenuFrames();
 			end);
 			
-			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly
+			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
 			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
 				-- reapply appearance to tip
 				local tip = _G["DropDownList" .. (level or 1)];
@@ -626,7 +626,7 @@ TT_ExtendedConfig.tipsToModify = {
 					addLibDropDownMenuFrame(name);
 				end);
 				
-				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly
+				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
 				hooksecurefunc(LibDropDownMenu, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 					-- reapply appearance to tip
 					local tip = _G["LibDropDownMenu_List" .. (level or 1)];
