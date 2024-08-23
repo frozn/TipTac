@@ -584,11 +584,9 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- UIDropDownMenu
-			
-			-- HOOK: UIDropDownMenu_CreateFrames() to add the new frames
 			local last_UIDROPDOWNMENU_MAXLEVELS = 0;
 			
-			hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
+			local function addUIDropDownMenuFrames()
 				for i = last_UIDROPDOWNMENU_MAXLEVELS + 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
 					tt:AddModifiedTipExtended("DropDownList" .. i, {
 						applyAppearance = true,
@@ -598,6 +596,13 @@ TT_ExtendedConfig.tipsToModify = {
 				end
 				
 				last_UIDROPDOWNMENU_MAXLEVELS = UIDROPDOWNMENU_MAXLEVELS;
+			end
+			
+			addUIDropDownMenuFrames();
+			
+			-- HOOK: UIDropDownMenu_CreateFrames() to add the new frames
+			hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
+				addUIDropDownMenuFrames();
 			end);
 			
 			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly
@@ -705,6 +710,20 @@ TT_ExtendedConfig.tipsToModify = {
 					
 					return openMenu;
 				end
+			end
+			
+			-- LibDropDownMenu, e.g used by addon Broker_Everything
+			local LibDropDownMenu = LibStub("LibDropDownMenu");
+			
+			if (LibDropDownMenu) then
+				for i = 1, UIDROPDOWNMENU_MAXLEVELS do
+					tt:AddModifiedTip("LibDropDownMenu_List" .. i);
+				end
+				
+				-- HOOK: LibDropDownMenu.Create_DropDownList() to add the new frames
+				hooksecurefunc(LibDropDownMenu, "Create_DropDownList", function(name, parent, opts)
+					tt:AddModifiedTip(name);
+				end);
 			end
 			
 			-- LibExtraTip-1, e.g used by addon BiS-Tooltip
@@ -2279,33 +2298,41 @@ function tt:SetBackdropToTip(tip)
 		tip.__MERSkin = true;
 	end
 	
-	-- extra handling of blizzard drop down list
+	-- extra handling of blizzards UIDropDownMenu and LibDropDownMenu
 	local tipName = tip:GetName();
 	
-	if (tipName) and (tipName:match("DropDownList(%d+)")) then
-		local dropDownListBackdrop = _G[tipName.."Backdrop"];
-		local dropDownListMenuBackdrop = _G[tipName.."MenuBackdrop"];
-		
-		LibFroznFunctions:StripTextures(dropDownListBackdrop);
-		if (dropDownListBackdrop.Bg) then
-			dropDownListBackdrop.Bg:SetTexture(nil);
-			dropDownListBackdrop.Bg:SetAtlas(nil);
-		end
-		LibFroznFunctions:StripTextures(dropDownListMenuBackdrop.NineSlice);
-		
-		-- workaround for addon ElvUI to prevent applying of frame:StripTextures()
-		local isAddOnElvUILoaded = LibFroznFunctions:IsAddOnFinishedLoading("ElvUI");
-		
-		if (isAddOnElvUILoaded) then
-			tip.template = "Default";
-			dropDownListBackdrop.template = "Default";
-			dropDownListMenuBackdrop.template = "Default";
-		end
-		
-		-- workaround for addon MerathilisUI in ElvUI to prevent styling of frame
-		if (isAddOnElvUI_MerathilisUILoaded) then
-			dropDownListBackdrop.__MERSkin = true;
-			dropDownListMenuBackdrop.__MERSkin = true;
+	if (tipName) then
+		if (tipName:match("DropDownList(%d+)")) then
+			local dropDownListBackdrop = _G[tipName.."Backdrop"];
+			local dropDownListMenuBackdrop = _G[tipName.."MenuBackdrop"];
+			
+			LibFroznFunctions:StripTextures(dropDownListBackdrop);
+			if (dropDownListBackdrop.Bg) then
+				dropDownListBackdrop.Bg:SetTexture(nil);
+				dropDownListBackdrop.Bg:SetAtlas(nil);
+			end
+			LibFroznFunctions:StripTextures(dropDownListMenuBackdrop.NineSlice);
+			
+			-- workaround for addon ElvUI to prevent applying of frame:StripTextures()
+			local isAddOnElvUILoaded = LibFroznFunctions:IsAddOnFinishedLoading("ElvUI");
+			
+			if (isAddOnElvUILoaded) then
+				tip.template = "Default";
+				dropDownListBackdrop.template = "Default";
+				dropDownListMenuBackdrop.template = "Default";
+			end
+			
+			-- workaround for addon MerathilisUI in ElvUI to prevent styling of frame
+			if (isAddOnElvUI_MerathilisUILoaded) then
+				dropDownListBackdrop.__MERSkin = true;
+				dropDownListMenuBackdrop.__MERSkin = true;
+			end
+		elseif (tipName:match("LibDropDownMenu_List(%d+)")) then
+			local dropDownListBackdrop = _G[tipName.."Backdrop"];
+			local dropDownListMenuBackdrop = _G[tipName.."MenuBackdrop"];
+			
+			LibFroznFunctions:StripTextures(dropDownListBackdrop);
+			LibFroznFunctions:StripTextures(dropDownListMenuBackdrop);
 		end
 	end
 	
