@@ -3906,7 +3906,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			else
 				local mouseFocus = LibFroznFunctions:GetMouseFocus();
 				
-				if (not mouseFocus:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
+				if (mouseFocus) and (not mouseFocus:IsForbidden()) and (LibFroznFunctions:IsFrameBackInFrameChain(mouseFocus, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, 2)) then
 					isTipFromExpBar = true;
 				end
 			end
