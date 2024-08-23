@@ -716,13 +716,21 @@ TT_ExtendedConfig.tipsToModify = {
 			local LibDropDownMenu = LibStub("LibDropDownMenu");
 			
 			if (LibDropDownMenu) then
+				local function addLibDropDownMenuFrame(name)
+					tt:AddModifiedTipExtended(name, {
+						applyAppearance = true,
+						applyScaling = false, -- #todo: switch applyScaling from "false" to "true", but needed more coding to consider call of SetScale() in ToggleDropDownMenu() in "LibDropDownMenu.lua"
+						applyAnchor = false
+					});
+				end
+				
 				for i = 1, UIDROPDOWNMENU_MAXLEVELS do
-					tt:AddModifiedTip("LibDropDownMenu_List" .. i);
+					addLibDropDownMenuFrame("LibDropDownMenu_List" .. i);
 				end
 				
 				-- HOOK: LibDropDownMenu.Create_DropDownList() to add the new frames
 				hooksecurefunc(LibDropDownMenu, "Create_DropDownList", function(name, parent, opts)
-					tt:AddModifiedTip(name);
+					addLibDropDownMenuFrame(name);
 				end);
 			end
 			
