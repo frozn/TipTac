@@ -2306,6 +2306,13 @@ function tt:SetBackdropToTip(tip)
 		tip.__MERSkin = true;
 	end
 	
+	-- workaround for addon AddOnSkins to prevent styling of frame
+	local isAddOnAddOnSkinsLoaded = LibFroznFunctions:IsAddOnFinishedLoading("AddOnSkins");
+	
+	if (isAddOnAddOnSkinsLoaded) then
+		tip.isSkinned = true;
+	end
+	
 	-- extra handling of blizzards UIDropDownMenu and LibDropDownMenu
 	local tipName = tip:GetName();
 	
