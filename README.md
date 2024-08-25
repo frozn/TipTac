@@ -38,7 +38,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop, AceConfigDialog-3.0, LibQTip, LibDBIcon, LibDropdown, LibDropdownMC, LibExtraTip, auras from addon Plater, tooltips from addon ElvUI, OPie and RaiderIO
+- added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop, AceConfigDialog-3.0, LibQTip, LibDBIcon, LibDropDownMenu, LibDropdown, LibDropdownMC, LibExtraTip, auras from addon Plater, tooltips from addon ElvUI, OPie and RaiderIO
 - changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
