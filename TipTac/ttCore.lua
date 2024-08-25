@@ -610,7 +610,7 @@ TT_ExtendedConfig.tipsToModify = {
 			end);
 			
 			-- LibDropDownMenu, e.g used by addon Broker_Everything
-			local LibDropDownMenu = LibStub("LibDropDownMenu");
+			local LibDropDownMenu = LibStub:GetLibrary("LibDropDownMenu", true);
 			
 			if (LibDropDownMenu) then
 				local function addLibDropDownMenuFrame(name)
