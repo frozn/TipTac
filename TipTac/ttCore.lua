@@ -602,11 +602,162 @@ TT_ExtendedConfig.tipsToModify = {
 			end);
 			
 			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
-			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
-				-- reapply appearance to tip
-				local tip = _G["DropDownList" .. (level or 1)];
+			
+			-- reapply appearance to UIDropDownMenu
+			local function reapplyAppearanceToUIDropDownMenu(prefixName, level, dropDownFrame, anchorName, xOffset, yOffset)
+				-- check if insecure interaction with the tip is currently forbidden
+				local _level = (level or 1);
+				local tip = _G[prefixName .. (_level or 1)];
 				
+				if (tip:IsForbidden()) then
+					return;
+				end
+				
+				-- reapply appearance to tip
 				tt:SetAppearanceToTip(tip);
+				
+				-- get tip parameters
+				local frameParams = TT_CacheForFrames[tip];
+				
+				if (not frameParams) then
+					return;
+				end
+				
+				local tipParams = frameParams.config;
+				
+				-- set scale to tip not possible
+				if (not tipParams.applyAppearance) or (not tipParams.applyScaling) then
+					return;
+				end
+				
+				-- check if tip is shown
+				if (not tip:IsShown()) then
+					return;
+				end
+				
+				-- only for level 1
+				if (_level ~= 1) then
+					return;
+				end
+				
+				-- fix anchoring because of different scale, see ToggleDropDownMenu() in "UIDropDownMenu.lua"
+				local TT_UIScale = UIParent:GetEffectiveScale();
+				local tipEffectiveScale = tip:GetEffectiveScale();
+				local point, relativePoint, relativeTo;
+				
+				local function GetChild(frame, name, key)
+					if (frame[key]) then
+						return frame[key];
+					else
+						return _G[name..key];
+					end
+				end
+				
+				tip:ClearAllPoints();
+				
+				-- if there's no specified anchorName then use left side of the dropdown menu
+				if (not anchorName) then
+					-- see if the anchor was set manually using setanchor
+					if (dropDownFrame.xOffset) then
+						xOffset = dropDownFrame.xOffset;
+					end
+					if (dropDownFrame.yOffset) then
+						yOffset = dropDownFrame.yOffset;
+					end
+					if (dropDownFrame.point) then
+						point = dropDownFrame.point;
+					end
+					if (dropDownFrame.relativeTo) then
+						relativeTo = dropDownFrame.relativeTo;
+					else
+						relativeTo = GetChild(UIDROPDOWNMENU_OPEN_MENU, UIDROPDOWNMENU_OPEN_MENU:GetName(), "Left");
+					end
+					if (dropDownFrame.relativePoint) then
+						relativePoint = dropDownFrame.relativePoint;
+					end
+				elseif (anchorName == "cursor") then
+					relativeTo = nil;
+					local cursorX, cursorY = LibFroznFunctions:GetCursorPosition();
+					cursorX = cursorX / tipEffectiveScale;
+					cursorY = cursorY / tipEffectiveScale;
+					
+					if (not xOffset) then
+						xOffset = 0;
+					end
+					if (not yOffset) then
+						yOffset = 0;
+					end
+					xOffset = cursorX + xOffset;
+					yOffset = cursorY + yOffset;
+				else
+					-- see if the anchor was set manually using setanchor
+					if (dropDownFrame.xOffset) then
+						xOffset = dropDownFrame.xOffset;
+					end
+					if (dropDownFrame.yOffset) then
+						yOffset = dropDownFrame.yOffset;
+					end
+					if (dropDownFrame.point) then
+						point = dropDownFrame.point;
+					end
+					if (dropDownFrame.relativeTo) then
+						relativeTo = dropDownFrame.relativeTo;
+					else
+						relativeTo = anchorName;
+					end
+					if (dropDownFrame.relativePoint) then
+						relativePoint = dropDownFrame.relativePoint;
+					end
+				end
+				if (not xOffset or not yOffset) then
+					xOffset = 8;
+					yOffset = 22;
+				end
+				if (not point) then
+					point = "TOPLEFT";
+				end
+				if (not relativePoint) then
+					relativePoint = "BOTTOMLEFT";
+				end
+				-- tip:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset);
+				tip:SetPoint(point, relativeTo, relativePoint, xOffset / tipEffectiveScale, yOffset / tipEffectiveScale);
+				
+				-- we just move level 1 enough to keep it on the screen. we don't necessarily change the anchors.
+				-- local offLeft = listFrame:GetLeft()/uiScale;
+				-- local offRight = (GetScreenWidth() - listFrame:GetRight())/uiScale;
+				-- local offTop = (GetScreenHeight() - listFrame:GetTop())/uiScale;
+				-- local offBottom = listFrame:GetBottom()/uiScale;
+				local offLeft = tip:GetLeft() / tipEffectiveScale;
+				local offRight = (GetScreenWidth() * TT_UIScale / tipEffectiveScale - tip:GetRight()) / tipEffectiveScale;
+				local offTop = (GetScreenHeight() * TT_UIScale / tipEffectiveScale - tip:GetTop()) / tipEffectiveScale;
+				local offBottom = tip:GetBottom() / tipEffectiveScale;
+				
+				local xAddOffset, yAddOffset = 0, 0;
+				if (offLeft < 0) then
+					xAddOffset = -offLeft;
+				elseif (offRight < 0) then
+					xAddOffset = offRight;
+				end
+				
+				if (offTop < 0) then
+					yAddOffset = offTop;
+				elseif (offBottom < 0) then
+					yAddOffset = -offBottom;
+				end
+				
+				tip:ClearAllPoints();
+				if (anchorName == "cursor") then
+					-- tip:SetPoint(point, relativeTo, relativePoint, xOffset + xAddOffset, yOffset + yAddOffset);
+					tip:SetPoint(point, relativeTo, relativePoint, (Offset + xAddOffset) / tipEffectiveScale, (yOffset + yAddOffset) / tipEffectiveScale);
+				else
+					-- tip:SetPoint(point, relativeTo, relativePoint, xOffset + xAddOffset, yOffset + yAddOffset);
+					tip:SetPoint(point, relativeTo, relativePoint, (xOffset + xAddOffset) / tipEffectiveScale, (yOffset + yAddOffset) / tipEffectiveScale);
+				end
+			end
+			
+			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
+				-- reapply appearance to UIDropDownMenu
+				reapplyAppearanceToUIDropDownMenu("DropDownList", level, dropDownFrame, anchorName, xOffset, yOffset);
 			end);
 			
 			-- LibDropDownMenu, e.g used by addon Broker_Everything
@@ -628,10 +779,8 @@ TT_ExtendedConfig.tipsToModify = {
 				
 				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
 				hooksecurefunc(LibDropDownMenu, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
-					-- reapply appearance to tip
-					local tip = _G["LibDropDownMenu_List" .. (level or 1)];
-					
-					tt:SetAppearanceToTip(tip);
+					-- reapply appearance to UIDropDownMenu
+					reapplyAppearanceToUIDropDownMenu("LibDropDownMenu_List", level, dropDownFrame, anchorName, xOffset, yOffset);
 				end);
 			end
 			
