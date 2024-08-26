@@ -1592,11 +1592,11 @@ function tt:SetupConfig()
 	
 	-- update default config for fonts
 	TT_DefaultConfig.fontFace, TT_DefaultConfig.fontSize, TT_DefaultConfig.fontFlags = GameFontNormal:GetFont();
-	TT_DefaultConfig.fontSize = math.floor(TT_DefaultConfig.fontSize + 0.5);
+	TT_DefaultConfig.fontSize = Round(TT_DefaultConfig.fontSize);
 	TT_DefaultConfig.fontFlags = TT_DefaultConfig.fontFlags:match("^[^,]*");
 	
 	TT_DefaultConfig.barFontFace, TT_DefaultConfig.barFontSize, TT_DefaultConfig.barFontFlags = NumberFontNormalSmall:GetFont();
-	TT_DefaultConfig.barFontSize = math.floor(TT_DefaultConfig.barFontSize + 0.5);
+	TT_DefaultConfig.barFontSize = Round(TT_DefaultConfig.barFontSize);
 	TT_DefaultConfig.barFontFlags = TT_DefaultConfig.barFontFlags:match("^[^,]*");
 
 	-- set config

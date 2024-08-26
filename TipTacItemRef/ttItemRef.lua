@@ -2441,8 +2441,12 @@ function LinkTypeFuncs:item(link, linkType, id)
 	
 	-- Quality Border
 	if (not self.IsEmbedded) and (cfg.if_itemQualityBorder) then
-		local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
+		local quality = tonumber(itemRarity);
+		
+		if (quality) then
+			local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
+		end
 	end
 
 	-- Level + ID + MountID + IconID -- Only alter the tip if we got either a valid "itemLevel" or "id"
@@ -2572,8 +2576,12 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	
 	-- Quality Border
 	if (cfg.if_itemQualityBorder) then
-		local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
+		local quality = tonumber(itemRarity);
+		
+		if (quality) then
+			local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
+		end
 	end
 
 	-- ItemID + RewardLevel + WeeklyRewardLevel + TimeLimit + AffixInfos + IconID
@@ -2915,7 +2923,9 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 
   	-- Quality Border
 	if (not self.IsEmbedded) and (cfg.if_currencyQualityBorder) then
-		if (currencyInfo) then
+		quality = tonumber(quality);
+		
+		if (quality) then
 			local currencyQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
 			ttif:SetBackdropBorderColorLocked(self, currencyQualityColor:GetRGBA());
 		end
@@ -3026,8 +3036,11 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
   	--  Colored Border
 	if (cfg.if_achievmentColoredBorder) then
 		local achievementColor = ACHIEVEMENT_COLOR_CODE:match("|c(%x+)");
-		local achievementColorMixin = LibFroznFunctions:CreateColorFromHexString(achievementColor);
-		ttif:SetBackdropBorderColorLocked(self, achievementColorMixin:GetRGBA());
+		
+		if (achievementColor) then
+			local achievementColorMixin = LibFroznFunctions:CreateColorFromHexString(achievementColor);
+			ttif:SetBackdropBorderColorLocked(self, achievementColorMixin:GetRGBA());
+		end
 	end
 end
 
@@ -3056,9 +3069,13 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 	end
 
 	-- Quality Border
-	if (cfg.if_battlePetQualityBorder) and (breedQuality ~= nil) then
-		local battlePetQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(breedQuality or 0)));
-		ttif:SetBackdropBorderColorLocked(self, battlePetQualityColor:GetRGBA());
+	if (cfg.if_battlePetQualityBorder) then
+		local quality = tonumber(breedQuality);
+		
+		if (quality) then
+			local battlePetQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			ttif:SetBackdropBorderColorLocked(self, battlePetQualityColor:GetRGBA());
+		end
 	end
 
 	-- Level + CreatureID + IconID -- Only alter the tip if we got either a valid "level" or "creatureID"
@@ -3255,8 +3272,11 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
   	-- Quality Border
 	if (cfg.if_conduitQualityBorder) then
 		local conduitQuality = C_Soulbinds.GetConduitQuality(conduitID, conduitRank);
-		local conduitQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(conduitQuality or 0)));
-		ttif:SetBackdropBorderColorLocked(self, conduitQualityColor:GetRGBA());
+		
+		if (conduitQuality) then
+			local conduitQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(conduitQuality)));
+			ttif:SetBackdropBorderColorLocked(self, conduitQualityColor:GetRGBA());
+		end
 	end
 end
 
@@ -3303,8 +3323,12 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 	
 	-- Quality Border
 	if (cfg.if_transmogAppearanceItemQualityBorder) then
-		local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(itemRarity or 0)));
-		ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
+		local quality = tonumber(itemRarity);
+		
+		if (quality) then
+			local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
+		end
 	end
 end
 
@@ -3338,8 +3362,11 @@ function LinkTypeFuncs:transmogillusion(link, linkType, illusionID)
 	if (cfg.if_transmogIllusionColoredBorder) then
 		local name, hyperlink, sourceText = C_TransmogCollection.GetIllusionStrings(illusionID);
 		local illusionColor = hyperlink:match("|c(%x+)");
-		local illusionColorMixin = LibFroznFunctions:CreateColorFromHexString(illusionColor);
-		ttif:SetBackdropBorderColorLocked(self, illusionColorMixin:GetRGBA());
+		
+		if (illusionColor) then
+			local illusionColorMixin = LibFroznFunctions:CreateColorFromHexString(illusionColor);
+			ttif:SetBackdropBorderColorLocked(self, illusionColorMixin:GetRGBA());
+		end
 	end
 end
 
@@ -3398,9 +3425,12 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 
   	-- Quality Border
 	if (cfg.if_transmogSetQualityBorder) then
-		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
-		local setColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(setQuality)));
-		ttif:SetBackdropBorderColorLocked(self, setColor:GetRGBA());
+		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or nil;
+		
+		if (setQuality) then
+			local setColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(setQuality)));
+			ttif:SetBackdropBorderColorLocked(self, setColor:GetRGBA());
+		end
 	end
 end
 
@@ -3432,8 +3462,12 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 	
   	-- Quality Border
 	if (cfg.if_azeriteEssenceQualityBorder) then
-		local essenceColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(essenceRank + 1)));
-		ttif:SetBackdropBorderColorLocked(self, essenceColor:GetRGBA());
+		local quality = tonumber(essenceRank);
+		
+		if (quality) then
+			local essenceColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality + 1)));
+			ttif:SetBackdropBorderColorLocked(self, essenceColor:GetRGBA());
+		end
 	end
 end
 
