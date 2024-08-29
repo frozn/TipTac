@@ -604,7 +604,7 @@ TT_ExtendedConfig.tipsToModify = {
 			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
 			
 			-- reapply appearance to UIDropDownMenu
-			local function reapplyAppearanceToUIDropDownMenu(prefixName, level, dropDownFrame, anchorName, xOffset, yOffset)
+			local function reapplyAppearanceToUIDropDownMenu(prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
 				-- check if insecure interaction with the tip is currently forbidden
 				local _level = (level or 1);
 				local tip = _G[prefixName .. (_level or 1)];
@@ -635,11 +635,6 @@ TT_ExtendedConfig.tipsToModify = {
 					return;
 				end
 				
-				-- only for level 1
-				if (_level ~= 1) then
-					return;
-				end
-				
 				-- fix anchoring because of different scale, see ToggleDropDownMenu() in "UIDropDownMenu.lua"
 				local TT_UIScale = UIParent:GetEffectiveScale();
 				local tipEffectiveScale = tip:GetEffectiveScale();
@@ -653,111 +648,181 @@ TT_ExtendedConfig.tipsToModify = {
 					end
 				end
 				
-				tip:ClearAllPoints();
+				-- frame to anchor the dropdown menu to
+				local anchorFrame;
 				
-				-- if there's no specified anchorName then use left side of the dropdown menu
-				if (not anchorName) then
-					-- see if the anchor was set manually using setanchor
-					if (dropDownFrame.xOffset) then
-						xOffset = dropDownFrame.xOffset;
-					end
-					if (dropDownFrame.yOffset) then
-						yOffset = dropDownFrame.yOffset;
-					end
-					if (dropDownFrame.point) then
-						point = dropDownFrame.point;
-					end
-					if (dropDownFrame.relativeTo) then
-						relativeTo = dropDownFrame.relativeTo;
-					else
-						relativeTo = GetChild(UIDROPDOWNMENU_OPEN_MENU, UIDROPDOWNMENU_OPEN_MENU:GetName(), "Left");
-					end
-					if (dropDownFrame.relativePoint) then
-						relativePoint = dropDownFrame.relativePoint;
-					end
-				elseif (anchorName == "cursor") then
-					relativeTo = nil;
-					local cursorX, cursorY = LibFroznFunctions:GetCursorPosition();
-					cursorX = cursorX / tipEffectiveScale;
-					cursorY = cursorY / tipEffectiveScale;
+				-- display stuff
+				-- level specific stuff
+				if (_level == 1) then
+					-- UIDropDownMenuDelegate:SetAttribute("openmenu", dropDownFrame);
+					tip:ClearAllPoints();
 					
-					if (not xOffset) then
-						xOffset = 0;
-					end
-					if (not yOffset) then
-						yOffset = 0;
-					end
-					xOffset = cursorX + xOffset;
-					yOffset = cursorY + yOffset;
-				else
-					-- see if the anchor was set manually using setanchor
-					if (dropDownFrame.xOffset) then
-						xOffset = dropDownFrame.xOffset;
-					end
-					if (dropDownFrame.yOffset) then
-						yOffset = dropDownFrame.yOffset;
-					end
-					if (dropDownFrame.point) then
-						point = dropDownFrame.point;
-					end
-					if (dropDownFrame.relativeTo) then
-						relativeTo = dropDownFrame.relativeTo;
+					-- if there's no specified anchorName then use left side of the dropdown menu
+					if (not anchorName) then
+						-- see if the anchor was set manually using setanchor
+						if (dropDownFrame.xOffset) then
+							xOffset = dropDownFrame.xOffset;
+						end
+						if (dropDownFrame.yOffset) then
+							yOffset = dropDownFrame.yOffset;
+						end
+						if (dropDownFrame.point) then
+							point = dropDownFrame.point;
+						end
+						if (dropDownFrame.relativeTo) then
+							relativeTo = dropDownFrame.relativeTo;
+						else
+							relativeTo = GetChild(UIDROPDOWNMENU_OPEN_MENU, UIDROPDOWNMENU_OPEN_MENU:GetName(), "Left");
+						end
+						if (dropDownFrame.relativePoint) then
+							relativePoint = dropDownFrame.relativePoint;
+						end
+					elseif (anchorName == "cursor") then
+						relativeTo = nil;
+						local cursorX, cursorY = LibFroznFunctions:GetCursorPosition();
+						-- cursorX = cursorX/uiScale;
+						-- cursorY =  cursorY/uiScale;
+						
+						if (not xOffset) then
+							xOffset = 0;
+						end
+						if (not yOffset) then
+							yOffset = 0;
+						end
+						
+						xOffset = cursorX + xOffset;
+						yOffset = cursorY + yOffset;
 					else
-						relativeTo = anchorName;
+						-- see if the anchor was set manually using setanchor
+						if (dropDownFrame.xOffset) then
+							xOffset = dropDownFrame.xOffset;
+						end
+						if (dropDownFrame.yOffset) then
+							yOffset = dropDownFrame.yOffset;
+						end
+						if (dropDownFrame.point) then
+							point = dropDownFrame.point;
+						end
+						if (dropDownFrame.relativeTo) then
+							relativeTo = dropDownFrame.relativeTo;
+						else
+							relativeTo = anchorName;
+						end
+						if (dropDownFrame.relativePoint) then
+							relativePoint = dropDownFrame.relativePoint;
+						end
 					end
-					if (dropDownFrame.relativePoint) then
-						relativePoint = dropDownFrame.relativePoint;
+					if (not xOffset or not yOffset) then
+						xOffset = 8;
+						yOffset = 22;
 					end
-				end
-				if (not xOffset or not yOffset) then
-					xOffset = 8;
-					yOffset = 22;
-				end
-				if (not point) then
+					if (not point) then
+						point = "TOPLEFT";
+					end
+					if (not relativePoint) then
+						relativePoint = "BOTTOMLEFT";
+					end
+					-- tip:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset);
+					tip:SetPoint(point, relativeTo, relativePoint, xOffset / tipEffectiveScale, yOffset / tipEffectiveScale);
+				else
+					if (not dropDownFrame) then
+						dropDownFrame = UIDROPDOWNMENU_OPEN_MENU;
+					end
+					tip:ClearAllPoints();
+					-- if this is a dropdown button, not the arrow anchor it to itself
+					if (strsub(button:GetParent():GetName(), 0, 12) == prefixName and strlen(button:GetParent():GetName()) == 13 ) then
+						anchorFrame = button;
+					else
+						anchorFrame = button:GetParent();
+					end
 					point = "TOPLEFT";
+					relativePoint = "TOPRIGHT";
+					tip:SetPoint(point, anchorFrame, relativePoint, 0, 0);
 				end
-				if (not relativePoint) then
-					relativePoint = "BOTTOMLEFT";
-				end
-				-- tip:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset);
-				tip:SetPoint(point, relativeTo, relativePoint, xOffset / tipEffectiveScale, yOffset / tipEffectiveScale);
+				
+				-- hack since GetCenter() is returning coords relative to 1024x768
+				local x, y = tip:GetCenter();
+				-- hack will fix this in next revision of dropdowns
+				-- if (not x or not y) then
+					-- listFrame:Hide();
+					-- return;
+				-- end
 				
 				-- we just move level 1 enough to keep it on the screen. we don't necessarily change the anchors.
-				-- local offLeft = listFrame:GetLeft()/uiScale;
-				-- local offRight = (GetScreenWidth() - listFrame:GetRight())/uiScale;
-				-- local offTop = (GetScreenHeight() - listFrame:GetTop())/uiScale;
-				-- local offBottom = listFrame:GetBottom()/uiScale;
-				local offLeft = tip:GetLeft() / tipEffectiveScale;
-				local offRight = (GetScreenWidth() * TT_UIScale / tipEffectiveScale - tip:GetRight()) / tipEffectiveScale;
-				local offTop = (GetScreenHeight() * TT_UIScale / tipEffectiveScale - tip:GetTop()) / tipEffectiveScale;
-				local offBottom = tip:GetBottom() / tipEffectiveScale;
-				
-				local xAddOffset, yAddOffset = 0, 0;
-				if (offLeft < 0) then
-					xAddOffset = -offLeft;
-				elseif (offRight < 0) then
-					xAddOffset = offRight;
-				end
-				
-				if (offTop < 0) then
-					yAddOffset = offTop;
-				elseif (offBottom < 0) then
-					yAddOffset = -offBottom;
-				end
-				
-				tip:ClearAllPoints();
-				if (anchorName == "cursor") then
-					-- tip:SetPoint(point, relativeTo, relativePoint, xOffset + xAddOffset, yOffset + yAddOffset);
-					tip:SetPoint(point, relativeTo, relativePoint, (Offset + xAddOffset) / tipEffectiveScale, (yOffset + yAddOffset) / tipEffectiveScale);
+				if (_level == 1) then
+					-- local offLeft = listFrame:GetLeft()/uiScale;
+					-- local offRight = (GetScreenWidth() - listFrame:GetRight())/uiScale;
+					-- local offTop = (GetScreenHeight() - listFrame:GetTop())/uiScale;
+					-- local offBottom = listFrame:GetBottom()/uiScale;
+					local offLeft = tip:GetLeft() * tipEffectiveScale;
+					local offRight = (GetScreenWidth() * TT_UIScale / tipEffectiveScale - tip:GetRight()) * tipEffectiveScale;
+					local offTop = (GetScreenHeight() * TT_UIScale / tipEffectiveScale - tip:GetTop()) * tipEffectiveScale;
+					local offBottom = tip:GetBottom() * tipEffectiveScale;
+					
+					local xAddOffset, yAddOffset = 0, 0;
+					if (offLeft < 0) then
+						xAddOffset = -offLeft;
+					elseif (offRight < 0) then
+						xAddOffset = offRight;
+					end
+					
+					if (offTop < 0) then
+						yAddOffset = offTop;
+					elseif (offBottom < 0) then
+						yAddOffset = -offBottom;
+					end
+					
+					tip:ClearAllPoints();
+					if (anchorName == "cursor") then
+						-- tip:SetPoint(point, relativeTo, relativePoint, xOffset + xAddOffset, yOffset + yAddOffset);
+						tip:SetPoint(point, relativeTo, relativePoint, (xOffset + xAddOffset) / tipEffectiveScale, (yOffset + yAddOffset) / tipEffectiveScale);
+					else
+						-- tip:SetPoint(point, relativeTo, relativePoint, xOffset + xAddOffset, yOffset + yAddOffset);
+						tip:SetPoint(point, relativeTo, relativePoint, (xOffset + xAddOffset) / tipEffectiveScale, (yOffset + yAddOffset) / tipEffectiveScale);
+					end
 				else
-					-- tip:SetPoint(point, relativeTo, relativePoint, xOffset + xAddOffset, yOffset + yAddOffset);
-					tip:SetPoint(point, relativeTo, relativePoint, (xOffset + xAddOffset) / tipEffectiveScale, (yOffset + yAddOffset) / tipEffectiveScale);
+					-- determine whether the menu is off the screen or not
+					local offscreenY, offscreenX;
+					if ((y - tip:GetHeight()/2) < 0) then
+						offscreenY = 1;
+					end
+					-- if (tip:GetRight() > GetScreenWidth()) then
+					if (tip:GetRight() * tipEffectiveScale > GetScreenWidth() * TT_UIScale / tipEffectiveScale) then
+						offscreenX = 1;
+					end
+					if (offscreenY and offscreenX) then
+						point = gsub(point, "TOP(.*)", "BOTTOM%1");
+						point = gsub(point, "(.*)LEFT", "%1RIGHT");
+						relativePoint = gsub(relativePoint, "TOP(.*)", "BOTTOM%1");
+						relativePoint = gsub(relativePoint, "(.*)RIGHT", "%1LEFT");
+						xOffset = -11;
+						yOffset = -14;
+					elseif (offscreenY) then
+						point = gsub(point, "TOP(.*)", "BOTTOM%1");
+						relativePoint = gsub(relativePoint, "TOP(.*)", "BOTTOM%1");
+						xOffset = 0;
+						yOffset = -14;
+					elseif (offscreenX) then
+						point = gsub(point, "(.*)LEFT", "%1RIGHT");
+						relativePoint = gsub(relativePoint, "(.*)RIGHT", "%1LEFT");
+						xOffset = -11;
+						yOffset = 14;
+					else
+						xOffset = 0;
+						yOffset = 14;
+					end
+					
+					tip:ClearAllPoints();
+					-- listFrame.parentLevel = tonumber(strmatch(anchorFrame:GetName(), "DropDownList(%d+)"));
+					-- listFrame.parentID = anchorFrame:GetID();
+					-- tip:SetPoint(point, anchorFrame, relativePoint, xOffset, yOffset);
+					tip:SetPoint(point, anchorFrame, relativePoint, xOffset / tipEffectiveScale, yOffset / tipEffectiveScale);
 				end
 			end
 			
 			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
 				-- reapply appearance to UIDropDownMenu
-				reapplyAppearanceToUIDropDownMenu("DropDownList", level, dropDownFrame, anchorName, xOffset, yOffset);
+				reapplyAppearanceToUIDropDownMenu("DropDownList", level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay);
 			end);
 			
 			-- LibDropDownMenu, e.g used by addon Broker_Everything
@@ -780,7 +845,7 @@ TT_ExtendedConfig.tipsToModify = {
 				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
 				hooksecurefunc(LibDropDownMenu, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 					-- reapply appearance to UIDropDownMenu
-					reapplyAppearanceToUIDropDownMenu("LibDropDownMenu_List", level, dropDownFrame, anchorName, xOffset, yOffset);
+					reapplyAppearanceToUIDropDownMenu("LibDropDownMenu_List", level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
 				end);
 			end
 			
