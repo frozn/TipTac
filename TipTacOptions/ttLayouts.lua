@@ -16,6 +16,7 @@ local layout_presets = {
 
 		tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
+		pixelPerfectBackdrop = false,
 		backdropEdgeSize = 14,
 		backdropInsets = 2.5,
 		tipColor = { 0.1, 0.1, 0.2, 1.0 },
@@ -67,6 +68,7 @@ local layout_presets = {
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
+		pixelPerfectBackdrop = false,
 		backdropEdgeSize = 16,
 		backdropInsets = 4,
 		tipColor = { 0.1, 0.1, 0.2, 1.0 },
@@ -108,6 +110,7 @@ local layout_presets = {
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
+		pixelPerfectBackdrop = false,
 		backdropEdgeSize = 16,
 		backdropInsets = 4,
 		tipColor = { 0.1, 0.1, 0.1, 0.8 },
@@ -147,6 +150,7 @@ local layout_presets = {
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
+		pixelPerfectBackdrop = false,
 		backdropEdgeSize = 16,
 		backdropInsets = 4,
 		tipColor = { 0, 0, 0, 1 },
@@ -177,7 +181,8 @@ local layout_presets = {
 
 		tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 		tipBackdropEdge = "Interface\\Buttons\\WHITE8X8",
-		backdropEdgeSize = 2.5,
+		pixelPerfectBackdrop = true,
+		backdropEdgeSize = 1,
 		backdropInsets = 0,
 		tipColor = { 0.09, 0.09, 0.19, 1.0 },
 		tipBorderColor = { 0.6, 0.6, 0.6, 1.0 },
@@ -201,6 +206,7 @@ local layout_presets = {
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
+		pixelPerfectBackdrop = false,
 		backdropEdgeSize = 16,
 		backdropInsets = 5,
 		tipColor = { TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b, 1 },

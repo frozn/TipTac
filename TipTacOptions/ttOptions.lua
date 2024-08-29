@@ -774,7 +774,7 @@ f.btnAnchor:SetScript("OnLeave", Anchor_OnLeave);
 f.btnAnchor:SetText("Anchor");
 
 local function Reset_OnClick(self)
-	for index, option in ipairs(f.options[activePage].options) do
+	for index, option in ipairs(f.options[activePage].options or {}) do
 		if (option.var) then
 			cfg[option.var] = nil;	-- when cleared, they will read the default value from the metatable
 		end
@@ -1376,7 +1376,11 @@ function f:BuildCategoryList()
 			button:SetPoint("TOPLEFT",listButtons[index - 1],"BOTTOMLEFT");
 		end
 		if (index == activePage) then
-			button.text:SetTextColor(1,1,1);
+			if (not button.check.option) or (GetConfigValue(f.factory, button.check.option.var)) then
+				button.text:SetTextColor(1, 1, 1);
+			else
+				button.text:SetTextColor(0.5, 0.5, 0.5);
+			end
 			button:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight");
 			button:GetHighlightTexture():SetAlpha(0.7);
 			button:LockHighlight();
