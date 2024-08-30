@@ -584,30 +584,23 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- UIDropDownMenu
-			local last_UIDROPDOWNMENU_MAXLEVELS = 0;
 			
-			local function addUIDropDownMenuFrames()
+			-- add UIDropDownMenu frames
+			local function addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName)
+				local UIDROPDOWNMENU_MAXLEVELS = _G[nameUIDROPDOWNMENU_MAXLEVELS];
+				
 				for i = last_UIDROPDOWNMENU_MAXLEVELS + 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
-					tt:AddModifiedTip("DropDownList" .. i);
+					tt:AddModifiedTip(prefixName .. i);
 				end
 				
-				last_UIDROPDOWNMENU_MAXLEVELS = UIDROPDOWNMENU_MAXLEVELS;
+				return UIDROPDOWNMENU_MAXLEVELS;
 			end
 			
-			addUIDropDownMenuFrames();
-			
-			-- HOOK: UIDropDownMenu_CreateFrames() to add the new frames
-			hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
-				addUIDropDownMenuFrames();
-			end);
-			
-			-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
-			
 			-- reapply appearance to UIDropDownMenu
-			local function reapplyAppearanceToUIDropDownMenu(prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
+			local function reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 				-- check if insecure interaction with the tip is currently forbidden
 				local _level = (level or 1);
-				local tip = _G[prefixName .. (_level or 1)];
+				local tip = _G[prefixName .. _level];
 				
 				if (tip:IsForbidden()) then
 					return;
@@ -636,6 +629,7 @@ TT_ExtendedConfig.tipsToModify = {
 				end
 				
 				-- fix anchoring because of different scale, see ToggleDropDownMenu() in "UIDropDownMenu.lua"
+				local UIDROPDOWNMENU_OPEN_MENU = _G[nameUIDROPDOWNMENU_OPEN_MENU];
 				local TT_UIScale = UIParent:GetEffectiveScale();
 				local tipEffectiveScale = tip:GetEffectiveScale();
 				local point, relativePoint, relativeTo;
@@ -646,6 +640,11 @@ TT_ExtendedConfig.tipsToModify = {
 					else
 						return _G[name..key];
 					end
+				end
+				
+				-- adjust xOffset for addon "Titan Panel"
+				if (type(anchorName) == "string") and (anchorName:match("^Titan_Bar__Display_Bar(%d*)")) then
+					xOffset = xOffset * TT_UIScale;
 				end
 				
 				-- frame to anchor the dropdown menu to
@@ -730,7 +729,7 @@ TT_ExtendedConfig.tipsToModify = {
 					end
 					tip:ClearAllPoints();
 					-- if this is a dropdown button, not the arrow anchor it to itself
-					if (strsub(button:GetParent():GetName(), 0, 12) == prefixName and strlen(button:GetParent():GetName()) == 13 ) then
+					if (strsub(button:GetParent():GetName(), 0, prefixName:len()) == prefixName and strlen(button:GetParent():GetName()) == prefixName:len() + 1) then
 						anchorFrame = button;
 					else
 						anchorFrame = button:GetParent();
@@ -755,8 +754,8 @@ TT_ExtendedConfig.tipsToModify = {
 					-- local offTop = (GetScreenHeight() - listFrame:GetTop())/uiScale;
 					-- local offBottom = listFrame:GetBottom()/uiScale;
 					local offLeft = tip:GetLeft() * tipEffectiveScale;
-					local offRight = (GetScreenWidth() * TT_UIScale / tipEffectiveScale - tip:GetRight()) * tipEffectiveScale;
-					local offTop = (GetScreenHeight() * TT_UIScale / tipEffectiveScale - tip:GetTop()) * tipEffectiveScale;
+					local offRight = GetScreenWidth() * TT_UIScale - tip:GetRight() * tipEffectiveScale;
+					local offTop = GetScreenHeight() * TT_UIScale - tip:GetTop() * tipEffectiveScale;
 					local offBottom = tip:GetBottom() * tipEffectiveScale;
 					
 					local xAddOffset, yAddOffset = 0, 0;
@@ -787,7 +786,7 @@ TT_ExtendedConfig.tipsToModify = {
 						offscreenY = 1;
 					end
 					-- if (tip:GetRight() > GetScreenWidth()) then
-					if (tip:GetRight() * tipEffectiveScale > GetScreenWidth() * TT_UIScale / tipEffectiveScale) then
+					if (tip:GetRight() * tipEffectiveScale > GetScreenWidth() * TT_UIScale) then
 						offscreenX = 1;
 					end
 					if (offscreenY and offscreenX) then
@@ -820,33 +819,67 @@ TT_ExtendedConfig.tipsToModify = {
 				end
 			end
 			
-			hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
-				-- reapply appearance to UIDropDownMenu
-				reapplyAppearanceToUIDropDownMenu("DropDownList", level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay);
-			end);
+			-- style UIDropDownMenu
+			local function styleUIDropDownMenu(nameUIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_OPEN_MENU, tbl, returningSelf, prefixName)
+				local last_UIDROPDOWNMENU_MAXLEVELS = 0;
+				
+				last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+				
+				-- HOOK: UIDropDownMenu_CreateFrames() to add the new frames
+				if (tbl) then
+					if (returningSelf) then
+						hooksecurefunc(tbl, "UIDropDownMenu_CreateFrames", function(self, level, index)
+							last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+						end);
+					else
+						hooksecurefunc(tbl, "UIDropDownMenu_CreateFrames", function(level, index)
+							last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+						end);
+					end
+				else
+					hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
+						last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+					end);
+				end
+				
+				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
+				if (tbl) then
+					if (returningSelf) then
+						hooksecurefunc(tbl, "ToggleDropDownMenu", function(self, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
+							-- reapply appearance to UIDropDownMenu
+							reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
+						end);
+					else
+						hooksecurefunc(tbl, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
+							-- reapply appearance to UIDropDownMenu
+							reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
+						end);
+					end
+				else
+					hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
+						-- reapply appearance to UIDropDownMenu
+						reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
+					end);
+				end
+			end
+			
+			-- style UIDropDownMenu
+			styleUIDropDownMenu("UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", nil, nil, "DropDownList");
+			
+			-- LibUIDropDownMenu-4.0, e.g used by addon BetterBags
+			local LibUIDropDownMenu = LibStub:GetLibrary("LibUIDropDownMenu-4.0", true);
+			
+			if (LibUIDropDownMenu) then
+				-- style LibUIDropDownMenu
+				styleUIDropDownMenu("L_UIDROPDOWNMENU_MAXLEVELS", "L_UIDROPDOWNMENU_OPEN_MENU", LibUIDropDownMenu, true, "L_DropDownList");
+			end
 			
 			-- LibDropDownMenu, e.g used by addon Broker_Everything
 			local LibDropDownMenu = LibStub:GetLibrary("LibDropDownMenu", true);
 			
 			if (LibDropDownMenu) then
-				local function addLibDropDownMenuFrame(name)
-					tt:AddModifiedTip(name);
-				end
-				
-				for i = 1, UIDROPDOWNMENU_MAXLEVELS do
-					addLibDropDownMenuFrame("LibDropDownMenu_List" .. i);
-				end
-				
-				-- HOOK: LibDropDownMenu.Create_DropDownList() to add the new frames
-				hooksecurefunc(LibDropDownMenu, "Create_DropDownList", function(name, parent, opts)
-					addLibDropDownMenuFrame(name);
-				end);
-				
-				-- HOOK: ToggleDropDownMenu() to reapply appearance because e.g. 1-pixel borders sometimes aren't displayed correctly and to reapply scale
-				hooksecurefunc(LibDropDownMenu, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
-					-- reapply appearance to UIDropDownMenu
-					reapplyAppearanceToUIDropDownMenu("LibDropDownMenu_List", level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
-				end);
+				-- style LibUIDropDownMenu
+				styleUIDropDownMenu("UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", LibDropDownMenu, false, "LibDropDownMenu_List");
 			end
 			
 			-- LibQTip-1.0, e.g. used by addon Broker_Location
@@ -2531,7 +2564,7 @@ function tt:SetBackdropToTip(tip)
 	local tipName = tip:GetName();
 	
 	if (tipName) then
-		if (tipName:match("DropDownList(%d+)")) then
+		if (tipName:match("^DropDownList(%d+)")) or (tipName:match("^L_DropDownList(%d+)")) or (tipName:match("^LibDropDownMenu_List(%d+)")) then
 			local dropDownListBackdrop = _G[tipName.."Backdrop"];
 			local dropDownListMenuBackdrop = _G[tipName.."MenuBackdrop"];
 			
@@ -2540,7 +2573,12 @@ function tt:SetBackdropToTip(tip)
 				dropDownListBackdrop.Bg:SetTexture(nil);
 				dropDownListBackdrop.Bg:SetAtlas(nil);
 			end
-			LibFroznFunctions:StripTextures(dropDownListMenuBackdrop.NineSlice);
+			
+			if (dropDownListMenuBackdrop.NineSlice) then
+				LibFroznFunctions:StripTextures(dropDownListMenuBackdrop.NineSlice);
+			else
+				LibFroznFunctions:StripTextures(dropDownListMenuBackdrop);
+			end
 			
 			-- workaround for addon ElvUI to prevent applying of frame:StripTextures()
 			local isAddOnElvUILoaded = LibFroznFunctions:IsAddOnFinishedLoading("ElvUI");
@@ -2556,12 +2594,6 @@ function tt:SetBackdropToTip(tip)
 				dropDownListBackdrop.__MERSkin = true;
 				dropDownListMenuBackdrop.__MERSkin = true;
 			end
-		elseif (tipName:match("LibDropDownMenu_List(%d+)")) then
-			local dropDownListBackdrop = _G[tipName.."Backdrop"];
-			local dropDownListMenuBackdrop = _G[tipName.."MenuBackdrop"];
-			
-			LibFroznFunctions:StripTextures(dropDownListBackdrop);
-			LibFroznFunctions:StripTextures(dropDownListMenuBackdrop);
 		end
 	end
 	
@@ -3468,7 +3500,7 @@ function tt:GetAnchorPosition(tip)
 			local tipOwner = tip:GetOwner();
 			
 			if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
-						"ChatFrame(%d+)",
+						"^ChatFrame(%d+)",
 						(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
 					}, 1)) then
 				
