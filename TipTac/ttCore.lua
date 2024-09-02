@@ -815,7 +815,7 @@ TT_ExtendedConfig.tipsToModify = {
 					-- listFrame.parentLevel = tonumber(strmatch(anchorFrame:GetName(), "DropDownList(%d+)"));
 					-- listFrame.parentID = anchorFrame:GetID();
 					-- tip:SetPoint(point, anchorFrame, relativePoint, xOffset, yOffset);
-					tip:SetPoint(point, anchorFrame, relativePoint, xOffset / tipEffectiveScale, yOffset / tipEffectiveScale);
+					tip:SetPoint(point, anchorFrame, relativePoint, xOffset / TT_UIScale, yOffset / TT_UIScale);
 				end
 			end
 			
