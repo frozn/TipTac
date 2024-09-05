@@ -878,31 +878,8 @@ TT_ExtendedConfig.tipsToModify = {
 			local LibDropDownMenu = LibStub:GetLibrary("LibDropDownMenu", true);
 			
 			if (LibDropDownMenu) then
-				-- style LibUIDropDownMenu
+				-- style LibDropDownMenu
 				styleUIDropDownMenu("UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", LibDropDownMenu, false, "LibDropDownMenu_List");
-			end
-			
-			-- LibQTip-1.0, e.g. used by addon Broker_Location
-			local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
-			
-			if (LibQTip) then
-				local oldLibQTipAcquire = LibQTip.Acquire;
-				
-				LibQTip.Acquire = function(self, key, ...)
-					local tooltip = oldLibQTipAcquire(self, key, ...);
-					
-					tt:AddModifiedTipExtended(tooltip, {
-						applyAppearance = true,
-						applyScaling = true,
-						applyAnchor = false,
-						isFromLibQTip = true
-					});
-					
-					return tooltip;
-				end
-				
-				-- disable error message on HookScript()
-				LibQTip.tipPrototype.HookScript = nil;
 			end
 			
 			-- LibDropdown-1.0, e.g used by addon Recount
@@ -979,6 +956,29 @@ TT_ExtendedConfig.tipsToModify = {
 					
 					return openMenu;
 				end
+			end
+			
+			-- LibQTip-1.0, e.g. used by addon Broker_Location
+			local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
+			
+			if (LibQTip) then
+				local oldLibQTipAcquire = LibQTip.Acquire;
+				
+				LibQTip.Acquire = function(self, key, ...)
+					local tooltip = oldLibQTipAcquire(self, key, ...);
+					
+					tt:AddModifiedTipExtended(tooltip, {
+						applyAppearance = true,
+						applyScaling = true,
+						applyAnchor = false,
+						isFromLibQTip = true
+					});
+					
+					return tooltip;
+				end
+				
+				-- disable error message on HookScript()
+				LibQTip.tipPrototype.HookScript = nil;
 			end
 			
 			-- LibExtraTip-1, e.g used by addon BiS-Tooltip
@@ -1547,7 +1547,7 @@ end);
 
 TT_LDB_DataObject = LibDataBroker:NewDataObject(MOD_NAME, {
 	type = "launcher",
-	icon = "Interface\\AddOns\\TipTac\\media\\tiptac_logo",
+	icon = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\tiptac_logo",
 	label = MOD_NAME,
 	text = MOD_NAME,
 	OnTooltipShow = function(tip)
