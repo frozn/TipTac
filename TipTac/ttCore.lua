@@ -870,7 +870,7 @@ TT_ExtendedConfig.tipsToModify = {
 			local LibUIDropDownMenu = LibStub:GetLibrary("LibUIDropDownMenu-4.0", true);
 			
 			if (LibUIDropDownMenu) then
-				-- style LibUIDropDownMenu
+				-- style LibUIDropDownMenu-4.0
 				styleUIDropDownMenu("L_UIDROPDOWNMENU_MAXLEVELS", "L_UIDROPDOWNMENU_OPEN_MENU", LibUIDropDownMenu, true, "L_DropDownList");
 			end
 			
