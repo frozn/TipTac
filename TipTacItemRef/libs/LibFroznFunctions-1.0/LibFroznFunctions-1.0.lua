@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 32; -- bump on changes
+local LIB_MINOR = 33; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2556,15 +2556,24 @@ function LibFroznFunctions:FontExists(fontFile)
 		return false;
 	end
 	
-	-- create font
-	if (not fontExistsFont) then
-		fontExistsFont = CreateFont(LIB_NAME .. "-" .. LIB_MINOR .. "FontExists");
+	-- check if font file equals original test font file
+	local originalTestFontFile = "Fonts\\ARIALN.TTF";
+	
+	if (fontFile:lower() == originalTestFontFile:lower()) then
+		return true;
 	end
 	
-	-- check if font exists
+	-- create font and set with original test font file
+	if (not fontExistsFont) then
+		fontExistsFont = CreateFont(LIB_NAME .. "-" .. LIB_MINOR .. "_FontExists");
+	end
+	
+	fontExistsFont:SetFont(originalTestFontFile, 10, "");
+	
+	-- check if font changed aka exists
 	fontExistsFont:SetFont(fontFile, 10, "");
 	
-	return (not not fontExistsFont:GetFont());
+	return (fontExistsFont:GetFont() ~= originalTestFontFile);
 end
 
 ----------------------------------------------------------------------------------------------------
