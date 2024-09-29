@@ -829,7 +829,7 @@ local function SetPetAction_Hook(self, slot)
 			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
-				if (spellID) then
+				if (_spellID) then
 					tipDataAdded[self] = linkType;
 					LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
 				end
@@ -1451,7 +1451,7 @@ local function EITT_SetSpellByQuestReward_Hook(self, rewardIndex, questID)
 			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
-				if (spellID) then
+				if (_spellID) then
 					tipDataAdded[targetTooltip] = linkType;
 					LinkTypeFuncs.spell(targetTooltip, false, nil, link, linkType, _spellID);
 				end
@@ -1468,7 +1468,7 @@ local function EITT_SetSpellWithTextureByID_Hook(self, spellID, texture)
 			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
-				if (spellID) then
+				if (_spellID) then
 					tipDataAdded[targetTooltip] = linkType;
 					LinkTypeFuncs.spell(targetTooltip, false, nil, link, linkType, _spellID);
 				end
