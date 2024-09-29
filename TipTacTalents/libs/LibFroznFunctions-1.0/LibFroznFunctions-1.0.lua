@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 34; -- bump on changes
+local LIB_MINOR = 35; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -597,6 +597,26 @@ end
 -- @param  spellIdentifier  spell id, name, name(subtext) or link
 -- @return subtext
 function LibFroznFunctions:GetSpellSubtext(spellIdentifier)
+	-- workaround for blizzard bug in classic era 1.15.4: GetSpellSubtext() causes an ACCESS_VIOLATION exception when the spell doesn't exist in the local cache, see https://github.com/Stanzilla/WoWUIBugs/issues/662
+	if (self.isWoWFlavor.ClassicEra) then
+		if (not spellIdentifier) then
+			return;
+		end
+		
+		local spell = Spell:CreateFromSpellID(spellIdentifier);
+		
+		if (spell:IsSpellEmpty()) then
+			return;
+		end
+		
+		-- spell data is already available
+		if (spell:IsSpellDataCached()) then
+			return C_Spell.GetSpellSubtext(spellIdentifier);
+		end
+		
+		return;
+	end
+	
 	-- since tww 11.0.0
 	if (C_Spell) and (C_Spell.GetSpellSubtext) then
 		if (not spellIdentifier) then
