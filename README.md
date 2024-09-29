@@ -1,14 +1,15 @@
-<picture><img alt="Tooltip" src="https://user-images.githubusercontent.com/5655881/219820911-344b64c3-8aab-43e3-abbc-6bf79c6d85b7.jpg" align="right"></picture>
-<picture><img alt="available for" src="https://img.shields.io/badge/available%20for-retail%20(tww)%20%2B%20classic%20(catac)%20%2B%20classic%20era%20(vanilla)-brightgreen"></picture>
+![TipTac Reborn](https://github.com/user-attachments/assets/69b67fe4-4922-48c4-8ea7-bf83ec3b9a5d)
 
-[![Install](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
+![Available for](https://img.shields.io/badge/available%20for-retail%20(tww)%20%2B%20classic%20(catac)%20%2B%20classic%20era%20(vanilla)-brightgreen)
+
+[![Install CurseForge](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
 &nbsp; 
 [![CurseForge all releases](https://cf.way2muchnoise.eu/short_695153_downloads.svg)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)  
-[![Install](https://img.shields.io/badge/install-github-24292f)](https://github.com/frozn/TipTac/releases)
+[![Install GitHub](https://img.shields.io/badge/install-github-24292f)](https://github.com/frozn/TipTac/releases)
 &nbsp; 
 [![GitHub all releases](https://img.shields.io/github/downloads/frozn/TipTac/total?label=github%20downloads&color=24292f)](https://github.com/frozn/TipTac/releases)
 
-[![paypal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 # TipTac Reborn
 WoW AddOn TipTac Reborn [TWW] [CataC] [Classic Era]
