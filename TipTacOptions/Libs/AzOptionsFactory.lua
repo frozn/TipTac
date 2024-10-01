@@ -51,10 +51,12 @@
 	- no build category page on OnTextChanged of TextEdit
 	24.08.18 Rev 29 11.0.2/The War Within #frozn45
 	- added an "hidden" property for all objects
+	24.10.01 Rev 30 11.0.2/The War Within #frozn45
+	- classic era: added a workaround for blizzard bug in classic era 1.15.4: the UISliderTemplateWithLabels template defined in "SliderTemplates.xml" is missing.
 --]]
 
 -- create new library
-local REVISION = 29; -- bump on changes
+local REVISION = 30; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -313,8 +315,11 @@ azof.objects.Slider = {
 
 		local sliderName = GenerateObjectName("Slider");
 
-		f.slider = CreateFrame("Slider", sliderName, f, LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate);
-		if ((LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate == "UISliderTemplateWithLabels") and BackdropTemplateMixin and "BackdropTemplate") then
+		-- workaround for blizzard bug in classic era 1.15.4: the UISliderTemplateWithLabels template defined in "SliderTemplates.xml" is missing.
+		-- f.slider = CreateFrame("Slider", sliderName, f, LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate);
+		-- if ((LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate == "UISliderTemplateWithLabels") and BackdropTemplateMixin and "BackdropTemplate") then
+		f.slider = CreateFrame("Slider", sliderName, f, LibFroznFunctions.isWoWFlavor.ClassicEra and "TipTac_UISliderTemplateWithLabels" or LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate);
+		if (((LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate == "UISliderTemplateWithLabels")) and BackdropTemplateMixin and "BackdropTemplate") then
 			Mixin(f.slider, BackdropTemplateMixin);
 			f.slider.backdropInfo = BACKDROP_SLIDER_8_8;
 			f.slider:ApplyBackdrop();
