@@ -33,7 +33,7 @@ body:
     id: version-tiptac
     attributes:
       label: Version of TipTac Reborn
-      placeholder: e.g. 24.05.29, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
+      placeholder: e.g. 24.11.23, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
     validations:
       required: true
   - type: textarea
@@ -43,6 +43,6 @@ body:
       placeholder: |
         Flavor [e.g. Retail, CataC, Classic Era]
         - or -
-        Version [e.g. 11.0.5, 4.4.0, 1.15.4, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
+        Version [e.g. 11.0.5, 4.4.1, 1.15.5, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
     validations:
       required: true
