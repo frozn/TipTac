@@ -3211,9 +3211,6 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 --                       Prevent additional elements from moving off-screen                       --
 ----------------------------------------------------------------------------------------------------
 
--- SetClampRectInsetsToTip          set clamp rect insets to tip                                                tooltip, left, right, top, bottom
-
-
 -- set clamp rect insets to tip for preventing additional elements from moving off-screen
 function tt:SetClampRectInsetsToTip(tip, left, right, top, bottom)
 	-- check if insecure interaction with the tip is currently forbidden
@@ -3767,21 +3764,15 @@ function tt:SetUnitRecordFromTip(tip)
 	local rpName;
 	
 	if (unitRecord.isPlayer) then
-		if (msp) then
+		local _msp = (msp or msptrp);
+		
+		if (_msp) then
 			local field = "NA"; -- Name
 			
-			msp:Request(unitRecord.name, field);
+			_msp:Request(unitRecord.name, field);
 			
-			if (msp.char[unitRecord.name] ~= nil) and (msp.char[unitRecord.name].field[field] ~= "") then
-				unitRecord.rpName = msp.char[unitRecord.name].field[field];
-			end
-		elseif (msptrp) then
-			local field = "NA"; -- Name
-			
-			msptrp:Request(unitRecord.name, field);
-			
-			if (msptrp.char[unitRecord.name] ~= nil) and (msptrp.char[unitRecord.name].field[field] ~= "") then
-				unitRecord.rpName = msptrp.char[unitRecord.name].field[field];
+			if (_msp.char[unitRecord.name] ~= nil) and (_msp.char[unitRecord.name].field[field] ~= "") then
+				unitRecord.rpName = _msp.char[unitRecord.name].field[field];
 			end
 		end
 	end
