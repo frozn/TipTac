@@ -3761,8 +3761,6 @@ function tt:SetUnitRecordFromTip(tip)
 	-- set unit record
 	local unitRecord = LibFroznFunctions:CreateUnitRecord(unitID);
 	
-	local rpName;
-	
 	if (unitRecord.isPlayer) then
 		local _msp = (msp or msptrp);
 		
