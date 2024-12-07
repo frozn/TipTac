@@ -453,9 +453,14 @@ TT_ExtendedConfig.tipsToModify = {
 					end);
 					
 					-- HOOK: ItemRefTooltipMixin:ItemRefSetHyperlink() to adjust padding for close button if needed. additionally considering TextRight1 here.
-					LibFroznFunctions:HookSecureFuncIfExists(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
+					local function adjustPaddingForCloseButton(tip, closeButton)
+						-- check if close button is shown
+						if (not closeButton:IsShown()) then
+							return;
+						end
+						
 						-- get current display parameters
-						local frameParams = TT_CacheForFrames[self];
+						local frameParams = TT_CacheForFrames[tip];
 						
 						if (not frameParams) then
 							return;
@@ -464,17 +469,30 @@ TT_ExtendedConfig.tipsToModify = {
 						local currentDisplayParams = frameParams.currentDisplayParams;
 						
 						-- adjust padding for close button if needed. additionally considering TextRight1 here.
-						local titleRight = _G[self:GetName() .. "TextRight1"];
-						local titleLeft = _G[self:GetName() .. "TextLeft1"];
+						local titleRight = _G[tip:GetName() .. "TextRight1"];
+						local titleLeft = _G[tip:GetName() .. "TextLeft1"];
 						
-						if (titleRight) and (titleRight:GetText()) and (titleRight:GetRight() - self.CloseButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - self.CloseButton:GetLeft() > 0) then
-							local xPadding = 16;
+						if (titleRight) and (titleRight:GetText()) and (titleRight:GetRight() - closeButton:GetLeft() > 0) or (titleLeft) and (titleLeft:GetRight() - closeButton:GetLeft() > 0) then
+							local xPadding = closeButton:GetWidth() - 8;
 							currentDisplayParams.extraPaddingRightForCloseButton = xPadding;
 							
 							-- set padding to tip
-							tt:SetPaddingToTip(self);
+							tt:SetPaddingToTip(tip);
 						end
+					end
+					
+					LibFroznFunctions:HookSecureFuncIfExists(ItemRefTooltip, "ItemRefSetHyperlink", function(self, link)
+						-- adjust padding for close button if needed
+						adjustPaddingForCloseButton(self, self.CloseButton);
 					end);
+					
+					-- HOOK: ItemRefTooltip:SetHyperlink() to adjust padding for close button if needed and close button ItemRefCloseButton exists (only in classic era). additionally considering TextRight1 here.
+					if (ItemRefCloseButton) then
+						hooksecurefunc(ItemRefTooltip, "SetHyperlink", function (self, link)
+							-- adjust padding for close button if needed
+							adjustPaddingForCloseButton(self, ItemRefCloseButton);
+						end);
+					end
 				end
 			},
 			["ItemRefShoppingTooltip1"] = {
