@@ -2364,6 +2364,17 @@ end
 local isSettingBackdropBorderColor = false;
 
 function ttif:SetBackdropBorderColorLocked(tip, r, g, b, a)
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
+	
+	-- check if function tip:SetBackdropBorderColor() exists
+	if (not tip.SetBackdropBorderColor) then
+		return;
+	end
+	
+	-- set backdrop border color locked to tip
 	local aMultiplied = (a or 1) * ((cfg.tipBorderColor and cfg.tipBorderColor[4]) or 1);
 	
 	if (TipTac) then
