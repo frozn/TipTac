@@ -397,7 +397,7 @@ TT_ExtendedConfig.defaultAnchorPoint = "BOTTOMRIGHT";
 -- noHooks                        optional. true if no hooks should be applied to the frame directly, false/nil otherwise.
 -- hookFnForFrame                 optional. individual function for hooking for frame, nil otherwise. parameters: TT_CacheForFrames, tip
 -- waitSecondsForHooking          optional. float with number of seconds to wait before hooking for frame, nil otherwise.
--- isFromLibQTip                  optional. true if frame belongs to LibQTip, false/nil otherwise.
+-- isFromLibQTip                  optional. true if frame belongs to LibQTip-1.0, false/nil otherwise.
 --
 -- hint: determined frames will be added to TT_CacheForFrames with key as resolved real frame. The params will be added under ".config", the frame name under ".frameName".
 TT_ExtendedConfig.tipsToModify = {
@@ -1015,6 +1015,38 @@ TT_ExtendedConfig.tipsToModify = {
 					end
 					
 					return extraTip;
+				end
+			end
+			
+			-- workaround for addon "Bulk Mail Inbox" to adjust the inbox GUI to the overriden scale
+			local AceAddon = LibStub:GetLibrary("AceAddon-3.0", true);
+			
+			if (AceAddon) then
+				local BulkMailInbox = AceAddon:GetAddon("BulkMailInbox", true);
+				
+				if (BulkMailInbox) then
+					-- use BMI_isAdjustingTipsSizeAndPosition to prevent endless loop when calling BulkMailInbox:AdjustSizeAndPosition()
+					local BMI_isAdjustingTipsSizeAndPosition = false;
+					
+					hooksecurefunc(BulkMailInbox, "AdjustSizeAndPosition", function(self, tooltip)
+						-- check if we're already adjusting the tip's size and position
+						if (BMI_isAdjustingTipsSizeAndPosition) then
+							return;
+						end
+						
+						BMI_isAdjustingTipsSizeAndPosition = false;
+						
+						-- adjust the inbox GUI to the overriden scale
+						local BMI_oldScale = self.db.profile.scale;
+						
+						self.db.profile.scale = tooltip:GetScale();
+						
+						BMI_isAdjustingTipsSizeAndPosition = true;
+						self:AdjustSizeAndPosition(tooltip);
+						BMI_isAdjustingTipsSizeAndPosition = false;
+						
+						self.db.profile.scale = BMI_oldScale;
+					end);
 				end
 			end
 		end
@@ -2301,14 +2333,16 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 		end
 	end
 	
-	local tipWidthWithNewScaling = tip:GetWidth() * newTipEffectiveScale;
-	local tipHeightWithNewScaling = tip:GetHeight() * newTipEffectiveScale;
-	
-	local UIParentWidth = UIParent:GetWidth() * TT_UIScale;
-	local UIParentHeight = UIParent:GetHeight() * TT_UIScale;
-	
-	if (tipWidthWithNewScaling > UIParentWidth) or (tipHeightWithNewScaling > UIParentHeight) then
-        newTipScale = newTipScale / math.max(tipWidthWithNewScaling / UIParentWidth, tipHeightWithNewScaling / UIParentHeight) * 0.95; -- 95% of maximum UIParent width/height
+	if (not tipParams.isFromLibQTip) then -- don't reduce scale if frame belongs to LibQTip-1.0, because tip:UpdateScrolling() from LibQTip-1.0 will resize the tooltip to fit the screen and show a scrollbar if needed.
+		local tipWidthWithNewScaling = tip:GetWidth() * newTipEffectiveScale;
+		local tipHeightWithNewScaling = tip:GetHeight() * newTipEffectiveScale;
+		
+		local UIParentWidth = UIParent:GetWidth() * TT_UIScale;
+		local UIParentHeight = UIParent:GetHeight() * TT_UIScale;
+		
+		if (tipWidthWithNewScaling > UIParentWidth) or (tipHeightWithNewScaling > UIParentHeight) then
+			newTipScale = newTipScale / math.max(tipWidthWithNewScaling / UIParentWidth, tipHeightWithNewScaling / UIParentHeight) * 0.95; -- 95% of maximum UIParent width/height
+		end
 	end
 	
 	-- consider min/max scale from inherited DefaultScaleFrame, see DefaultScaleFrameMixin:UpdateScale() in "SharedUIPanelTemplates.lua"
