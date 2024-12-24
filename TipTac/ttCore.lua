@@ -1017,38 +1017,6 @@ TT_ExtendedConfig.tipsToModify = {
 					return extraTip;
 				end
 			end
-			
-			-- workaround for addon "Bulk Mail Inbox" to adjust the inbox GUI to the overriden scale
-			local AceAddon = LibStub:GetLibrary("AceAddon-3.0", true);
-			
-			if (AceAddon) then
-				local BulkMailInbox = AceAddon:GetAddon("BulkMailInbox", true);
-				
-				if (BulkMailInbox) then
-					-- use BMI_isAdjustingTipsSizeAndPosition to prevent endless loop when calling BulkMailInbox:AdjustSizeAndPosition()
-					local BMI_isAdjustingTipsSizeAndPosition = false;
-					
-					hooksecurefunc(BulkMailInbox, "AdjustSizeAndPosition", function(self, tooltip)
-						-- check if we're already adjusting the tip's size and position
-						if (BMI_isAdjustingTipsSizeAndPosition) then
-							return;
-						end
-						
-						BMI_isAdjustingTipsSizeAndPosition = false;
-						
-						-- adjust the inbox GUI to the overriden scale
-						local BMI_oldScale = self.db.profile.scale;
-						
-						self.db.profile.scale = tooltip:GetScale();
-						
-						BMI_isAdjustingTipsSizeAndPosition = true;
-						self:AdjustSizeAndPosition(tooltip);
-						BMI_isAdjustingTipsSizeAndPosition = false;
-						
-						self.db.profile.scale = BMI_oldScale;
-					end);
-				end
-			end
 		end
 	},
 	["Blizzard_CharacterCustomize"] = {
@@ -1127,6 +1095,41 @@ TT_ExtendedConfig.tipsToModify = {
 	},
 	
 	-- 3rd party addon tooltips
+	["BulkMail2Inbox"] = {
+		hookFnForAddOn = function(TT_CacheForFrames)
+			-- workaround for addon "Bulk Mail Inbox" to adjust the inbox GUI to the overriden scale
+			local AceAddon = LibStub:GetLibrary("AceAddon-3.0", true);
+			
+			if (AceAddon) then
+				local BulkMailInbox = AceAddon:GetAddon("BulkMailInbox", true);
+				
+				if (BulkMailInbox) then
+					-- use BMI_isAdjustingTipsSizeAndPosition to prevent endless loop when calling BulkMailInbox:AdjustSizeAndPosition()
+					local BMI_isAdjustingTipsSizeAndPosition = false;
+					
+					hooksecurefunc(BulkMailInbox, "AdjustSizeAndPosition", function(self, tooltip)
+						-- check if we're already adjusting the tip's size and position
+						if (BMI_isAdjustingTipsSizeAndPosition) then
+							return;
+						end
+						
+						BMI_isAdjustingTipsSizeAndPosition = false;
+						
+						-- adjust the inbox GUI to the overriden scale
+						local BMI_oldScale = self.db.profile.scale;
+						
+						self.db.profile.scale = tooltip:GetScale();
+						
+						BMI_isAdjustingTipsSizeAndPosition = true;
+						self:AdjustSizeAndPosition(tooltip);
+						BMI_isAdjustingTipsSizeAndPosition = false;
+						
+						self.db.profile.scale = BMI_oldScale;
+					end);
+				end
+			end
+		end
+	},
 	["ElvUI"] = {
 		frames = {
 			["ElvUI_SpellBookTooltip"] = { applyAppearance = true, applyScaling = true, applyAnchor = true }
@@ -1966,6 +1969,7 @@ function tt:ResolveTipsToModify()
 			TT_ExtendedConfig.tipsToModify[addOnName] = nil;
 			
 			-- apply hooks for addon
+			--
 			-- hint:
 			-- function hookFnForAddOn() needs to be called after removing addon config from tips to modify (see above),
 			-- because immediately calling tt:AddModifiedTipExtended() within hookFnForAddOn() leads to an infinite loop
