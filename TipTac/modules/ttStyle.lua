@@ -23,8 +23,8 @@ local lineInfo = LibFroznFunctions:CreatePushArray();
 local lineTargetedBy = LibFroznFunctions:CreatePushArray();
 
 -- String Constants
-local TT_LevelMatch = "^"..TOOLTIP_UNIT_LEVEL:gsub("%%[^s ]*s",".+"); -- Was changed to match other localizations properly, used to match: "^"..LEVEL.." .+" -- Doesn't actually match the level line on the russian client! [14.02.24] Doesn't match for Italian client either. [18.07.27] changed the pattern, might match non-english clients now
-local TT_LevelMatchPet = "^"..TOOLTIP_WILDBATTLEPET_LEVEL_CLASS:gsub("%%[^s ]*s",".+");	-- "^Pet Level .+ .+"
+local TT_LevelMatch = "^"..TOOLTIP_UNIT_LEVEL:gsub("%%[^s ]*s",".+"); -- "Level %s" -> "^Level .+" Was changed to match other localizations properly, used to match: "^"..LEVEL.." .+" -- Doesn't actually match the level line on the russian client! [14.02.24] Doesn't match for Italian client either. [18.07.27] changed the pattern, might match non-english clients now
+local TT_LevelMatchPet = "^"..TOOLTIP_WILDBATTLEPET_LEVEL_CLASS:gsub("%%[^s ]*s",".+");	-- "Pet Level %s %s" -> "^Pet Level .+ .+"
 local TT_Unknown = UNKNOWN; -- "Unknown"
 local TT_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
