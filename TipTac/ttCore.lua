@@ -2321,6 +2321,17 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 		return;
 	end
 	
+	-- don't set scale to tip for addon "SavedInstances"
+	local LibQTip;
+	
+	if (tipParams.isFromLibQTip) then
+		LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
+		
+		if (LibQTip) and (LibQTip.activeTooltips["SavedInstancesTooltip"] == tip) then
+			return;
+		end
+	end
+	
 	-- calculate new scale for tip
 	local tipScale = tip:GetScale();
 	local tipEffectiveScale = tip:GetEffectiveScale();
@@ -2329,12 +2340,8 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	local newTipEffectiveScale = tipEffectiveScale * newTipScale / tipScale;
 	
 	-- reduce scale if tip exceeds UIParent width/height
-	if (tipParams.isFromLibQTip) then
-		local LibQTip = LibStub:GetLibrary("LibQTip-1.0", true);
-		
-		if (LibQTip) then
-			LibQTip.layoutCleaner:CleanupLayouts();
-		end
+	if (tipParams.isFromLibQTip) and (LibQTip) then
+		LibQTip.layoutCleaner:CleanupLayouts();
 	end
 	
 	if (not tipParams.isFromLibQTip) then -- don't reduce scale if frame belongs to LibQTip-1.0, because tip:UpdateScrolling() from LibQTip-1.0 will resize the tooltip to fit the screen and show a scrollbar if needed.
