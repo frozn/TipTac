@@ -22,7 +22,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 * added fixes for WoW patch ...
   * 11.0.7 - The War Within [TWW]
   * 4.4.1 - Cataclysm Classic [CataC]
-  * 1.15.5 - Classic Era / Vanilla [Classic Era]
+  * 1.15.6 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
