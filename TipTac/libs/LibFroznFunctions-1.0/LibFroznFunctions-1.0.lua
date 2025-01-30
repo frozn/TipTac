@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 37; -- bump on changes
+local LIB_MINOR = 38; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -937,7 +937,7 @@ end
 -- remove all items from table
 --
 -- @param tab[]    table to remove all items from
--- @param shallow  optional. true if only values on the first level should be compared, false/nil if deeper nested values should also be compared.
+-- @param shallow  optional. true if only values on the first level should be removed, false/nil if deeper nested values should also be removed.
 function LibFroznFunctions:RemoveAllFromTable(tab, shallow)
 	-- no table
 	if (type(tab) ~= "table") then
@@ -3126,6 +3126,110 @@ function LibFroznFunctions:GetUnitCastingSpell(unitID)
 		isEmpowered = isEmpowered,
 		numEmpowerStages = numEmpowerStages
 	};
+end
+
+-- get the faction a unit belongs to
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return englishFaction    unit's faction name in english, e.g. "Alliance", "Horde", "Neutral". nil otherwise.
+-- @return localizedFaction  unit's faction name in the client's locale, nil otherwise.
+function LibFroznFunctions:GetUnitFactionGroup(unitID)
+	local englishFaction, localizedFaction = UnitFactionGroup(unitID);
+	
+	if (englishFaction) then
+		-- consider that localized faction for pandaren player on the Wandering Isle is ""
+		if (englishFaction == "Neutral") then
+			localizedFaction = FACTION_NEUTRAL;
+		
+		-- consider mercenary mode (allows players to enter unrated battlegrounds and Ashran as a member of the opposite faction)
+		elseif (LibFroznFunctions:UnitIsMercenary(unitID)) then
+			if (englishFaction == "Horde") then
+				englishFaction = "Alliance";
+				localizedFaction = FACTION_ALLIANCE;
+			elseif (englishFaction == "Alliance") then
+				englishFaction = "Horde";
+				localizedFaction = FACTION_HORDE;
+			end
+		end
+	end
+	
+	return englishFaction, localizedFaction;
+end
+
+-- get player guild club member info
+--
+-- @param  unit guid  unit guid
+-- @return playerGuildClubMemberInfo, nil otherwise.
+local frameForGroupRosterUpdate, playerGuildClubIDCache;
+local playerGuildClubMemberInfosCache = {};
+local eventsForGroupRosterUpdateRegistered = false;
+
+function LibFroznFunctions:GetPlayerGuildClubMemberInfo(unitGUID)
+	-- register events for guild roster update
+	if (not eventsForGroupRosterUpdateRegistered) then
+		-- cache the player guild club member infos
+		local function cachePlayerGuildClubMemberInfosFn()
+			-- clear player guild club member infos in cache
+			playerGuildClubIDCache = nil;
+			wipe(playerGuildClubMemberInfosCache);
+			
+			-- player isn't in a guild
+			if (not IsInGuild()) then
+				return;
+			end
+			
+			-- cache the player guild club member infos
+			if (not playerGuildClubIDCache) then
+				playerGuildClubIDCache = C_Club.GetGuildClubId();
+			end
+			
+			if (playerGuildClubIDCache) then
+				local playerGuildClubMemberIDs = C_Club.GetClubMembers(playerGuildClubIDCache);
+				
+				for _, playerGuildClubMemberID in ipairs(playerGuildClubMemberIDs) do
+					local playerGuildClubMemberInfo = C_Club.GetMemberInfo(playerGuildClubIDCache, playerGuildClubMemberID);
+					
+					if (playerGuildClubMemberInfo) and (playerGuildClubMemberInfo.guid) then
+						playerGuildClubMemberInfosCache[playerGuildClubMemberInfo.guid] = playerGuildClubMemberInfo;
+					end
+				end
+			end
+		end
+		
+		cachePlayerGuildClubMemberInfosFn();
+		
+		-- create frame for guild roster update
+		frameForGroupRosterUpdate = CreateFrame("Frame", LIB_NAME .. "-" .. LIB_MINOR .. "_GetPlayerGuildClubMemberInfo");
+		frameForGroupRosterUpdate:Hide();
+		
+		frameForGroupRosterUpdate:SetScript("OnEvent", function(self, event, ...)
+			self[event](self, event, ...);
+		end);
+
+		function frameForGroupRosterUpdate:PLAYER_LOGIN()
+			-- request updated guild roster information from the server if player is in a guild
+			if (IsInGuild()) then
+				C_GuildInfo.GuildRoster();
+			end
+		end
+		
+		function frameForGroupRosterUpdate:GUILD_ROSTER_UPDATE()
+			-- cache the player guild club member infos
+			cachePlayerGuildClubMemberInfosFn();
+		end
+		
+		frameForGroupRosterUpdate:RegisterEvent("PLAYER_LOGIN");
+		frameForGroupRosterUpdate:RegisterEvent("GUILD_ROSTER_UPDATE");
+		eventsForGroupRosterUpdateRegistered = true;
+	end
+	
+	-- no unit guid
+	if (not unitGUID) then
+		return nil;
+	end
+	
+	-- get player guild club member info
+	return playerGuildClubMemberInfosCache[unitGUID];
 end
 
 ----------------------------------------------------------------------------------------------------

@@ -167,18 +167,9 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
 			icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
 		elseif (UnitIsPVP(unitRecord.id)) then
-			-- get english faction
+			-- set icon if faction isn't neutral
 			local englishFaction = UnitFactionGroup(unitRecord.id);
 			
-			if (englishFaction) and (LibFroznFunctions:UnitIsMercenary(unitRecord.id)) then
-				if (englishFaction == "Horde") then
-					englishFaction = "Alliance";
-				elseif (englishFaction == "Alliance") then
-					englishFaction = "Horde";
-				end
-			end
-			
-			-- set icon if faction isn't neutral
 			if (englishFaction) and (englishFaction ~= "Neutral") then
 				-- acquire icon frame
 				iconFrameIndex = iconFrameIndex + 1;

@@ -31,6 +31,8 @@ local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = LibFroznFunctions:GetGlobalString("TIPTAC_TARGETED_BY") or "Targeted by"; -- "Targeted by"
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating: %s"
 local TT_Mount = LibFroznFunctions:GetGlobalString("RENOWN_REWARD_MOUNT_NAME_FORMAT") or "Mount: %s"; -- "Mount: %s"
+local TT_PlayerGuildMemberNote = GUILD .. " " .. LABEL_NOTE; -- "Guild" "Note"
+local TT_PlayerGuildOfficerNote = GUILD .. " " .. OFFICER_NOTE_COLON; -- "Guild" "Officer's Note"
 local TT_ReactionIcon = {
 	[LFF_UNIT_REACTION_INDEX.hostile] = "unit_reaction_hostile",             -- Hostile
 	[LFF_UNIT_REACTION_INDEX.caution] = "unit_reaction_caution",             -- Unfriendly
@@ -383,9 +385,10 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 	-- local guild, guildRank = GetGuildInfo(unitRecord.id);
 	local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo(unitRecord.id);
 	if (guildName) then
+		local playerGuildName = GetGuildInfo("player");
+		local isPlayerGuild = (guildName == playerGuildName);
 		if (cfg.showGuild) then -- show guild
-			local playerGuildName = GetGuildInfo("player");
-			local guildColor = (guildName == playerGuildName and CreateColor(unpack(cfg.colorSameGuild)) or cfg.colorGuildByReaction and unitRecord.reactionColor or CreateColor(unpack(cfg.colorGuild)));
+			local guildColor = (isPlayerGuild and CreateColor(unpack(cfg.colorSameGuild)) or cfg.colorGuildByReaction and unitRecord.reactionColor or CreateColor(unpack(cfg.colorGuild)));
 			local text = guildColor:WrapTextInColorCode(format("<%s>", guildName));
 			if (cfg.showGuildRank and guildRankName) then
 				if (cfg.guildRankFormat == "title") then
@@ -412,6 +415,30 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 			if (LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) then -- separate line for guild name
 				GameTooltipTextLeft2:SetText(nil);
 				lineLevel.Index = (lineLevel.Index + 1);
+			end
+		end
+		-- show member/officer note for player guild
+		if (isPlayerGuild) and ((cfg.showGuildMemberNote) or (cfg.showGuildOfficerNote)) then
+			local playerGuildClubMemberInfo = LibFroznFunctions:GetPlayerGuildClubMemberInfo(unitRecord.guid);
+			
+			if (cfg.showGuildMemberNote) and (playerGuildClubMemberInfo.memberNote) then
+				if (lineInfo:GetCount() > 0) then
+					lineInfo:Push("\n");
+				end
+				lineInfo:Push("|cffffd100");
+				lineInfo:Push(TT_PlayerGuildMemberNote);
+				lineInfo:Push(": ");
+				lineInfo:Push(TT_COLOR.text.default:WrapTextInColorCode(playerGuildClubMemberInfo.memberNote));
+			end
+			
+			if (cfg.showGuildOfficerNote) and (playerGuildClubMemberInfo.officerNote) then
+				if (lineInfo:GetCount() > 0) then
+					lineInfo:Push("\n");
+				end
+				lineInfo:Push("|cffffd100");
+				lineInfo:Push(TT_PlayerGuildOfficerNote);
+				lineInfo:Push(": ");
+				lineInfo:Push(TT_COLOR.text.default:WrapTextInColorCode(playerGuildClubMemberInfo.officerNote));
 			end
 		end
 	end
@@ -518,19 +545,9 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 
 	-- Faction Text
 	if (unitRecord.isPlayer) and (cfg.factionText) then
-		local englishFaction, localizedFaction = UnitFactionGroup(unitRecord.id);
+		local englishFaction, localizedFaction = LibFroznFunctions:GetUnitFactionGroup(unitRecord.id);
 		
 		if (englishFaction) then
-			if (LibFroznFunctions:UnitIsMercenary(unitRecord.id)) then
-				if (englishFaction == "Horde") then
-					englishFaction = "Alliance";
-					localizedFaction = FACTION_ALLIANCE;
-				elseif (englishFaction == "Alliance") then
-					englishFaction = "Horde";
-					localizedFaction = FACTION_HORDE;
-				end
-			end
-			
 			local factionTextColor = (cfg.enableColorFaction and cfg["colorFaction" .. englishFaction] and CreateColor(unpack(cfg["colorFaction" .. englishFaction]))) or TT_COLOR.text.default;
 			
 			lineLevel:Push("\n");
