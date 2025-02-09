@@ -2470,8 +2470,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 	local showIconID = (cfg.if_showIconId and itemTexture);
 	local showExpansionIcon = (cfg.if_showExpansionIcon and expansionIcon);
 	local showExpansionName = (cfg.if_showExpansionName and expansionName);
-	local showItemEnchantID = (cfg.if_showItemEnchantId and enchantID);
-	local showItemEnchantInfo = (cfg.if_showItemEnchantInfo and enchantID);
+	local showItemEnchantID = (cfg.if_showItemEnchantId and enchantID and (enchantID ~= ""));
+	local showItemEnchantInfo = (cfg.if_showItemEnchantInfo and enchantID and (enchantID ~= ""));
 	local linePadding = 2;
 
 	if (showLevel or showId) then
@@ -2567,7 +2567,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 		local enchant = LibFroznFunctions:GetItemEnchant(enchantID);
 		
 		if (enchant) and (enchant ~= LFF_ENCHANT.none) and (enchant ~= LFF_ENCHANT.available) then
-			self:AddLine(format("Enchant Description: %s %s\n%s", CreateTextureMarkup(enchant.spellIconID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93), GREEN_FONT_COLOR:WrapTextInColorCode(enchant.spellName), enchant.description), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+			self:AddLine(format("Enchant Description: %s %s", CreateTextureMarkup(enchant.spellIconID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93), GREEN_FONT_COLOR:WrapTextInColorCode(enchant.spellName)), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3]);
+			self:AddLine(enchant.description, cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
 			
 		end
 	end
@@ -2682,7 +2683,8 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 				if (modifierID) then
 					local modifierName, modifierDescription, fileDataID = C_ChallengeMode.GetAffixInfo(modifierID);
 					if (modifierName and modifierDescription) then
-						self:AddLine(format("%s %s\n%s", CreateTextureMarkup(fileDataID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93), GREEN_FONT_COLOR:WrapTextInColorCode(modifierName), modifierDescription), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+						self:AddLine(format("%s %s", CreateTextureMarkup(fileDataID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93), GREEN_FONT_COLOR:WrapTextInColorCode(modifierName)), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3]);
+						self:AddLine(modifierDescription, cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
 					end
 				end
 			end
