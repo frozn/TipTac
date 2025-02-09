@@ -1,8 +1,8 @@
--- classic era 1.15.0 build 52610, from https://wago.tools/db2/SpellEffect?build=1.15.0.52610 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 with https://thdoan.github.io/mr-data-converter/
+-- classic era 1.15.6 build 58912, from https://wago.tools/db2/SpellEffect?build=1.15.6.58912 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 2; -- bump on changes
+local TABLE_MINOR = 3; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -145,5 +145,50 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[406634]=203694,
 	[429856]=12361,
 	[429857]=5197,
-	[434508]=15665
+	[434508]=15665,
+	[436288]=7704,
+	[436289]=7706,
+	[436327]=7686,
+	[436329]=10338,
+	[446685]=222689,
+	[461607]=14565,
+	[463005]=10178,
+	[463006]=10338,
+	[463007]=7704,
+	[473848]=234544,
+	[473853]=234544,
+	[473855]=234544,
+	[473858]=234546,
+	[473859]=234546,
+	[473860]=234546,
+	[473869]=234545,
+	[473870]=234545,
+	[473871]=234545,
+	[473874]=234543,
+	[473875]=234543,
+	[473877]=234543,
+	[473882]=234542,
+	[473886]=234542,
+	[473887]=234542,
+	[473900]=234651,
+	[1214283]=235326,
+	[1215378]=235881,
+	[1215380]=235880,
+	[1216141]=15778,
+	[1217142]=15714,
+	[1217143]=15714,
+	[1217144]=15714,
+	[1217146]=15715,
+	[1217147]=15715,
+	[1217148]=15715,
+	[1217150]=15713,
+	[1217151]=15713,
+	[1217152]=15713,
+	[1217154]=15716,
+	[1217155]=15716,
+	[1217156]=15716,
+	[1220565]=238329,
+	[1220566]=238330,
+	[1220567]=238331,
+	[1220568]=238332
 });

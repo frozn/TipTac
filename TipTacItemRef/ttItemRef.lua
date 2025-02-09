@@ -51,6 +51,8 @@ local TTIF_DefaultConfig = {
 	if_showItemId = false,
 	if_showExpansionIcon = false,
 	if_showExpansionName = false,
+	if_showItemEnchantId = false,
+	if_showItemEnchantInfo = true,
 	if_showKeystoneRewardLevel = true,
 	if_showKeystoneTimeLimit = true,
 	if_showKeystoneAffixInfo = true,
@@ -2418,8 +2420,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 	end
 	
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(link);
+	local splits = StringSplitIntoTable(":", link);
 	if (classID == 5) and (subClassID == 1) then -- keystone
-		local splits = StringSplitIntoTable(":", link);
 		local mapID = splits[17];
 		local keystoneLevel = splits[19];
 		LinkTypeFuncs.keystone(self, link, linkType, id, mapID, keystoneLevel, select(21, unpack(splits))); -- modifierID1, modifierID2, modifierID3, modifierID4
@@ -2433,6 +2435,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	local mountID = LibFroznFunctions:GetMountFromItem(id);
 	local expansionIcon = expansionID and TTIF_ExpansionIcon[expansionID];
 	local expansionName = expansionID and _G["EXPANSION_NAME" .. expansionID];
+	local enchantID = splits[3];
 	
 	-- Icon
 	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
@@ -2467,6 +2470,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 	local showIconID = (cfg.if_showIconId and itemTexture);
 	local showExpansionIcon = (cfg.if_showExpansionIcon and expansionIcon);
 	local showExpansionName = (cfg.if_showExpansionName and expansionName);
+	local showItemEnchantID = (cfg.if_showItemEnchantId and enchantID);
+	local showItemEnchantInfo = (cfg.if_showItemEnchantInfo and enchantID);
 	local linePadding = 2;
 
 	if (showLevel or showId) then
@@ -2552,6 +2557,19 @@ function LinkTypeFuncs:item(link, linkType, id)
 	if (showExpansionIcon) or (showExpansionName) then
 		local expansionIconTextureMarkup = (showExpansionIcon and LibFroznFunctions:CreateTextureMarkupWithAspectRatio(expansionIcon.textureFile, expansionIcon.textureWidth, expansionIcon.textureHeight, expansionIcon.aspectRatio, expansionIcon.leftTexel, expansionIcon.rightTexel, expansionIcon.topTexel, expansionIcon.bottomTexel));
 		self:AddLine(format("Expansion: %s", (expansionIconTextureMarkup and expansionIconTextureMarkup or "") .. (showExpansionIcon and showExpansionName and " " or "") .. (showExpansionName and expansionName or "")), unpack(cfg.if_infoColor));
+	end
+	
+	if (showItemEnchantID) then
+		self:AddLine(format("EnchantID: %d", enchantID), unpack(cfg.if_infoColor));
+	end
+	
+	if (showItemEnchantInfo) then
+		local enchant = LibFroznFunctions:GetItemEnchant(enchantID);
+		
+		if (enchant) and (enchant ~= LFF_ENCHANT.none) and (enchant ~= LFF_ENCHANT.available) then
+			self:AddLine(format("Enchant Description: %s %s\n%s", CreateTextureMarkup(enchant.spellIconID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93), GREEN_FONT_COLOR:WrapTextInColorCode(enchant.spellName), enchant.description), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
+			
+		end
 	end
 	
 	targetTooltip:Show();	-- call Show() to resize tip after adding lines. only necessary for items in toy box.
@@ -2699,7 +2717,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		if (linkMawPower) then
 			local _linkType, _mawPowerID = linkMawPower:match("H?(%a+):(%d+)");
 			mawPowerID = _mawPowerID;
-			if (not LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID]) then -- possible internal blizzard bug: C_Spell.GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wow.tools/dbc/?dbc=mawpower)
+			if (not LibFroznFunctions:GetMawPower(mawPowerID)) then -- possible internal blizzard bug: C_Spell.GetMawPowerLinkBySpellID() e.g. returns mawPowerID 1453 for battle shout with spellID 6673, which doesn't exist in table MawPower (from https://wago.tools/db2/MawPower)
 				mawPowerID = nil;
 			end
 		end
@@ -2799,8 +2817,12 @@ end
 -- maw power
 function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 	local spellID = nil;
-	if (mawPowerID and LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID]) then
-		spellID = LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[mawPowerID].spellID;
+	if (mawPowerID) then
+		local mawPower = LibFroznFunctions:GetMawPower(mawPowerID);
+		
+		if (mawPower) then
+			spellID = mawPower.spellID;
+		end
 	end
 	
 	local spellInfo = LibFroznFunctions:GetSpellInfo(spellID);
