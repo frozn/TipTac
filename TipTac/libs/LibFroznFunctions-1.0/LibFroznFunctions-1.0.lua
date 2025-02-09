@@ -613,6 +613,24 @@ function LibFroznFunctions:GetSpellInfo(spellIdentifier)
 	};
 end
 
+-- get spell texture
+--
+-- @param  spellIdentifier  spell id, name, name(subtext) or link
+-- @return iconID
+function LibFroznFunctions:GetSpellTexture(spellIdentifier)
+	-- since tww 11.0.0
+	if (C_Spell) and (C_Spell.GetSpellTexture) then
+		if (not spellIdentifier) then
+			return nil;
+		end
+		
+		return C_Spell.GetSpellTexture(spellIdentifier);
+	end
+	
+	-- before tww 11.0.0
+	return GetSpellTexture(spellIdentifier);
+end
+
 -- get spell subtext
 --
 -- @param  spellIdentifier  spell id, name, name(subtext) or link
@@ -2731,10 +2749,12 @@ end
 
 function LFF_GetEnchantFromSpellData(spell, callbackForEnchantData)
 	-- get enchant from spell data
+	local spellID = spell:GetSpellID();
+	
 	local enchant = {
-		spellID = spell:GetSpellID(),
+		spellID = spellID,
 		spellName = spell:GetSpellName(),
-		spellIconID = spell:GetSpellTexture(),
+		spellIconID = LibFroznFunctions:GetSpellTexture(spellID),
 		description = spell:GetSpellDescription()
 	};
 	
