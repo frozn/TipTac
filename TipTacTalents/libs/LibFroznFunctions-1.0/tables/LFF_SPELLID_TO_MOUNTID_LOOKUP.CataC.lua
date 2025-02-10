@@ -1,4 +1,4 @@
--- catac 4.4.1 build 52237, from https://wago.tools/db2/SpellEffect?build=4.4.1.58558 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
+-- catac 4.4.1 build 58558, from https://wago.tools/db2/SpellEffect?build=4.4.1.58558 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
