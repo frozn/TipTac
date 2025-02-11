@@ -70,12 +70,14 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
 - added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
 - added option "General->Show Mount" to show the player's mount icon/name/speed and an icon indicating if you already have collected the mount
+- added option "General->Show Player Guild Member/Officer note"
 - added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
 - added option "Colors->Enable Coloring of Faction Text" to change the color of the unit's faction text
 - added option "ItemRef->Show Mount ID" to show the mount id
 - added option "ItemRef->Show Icon ID" to show the icon id
 - added option in "ItemRef" to show stack count of items in tooltip
 - added options "ItemRef->Show Expansion Icon/Name" to show the expansion icon/name of the item. This feature is only available in retail and not in WotLKC or classic era.
+- added option "ItemRef->Show Item Enchant ID/Info"
 - added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 - considered debuff border for aura positions
 - splitted options for auras from spells
