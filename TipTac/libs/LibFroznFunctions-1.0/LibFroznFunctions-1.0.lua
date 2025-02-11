@@ -446,13 +446,14 @@ function LibFroznFunctions:GetMawPower(mawPowerID)
 	return LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP[tonumber(mawPowerID)];
 end
 
--- get spell from enchant
+-- get spell data from enchant
 --
 -- @param  enchantID  enchant id
--- @return spellID  spell id
---         returns 0 if there is no specific spell.
+-- @return spellData
+--           .spellID             spell id. 0 if there is no specific spell.
+--           .spellIDDescription  (alternate) spell id for description. 0 if there is no specific (alternate) spell id for the description.
 --         returns nil if enchant doesn't exist.
-function LibFroznFunctions:GetSpellFromEnchant(enchantID)
+function LibFroznFunctions:GetSpellDataFromEnchant(enchantID)
 	return LFF_ENCHANTID_TO_SPELLID_LOOKUP[tonumber(enchantID)];
 end
 
@@ -2717,37 +2718,73 @@ LFF_ENCHANT = {
 };
 
 function LibFroznFunctions:GetItemEnchant(enchantID, callbackForEnchantmentData)
-	-- check if spell for enchant is available and queried from server
-	local spellID = LibFroznFunctions:GetSpellFromEnchant(enchantID);
+	-- check if spell data for enchant is available
+	local spellData = LibFroznFunctions:GetSpellDataFromEnchant(enchantID);
 	
-	if (not spellID) then
+	if (not spellData) or (spellData.spellID == 0) then
 		return LFF_ENCHANT.none;
 	end
 	
-	local spell = Spell:CreateFromSpellID(spellID);
+	local spell = Spell:CreateFromSpellID(spellData.spellID);
 	
 	if (spell:IsSpellEmpty()) then
 		return LFF_ENCHANT.none;
 	end
 	
-	-- spell data for enchant is already available
-	if (spell:IsSpellDataCached()) then
-		return LFF_GetEnchantFromSpellData(spell);
-	end
+	local spellDescription;
 	
-	-- spell data for enchant isn't available
-	if (type(callbackForEnchantData) == "function") then
-		spell:ContinueOnSpellLoad(function()
-			LFF_GetEnchantFromSpellData(spell,callbackForEnchantData);
-		end);
+	if (spellData.spellIDDescription == 0) then
+		spellDescription = spell
 	else
-		C_Spell.RequestLoadSpellData(spellID);
+		spellDescription = Spell:CreateFromSpellID(spellData.spellIDDescription);
 	end
 	
-	return LFF_ENCHANT.available;
+	-- check if spell data for enchant is available and queried from server
+	local spellCountWaitingForData = 0;
+	
+	if (type(callbackForEnchantData) == "function") then
+		if (not spell:IsSpellDataCached()) then
+			spellCountWaitingForData = spellCountWaitingForData + 1;
+			
+			spell:ContinueOnSpellLoad(function()
+				spellCountWaitingForData = spellCountWaitingForData - 1;
+				
+				if (spellCountWaitingForData == 0) then
+					LFF_GetEnchantFromSpellData(spell, spellDescription, callbackForEnchantData);
+				end
+			end);
+		end
+		
+		if (not spellDescription:IsSpellEmpty()) and (not spellDescription:IsSpellDataCached()) then
+			spellCountWaitingForData = spellCountWaitingForData + 1;
+			
+			spellDescription:ContinueOnSpellLoad(function()
+				spellCountWaitingForData = spellCountWaitingForData - 1;
+				
+				if (spellCountWaitingForData == 0) then
+					LFF_GetEnchantFromSpellData(spell, spellDescription, callbackForEnchantData);
+				end
+			end);
+		end
+	else
+		if (not spell:IsSpellDataCached()) then
+			C_Spell.RequestLoadSpellData(spell:GetSpellID());
+		end
+		
+		if (not spellDescription:IsSpellDataCached()) then
+			C_Spell.RequestLoadSpellData(spellDescription:GetSpellID());
+		end
+	end
+	
+	if (spellCountWaitingForData > 0) then
+		return LFF_ENCHANT.available;
+	end
+	
+	-- spell data for enchant is already available
+	return LFF_GetEnchantFromSpellData(spell, spellDescription, callbackForEnchantData);
 end
 
-function LFF_GetEnchantFromSpellData(spell, callbackForEnchantData)
+function LFF_GetEnchantFromSpellData(spell, spellDescription, callbackForEnchantData)
 	-- get enchant from spell data
 	local spellID = spell:GetSpellID();
 	
@@ -2755,7 +2792,7 @@ function LFF_GetEnchantFromSpellData(spell, callbackForEnchantData)
 		spellID = spellID,
 		spellName = spell:GetSpellName(),
 		spellIconID = LibFroznFunctions:GetSpellTexture(spellID),
-		description = spell:GetSpellDescription()
+		description = spellDescription:GetSpellDescription()
 	};
 	
 	if (type(callbackForEnchantData) == "function") then
@@ -4047,7 +4084,7 @@ function LibFroznFunctions:GetAverageItemLevel(unitID, callbackForItemData)
 		return isAverageItemLevelAvailable;
 	end
 	
-	-- check if item data for all items is available and queried from server
+	-- check if item data for all items are available and queried from server
 	local itemCountWaitingForData = 0;
 	local unitGUID = UnitGUID(unitID);
 	
