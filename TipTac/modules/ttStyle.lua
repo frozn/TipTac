@@ -421,24 +421,26 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 		if (isPlayerGuild) and ((cfg.showGuildMemberNote) or (cfg.showGuildOfficerNote)) then
 			local playerGuildClubMemberInfo = LibFroznFunctions:GetPlayerGuildClubMemberInfo(unitRecord.guid);
 			
-			if (cfg.showGuildMemberNote) and (playerGuildClubMemberInfo.memberNote) then
-				if (lineInfo:GetCount() > 0) then
-					lineInfo:Push("\n");
+			if (playerGuildClubMemberInfo) then
+				if (cfg.showGuildMemberNote) and (playerGuildClubMemberInfo.memberNote) then
+					if (lineInfo:GetCount() > 0) then
+						lineInfo:Push("\n");
+					end
+					lineInfo:Push("|cffffd100");
+					lineInfo:Push(TT_PlayerGuildMemberNote);
+					lineInfo:Push(": ");
+					lineInfo:Push(TT_COLOR.text.default:WrapTextInColorCode(playerGuildClubMemberInfo.memberNote));
 				end
-				lineInfo:Push("|cffffd100");
-				lineInfo:Push(TT_PlayerGuildMemberNote);
-				lineInfo:Push(": ");
-				lineInfo:Push(TT_COLOR.text.default:WrapTextInColorCode(playerGuildClubMemberInfo.memberNote));
-			end
-			
-			if (cfg.showGuildOfficerNote) and (playerGuildClubMemberInfo.officerNote) then
-				if (lineInfo:GetCount() > 0) then
-					lineInfo:Push("\n");
+				
+				if (cfg.showGuildOfficerNote) and (playerGuildClubMemberInfo.officerNote) then
+					if (lineInfo:GetCount() > 0) then
+						lineInfo:Push("\n");
+					end
+					lineInfo:Push("|cffffd100");
+					lineInfo:Push(TT_PlayerGuildOfficerNote);
+					lineInfo:Push(": ");
+					lineInfo:Push(TT_COLOR.text.default:WrapTextInColorCode(playerGuildClubMemberInfo.officerNote));
 				end
-				lineInfo:Push("|cffffd100");
-				lineInfo:Push(TT_PlayerGuildOfficerNote);
-				lineInfo:Push(": ");
-				lineInfo:Push(TT_COLOR.text.default:WrapTextInColorCode(playerGuildClubMemberInfo.officerNote));
 			end
 		end
 	end

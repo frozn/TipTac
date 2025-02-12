@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 38; -- bump on changes
+local LIB_MINOR = 39; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3474,12 +3474,18 @@ function LibFroznFunctions:GetPlayerGuildClubMemberInfo(unitGUID)
 			end
 		end
 		
+		function frameForGroupRosterUpdate:PLAYER_GUILD_UPDATE()
+			-- cache the player guild club member infos
+			cachePlayerGuildClubMemberInfosFn();
+		end
+		
 		function frameForGroupRosterUpdate:GUILD_ROSTER_UPDATE()
 			-- cache the player guild club member infos
 			cachePlayerGuildClubMemberInfosFn();
 		end
 		
 		frameForGroupRosterUpdate:RegisterEvent("PLAYER_LOGIN");
+		frameForGroupRosterUpdate:RegisterEvent("PLAYER_GUILD_UPDATE");
 		frameForGroupRosterUpdate:RegisterEvent("GUILD_ROSTER_UPDATE");
 		eventsForGroupRosterUpdateRegistered = true;
 	end
