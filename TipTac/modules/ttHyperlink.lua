@@ -157,6 +157,12 @@ end
 
 -- show tip for hyperlink type "battlepet"
 function ttHyperlink:ShowTipForTypeBattlepet(chatFrame, refString, text)
+	-- BattlePetToolTip_ShowLink doesn't exist, e.g. in catac 4.4.1.
+	if (not BattlePetToolTip_ShowLink) then
+		return;
+	end
+	
+	-- show tip for hyperlink type "battlepet"
 	showingTooltip = BattlePetTooltip;
 	
 	BattlePetToolTip_ShowLink(text);
