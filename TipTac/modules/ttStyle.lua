@@ -385,8 +385,8 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 	-- local guild, guildRank = GetGuildInfo(unitRecord.id);
 	local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo(unitRecord.id);
 	if (guildName) then
-		local playerGuildName = GetGuildInfo("player");
-		local isPlayerGuild = (guildName == playerGuildName);
+		local playerGuildName, playerGuildRankName, playerGuildRankIndex, playerRealm = GetGuildInfo("player");
+		local isPlayerGuild = (guildName == playerGuildName) and (realm == playerRealm);
 		if (cfg.showGuild) then -- show guild
 			local guildColor = (isPlayerGuild and CreateColor(unpack(cfg.colorSameGuild)) or cfg.colorGuildByReaction and unitRecord.reactionColor or CreateColor(unpack(cfg.colorGuild)));
 			local text = guildColor:WrapTextInColorCode(format("<%s>", guildName));
