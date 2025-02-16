@@ -623,11 +623,11 @@ if (TipTacItemRef) then
 	end
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_showItemEnchantId", label = "Show Item Enchant ID", tip = "For item tooltips, show their enchantID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
-	tinsert(ttifOptions, { type = "Check", var = "if_showItemEnchantInfo", label = "Show Item Enchant Info", tip = "For item tooltips, show the enchant info", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
+	tinsert(ttifOptions, { type = "Check", var = "if_showItemEnchantInfo", label = "Show Item Enchant Description", tip = "For item tooltips, show the enchant description", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneRewardLevel", label = "Show Keystone (Weekly) Reward Level", tip = "For keystone tooltips, show their rewardLevel and weeklyRewardLevel", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneTimeLimit", label = "Show Keystone Time Limit", tip = "For keystone tooltips, show the instance timeLimit", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
-	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneAffixInfo", label = "Show Keystone Affix Infos", tip = "For keystone tooltips, show the affix infos", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
+	tinsert(ttifOptions, { type = "Check", var = "if_showKeystoneAffixInfo", label = "Show Keystone Affix Description", tip = "For keystone tooltips, show the affix description", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
 	tinsert(ttifOptions, { type = "Check", var = "if_modifyKeystoneTips", label = "Modify Keystone Tooltips", tip = "Changes the keystone tooltips to show a bit more information\nWarning: Might conflict with other keystone addons", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_spellColoredBorder", label = "Show Spell Tips with Colored Border", tip = "When enabled and the tip is showing a spell, the tip border will have the standard spell color", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
