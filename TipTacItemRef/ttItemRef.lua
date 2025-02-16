@@ -2567,7 +2567,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 		local enchant = LibFroznFunctions:GetItemEnchant(enchantID);
 		
 		if (enchant) and (enchant ~= LFF_ENCHANT.none) and (enchant ~= LFF_ENCHANT.available) then
-			self:AddLine(format("Enchant Description: %s", ((enchant.spellIconID ~= 136235) and (CreateTextureMarkup(enchant.spellIconID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93) .. " ") or "") .. GREEN_FONT_COLOR:WrapTextInColorCode(enchant.spellName)), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3]); -- 136235 = Samwise Didier Icon aka missing icon
+			self:AddLine("Enchant Description:", cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3]);
+			self:AddLine(((enchant.spellIconID ~= 136235) and (CreateTextureMarkup(enchant.spellIconID, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93) .. " ") or "") .. GREEN_FONT_COLOR:WrapTextInColorCode(enchant.spellName), cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3]); -- 136235 = Samwise Didier Icon aka missing icon
 			if (enchant.description) then
 				self:AddLine(enchant.description, cfg.if_infoColor[1], cfg.if_infoColor[2], cfg.if_infoColor[3], true);
 			end
