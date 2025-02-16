@@ -61,7 +61,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added showing of role and talent/specialization icon, coloring talents by class color, average item level, the de facto standard GearScore algorithm from addon TacoTip and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
 - completely rewritten ttCore, ttBars, ttAuras, ttHyperlink and ttIcons. also applied necessary changes to ttStyle.
 - scanning/inspecting of talents and average item level completely rewritten
-- added option in "Anchors" to override GTT anchor for world/frame units/tips during challenge mode, during skyriding or in combat and (Guild & Community, addon WIM) ChatFrame
+- added option in "Anchors" to override anchor for world/frame units/tips during challenge mode, during skyriding or in combat and (Guild & Community, addon WIM) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "Backdrop->BG Texture Layout" to set if the background texture should be repeated or stretched to fit the tip
 - added option "Hiding->Hide Tips Out Of Combat" and "Hiding->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action-bar/experience-bar tips during challenge mode, during skyriding or in/out of combat
