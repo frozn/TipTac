@@ -3555,15 +3555,16 @@ function tt:GetAnchorPosition(tip)
 	-- get anchor position
 	local anchorType, anchorPoint = cfg[var .. "Type" .. anchorOverride], cfg[var .. "Point" .. anchorOverride];
 	
-	-- check for other GameTooltip anchor overrides
-	if (tip == GameTooltip) then
-		-- override GameTooltip anchor for (Guild & Community) ChatFrame
-		if (not tip:IsForbidden()) then
-			local tipOwner = tip:GetOwner();
+	-- check for other anchor overrides
+	if (not tip:IsForbidden()) then
+		-- override anchor for (Guild & Community, addon "WIM") ChatFrame
+		if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (LibFroznFunctions:ExistsInTable(tip, { GameTooltip, BattlePetTooltip, PetJournalPrimaryAbilityTooltip })) then
+			local tipOwner = ((tip == GameTooltip) and (tip:GetOwner())) or ((frameParams) and (frameParams.currentDisplayParams.defaultAnchoredParentFrame));
 			
-			if (cfg.enableAnchorOverrideCF) and (anchorFrameName == "FrameTip") and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
+			if (tipOwner) and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
 						"^ChatFrame(%d+)",
-						(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame)
+						(LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Communities") and CommunitiesFrame.Chat.MessageFrame),
+						"^WIM3_msgFrame(%d+)ScrollingMessageFrame"
 					}, 1)) then
 				
 				return anchorFrameName, cfg.anchorOverrideCFType, cfg.anchorOverrideCFPoint;
@@ -3601,6 +3602,9 @@ function tt:SetDefaultAnchorHook(tip, parent)
 	-- set current display params for anchoring
 	currentDisplayParams.defaultAnchored = true;
 	currentDisplayParams.defaultAnchoredParentFrame = parent;
+	
+	-- get anchor position
+	currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType, currentDisplayParams.anchorPoint = self:GetAnchorPosition(tip);
 	
 	-- set anchor to tip
 	self:SetAnchorToTip(tip);

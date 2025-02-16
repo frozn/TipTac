@@ -2289,7 +2289,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 			elseif (type(frameAndNamePattern) == "string") then
 				if (type(currentFrame.GetName) == "function") then
 					local currentFrameName = currentFrame:GetName();
-				
+					
 					if (currentFrameName) and (currentFrameName:match(frameAndNamePattern)) then
 						return true;
 					end
