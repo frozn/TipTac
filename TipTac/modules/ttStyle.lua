@@ -364,11 +364,11 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 	-- name
 	local nameColor = (cfg.colorNameByClass and classColor) or unitRecord.nameColor;
 	local name = (cfg.nameType == "marysueprot" and unitRecord.rpName) or (cfg.nameType == "original" and unitRecord.originalName) or (cfg.nameType == "title" and unitRecord.nameWithTitle) or unitRecord.name;
-	if (unitRecord.serverName) and (unitRecord.serverName ~= "") and (cfg.showRealm ~= "none") then
+	if (unitRecord.normalizedForeignRealmName) and (cfg.showRealm ~= "none") then
 		if (cfg.showRealm == "show") then
-			name = name .. " - " .. unitRecord.serverName;
+			name = name .. " - " .. unitRecord.normalizedForeignRealmName;
 		elseif (cfg.showRealm == "showInNewLine") then
-			lineRealm:Push(nameColor:WrapTextInColorCode(unitRecord.serverName));
+			lineRealm:Push(nameColor:WrapTextInColorCode(unitRecord.normalizedForeignRealmName));
 		else
 			name = name .. " (*)";
 		end

@@ -24,8 +24,15 @@ local cfg;
 -- default config
 local TT_DefaultConfig = {
 	-- TipTac anchor
-	left = nil,  -- set during event ADDON_LOADED
-	top = nil,   -- set during event ADDON_LOADED
+	left = nil,  -- set during custom event OnConfigLoaded
+	top = nil,   -- set during custom event OnConfigLoaded
+	
+	-- TipTac options anchor
+	optionsLeft = nil,    -- set during custom event OnConfigLoaded
+	optionsBottom = nil,  -- set during custom event OnConfigLoaded
+	
+	-- version of TipTac_Config (used if e.g. options are renamed or reused differently)
+	version_TipTac_Config = nil,  -- set during custom event OnConfigLoaded
 	
 	-- general
 	showMinimapIcon = true,
@@ -1219,6 +1226,7 @@ local TT_TipsToModifyFromOtherMods = {};
 -- extraPaddingRightForMinimumWidth              value for extra padding right for minimum width, nil otherwise.
 -- extraPaddingRightForCloseButton               value for extra padding right to fit close button, nil otherwise.
 -- extraPaddingBottomForBars                     value for extra padding bottom to fit health/power bars, nil otherwise.
+-- extraPaddingBottomForRemovedUnwantedLines     value for extra padding bottom to adjust for removed unwanted lines, nil otherwise.
 --
 -- modifiedOffsetsForPreventingOffScreen         modified offsets for preventing additional elements from moving off-screen
 --
@@ -1234,8 +1242,6 @@ local TT_TipsToModifyFromOtherMods = {};
 --   .isPlayer                                   true if it's a player unit, false for other units.
 --   .name                                       name of unit
 --   .nameWithTitle                              name with title of unit
---   .rpName                                     role play name of unit (Mary Sue Protocol)
---   .originalName                               original name of unit in GameTooltip
 --
 --   .className                                  localized class name of unit, e.g. "Warrior" or "Guerrier"
 --   .classFile                                  locale-independent class file of unit, e.g. "WARRIOR"
@@ -1248,9 +1254,6 @@ local TT_TipsToModifyFromOtherMods = {};
 --   .powerType                                  unit power type
 --   .power                                      unit power
 --   .powerMax                                   unit max power
---
---   .isColorBlind                               true if color blind mode is enabled, false otherwise.
---   .isTipTacDeveloper                          true if it's a unit of a TipTac developer, false for other units.
 --
 -- firstCallDoneUnitAppearance                   true if first call of unit appearace is done, false otherwise.
 -- timestampStartUnitAppearance                  timestamp of start of unit appearance, nil otherwise.
@@ -1278,25 +1281,9 @@ local TT_TIP_CONTENT = {
 	unknownOnCleared = 8
 };
 
--- TipTac developer
-local TT_TipTacDeveloper = {
-	-- Frozn45
-	{
-		regionID = 3, -- Europe
-		guid = "Player-1099-00D6E047" -- Camassea - Rexxar
-	}, {
-		regionID = 3, -- Europe
-		guid = "Player-1099-006E9FB3" -- Valadenya - Rexxar
-	}, {
-		regionID = 3, -- Europe
-		guid = "Player-1099-025F2F49" -- Gorath - Rexxar
-	}
-};
-
 -- others
 local TT_IsConfigLoaded = false;
 local TT_IsApplyTipAppearanceAndHooking = false;
-local TT_CurrentRegionID = GetCurrentRegion();
 
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
@@ -2771,7 +2758,7 @@ function tt:SetPaddingToTip(tip)
 	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = newPaddingRight + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.right, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingBottom + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingLeft + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.left, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingTop + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.top, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
 	
 	newPaddingRight = newPaddingRight + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0) + (currentDisplayParams.extraPaddingRightForCloseButton or 0);
-	newPaddingBottom = newPaddingBottom + (currentDisplayParams.extraPaddingBottomForBars or 0);
+	newPaddingBottom = newPaddingBottom + (currentDisplayParams.extraPaddingBottomForBars or 0) + (currentDisplayParams.extraPaddingBottomForRemovedUnwantedLines or 0);
 	
 	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = self:GetNearestPixelSize(tip, newPaddingRight), self:GetNearestPixelSize(tip, newPaddingBottom), self:GetNearestPixelSize(tip, newPaddingLeft), self:GetNearestPixelSize(tip, newPaddingTop);
 	
@@ -2909,12 +2896,13 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		currentDisplayParams.extraPaddingRightForMinimumWidth = nil;
 		currentDisplayParams.extraPaddingRightForCloseButton = nil;
 		currentDisplayParams.extraPaddingBottomForBars = nil;
+		currentDisplayParams.extraPaddingBottomForRemovedUnwantedLines = nil;
 	end,
 	OnTipPostResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reset backdrop and backdrop border color to tip
 		tt:SetBackdropAndBackdropBorderColorToTip(tip);
 		
-		-- reset padding to tip. padding might have been modified to fit health/power bars.
+		-- reset padding to tip. padding might have been modified to fit health/power bars or to adjust for removed unwanted lines.
 		tt:SetPaddingToTip(tip);
 	end
 }, MOD_NAME .. " - Tooltip Backdrop");
@@ -3828,36 +3816,7 @@ function tt:SetUnitRecordFromTip(tip)
 	end
 	
 	-- set unit record
-	local unitRecord = LibFroznFunctions:CreateUnitRecord(unitID);
-	
-	if (unitRecord.isPlayer) then
-		local _msp = (msp or msptrp);
-		
-		if (_msp) then
-			local field = "NA"; -- Name
-			
-			_msp:Request(unitRecord.name, field);
-			
-			if (_msp.char[unitRecord.name] ~= nil) and (_msp.char[unitRecord.name].field[field] ~= "") then
-				unitRecord.rpName = _msp.char[unitRecord.name].field[field];
-			end
-		end
-	end
-	
-	unitRecord.originalName = GameTooltipTextLeft1:GetText();
-	unitRecord.isColorBlind = (GetCVar("colorblindMode") == "1");
-	
-	-- check if it's a unit of a TipTac developer
-	unitRecord.isTipTacDeveloper = false;
-	
-	for _, tipTacDeveloper in ipairs(TT_TipTacDeveloper) do
-		if (tipTacDeveloper.regionID == TT_CurrentRegionID) and (tipTacDeveloper.guid == unitRecord.guid) then
-			unitRecord.isTipTacDeveloper = true;
-			break;
-		end
-	end
-	
-	currentDisplayParams.unitRecord = unitRecord;
+	currentDisplayParams.unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
 end
 
 -- set unit appearance to tip

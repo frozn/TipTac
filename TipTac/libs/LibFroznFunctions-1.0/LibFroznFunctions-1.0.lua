@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 39; -- bump on changes
+local LIB_MINOR = 40; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3095,41 +3095,90 @@ function LibFroznFunctions:GetUnitReactionIndex(unitID)
 	return LFF_UNIT_REACTION_INDEX.exaltedNPC;
 end
 
+-- get unit record from cache
+--
+-- @param  unitID                            unit id, e.g. "player", "target" or "mouseover"
+-- @param  unitGUID                          optional. unit guid if unit id is missing.
+-- @param  tryToDetermineUnitIDFromUnitGUID  optional. true if it should be tried to determine the unit id from the unit guid.
+-- @return unitRecord, see LibFroznFunctions:CreateUnitRecord()
+local cacheUnitRecords = {};
+
+function LibFroznFunctions:GetUnitRecordFromCache(_unitID, _unitGUID, tryToDetermineUnitIDFromUnitGUID)
+	-- no valid unit any more e.g. during fading out
+	local unitGUID = (_unitID) and (UnitGUID(_unitID)) or (_unitGUID);
+	
+	if (not unitGUID) then
+		return;
+	end
+	
+	-- get unit record from cache
+	local unitRecordFromCache = cacheUnitRecords[unitGUID];
+	
+	-- no unit id
+	local unitID = (_unitID) or ((tryToDetermineUnitIDFromUnitGUID) and (LibFroznFunctions:GetUnitIDFromGUID(unitGUID)));
+	
+	if (not unitID) then
+		return unitRecordFromCache;
+	end
+	
+	-- create/update unit record from cache
+	if (unitRecordFromCache) then
+		LibFroznFunctions:UpdateUnitRecord(unitRecordFromCache, unitID);
+	else
+		unitRecordFromCache = LibFroznFunctions:CreateUnitRecord(unitID);
+		cacheUnitRecords[unitGUID] = unitRecordFromCache;
+	end
+	
+	return unitRecordFromCache;
+end
+
 -- create unit record
 --
--- @param  unitID    unit id, e.g. "player", "target" or "mouseover"
--- @param  unitGUID  optional. unit guid
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
 -- @return unitRecord
---           .guid                         guid of unit
---           .id                           id of unit
---           .timestamp                    timestamp of last update of record, 0 otherwise.
---           .isPlayer                     true if it's a player unit, false otherwise.
---           .isSelf                       true if it's the player unit, false otherwise.
---           .isOtherPlayer                true if it's a player unit but not the player unit, false otherwise.
---           .isPet                        true if it's not a player unit but player controlled aka a pet, false otherwise.
---           .isBattlePet                  true if it's a battle pet unit, false otherwise.
---           .isWildBattlePet              true if it's a wild/tameable battle pet, false otherwise.
---           .isBattlePetCompanion         true if it's a battle pet summoned by a player, false otherwise.
---           .isNPC                        true if it's not a player unit, pet or battle pet. false otherwise.
---           .level                        level of unit
---           .name                         name of unit, e.g. "Rugnaer"
---           .nameWithForeignServerSuffix  name of unit with additional foreign server suffix if needed, e.g. "Rugnaer (*)"
---           .nameWithServerName           name with server name of unit, e.g. "Rugnaer-DunMorogh"
---           .nameWithTitle                name with title of unit, e.g. "Sternenrufer Rugnaer". if the unit is currently not visible to the client, the title is missing and it only contains the unit name (.name).
---           .serverName                   server name of unit, e.g. "DunMorogh". nil if the unit is from the same realm.
---           .sex                          sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female)
---           .className                    localized class name of unit, e.g. "Warrior" or "Guerrier"
---           .classFile                    locale-independent class file of unit, e.g. "WARRIOR"
---           .classID                      class id of unit
---           .classification               classification of unit, values "worldboss", "rareelite", "elite", "rare", "normal", "trivial" or "minus"
---           .reactionIndex                reaction index of unit, see LFF_UNIT_REACTION_INDEX
---           .health                       health of unit
---           .healthMax                    max health of unit
---           .powerType                    power type of unit, e.g. 0 (Mana) or (1) Rage, see "Enum.PowerType"
---           .power                        power of unit
---           .powerMax                     max power of unit
+--           .guid                                guid of unit
+--           .id                                  id of unit
+--           .timestamp                           timestamp of last update of record
+--           .isPlayer                            true if it's a player unit, false otherwise.
+--           .isSelf                              true if it's the player unit, false otherwise.
+--           .isOtherPlayer                       true if it's a player unit but not the player unit, false otherwise.
+--           .isPet                               true if it's not a player unit but player controlled aka a pet, false otherwise.
+--           .isBattlePet                         true if it's a battle pet unit, false otherwise.
+--           .isWildBattlePet                     true if it's a wild/tameable battle pet, false otherwise.
+--           .isBattlePetCompanion                true if it's a battle pet summoned by a player, false otherwise.
+--           .isNPC                               true if it's not a player unit, pet or battle pet. false otherwise.
+--           .level                               level of unit
+--           .name                                name of unit, e.g. "Rugnaer"
+--           .nameWithForeignRealmSuffix          name of unit with additional foreign realm suffix if needed, e.g. "Rugnaer (*)"
+--           .nameWithNormalizedForeignRealmName  name with additional normalized foreign realm name (without spaces or hyphens ("-")) of unit, e.g. "Rugnaer-DunMorogh"
+--           .nameWithTitle                       name with title of unit, e.g. "Sternenrufer Rugnaer". if the unit is currently not visible to the client, the title is missing and it only contains the unit name (.name).
+--           .normalizedForeignRealmName          normalized foreign realm name (without spaces or hyphens ("-")) of unit, e.g. "DunMorogh". nil if the unit is from the same realm.
+--           .normalizedRealmName                 normalized realm name (without spaces or hyphens ("-")) of unit, e.g. "DunMorogh"
+--           .fullPlayerName                      full player name of unit (name & normalized realm name), e.g. "Rugnaer-DunMorogh"
+--           .rpName                              role play name of unit (Mary Sue Protocol)
+--           .sex                                 sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female)
+--           .className                           localized class name of unit, e.g. "Warrior" or "Guerrier"
+--           .classFile                           locale-independent class file of unit, e.g. "WARRIOR"
+--           .classID                             class id of unit
+--           .classification                      classification of unit, values "worldboss", "rareelite", "elite", "rare", "normal", "trivial" or "minus"
+--           .reactionIndex                       reaction index of unit, see LFF_UNIT_REACTION_INDEX
+--           .health                              health of unit
+--           .healthMax                           max health of unit
+--           .powerType                           power type of unit, e.g. 0 (Mana) or (1) Rage, see "Enum.PowerType"
+--           .power                               power of unit
+--           .powerMax                            max power of unit
+--           .isTipTacDeveloper                   true if it's a unit of a TipTac developer, false for other units.
 --         returns nil if no unit id is supplied
-function LibFroznFunctions:CreateUnitRecord(unitID, unitGUID)
+local LFF_CURRENT_REGION_ID = GetCurrentRegion();
+local LFF_TIPTAC_DEVELOPER = {
+	[3] = { -- region id Europe
+		["Player-1099-00D6E047"] = true, -- Camassea - Rexxar
+		["Player-1099-006E9FB3"] = true, -- Valadenya - Rexxar
+		["Player-1099-025F2F49"] = true  -- Gorath - Rexxar
+	}
+};
+
+function LibFroznFunctions:CreateUnitRecord(unitID)
 	-- no unit id
 	if (not unitID) then
 		return;
@@ -3138,27 +3187,31 @@ function LibFroznFunctions:CreateUnitRecord(unitID, unitGUID)
 	-- create unit record
 	local unitRecord = {};
 	
-	unitRecord.guid = unitGUID or UnitGUID(unitID);
+	unitRecord.guid = UnitGUID(unitID);
 	unitRecord.id = unitID;
 	
-	unitRecord.timestamp = 0;
-	
 	unitRecord.isPlayer = UnitIsPlayer(unitID);
-	unitRecord.isSelf = unitRecord.isPlayer and UnitIsUnit(unitID, "player");
-	unitRecord.isOtherPlayer = unitRecord.isPlayer and (not unitRecord.isSelf);
+	unitRecord.isSelf = (unitRecord.isPlayer) and UnitIsUnit(unitID, "player");
+	unitRecord.isOtherPlayer = (unitRecord.isPlayer) and (not unitRecord.isSelf);
 	unitRecord.isPet = (not unitRecord.isPlayer) and UnitPlayerControlled(unitID);
 	unitRecord.isBattlePet = self:UnitIsBattlePet(unitID);
 	unitRecord.isWildBattlePet = self:UnitIsWildBattlePet(unitID);
 	unitRecord.isBattlePetCompanion = self:UnitIsBattlePetCompanion(unitID);
 	unitRecord.isNPC = (not unitRecord.isPlayer) and (not unitRecord.isPet) and (not unitRecord.isBattlePet);
 	
-	unitRecord.name, unitRecord.serverName = UnitName(unitID);
-	unitRecord.nameWithForeignServerSuffix = GetUnitName(unitID);
-	unitRecord.nameWithServerName = GetUnitName(unitID, true);
+	local name, normalizedForeignRealmName = UnitName(unitID);
+	
+	unitRecord.name = name;
+	unitRecord.nameWithForeignRealmSuffix = GetUnitName(unitID);
+	unitRecord.nameWithNormalizedForeignRealmName = GetUnitName(unitID, true);
+	unitRecord.normalizedForeignRealmName = (normalizedForeignRealmName) and (normalizedForeignRealmName ~= "") and (normalizedForeignRealmName);
+	unitRecord.normalizedRealmName = (unitRecord.normalizedForeignRealmName) or (GetNormalizedRealmName());
+	unitRecord.fullPlayerName = FULL_PLAYER_NAME:format(unitRecord.name, unitRecord.normalizedRealmName);
 	
 	unitRecord.sex = UnitSex(unitID);
 	unitRecord.className, unitRecord.classFile, unitRecord.classID = UnitClass(unitID);
 	unitRecord.classification = UnitClassification(unitID);
+	unitRecord.isTipTacDeveloper = (unitRecord.isPlayer) and (LFF_TIPTAC_DEVELOPER[LFF_CURRENT_REGION_ID]) and (LFF_TIPTAC_DEVELOPER[LFF_CURRENT_REGION_ID][unitRecord.guid]) or false;
 	
 	self:UpdateUnitRecord(unitRecord);
 	
@@ -3171,10 +3224,11 @@ end
 -- @param  newUnitID   optional. new unit id, e.g. "player", "target" or "mouseover".
 -- @return unitRecord, see LibFroznFunctions:CreateUnitRecord()
 function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
-	-- no valid unit any more e.g. during fading out
-	local unitID = newUnitID or unitRecord.id;
+	-- no valid unit any more (e.g. during fading out) or not the same unit
+	local unitID = (newUnitID) or (unitRecord.id);
+	local unitGUID = UnitGUID(unitID);
 	
-	if (not UnitGUID(unitID)) then
+	if (not unitGUID) or (unitGUID ~= unitRecord.guid) then
 		return;
 	end
 	
@@ -3182,9 +3236,10 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	local unitPVPName = UnitPVPName(unitID); -- returns nil or "" if the unit is currently not visible to the client
 	
 	unitRecord.id = unitID;
+	unitRecord.timestamp = GetTime();
 	
-	unitRecord.nameWithTitle = (unitPVPName and unitPVPName ~= "" and unitPVPName or unitRecord.name);
-	unitRecord.level = unitRecord.isBattlePet and UnitBattlePetLevel(unitID) or UnitLevel(unitID) or -1;
+	unitRecord.nameWithTitle = (unitPVPName) and (unitPVPName ~= "") and (unitPVPName) or (unitRecord.name);
+	unitRecord.level = (unitRecord.isBattlePet) and (UnitBattlePetLevel(unitID)) or (UnitLevel(unitID)) or -1;
 	unitRecord.reactionIndex = self:GetUnitReactionIndex(unitID);
 	
 	unitRecord.health = UnitHealth(unitID);
@@ -3193,6 +3248,21 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.powerType = UnitPowerType(unitID);
 	unitRecord.power = UnitPower(unitID);
 	unitRecord.powerMax = UnitPowerMax(unitID);
+	
+	-- add role play name to unit record
+	if (unitRecord.isPlayer) then
+		local _msp = (msp or msptrp);
+		
+		if (_msp) then
+			local field = "NA"; -- Name
+			
+			_msp:Request(unitRecord.fullPlayerName, field);
+			
+			if (_msp.char[unitRecord.fullPlayerName] ~= nil) and (_msp.char[unitRecord.fullPlayerName].field[field] ~= "") then
+				unitRecord.rpName = _msp.char[unitRecord.fullPlayerName].field[field];
+			end
+		end
+	end
 end
 
 -- returns the buffs/debuffs for the unit
@@ -3525,13 +3595,14 @@ end);
 -- @return unitCacheRecord
 --           see LibFroznFunctuions:CreateUnitRecord()
 --           additionally:
---           .needsInspect        true if a delayed inspect is needed, false if inspecting the player or the unit cache hasn't been timed out yet.
---           .canInspect          true if inspecting is possible, false otherwise. nil initially.
---           .inspectStatus       inspect status, see LFF_INSPECT_STATUS. nil otherwise.
---           .inspectTimestamp    inspect timestamp, nil otherwise.
---           .callbacks[]         push array with callbacks for inspect data if available
---           .talents             see LibFroznFunctions:GetTalents()
---           .averageItemLevel    see LibFroznFunctions:GetAverageItemLevel()
+--           .needsInspect          true if a delayed inspect is needed, false if inspecting the player or the unit cache hasn't been timed out yet.
+--           .canInspect            true if inspecting is possible, false otherwise. nil initially.
+--           .inspectStatus         inspect status, see LFF_INSPECT_STATUS. nil otherwise.
+--           .inspectTimestamp      inspect timestamp, 0 otherwise.
+--           .timestampLastInspect  timestamp of last inspect, 0 otherwise.
+--           .callbacks[]           push array with callbacks for inspect data if available
+--           .talents               see LibFroznFunctions:GetTalents()
+--           .averageItemLevel      see LibFroznFunctions:GetAverageItemLevel()
 --         returns nil if no unit id is supplied or unit isn't a player.
 local unitCache = {};
 local eventsForInspectingRegistered = false;
@@ -3573,7 +3644,7 @@ function LibFroznFunctions:InspectUnit(unitID, callbackForInspectData, removeCal
 		frameForDelayedInspection:InspectDataAvailable(unitID, unitCacheRecord);
 	
 	-- reinspect only if enough time has been elapsed
-	elseif (not bypassUnitCacheTimeout) and (GetTime() - unitCacheRecord.timestamp <= LFF_CACHE_TIMEOUT) then
+	elseif (not bypassUnitCacheTimeout) and (GetTime() - unitCacheRecord.timestampLastInspect <= LFF_CACHE_TIMEOUT) then
 		frameForDelayedInspection:FinishInspect(unitCacheRecord, true);
 	
 	-- schedule a delayed inspect request
@@ -3601,21 +3672,19 @@ function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
 	end
 	
 	-- get record in unit cache
-	local unitCacheRecord;
+	local unitCacheRecord = unitCache[unitGUID];
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
 	
-	if (not unitCache[unitGUID]) then
+	if (unitCacheRecord) then
+		-- update record in unit cache if a valid unit id is available
+		if (isValidUnitID) then
+			unitCacheRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
+		end
+	else
 		-- create record in unit cache if a valid unit id is available
 		if (isValidUnitID) then
 			unitCacheRecord = frameForDelayedInspection:CreateUnitCacheRecord(unitID, unitGUID);
 		end
-	else
-		unitCacheRecord = unitCache[unitGUID];
-	end
-	
-	-- update record in unit cache if a valid unit id is available
-	if (unitCacheRecord) and (isValidUnitID) then
-		LibFroznFunctions:UpdateUnitRecord(unitCacheRecord, unitID);
 	end
 	
 	return unitCacheRecord;
@@ -3623,13 +3692,14 @@ end
 
 -- create record in unit cache
 function frameForDelayedInspection:CreateUnitCacheRecord(unitID, unitGUID)
-	unitCache[unitGUID] = LibFroznFunctions:CreateUnitRecord(unitID, unitGUID);
-	local unitCacheRecord = unitCache[unitGUID];
+	local unitCacheRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
+	unitCache[unitGUID] = unitCacheRecord;
 	
 	unitCacheRecord.needsInspect = false;
 	unitCacheRecord.canInspect = nil;
 	unitCacheRecord.inspectStatus = nil;
 	unitCacheRecord.inspectTimestamp = 0;
+	unitCacheRecord.timestampLastInspect = 0;
 	unitCacheRecord.callbacks = LibFroznFunctions:CreatePushArray();
 	
 	unitCacheRecord.talents = LibFroznFunctions:AreTalentsAvailable(unitID);
