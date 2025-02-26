@@ -1,4 +1,4 @@
-## Interface: 40401
+## Interface: 40402
 ## Version: 25.02.16
 ## IconTexture: Interface\AddOns\TipTacTalents\media\tiptac_logo
 ## Title: TipTacTalents
