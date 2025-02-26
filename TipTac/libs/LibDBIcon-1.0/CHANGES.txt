@@ -1,20 +1,8 @@
 ------------------------------------------------------------------------
-r141 | funkehdude | 2024-08-02 17:28:35 +0000 (Fri, 02 Aug 2024) | 1 line
+r145 | funkehdude | 2025-02-07 02:02:49 +0000 (Fri, 07 Feb 2025) | 1 line
 Changed paths:
-   M /trunk/LibDBIcon-1.0/LibDBIcon-1.0.lua
+   M /trunk/LibDBIcon-1.0.toc
 
-Extra safety checks for the compartment
-------------------------------------------------------------------------
-r140 | funkehdude | 2024-07-24 21:45:35 +0000 (Wed, 24 Jul 2024) | 1 line
-Changed paths:
-   M /trunk/LibDBIcon-1.0/LibDBIcon-1.0.lua
-
-Update the compartment menu icon as needed
-------------------------------------------------------------------------
-r139 | funkehdude | 2024-07-24 21:09:05 +0000 (Wed, 24 Jul 2024) | 1 line
-Changed paths:
-   M /trunk/LibDBIcon-1.0/LibDBIcon-1.0.lua
-
-Compartment menu fixes for WoW 11
+bump toc
 ------------------------------------------------------------------------
 
