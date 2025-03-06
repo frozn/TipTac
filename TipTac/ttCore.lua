@@ -3505,7 +3505,11 @@ function tt:GetAnchorPosition(tip)
 		isUnit = (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) or (mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit")); -- GetAttribute("unit") here is bad, as that will find things like buff frames too.
 	end
 	
-	local anchorFrameName = (WorldFrame:IsMouseMotionFocus() and "World" or "Frame") .. (isUnit and "Unit" or "Tip"); -- checking "mouseFocus == WorldFrame" doesn't work in cases if there is a fullscreen frame above the world frame, e.g. from addon "OPie".
+	if (not WorldFrame:IsMouseMotionEnabled()) then -- make shure that the WorldFrame can receive mouse hover events
+		WorldFrame:EnableMouseMotion(true);
+	end
+	
+	local anchorFrameName = (((mouseFocus == WorldFrame) or (WorldFrame:IsMouseMotionFocus())) and "World" or "Frame") .. (isUnit and "Unit" or "Tip"); -- checking "mouseFocus == WorldFrame" alone doesn't work in cases if there is a fullscreen frame above the world frame, e.g. from addon "OPie".
 	local var = "anchor" .. anchorFrameName;
 	
 	-- consider anchor override during challenge mode, during skyriding or in combat
