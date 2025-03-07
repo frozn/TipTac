@@ -20,8 +20,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 11.0.7 - The War Within [TWW]
-  * 4.4.1 - Cataclysm Classic [CataC]
+  * 11.1.0 - The War Within [TWW]
+  * 4.4.2 - Cataclysm Classic [CataC]
   * 1.15.6 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
