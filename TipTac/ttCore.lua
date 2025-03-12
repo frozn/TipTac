@@ -1209,62 +1209,45 @@ local TT_TipsToModifyFromOtherMods = {};
 -- gradient                                        optional. gradient texture for frame
 
 -- params for 2nd key (currentDisplayParams):
--- isSet                                         true if current display parameters are set, false otherwise.
--- isSetTemporarily                              true if current display parameters are temporarily set, false otherwise.
+-- isSet                                             true if current display parameters are set, false otherwise.
+-- isSetTemporarily                                  true if current display parameters are temporarily set, false otherwise.
 --
--- isSetTimestamp                                timestamp of current display parameters were set, nil otherwise.
+-- isSetTimestamp                                    timestamp of current display parameters were set, nil otherwise.
 --
--- tipContent                                    see TT_TIP_CONTENT
--- hideTip                                       true if tip will be hidden, false otherwise.
--- ignoreNextSetCurrentDisplayParams             true if ignoring next tooltip's current display parameters to be set, nil otherwise.
--- ignoreSetCurrentDisplayParamsOnTimestamp      timestamp of ignoring tooltip's current display parameters to be set, nil otherwise.
+-- tipContent                                        see TT_TIP_CONTENT
+-- hideTip                                           true if tip will be hidden, false otherwise.
+-- ignoreNextSetCurrentDisplayParams                 true if ignoring next tooltip's current display parameters to be set, nil otherwise.
+-- ignoreSetCurrentDisplayParamsOnTimestamp          timestamp of ignoring tooltip's current display parameters to be set, nil otherwise.
 --
--- lockedBackdropInfo                            locked backdropInfo, nil otherwise.
--- lockedBackdropColor                           locked backdrop color, nil otherwise.
--- lockedBackdropBorderColor                     locked backdrop border color, nil otherwise.
+-- lockedBackdropInfo                                locked backdropInfo, nil otherwise.
+-- lockedBackdropColor                               locked backdrop color, nil otherwise.
+-- lockedBackdropBorderColor                         locked backdrop border color, nil otherwise.
 --
--- extraPaddingRightForMinimumWidth              value for extra padding right for minimum width, nil otherwise.
--- extraPaddingRightForCloseButton               value for extra padding right to fit close button, nil otherwise.
--- extraPaddingBottomForBars                     value for extra padding bottom to fit health/power bars, nil otherwise.
--- extraPaddingBottomForRemovedUnwantedLines     value for extra padding bottom to adjust for removed unwanted lines, nil otherwise.
+-- extraPaddingRightForMinimumWidth                  value for extra padding right for minimum width, nil otherwise.
+-- extraPaddingRightForCloseButton                   value for extra padding right to fit close button, nil otherwise.
+-- extraPaddingBottomForBars                         value for extra padding bottom to fit health/power bars, nil otherwise.
+-- extraPaddingBottomForRemovedUnwantedLines         value for extra padding bottom to adjust for removed unwanted lines, nil otherwise.
 --
--- modifiedOffsetsForPreventingOffScreen         modified offsets for preventing additional elements from moving off-screen
+-- modifiedOffsetsForPreventingOffScreen             modified offsets for preventing additional elements from moving off-screen
+-- failedResetModifiedOffsetsForPreventingOffScreen  failed reset modified offsets for preventing additional elements from moving off-screen
 --
--- defaultAnchored                               true if tip is default anchored, false otherwise.
--- defaultAnchoredParentFrame                    tip's parent frame if default anchored, nil otherwise.
--- anchorFrameName                               anchor frame name of tip, values "WorldUnit", "WorldTip", "FrameUnit", "FrameTip"
--- anchorType                                    anchor type for tip
--- anchorPoint                                   anchor point for tip
+-- defaultAnchored                                   true if tip is default anchored, false otherwise.
+-- defaultAnchoredParentFrame                        tip's parent frame if default anchored, nil otherwise.
+-- anchorFrameName                                   anchor frame name of tip, values "WorldUnit", "WorldTip", "FrameUnit", "FrameTip"
+-- anchorType                                        anchor type for tip
+-- anchorPoint                                       anchor point for tip
 --
--- unitRecord                                    table with information about the displayed unit, nil otherwise.
---   .guid                                       guid of unit
---   .id                                         id of unit
---   .isPlayer                                   true if it's a player unit, false for other units.
---   .name                                       name of unit
---   .nameWithTitle                              name with title of unit
+-- unitRecord                                        table with information about the displayed unit, nil otherwise, see LibFroznFunctions:CreateUnitRecord()
+-- firstCallDoneUnitAppearance                       true if first call of unit appearace is done, false otherwise.
+-- timestampStartUnitAppearance                      timestamp of start of unit appearance, nil otherwise.
+-- timestampStartCustomUnitFadeout                   timestamp of start of custom unit fadeout, nil otherwise.
 --
---   .className                                  localized class name of unit, e.g. "Warrior" or "Guerrier"
---   .classFile                                  locale-independent class file of unit, e.g. "WARRIOR"
---   .classID                                    class id of unit
---
---   .reactionIndex                              unit reaction index, see LFF_UNIT_REACTION_INDEX
---   .health                                     unit health
---   .healthMax                                  unit max health
---
---   .powerType                                  unit power type
---   .power                                      unit power
---   .powerMax                                   unit max power
---
--- firstCallDoneUnitAppearance                   true if first call of unit appearace is done, false otherwise.
--- timestampStartUnitAppearance                  timestamp of start of unit appearance, nil otherwise.
--- timestampStartCustomUnitFadeout               timestamp of start of custom unit fadeout, nil otherwise.
---
--- tipLineInfoIndex                              line index of ttStyle's info for tip, nil otherwise.
--- tipLineTargetedByIndex                        line index of ttStyle's target by for tip, nil otherwise.
--- petLineLevelIndex                             line index of ttStyle's level for pet, nil otherwise.
--- mergeLevelLineWithGuildName                   true if there is no separate line for the guild name. in this case the guild name has to be merged with the level line if not in color blind mode. nil otherwise.
--- isSetTopOverlayToHighlightTipTacDeveloper     true if the top overlay has been set to highlight TipTac developer, nil otherwise.
--- isSetBottomOverlayToHighlightTipTacDeveloper  true if the bottom overlay has been set to highlight TipTac developer, nil otherwise.
+-- tipLineInfoIndex                                  line index of ttStyle's info for tip, nil otherwise.
+-- tipLineTargetedByIndex                            line index of ttStyle's target by for tip, nil otherwise.
+-- petLineLevelIndex                                 line index of ttStyle's level for pet, nil otherwise.
+-- mergeLevelLineWithGuildName                       true if there is no separate line for the guild name. in this case the guild name has to be merged with the level line if not in color blind mode. nil otherwise.
+-- isSetTopOverlayToHighlightTipTacDeveloper         true if the top overlay has been set to highlight TipTac developer, nil otherwise.
+-- isSetBottomOverlayToHighlightTipTacDeveloper      true if the bottom overlay has been set to highlight TipTac developer, nil otherwise.
 --
 -- hint: resolved frames from "TT_ExtendedConfig.tipsToModify" will be added here. frames from other mods added with TipTac:AddModifiedTip(tip, noHooks) will be added here, too.
 local TT_CacheForFrames = {};
@@ -3287,9 +3270,50 @@ function tt:SetClampRectInsetsToTip(tip, left, right, top, bottom)
 	
 	-- set current display params for preventing additional elements from moving off-screen
 	currentDisplayParams.modifiedOffsetsForPreventingOffScreen = true;
+	currentDisplayParams.failedResetModifiedOffsetsForPreventingOffScreen = nil;
 	
 	-- set clamp rect insets to tip for preventing additional elements from moving off-screen
 	tip:SetClampRectInsets(left, right, top, bottom);
+end
+
+-- reset clamp rect insets of tip to restore original offsets for preventing additional elements from moving off-screen
+function tt:ResetClampRectInsetsToTip(tip, onlyConsiderFailedReset)
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
+	-- don't reset clamp rect insets of tip if original offsets for preventing additional elements from moving off-screen aren't available
+	if (not frameParams.originalOffsetsForPreventingOffScreenAvailable) then
+		return;
+	end
+	
+	-- don't reset clamp rect insets of tip if clamp rect insets haven't been modified
+	if (not currentDisplayParams.modifiedOffsetsForPreventingOffScreen) then
+		return;
+	end
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		currentDisplayParams.failedResetModifiedOffsetsForPreventingOffScreen = true;
+		return;
+	end
+	
+	-- don't reset clamp rect insets of tip if considering failed reset without a failed reset
+	if (onlyConsiderFailedReset) and (not currentDisplayParams.failedResetModifiedOffsetsForPreventingOffScreen) then
+		return;
+	end
+	
+	-- reset current display params for preventing additional elements from moving off-screen
+	currentDisplayParams.modifiedOffsetsForPreventingOffScreen = nil;
+	currentDisplayParams.failedResetModifiedOffsetsForPreventingOffScreen = nil;
+	
+	-- reset clamp rect insets of tip to restore original offsets for preventing additional elements from moving off-screen
+	tip:SetClampRectInsets(frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen);
 end
 
 -- register for group events
@@ -3315,23 +3339,13 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen = leftOffset, rightOffset, topOffset, bottomOffset;
 		end
 	end,
+	OnTipSetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
+		-- reset clamp rect insets of tip to restore original offsets for preventing additional elements from moving off-screen
+		tt:ResetClampRectInsetsToTip(tip, true);
+	end,
 	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
-		-- get current display parameters
-		local frameParams = TT_CacheForFrames[tip];
-		
-		if (not frameParams) then
-			return;
-		end
-		
-		local currentDisplayParams = frameParams.currentDisplayParams;
-		
-		-- restore original offsets for preventing additional elements from moving off-screen
-		if (not tip:IsForbidden()) and (not frameParams.originalOffsetsForPreventingOffScreenAvailable) and (currentDisplayParams.modifiedOffsetsForPreventingOffScreen) then
-			tip:SetClampRectInsets(frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen);
-		end
-		
-		-- reset current display params for preventing additional elements from moving off-screen
-		currentDisplayParams.modifiedOffsetsForPreventingOffScreen = nil;
+		-- reset clamp rect insets of tip to restore original offsets for preventing additional elements from moving off-screen
+		tt:ResetClampRectInsetsToTip(tip);
 	end,
 	SetClampRectInsetsToTip = function(self, tip, left, right, top, bottom)
 		-- set clamp rect insets to tip for preventing additional elements from moving off-screen
