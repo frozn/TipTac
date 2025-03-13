@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 40; -- bump on changes
+local LIB_MINOR = 41; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3156,7 +3156,7 @@ end
 --           .normalizedRealmName                 normalized realm name (without spaces or hyphens ("-")) of unit, e.g. "DunMorogh"
 --           .fullPlayerName                      full player name of unit (name & normalized realm name), e.g. "Rugnaer-DunMorogh"
 --           .rpName                              role play name of unit (Mary Sue Protocol)
---           .sex                                 sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female)
+--           .sex                                 sex of unit, e.g. 1 (neutrum / unknown), 2 (male) or 3 (female), see "Enum.UnitSex"
 --           .className                           localized class name of unit, e.g. "Warrior" or "Guerrier"
 --           .classFile                           locale-independent class file of unit, e.g. "WARRIOR"
 --           .classID                             class id of unit
