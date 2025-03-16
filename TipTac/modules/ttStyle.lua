@@ -158,7 +158,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 	
 	local specNames = LibFroznFunctions:CreatePushArray();
 	
-	if (hideSpecializationAndClassText) then
+	if (hideSpecializationAndClassText) and (unitRecord.className) then
 		local specCount = C_SpecializationInfo.GetNumSpecializationsForClassID(unitRecord.classID);
 		
 		for i = 1, specCount do
