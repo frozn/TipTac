@@ -791,14 +791,51 @@ local function SetAction_Hook(self, slot)
 			tipDataAdded[self] = "flyout";
 			CustomTypeFuncs.flyout(self, nil, "flyout", id, icon);
 		elseif (actionType == "macro") then
-			local spellID = GetMacroSpell(id);
-			if (spellID) then
-				local link = LibFroznFunctions:GetSpellLink(spellID);
-				if (link) then
-					local linkType, _spellID = link:match("H?(%a+):(%d+)");
-					if (_spellID) then
-						tipDataAdded[self] = linkType;
-						LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
+			if (subType == "spell") then
+				local spellID = id;
+				if (spellID) then
+					local link = LibFroznFunctions:GetSpellLink(spellID);
+					if (link) then
+						local linkType, _spellID = link:match("H?(%a+):(%d+)");
+						if (_spellID) then
+							tipDataAdded[self] = linkType;
+							LinkTypeFuncs.spell(self, false, nil, link, linkType, _spellID);
+						end
+					end
+				end
+			elseif (subType == "item") then
+				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find item in macro by name.
+				local name = line and (line:GetText() or "");
+				if (name ~= "") then
+					local _, link = GetItemInfo(name);
+					if (link) then
+						local linkType, itemID = link:match("H?(%a+):(%d+)");
+						if (itemID) then
+							tipDataAdded[self] = linkType;
+							LinkTypeFuncs.item(self, link, linkType, itemID);
+							
+							-- apply workaround for first mouseover if item is a toy
+							if (C_ToyBox) then
+								local _itemID, toyName, icon, isFavorite, hasFanfare, itemQuality = C_ToyBox.GetToyInfo(itemID);
+								
+								if (_itemID) then
+									ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, itemID);
+								end
+							end
+						end
+					end
+				end
+			elseif (subType == "MOUNT") then
+				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find spell in macro by name.
+				local name = line and (line:GetText() or "");
+				if (name ~= "") then
+					local link = LibFroznFunctions:GetSpellLink(name);
+					if (link) then
+						local linkType, spellID = link:match("H?(%a+):(%d+)");
+						if (spellID) then
+							tipDataAdded[self] = linkType;
+							LinkTypeFuncs.spell(self, false, nil, link, linkType, spellID);
+						end
 					end
 				end
 			end
