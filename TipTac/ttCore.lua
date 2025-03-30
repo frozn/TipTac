@@ -1419,6 +1419,8 @@ tt:RegisterEvent("PLAYER_LOGIN");
 -- OnUnitTipResize                     unit tooltip is being resized                                                           TT_CacheForFrames, tooltip, currentDisplayParams, first
 -- OnUnitTipPostStyle                  after unit tooltip has been styled and has the final size                               TT_CacheForFrames, tooltip, currentDisplayParams, first
 --                                                                                                                             
+-- OnTipPostSetStyling                 after tooltip's styling has been set                                                 TT_CacheForFrames, tooltip, currentDisplayParams, tipContent
+--                                                                                                                             
 -- OnTipResized                        tooltip has been resized                                                                TT_CacheForFrames, tooltip, currentDisplayParams
 -- OnTipRescaled                       tooltip has been rescaled                                                               TT_CacheForFrames, tooltip, currentDisplayParams
 --                                                                                                                             
@@ -2181,6 +2183,9 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 	if (tipContent ~= TT_TIP_CONTENT.unknownOnCleared) then -- prevent recalculating size of tip on tip content "unknownOnCleared" to prevent accidentally reducing tip's width/height to a tiny square e.g. on individual GameTooltips with tip:ClearLines(). test case: addon "Titan Panel" with broker addon "Profession Cooldown".
 		LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
 	end
+
+	-- inform group that the tip's styling has been set
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipPostSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
 end
 
 -- reset tip's current display parameters
@@ -3733,10 +3738,11 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnTipSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- set anchor to tip
 		tt:SetAnchorToTip(tip);
-		
+	end,
+	OnTipPostSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- refreshing anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips,
 		-- because after GameTooltip_ShowCompareItem() (hook see below) has been called within TooltipDataRules.FinalizeItemTooltip(), the tooltip isn't finished yet, e.g. if hovering over monthly activities reward button.
-		-- so the tooltip may change in size after finishing the remaining TooltipDataHandler calls/callbacks to finalize the tooltip.
+		-- so the tooltip may change in size after finishing the remaining TooltipDataHandler calls/callbacks and TipTac's own OnTipSetStyling to finalize the tooltip.
 		LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 	end,
 	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)

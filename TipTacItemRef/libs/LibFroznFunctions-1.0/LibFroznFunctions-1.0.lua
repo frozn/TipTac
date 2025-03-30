@@ -2129,6 +2129,9 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	local leftPos = (sideAnchorFrame:GetLeft() ~= nil) and (sideAnchorFrame:GetLeft() * sideAnchorFrame:GetEffectiveScale()); -- added
 	local rightPos = (sideAnchorFrame:GetRight() ~= nil) and (sideAnchorFrame:GetRight() * sideAnchorFrame:GetEffectiveScale()); -- added
 	
+	-- recalculate size of tip to ensure that it has the correct dimensions
+	LibFroznFunctions:RecalculateSizeOfGameTooltip(tooltip);
+	
 	-- local selfLeftPos = tooltip:GetLeft(); -- removed
 	-- local selfRightPos = tooltip:GetRight(); -- removed
 	local selfLeftPos = (tooltip:GetLeft() ~= nil) and (tooltip:GetLeft() * tooltip:GetEffectiveScale()); -- added
