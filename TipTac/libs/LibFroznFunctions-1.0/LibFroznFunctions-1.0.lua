@@ -1782,11 +1782,11 @@ end
 function LibFroznFunctions:GetItemQualityColor(quality, alternateQualityIfNotFound)
 	-- since tww 11.1.5
 	if (ColorManager) then
-		local itemQualityColor = ColorManager.GetColorDataForItemQuality[quality];
+		local itemQualityColor = ColorManager.GetColorDataForItemQuality(quality);
 		local itemQualityColorMixin = (itemQualityColor and itemQualityColor.color);
 		
 		if (not itemQualityColorMixin) then
-			itemQualityColor = ColorManager.GetColorDataForItemQuality[alternateQualityIfNotFound];
+			itemQualityColor = ColorManager.GetColorDataForItemQuality(alternateQualityIfNotFound);
 			itemQualityColorMixin = (itemQualityColor and itemQualityColor.color);
 		end
 		
