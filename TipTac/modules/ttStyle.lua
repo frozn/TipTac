@@ -386,7 +386,7 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 	local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo(unitRecord.id);
 	if (guildName) then
 		local playerGuildName, playerGuildRankName, playerGuildRankIndex, playerRealm = GetGuildInfo("player");
-		local isForeignGuildRealm = (realm ~= playerRealm);
+		local isForeignGuildRealm = (realm) and (realm ~= playerRealm);
 		local isPlayerGuild = (guildName == playerGuildName) and (not isForeignGuildRealm);
 		if (cfg.showGuild) then -- show guild
 			local textGuildRealm = "";
