@@ -151,7 +151,8 @@ local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (
 
 -- remove unwanted lines from tip, such as "Alliance", "Horde", "PvP" and "Shadow Priest".
 function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
-	local creatureFamily, creatureType = UnitCreatureFamily(unitRecord.id), UnitCreatureType(unitRecord.id);
+	local creatureFamily = UnitCreatureFamily(unitRecord.id);
+	local creatureType = UnitCreatureType(unitRecord.id);
 	
 	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (creatureType);
 	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (unitRecord.isPlayer) and (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) and (unitRecord.className);
