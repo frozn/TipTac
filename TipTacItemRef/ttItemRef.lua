@@ -2495,7 +2495,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 		local quality = tonumber(itemRarity);
 		
 		if (quality) then
-			local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			local itemQualityColor = LibFroznFunctions:GetItemQualityColor(quality);
 			ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
 		end
 	end
@@ -2647,7 +2647,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 		local quality = tonumber(itemRarity);
 		
 		if (quality) then
-			local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			local itemQualityColor = LibFroznFunctions:GetItemQualityColor(quality);
 			ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
 		end
 	end
@@ -2906,13 +2906,13 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
 				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
-					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(1)));
+					spellColor = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Common);
 				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-green") then
-					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(2)));
+					spellColor = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Uncommon);
 				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-blue") then
-					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(3)));
+					spellColor = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Rare);
 				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-purple") then
-					spellColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(4)));
+					spellColor = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Epic);
 				end
 			end
 		end
@@ -2999,7 +2999,7 @@ function LinkTypeFuncs:currency(link, linkType, currencyID, quantity)
 		quality = tonumber(quality);
 		
 		if (quality) then
-			local currencyQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			local currencyQualityColor = LibFroznFunctions:GetItemQualityColor(quality);
 			ttif:SetBackdropBorderColorLocked(self, currencyQualityColor:GetRGBA());
 		end
 	end
@@ -3146,7 +3146,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 		local quality = tonumber(breedQuality);
 		
 		if (quality) then
-			local battlePetQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			local battlePetQualityColor = LibFroznFunctions:GetItemQualityColor(quality);
 			ttif:SetBackdropBorderColorLocked(self, battlePetQualityColor:GetRGBA());
 		end
 	end
@@ -3347,7 +3347,7 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 		local conduitQuality = C_Soulbinds.GetConduitQuality(conduitID, conduitRank);
 		
 		if (conduitQuality) then
-			local conduitQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(conduitQuality)));
+			local conduitQualityColor = LibFroznFunctions:GetItemQualityColor(conduitQuality);
 			ttif:SetBackdropBorderColorLocked(self, conduitQualityColor:GetRGBA());
 		end
 	end
@@ -3399,7 +3399,7 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 		local quality = tonumber(itemRarity);
 		
 		if (quality) then
-			local itemQualityColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality)));
+			local itemQualityColor = LibFroznFunctions:GetItemQualityColor(quality);
 			ttif:SetBackdropBorderColorLocked(self, itemQualityColor:GetRGBA());
 		end
 	end
@@ -3501,7 +3501,7 @@ function LinkTypeFuncs:transmogset(link, linkType, setID)
 		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or nil;
 		
 		if (setQuality) then
-			local setColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(setQuality)));
+			local setColor = LibFroznFunctions:GetItemQualityColor(setQuality);
 			ttif:SetBackdropBorderColorLocked(self, setColor:GetRGBA());
 		end
 	end
@@ -3538,7 +3538,7 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 		local quality = tonumber(essenceRank);
 		
 		if (quality) then
-			local essenceColor = LibFroznFunctions:CreateColorFromHexString(select(4, C_Item.GetItemQualityColor(quality + 1)));
+			local essenceColor = LibFroznFunctions:GetItemQualityColor(quality + 1);
 			ttif:SetBackdropBorderColorLocked(self, essenceColor:GetRGBA());
 		end
 	end
