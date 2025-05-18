@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 41; -- bump on changes
+local LIB_MINOR = 42; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2278,7 +2278,7 @@ end
 -- @param  referenceFrame         frame to start searching in
 -- @param  framesAndNamePatterns  frame or pattern to search back in frame chain, or a table of this.
 -- @param  maxLevelBack           optional. max level to search back in frame chain, e.g. 1 = actual level, 2 = actual and one level back.
--- @return true if frame or pattern in frame chain exists
+-- @return true if frame or pattern in frame chain exists, false otherwise.
 function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndNamePatterns, maxLevel)
 	local currentFrame = referenceFrame;
 	local currentLevel = 1;
@@ -2460,6 +2460,76 @@ function LibFroznFunctions:ShowPopupWithText(params)
 		onShowHandler = params.onShowHandler,
 		onAcceptHandler = params.onAcceptHandler
 	});
+end
+
+-- check if the mouse cursor is hovering over the WorldFrame
+--
+-- hint: temporary workaround for blizzard bug in classic era 1.15.7, see https://github.com/frozn/TipTac/issues/386: GetMouseFoci() doesn't return the WorldFrame any more since patch 1.15.7
+--
+-- @return true if the mouse cursor is hovering over the WorldFrame, false otherwise.
+local frameForWorldFrameIsMouseMotionFocus;
+
+-- create frame for "create frame for WorldFrame is mouse motion focus on player login"
+local frameForCreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin;
+
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
+	frameForCreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin = CreateFrame("Frame", LIB_NAME .. "-" .. LIB_MINOR .. "_CreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin");
+	frameForCreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin:Hide();
+
+	frameForCreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin:SetScript("OnEvent", function(self, event, ...)
+		self[event](self, event, ...);
+	end);
+	
+	function frameForCreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin:PLAYER_LOGIN()
+		-- create frame for "WorldFrame is mouse motion focus"
+		if (not frameForWorldFrameIsMouseMotionFocus) then
+			frameForWorldFrameIsMouseMotionFocus = CreateFrame("Frame", LIB_NAME .. "-" .. LIB_MINOR .. "_WorldFrameIsMouseMotionFocus");
+			
+			frameForWorldFrameIsMouseMotionFocus:SetFrameStrata("BACKGROUND");
+			frameForWorldFrameIsMouseMotionFocus:SetFrameLevel(0);
+			frameForWorldFrameIsMouseMotionFocus:SetAllPoints(WorldFrame);
+			
+			frameForWorldFrameIsMouseMotionFocus:EnableMouseMotion(true);
+			frameForWorldFrameIsMouseMotionFocus:SetPropagateMouseMotion(true);
+			frameForWorldFrameIsMouseMotionFocus:SetPropagateMouseClicks(true);
+			
+			WorldFrame:HookScript("OnShow", function()
+				frameForWorldFrameIsMouseMotionFocus:Show();
+			end);
+			
+			WorldFrame:HookScript("OnHide", function()
+				frameForWorldFrameIsMouseMotionFocus:Hide();
+			end);
+			
+			frameForWorldFrameIsMouseMotionFocus:SetShown(WorldFrame:IsShown());
+		end
+	end
+	
+	frameForCreateFrameForWorldFrameIsMouseMotionFocusOnPlayerLogin:RegisterEvent("PLAYER_LOGIN");
+end
+
+function LibFroznFunctions:WorldFrameIsMouseMotionFocus()
+	local WorldFrame = WorldFrame;
+	
+	if (self.isWoWFlavor.ClassicEra) then
+		if (frameForWorldFrameIsMouseMotionFocus) then
+			WorldFrame = frameForWorldFrameIsMouseMotionFocus;
+		end
+	else
+		-- make shure that the WorldFrame can receive mouse hover events
+		if (not WorldFrame:IsForbidden()) and (not WorldFrame:IsMouseMotionEnabled()) then
+			WorldFrame:EnableMouseMotion(true);
+		end
+		
+		-- check if the mouse cursor is hovering over the WorldFrame
+		local mouseFocus = self:GetMouseFocus();
+		
+		if (mouseFocus == WorldFrame) then
+			return true;
+		end
+	end
+	
+	return WorldFrame:IsMouseMotionFocus(); -- checking "mouseFocus == WorldFrame" alone doesn't work in cases if there is a fullscreen frame above the world frame, e.g. from addon "OPie".
 end
 
 ----------------------------------------------------------------------------------------------------
