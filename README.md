@@ -20,9 +20,9 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 11.1.0 - The War Within [TWW]
+  * 11.1.5 - The War Within [TWW]
   * 4.4.2 - Cataclysm Classic [CataC]
-  * 1.15.6 - Classic Era / Vanilla [Classic Era]
+  * 1.15.7 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
@@ -65,12 +65,13 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "Backdrop->BG Texture Layout" to set if the background texture should be repeated or stretched to fit the tip
 - added option "Hiding->Hide Tips Out Of Combat" and "Hiding->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action-bar/experience-bar tips during challenge mode, during skyriding or in/out of combat
-- added option "General->Show Player Guild" to show/hide guild name/rank
+- added option "General->Show Player Guild Realm" to show player guild realm if the guild is from a foreign realm
+- added option "General->Show Player Guild Rank" to show/hide guild name/rank
+- added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
+- added option "General->Show Player Guild Member/Officer note"
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
-- added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
 - added option "General->Show Mount" to show the player's mount icon/name/speed and an icon indicating if you already have collected the mount
-- added option "General->Show Player Guild Member/Officer note"
 - added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
 - added option "Colors->Enable Coloring of Faction Text" to change the color of the unit's faction text
 - added option "ItemRef->Show Mount ID" to show the mount id
