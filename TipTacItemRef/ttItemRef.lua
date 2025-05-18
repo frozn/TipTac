@@ -2835,10 +2835,10 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
 			if (rarityAtlas) then
 				local rarityAtlasColors = { -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
-					["jailerstower-animapowerlist-powerborder-white"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Common],
-					["jailerstower-animapowerlist-powerborder-green"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Uncommon],
-					["jailerstower-animapowerlist-powerborder-blue"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Rare],
-					["jailerstower-animapowerlist-powerborder-purple"] = ITEM_QUALITY_COLORS[Enum.ItemQuality.Epic]
+					["jailerstower-animapowerlist-powerborder-white"] = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Common),
+					["jailerstower-animapowerlist-powerborder-green"] = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Uncommon),
+					["jailerstower-animapowerlist-powerborder-blue"] = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Rare),
+					["jailerstower-animapowerlist-powerborder-purple"] = LibFroznFunctions:GetItemQualityColor(Enum.ItemQuality.Epic)
 				};
 				if (rarityAtlasColors[rarityAtlas]) then
 					spellColor = rarityAtlasColors[rarityAtlas].color;

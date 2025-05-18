@@ -1780,7 +1780,29 @@ end
 -- @param  alternateQualityIfNotFound  alternate quality if color for param "quality" doesn't exist
 -- @return ColorMixin  returns nil if quality for param "quality" and "alternateQualityIfNotFound" doesn't exist.
 function LibFroznFunctions:GetItemQualityColor(quality, alternateQualityIfNotFound)
-	return (ITEM_QUALITY_COLORS[quality] and ITEM_QUALITY_COLORS[quality].color) or (ITEM_QUALITY_COLORS[alternateQualityIfNotFound] and ITEM_QUALITY_COLORS[alternateQualityIfNotFound].color); -- see "UIParent.lua"
+	-- since tww 11.1.5
+	if (ColorManager) then
+		local itemQualityColor = ColorManager.GetColorDataForItemQuality[quality];
+		local itemQualityColorMixin = (itemQualityColor and itemQualityColor.color);
+		
+		if (not itemQualityColorMixin) then
+			itemQualityColor = ColorManager.GetColorDataForItemQuality[alternateQualityIfNotFound];
+			itemQualityColorMixin = (itemQualityColor and itemQualityColor.color);
+		end
+		
+		return itemQualityColorMixin;
+	end
+	
+	-- before tww 11.1.5
+	local itemQualityColor = ITEM_QUALITY_COLORS[quality]; -- see "UIParent.lua"
+	local itemQualityColorMixin = (itemQualityColor and itemQualityColor.color);
+	
+	if (not itemQualityColorMixin) then
+		itemQualityColor = ITEM_QUALITY_COLORS[alternateQualityIfNotFound];
+		itemQualityColorMixin = (itemQualityColor and itemQualityColor.color);
+	end
+	
+	return itemQualityColorMixin;
 end
 
 -- get difficulty color for unit compared to the player level
@@ -1817,8 +1839,14 @@ function LibFroznFunctions:GetDifficultyColorForQuest(questID, questLevel)
 	-- world quests
 	if (C_QuestLog.IsWorldQuest) and (questID) and (C_QuestLog.IsWorldQuest(questID)) then -- see GameTooltip_AddQuest()
 		local tagInfo = C_QuestLog.GetQuestTagInfo(questID);
-		local worldQuestQuality = tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common;
+		local worldQuestQuality = (tagInfo and tagInfo.quality or Enum.WorldQuestQuality.Common);
 		
+		-- since tww 11.1.5
+		if (ColorManager) then
+			return ColorManager.GetColorDataForWorldQuestQuality(worldQuestQuality).color; -- see "UIParent.lua"
+		end
+		
+		-- before tww 11.1.5
 		return WORLD_QUEST_QUALITY_COLORS[worldQuestQuality].color; -- see "UIParent.lua"
 	end
 	
