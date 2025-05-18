@@ -56,6 +56,7 @@ local TT_DefaultConfig = {
 	showTarget = "last",
 	targetYouText = "<<YOU>>",
 	showGuild = true,
+	showGuildRealm = "show",
 	showGuildRank = true,
 	guildRankFormat = "both",
 	showGuildMemberNote = true,

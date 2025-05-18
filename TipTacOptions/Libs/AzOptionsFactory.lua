@@ -55,10 +55,12 @@
 	- classic era: added a workaround for blizzard bug in classic era 1.15.4: the UISliderTemplateWithLabels template defined in "SliderTemplates.xml" is missing.
 	24.10.29 Rev 31 11.0.2/The War Within #frozn45
 	- classic era: removed the workaround for blizzard bug in classic era 1.15.4: the UISliderTemplateWithLabels template defined in "SliderTemplates.xml" is missing. fixed with WoW build 1.15.4.56857.
+	25.05.18 Rev 32 11.1.5/The War Within #frozn45
+	- replaced newlines in header of tooltip with a space for all option types
 --]]
 
 -- create new library
-local REVISION = 31; -- bump on changes
+local REVISION = 32; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -221,7 +223,7 @@ local function SliderEdit_OnEnter(self)
 	self.text:SetTextColor(1,1,1);
 	if (self.option.tip) then
 		GameTooltip:SetOwner(self,"ANCHOR_TOP");
-		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "),1,1,1);
 		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
 		GameTooltip:Show();
 	end
@@ -367,7 +369,7 @@ local function Header_OnEnter(self)
 		self.text:SetTextColor(1, 1, 1);
 		
 		GameTooltip:SetOwner(self, "ANCHOR_TOP");
-		GameTooltip:AddLine(self.option.label, 1, 1, 1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "), 1, 1, 1);
 		GameTooltip:AddLine(self.option.tip, nil, nil, nil, 1);
 		GameTooltip:Show();
 	end
@@ -435,7 +437,7 @@ local function CheckButton_OnEnter(self)
 	self.text:SetTextColor(1,1,1);
 	if (self.option.tip) then
 		GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
-		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "),1,1,1);
 		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
 		GameTooltip:Show();
 	end
@@ -576,7 +578,7 @@ local function ColorButton_OnEnter(self)
 	self.border:SetVertexColor(1,1,0);
 	if (self.option.tip) then
 		GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
-		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "),1,1,1);
 		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
 		GameTooltip:Show();
 	end
@@ -667,7 +669,7 @@ local function DropDown_OnEnter(self)
 	self.text:SetTextColor(1,1,1);
 	if (self.option.tip) then
 		GameTooltip:SetOwner(self,"ANCHOR_TOP");
-		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "),1,1,1);
 		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
 		GameTooltip:Show();
 	end
@@ -867,7 +869,7 @@ local function TextEdit_OnEnter(self)
 	self.text:SetTextColor(1,1,1);
 	if (self.option.tip) then
 		GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
-		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "),1,1,1);
 		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
 		GameTooltip:Show();
 	end
@@ -956,7 +958,7 @@ local function TextOnly_OnEnter(self)
 		self.text:SetTextColor(1,1,1);
 		
 		GameTooltip:SetOwner(self,"ANCHOR_RIGHT");
-		GameTooltip:AddLine(self.option.label,1,1,1);
+		GameTooltip:AddLine(self.option.label:gsub("\n"," "),1,1,1);
 		GameTooltip:AddLine(self.option.tip,nil,nil,nil,1);
 		GameTooltip:Show();
 	end
