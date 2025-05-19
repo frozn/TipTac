@@ -383,16 +383,15 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 		end
 	end
 	-- guild
-	local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo(unitRecord.id);
+	local guildName, guildRankName, guildRankIndex, guildRealm = GetGuildInfo(unitRecord.id);
 	if (guildName) then
-		local playerGuildName, playerGuildRankName, playerGuildRankIndex, playerRealm = GetGuildInfo("player");
-		local isForeignGuildRealm = (realm) and (realm ~= playerRealm);
-		local isPlayerGuild = (guildName == playerGuildName) and (not isForeignGuildRealm);
+		local playerGuildName, playerGuildRankName, playerGuildRankIndex, playerGuildRealm = GetGuildInfo("player");
+		local isPlayerGuild = (guildName == playerGuildName) and (guildRealm == playerGuildRealm);
 		if (cfg.showGuild) then -- show guild
 			local textGuildRealm = "";
-			if (isForeignGuildRealm) and (cfg.showGuildRealm ~= "none") then
+			if (guildRealm) and (cfg.showGuildRealm ~= "none") then
 				if (cfg.showGuildRealm == "show") then
-					textGuildRealm = " - " .. realm;
+					textGuildRealm = " - " .. guildRealm;
 				elseif (cfg.showGuildRealm == "asterisk") then
 					textGuildRealm = " (*)";
 				end
@@ -409,8 +408,8 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 					text = text .. " " .. TT_COLOR.text.guildRank:WrapTextInColorCode(format("%s", guildRankIndex));
 				end
 			end
-			if (isForeignGuildRealm) and (cfg.showGuildRealm == "showInNewLine") then
-				text = text .. "\n" .. guildColor:WrapTextInColorCode(realm);
+			if (guildRealm) and (cfg.showGuildRealm == "showInNewLine") then
+				text = text .. "\n" .. guildColor:WrapTextInColorCode(guildRealm);
 			end
 			currentDisplayParams.mergeLevelLineWithGuildName = false;
 			if (not LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) then -- no separate line for guild name. merge with reaction (only color blind mode) or level line.
