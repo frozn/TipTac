@@ -33,7 +33,7 @@ body:
     id: version-tiptac
     attributes:
       label: Version of TipTac Reborn
-      placeholder: e.g. 25.05.18, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
+      placeholder: e.g. 25.06.19, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
     validations:
       required: true
   - type: textarea
