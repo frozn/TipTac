@@ -1,4 +1,4 @@
-## Interface: 110105
+## Interface: 110107
 ## Version: 25.05.19
 ## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
 ## Title: TipTacOptions
