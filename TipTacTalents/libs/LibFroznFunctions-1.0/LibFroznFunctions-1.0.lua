@@ -2654,6 +2654,38 @@ function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
 	tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.
 end
 
+-- get tooltip info
+--
+-- @param  functionName  tooltip info function to call
+-- @param  ...           values for tooltip info function to call
+-- @return tooltipData
+--           .lines       lines of tooltip
+--             .leftText    left text of line
+--             .rightText   right text of line
+--         returns nil if no tooltip data is available.
+function LibFroznFunctions:GetTooltipInfo(functionName, ...)
+	-- get tooltip info from C_TooltipInfo
+	
+	-- since df 10.0.2
+	if (C_TooltipInfo) and (type(C_TooltipInfo[functionName]) == "function") then
+		local tooltipData = C_TooltipInfo[functionName](...);
+		
+		return tooltipData;
+	end
+	
+	-- before df 10.0.2
+	
+	-- get tooltip info from scanning tooltip
+	local accessors = { -- see "TooltipDataHandler.lua"
+		GetUnit = "SetUnit",
+		GetUnitAura = "SetUnitAura"
+	};
+	
+	local tooltipData = LibFroznFunctions:GetTooltipDataFromScanTip("GetTooltipInfo", accessors[functionName], ...);
+	
+	return tooltipData;
+end
+
 -- get tooltip data from scanning tooltip
 --
 -- @param  scanTipName   name of scanning tooltip
@@ -2683,7 +2715,7 @@ function LibFroznFunctions:GetTooltipDataFromScanTip(scanTipName, functionName, 
 		scanTip:SetOwner(UIParent, "ANCHOR_NONE");
 	end
 	
-	-- get tooltip data from tooltip
+	-- get tooltip data from scanning tooltip
 	scanTip:ClearLines();
 	scanTip[functionName](scanTip, ...);
 	
@@ -2768,18 +2800,7 @@ function LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForA
 	end
 	
 	-- get aura description from spell data
-	
-	-- since df 10.0.2
-	if (C_TooltipInfo) then
-		local tooltipData = C_TooltipInfo.GetUnitAura(unitID, index, filter);
-		
-		return LFF_GetAuraDescriptionFromTooltipData(tooltipData, callbackForAuraData);
-	end
-	
-	-- before df 10.0.2
-	
-	-- get aura description from tooltip
-	local tooltipData = LibFroznFunctions:GetTooltipDataFromScanTip("GetAuraDescription", "SetUnitAura", unitID, index, filter);
+	local tooltipData = LibFroznFunctions:GetTooltipInfo("GetUnitAura", unitID, index, filter);
 	
 	return LFF_GetAuraDescriptionFromTooltipData(tooltipData, callbackForAuraData);
 end
