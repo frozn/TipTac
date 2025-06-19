@@ -20,7 +20,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 11.1.5 - The War Within [TWW]
+  * 11.1.7 - The War Within [TWW]
   * 4.4.2 - Cataclysm Classic [CataC]
   * 1.15.7 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
@@ -40,7 +40,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
 - added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop, AceConfigDialog-3.0, LibDBIcon, LibUIDropDownMenu-4.0, LibDropDownMenu, LibDropdown, LibDropdownMC, LibQTip, LibExtraTip, auras from addon Plater, tooltips from addon ElvUI, OPie and RaiderIO
-- changes regarding config option "Special->Enable ChatFrame Hover Hyperlinks":
+- changes regarding config option "Hyperlink->Enable (Guild & Community) ChatFrame Hover Hyperlinks":
   - fixed hooking/unhooking of chatframe if toggling option
   - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
   - added mouseover for chatlinks: torghast anima power, transmog item/set, azerite essences, dungeon score and instance lock
@@ -87,7 +87,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
 - added option "Reactions->Show the unit's reaction as icon"
 - added unit reaction for honored, revered and exalted NPCs
-- added option "Special->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
+- added option "General->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
+- added option "General->Hide Right Click for Frame Settings Text From Unit Tip" to strip the "right click for frame settings text" from the tooltip introduced with tww 11.0.7
 - added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
 - added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
 - added "enabled"-feature for options. depending options are now grayed out if disabled.
