@@ -1,5 +1,5 @@
 ## Interface: 40402
-## Version: 25.05.19
+## Version: 25.06.19
 ## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
 ## Title: TipTacItemRef
 ## Author: Aezay (Earthen Ring EU), Frozn45
