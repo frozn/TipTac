@@ -64,6 +64,7 @@ local TT_DefaultConfig = {
 	showBattlePetTip = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
+	hideRightClickForFrameSettingsText = true,
 	highlightTipTacDeveloper = true, -- hidden
 	
 	-- colors

@@ -116,7 +116,11 @@ tinsert(ttOptionsGeneral, { type = "Header", label = "Strip default text from to
 tinsert(ttOptionsGeneral, { type = "Check", var = "hidePvpText", label = "Hide PvP Text", tip = "Strips the PvP line from the tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
 
 if (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) then
-	tinsert(ttOptionsGeneral, { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text", tip = "Strips the Specialization & Class text from the tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
+	tinsert(ttOptionsGeneral, { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text From Unit Tip", tip = "Strips the Specialization & Class text from the unit tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
+end
+
+if (LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInPlayerUnitTip) then
+	tinsert(ttOptionsGeneral, { type = "Check", var = "hideRightClickForFrameSettingsText", label = "Hide Right Click for Frame Settings Text From Unit Tip", tip = "Strips the right click for frame settings text from the unit tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
 end
 
 -- Colors
