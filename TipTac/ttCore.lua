@@ -1219,7 +1219,6 @@ local TT_TipsToModifyFromOtherMods = {};
 -- tipContent                                        see TT_TIP_CONTENT
 -- hideTip                                           true if tip will be hidden, false otherwise.
 -- ignoreNextSetCurrentDisplayParams                 true if ignoring next tooltip's current display parameters to be set, nil otherwise.
--- ignoreSetCurrentDisplayParamsOnTimestamp          timestamp of ignoring tooltip's current display parameters to be set, nil otherwise.
 --
 -- lockedBackdropInfo                                locked backdropInfo, nil otherwise.
 -- lockedBackdropColor                               locked backdrop color, nil otherwise.
@@ -2126,15 +2125,6 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 		return;
 	end
 	
-	-- ignore setting tip's current display parameters on timestamp
-	local currentTime = GetTime();
-	
-	if (currentDisplayParams.ignoreSetCurrentDisplayParamsOnTimestamp == currentTime) then
-		return;
-	end
-	
-	currentDisplayParams.ignoreSetCurrentDisplayParamsOnTimestamp = nil;
-	
 	-- consider missing reset of tip's current display parameters
 	-- - e.g. if hovering over unit auras which will be hidden. there will be subsequent calls of GameTooltip:SetUnitAura() without a new GameTooltip:OnShow().
 	-- - e.g. if hovering over empty action bar buttons the GameTooltip:SetAction() will be called, but there's no tooltip. therefore no OnTooltipCleared() will
@@ -2225,7 +2215,6 @@ end
 function tt:HideTip(tip)
 	if (not tip:IsForbidden()) and (tip:IsShown()) then
 		tip:Hide();
-		TT_CacheForFrames[tip].currentDisplayParams.ignoreSetCurrentDisplayParamsOnTimestamp = GetTime();
 	end
 end
 
