@@ -802,12 +802,25 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 		local unitTooltipData = LibFroznFunctions:GetTooltipInfo("GetUnit", unitRecord.id)
 		
 		unitRecord.isColorBlind = (GetCVar("colorblindMode") == "1");
-		unitRecord.originalName = unitTooltipData.lines[1].leftText;
+		unitRecord.originalName = (unitTooltipData) and (unitTooltipData.lines[1]) and (unitTooltipData.lines[1].leftText);
 		
 		-- find pet, battle pet or NPC title
 		if (unitRecord.isPet) or (unitRecord.isBattlePet) or (unitRecord.isNPC) then
-			unitRecord.petOrBattlePetOrNPCTitle = (unitRecord.isColorBlind and unitTooltipData.lines[3] or unitTooltipData.lines[2]).leftText;
-			if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle:find(TT_LevelMatch)) then
+			unitRecord.petOrBattlePetOrNPCTitle = nil;
+			
+			if (unitTooltipData) then
+				if (unitRecord.isColorBlind) then
+					if (unitTooltipData.lines[3]) then
+						unitRecord.petOrBattlePetOrNPCTitle = unitTooltipData.lines[3].leftText;
+					end
+				else
+					if (unitTooltipData.lines[2]) then
+						unitRecord.petOrBattlePetOrNPCTitle = unitTooltipData.lines[2].leftText;
+					end
+				end
+			end
+			
+			if (type(unitRecord.petOrBattlePetOrNPCTitle) == "string") and (unitRecord.petOrBattlePetOrNPCTitle:find(TT_LevelMatch)) then
 				unitRecord.petOrBattlePetOrNPCTitle = nil;
 			end
 		
@@ -823,7 +836,7 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 		end
 
 		-- remember reaction in color blind mode if there is no separate line for guild name
-		if (not LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) and (unitRecord.isColorBlind) then
+		if (not LibFroznFunctions.hasWoWFlavor.guildNameInPlayerUnitTip) and (unitRecord.isColorBlind) and (unitTooltipData) and (unitTooltipData.lines[2]) then
 			unitRecord.reactionTextInColorBlindMode = unitTooltipData.lines[2].leftText;
 		end
 	end
