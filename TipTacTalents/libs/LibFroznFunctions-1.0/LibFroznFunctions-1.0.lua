@@ -1784,7 +1784,7 @@ end
 -- @param  quality                     item quality, e.g. 0 (poor), 3 (rare), 4 (epic), see "Enum.ItemQuality" or LFF_ITEM_QUALITY
 -- @param  alternateQualityIfNotFound  alternate quality if color for param "quality" doesn't exist
 -- @return ColorMixin  returns nil if quality for param "quality" and "alternateQualityIfNotFound" doesn't exist.
-LFF_ITEM_QUALITY = Enum.ItemQuality; -- see ItemQuality in "ItemQualitiesDocumentation.lua"
+LFF_ITEM_QUALITY = CopyTable(Enum.ItemQuality); -- see ItemQuality in "ItemQualitiesDocumentation.lua"
 
 if (LFF_ITEM_QUALITY.Standard) then
 	LFF_ITEM_QUALITY.Common = LFF_ITEM_QUALITY.Standard;
