@@ -402,7 +402,7 @@ function ttHyperlink:ShowTipForTypeTransmogset(chatFrame, refString, text)
 	if (waitingOnQuality) then
 		GameTooltip:SetText(RETRIEVING_ITEM_INFO, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
 	else
-		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or Enum.ItemQuality.Common;
+		local setQuality = (numTotalSlots > 0 and totalQuality > 0) and Round(totalQuality / numTotalSlots) or LFF_ITEM_QUALITY.Common;
 		local color = LibFroznFunctions:GetItemQualityColor(setQuality);
 		local setInfo = C_TransmogSets.GetSetInfo(setID);
 		

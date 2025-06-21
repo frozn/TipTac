@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 43; -- bump on changes
+local LIB_MINOR = 44; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1781,9 +1781,25 @@ end
 
 -- get item quality color
 --
--- @param  quality                     item quality, e.g. 0 (poor), 3 (rare), 4 (epic), see "Enum.ItemQuality"
+-- @param  quality                     item quality, e.g. 0 (poor), 3 (rare), 4 (epic), see "Enum.ItemQuality" or LFF_ITEM_QUALITY
 -- @param  alternateQualityIfNotFound  alternate quality if color for param "quality" doesn't exist
 -- @return ColorMixin  returns nil if quality for param "quality" and "alternateQualityIfNotFound" doesn't exist.
+LFF_ITEM_QUALITY = Enum.ItemQuality; -- see ItemQuality in "ItemQualitiesDocumentation.lua"
+
+if (LFF_ITEM_QUALITY.Standard) then
+	LFF_ITEM_QUALITY.Common = LFF_ITEM_QUALITY.Standard;
+	LFF_ITEM_QUALITY.Standard = nil;
+end
+if (LFF_ITEM_QUALITY.Good) then
+	LFF_ITEM_QUALITY.Uncommon = LFF_ITEM_QUALITY.Good;
+	LFF_ITEM_QUALITY.Good = nil;
+end
+
+if (LFF_ITEM_QUALITY.Superior) then
+	LFF_ITEM_QUALITY.Rare = LFF_ITEM_QUALITY.Superior;
+	LFF_ITEM_QUALITY.Superior = nil;
+end
+
 function LibFroznFunctions:GetItemQualityColor(quality, alternateQualityIfNotFound)
 	-- since tww 11.1.5
 	if (ColorManager) then
@@ -4413,10 +4429,10 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	local isMainHandOnly = (itemMainHand) and (not itemOffHand);
 	
 	-- to check if main or off hand are artifacts
-	local isMainHandArtifact = (itemMainHand) and (itemMainHand.quality == Enum.ItemQuality.Artifact);
+	local isMainHandArtifact = (itemMainHand) and (itemMainHand.quality == LFF_ITEM_QUALITY.Artifact);
 	local itemMainHandEffectiveILvl = (itemMainHand) and (itemMainHand.effectiveILvl);
 	
-	local isOffHandArtifact = (itemOffHand) and (itemOffHand.quality == Enum.ItemQuality.Artifact);
+	local isOffHandArtifact = (itemOffHand) and (itemOffHand.quality == LFF_ITEM_QUALITY.Artifact);
 	local itemOffHandEffectiveILvl = (itemOffHand) and (itemOffHand.effectiveILvl);
 	
 	-- calculate average item level and GearScore
@@ -4502,7 +4518,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	end
 	
 	if (not totalQualityColor) then
-		totalQualityColor = LibFroznFunctions:GetItemQualityColor(Round(totalQuality / totalItemsForQuality), Enum.ItemQuality.Common);
+		totalQualityColor = LibFroznFunctions:GetItemQualityColor(Round(totalQuality / totalItemsForQuality), LFF_ITEM_QUALITY.Common);
 	end
 	
 	-- set GearScore and quality color
