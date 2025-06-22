@@ -101,7 +101,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --
 -- @return .guildNameInPlayerUnitTip                                   = true/false if the guild name is included in the player unit tip (since bc)
 --         .specializationAndClassTextInPlayerUnitTip                  = true/false if a specialization and class text is included in the player unit tip (since df 10.1.5)
---         .rightClickForFrameSettingsTextInPlayerUnitTip              = true/false if a right-click for frame settings is included in the player unit tip (since tww 11.0.7)
+--         .rightClickForFrameSettingsTextInUnitTip                    = true/false if a right-click for frame settings is included in the unit tip (since tww 11.0.7)
 --         .needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true/false for suppressing error message and speech when calling CanInspect() (till wotlkc)
 --         .talentsAvailableForInspectedUnit                           = true/false if getting talents from other players is available (since bc 2.3.0)
 --         .numTalentTrees                                             = number of talent trees
@@ -124,7 +124,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
-	rightClickForFrameSettingsTextInPlayerUnitTip = true,
+	rightClickForFrameSettingsTextInUnitTip = true,
 	needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = false,
 	talentsAvailableForInspectedUnit = true,
 	numTalentTrees = 2,
@@ -174,7 +174,7 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
-	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInPlayerUnitTip = false;
+	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip = false;
 end
 if (LibFroznFunctions.isWoWFlavor.CataC) then
 	LibFroznFunctions.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC = true;
