@@ -1,8 +1,8 @@
 ## Interface: 11507
-## Version: 25.06.20
+## Version: 25.07.06
 ## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
 ## Title: TipTacItemRef
-## Author: Aezay (Earthen Ring EU), Frozn45
+## Author: Frozn45, Aezay (Earthen Ring EU)
 ## Notes: Improved ItemRefTooltip
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface

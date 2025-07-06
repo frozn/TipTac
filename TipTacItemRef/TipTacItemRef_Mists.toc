@@ -1,9 +1,9 @@
-## Interface: 40402
-## Version: 25.06.20
-## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
-## Title: TipTacOptions
-## Author: Aezay (Earthen Ring EU), Frozn45
-## Notes: Option Dialog for TipTac
+## Interface: 50500
+## Version: 25.07.06
+## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
+## Title: TipTacItemRef
+## Author: Frozn45, Aezay (Earthen Ring EU)
+## Notes: Improved ItemRefTooltip
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
 ## Category-esES: Interfaz de usuario
@@ -16,12 +16,10 @@
 ## Category-zhCN: 用户界面
 ## Category-zhTW: 使用者介面
 ## Group: TipTac
-## Dependencies: TipTac
-## LoadOnDemand: 1
+## OptionalDeps: TipTac
 ## X-Category: Tooltip
 ## X-Website: https://www.curseforge.com/wow/addons/tiptac-reborn
 ## X-Curse-Project-ID: 695153
 embeds.xml
 
-ttLayouts.lua
-ttOptions.lua
+ttItemRef.lua

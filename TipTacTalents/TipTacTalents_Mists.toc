@@ -1,8 +1,8 @@
-## Interface: 40402
-## Version: 25.06.20
+## Interface: 50500
+## Version: 25.07.06
 ## IconTexture: Interface\AddOns\TipTacTalents\media\tiptac_logo
 ## Title: TipTacTalents
-## Author: Aezay (Earthen Ring EU), Frozn45
+## Author: Frozn45, Aezay (Earthen Ring EU)
 ## Notes: Adds Talent Spec and Average Item Level to Player Tooltips
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface

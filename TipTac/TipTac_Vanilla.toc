@@ -1,8 +1,8 @@
 ## Interface: 11507
-## Version: 25.06.20
+## Version: 25.07.06
 ## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
 ## Title: TipTac
-## Author: Aezay (Earthen Ring EU), Frozn45
+## Author: Frozn45, Aezay (Earthen Ring EU)
 ## Notes: Highly Customizable Tooltip Enhancement Addon
 ## SavedVariables: TipTac_Config
 ## Category-enUS: User Interface
