@@ -19,15 +19,15 @@
 	<Script file="tables\LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP.lua" />
 
 	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.TWW.lua" />
-	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.CataC.lua" />
+	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.MoPC.lua" />
 	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.ClassicEra.lua" />
 
 	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.TWW.lua" />
-	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.CataC.lua" />
+	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.MoPC.lua" />
 	<Script file="tables\LFF_SPELLID_TO_MOUNTID_LOOKUP.ClassicEra.lua" />
 
 	<Script file="tables\LFF_ITEMID_TO_MOUNTID_LOOKUP.TWW.lua" />
-	<Script file="tables\LFF_ITEMID_TO_MOUNTID_LOOKUP.CataC.lua" />
+	<Script file="tables\LFF_ITEMID_TO_MOUNTID_LOOKUP.MoPC.lua" />
 	<Script file="tables\LFF_ITEMID_TO_MOUNTID_LOOKUP.ClassicEra.lua" />
 
 </Ui>

@@ -237,7 +237,9 @@ function TTT_UpdateTooltip(unitCacheRecord)
 			end
 			
 			if (cfg.t_showTalentIcon) and (unitCacheRecord.talents.iconFileID) then
-				specText:Push(LibFroznFunctions:CreateMarkupForClassIcon(unitCacheRecord.talents.iconFileID));
+				spacer = (specText:GetCount() > 0) and " " or "";
+
+				specText:Push(spacer .. LibFroznFunctions:CreateMarkupForClassIcon(unitCacheRecord.talents.iconFileID));
 			end
 			
 			if (cfg.t_showTalentText) and ((talentFormat == 1) or (talentFormat == 2)) and (unitCacheRecord.talents.name) then

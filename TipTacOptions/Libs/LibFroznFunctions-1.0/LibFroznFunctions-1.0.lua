@@ -60,6 +60,7 @@ end
 --         .BCC        = true/false for BCC
 --         .WotLKC     = true/false for WotLKC
 --         .CataC      = true/false for CataC
+--         .MoPC      = true/false for MoPC
 --         .SL         = true/false for SL
 --         .DF         = true/false for DF
 --         .TWW        = true/false for TWW
@@ -68,6 +69,7 @@ LibFroznFunctions.isWoWFlavor = {
 	BCC = false,
 	WotLKC = false,
 	CataC = false,
+	MoPC = false,
 	SL = false,
 	DF = false,
 	TWW = false
@@ -81,6 +83,8 @@ elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.WotLKC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.CataC = true;
+elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MISTS_CLASSIC"]) then
+	LibFroznFunctions.isWoWFlavor.MoPC = true;
 else -- retail
 	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
 		LibFroznFunctions.isWoWFlavor.SL = true;
@@ -106,7 +110,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .talentsAvailableForInspectedUnit                           = true/false if getting talents from other players is available (since bc 2.3.0)
 --         .numTalentTrees                                             = number of talent trees
 --         .talentIconAvailable                                        = true/false if talent icon is available (since bc)
---         .GetTalentTabInfoReturnValuesFromCataC                      = true/false if GetTalentTabInfo() return values from catac (since catac 4.4.0)
+--         .GetTalentTabInfoReturnValuesFromCataC                      = true/false if GetTalentTabInfo() return values from catac (only catac since catac 4.4.0)
 --         .roleIconAvailable                                          = true/false if role icon is available (since MoP 5.0.4)
 --         .specializationAvailable                                    = true/false if specialization is available (since MoP 5.0.4)
 --         .itemLevelOfFirstRaidTierSet                                = item level of first raid tier set. false if not defined (yet).
@@ -156,10 +160,12 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TacoTip;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) then
-	LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true;
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 3;
 	LibFroznFunctions.hasWoWFlavor.roleIconAvailable = false;
 	LibFroznFunctions.hasWoWFlavor.specializationAvailable = false;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
+	LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true;
 	LibFroznFunctions.hasWoWFlavor.GameTooltipSetPaddingWithLeftAndTop = false;
 	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
 	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -2;
@@ -168,12 +174,12 @@ end
 if (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate = "OptionsSliderTemplate";
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.SL) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
 	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = MainMenuExpBar;
 	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip = false;
 end
 if (LibFroznFunctions.isWoWFlavor.CataC) then
@@ -190,6 +196,7 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
 	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
 	LibFroznFunctions.isWoWFlavor.CataC      and 359 or -- Stormrider's Robes (Druid, Tier 11)
+	LibFroznFunctions.isWoWFlavor.MoPC       and 397 or -- Deep Earth Robes (Druid, Tier 13)
 	LibFroznFunctions.isWoWFlavor.DF         and 395 or -- Lost Landcaller's Robes (Druid, Tier 29)
 	LibFroznFunctions.isWoWFlavor.TWW        and 571;   -- Hide of the Greatlynx (Druid, Tier 32)
 
@@ -662,7 +669,7 @@ end
 -- @return spellLink
 function LibFroznFunctions:GetSpellLink(spellIdentifier, glyphID)
 	-- before bc 2.3.0
-	if (not LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable) then
+	if (not self.hasWoWFlavor.realGetSpellLinkAvailable) then
 		local spellInfo = self:GetSpellInfo(spellIdentifier);
 		
 		return format("|c%s|Hspell:%d:0|h[%s]|h|r", "FF71D5FF", spellInfo and spellInfo.spellID, spellInfo and spellInfo.name);
@@ -825,6 +832,22 @@ function LibFroznFunctions:GetQuestLogRewardCurrencyInfo(questID, currencyIndex,
 		totalRewardAmount = quantity,
 		questRewardContextFlags = nil
 	};
+end
+
+-- get specialization
+--
+-- @param  isInspect  true if information for the inspected player should be returned
+-- @param  isPet      true if information for the player's pet should be returned
+-- @param  specGroup  index of a given specialization/talent/glyph group (1 for primary, 2 for secondary)
+-- @return currentSpec. returns nil if no specialization is currently learned.
+function LibFroznFunctions:GetSpecialization(isInspect, isPet, specGroup)
+	-- since mopc 5.5.0
+	if (C_SpecializationInfo) and (C_SpecializationInfo.GetSpecialization) then
+		return C_SpecializationInfo.GetSpecialization(isInspect, isPet, specGroup);
+	end
+	
+	-- before mopc 5.5.0
+	return GetSpecialization(isInspect, isPet, specGroup);
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1892,15 +1915,21 @@ end
 -- @param  role  "DAMAGER", "TANK" or "HEALER"
 -- @return markup for role icon to use in text. returns nil for invalid roles.
 function LibFroznFunctions:CreateMarkupForRoleIcon(role)
+	local atlas
+	
 	if (role == "TANK") then
-		return CreateAtlasMarkup("roleicon-tiny-tank");
+		atlas = "UI-LFG-RoleIcon-Tank-Micro";
 	elseif (role == "DAMAGER") then
-		return CreateAtlasMarkup("roleicon-tiny-dps");
+		atlas = "UI-LFG-RoleIcon-DPS-Micro";
 	elseif (role == "HEALER") then
-		return CreateAtlasMarkup("roleicon-tiny-healer");
+		atlas = "UI-LFG-RoleIcon-Healer-Micro";
 	else
 		return;
 	end
+	
+	local atlasInfo = C_Texture.GetAtlasInfo(atlas);
+	
+	return CreateTextureMarkup("Interface\\LFGFrame\\UILFGPrompts", 2048, 2048, nil, nil, atlasInfo.leftTexCoord + (10 / 2048), atlasInfo.rightTexCoord - (15 / 2048), atlasInfo.topTexCoord + (10 / 2048), atlasInfo.bottomTexCoord - (15 / 2048));
 end
 
 -- create markup for class icon
@@ -4146,11 +4175,11 @@ function LibFroznFunctions:GetTalents(unitID)
 	local talents = {};
 	local isSelf = UnitIsUnit(unitID, "player");
 	
-	if (GetSpecialization) then -- retail
+	if (self.hasWoWFlavor.specializationAvailable) then -- retail, since MoP 5.0.4
 		local specializationName, specializationIcon, role, _;
 		
 		if (isSelf) then -- player
-			local specIndex = GetSpecialization();
+			local specIndex = self:GetSpecialization();
 			
 			if (not specIndex) then
 				return LFF_TALENTS.none;
@@ -4206,7 +4235,7 @@ function LibFroznFunctions:GetTalents(unitID)
 		if (#pointsSpent > 0) then
 			talents.pointsSpent = pointsSpent;
 		end
-	else -- classic
+	else -- classic era, before MoP 5.0.4
 		-- inspect functions will always use the active spec when not inspecting
 		local activeTalentGroup = GetActiveTalentGroup and GetActiveTalentGroup(not isSelf);
 		local numTalentTabs = GetNumTalentTabs(not isSelf);

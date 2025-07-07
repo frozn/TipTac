@@ -1,4 +1,4 @@
--- tww 11.0.7 build 58911, from https://wago.tools/db2/SpellItemEnchantment?build=11.0.7.58911, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
+-- tww 11.1.7 build 61609, from https://wago.tools/db2/SpellItemEnchantment?build=11.1.7.61609, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
 
 -- only tww flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
@@ -9,7 +9,7 @@ end
 
 -- define table
 local TABLE_NAME = "LFF_ENCHANTID_TO_SPELLID_LOOKUP";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
 	return;
@@ -21,6 +21,7 @@ LibFroznFunctions:RegisterTableVersion(TABLE_NAME, TABLE_MINOR);
 LFF_ENCHANTID_TO_SPELLID_LOOKUP = {};
 
 LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
+	[25]={spellID=14122,spellIDDescription=0},
 	[26]={spellID=96089,spellIDDescription=0},
 	[36]={spellID=6297,spellIDDescription=6296},
 	[37]={spellID=43588,spellIDDescription=0},
@@ -878,5 +879,17 @@ LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
 	[7583]={spellID=462528,spellIDDescription=0},
 	[7584]={spellID=462527,spellIDDescription=0},
 	[7585]={spellID=462526,spellIDDescription=0},
-	[7587]={spellID=462742,spellIDDescription=0}
+	[7587]={spellID=462742,spellIDDescription=0},
+	[7912]={spellID=1225042,spellIDDescription=0},
+	[7914]={spellID=1225045,spellIDDescription=0},
+	[7915]={spellID=1225878,spellIDDescription=0},
+	[7917]={spellID=1225880,spellIDDescription=0},
+	[7922]={spellID=1227210,spellIDDescription=0},
+	[7924]={spellID=1227211,spellIDDescription=0},
+	[7925]={spellID=1227289,spellIDDescription=0},
+	[7927]={spellID=1227291,spellIDDescription=0},
+	[7928]={spellID=1227295,spellIDDescription=0},
+	[7930]={spellID=1227297,spellIDDescription=0},
+	[7931]={spellID=1227312,spellIDDescription=0},
+	[7933]={spellID=1227314,spellIDDescription=0},
 });

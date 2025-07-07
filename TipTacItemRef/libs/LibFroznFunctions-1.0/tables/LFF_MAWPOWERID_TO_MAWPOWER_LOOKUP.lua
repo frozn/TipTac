@@ -1,8 +1,8 @@
--- tww 11.0.7 build 58911, from https://wago.tools/db2/MawPower?build=11.0.7.58911, converted to "Lua - Dictionary Table" by mawPowerID with https://thdoan.github.io/mr-data-converter/
+-- tww 11.1.7 build 61609, from https://wago.tools/db2/MawPower?build=11.1.7.61609, converted to "Lua - Dictionary Table" by mawPowerID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP";
-local TABLE_MINOR = 3; -- bump on changes
+local TABLE_MINOR = 4; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -1267,5 +1267,14 @@ LibFroznFunctions:ChainTables(LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP, {
 	[1996]={spellID=452735,mawPowerRarityID=3},
 	[1997]={spellID=452882,mawPowerRarityID=3},
 	[1998]={spellID=452992,mawPowerRarityID=3},
-	[2000]={spellID=459254,mawPowerRarityID=4}
+	[2000]={spellID=459254,mawPowerRarityID=4},
+	[2017]={spellID=1214334,mawPowerRarityID=3},
+	[2018]={spellID=1214336,mawPowerRarityID=3},
+	[2019]={spellID=1214339,mawPowerRarityID=3},
+	[2020]={spellID=1214342,mawPowerRarityID=3},
+	[2021]={spellID=1214350,mawPowerRarityID=3},
+	[2022]={spellID=1214415,mawPowerRarityID=3},
+	[2023]={spellID=1215287,mawPowerRarityID=4},
+	[2024]={spellID=1215320,mawPowerRarityID=4},
+	[2025]={spellID=1215327,mawPowerRarityID=4}
 });

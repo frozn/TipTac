@@ -1,8 +1,8 @@
--- classic era 1.15.6 build 58912, from https://wago.tools/db2/SpellEffect?build=1.15.6.58912 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
+-- classic era 1.15.7 build 61582, from https://wago.tools/db2/SpellEffect?build=1.15.7.61582 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 3; -- bump on changes
+local TABLE_MINOR = 4; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -190,5 +190,8 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[1220565]=238329,
 	[1220566]=238330,
 	[1220567]=238331,
-	[1220568]=238332
+	[1220568]=238332,
+	[1229305]=242158,
+	[1229308]=242159,
+	[1237632]=242158
 });

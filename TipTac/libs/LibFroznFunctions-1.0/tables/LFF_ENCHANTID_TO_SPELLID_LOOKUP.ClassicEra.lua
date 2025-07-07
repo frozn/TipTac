@@ -1,4 +1,4 @@
--- classic era 1.15.6 build 58912, from https://wago.tools/db2/SpellItemEnchantment?build=1.15.6.58912, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
+-- classic era 1.15.7 build 61582, from https://wago.tools/db2/SpellItemEnchantment?build=1.15.7.61582, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
 
 -- only classic era flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
@@ -9,7 +9,7 @@ end
 
 -- define table
 local TABLE_NAME = "LFF_ENCHANTID_TO_SPELLID_LOOKUP";
-local TABLE_MINOR = 1; -- bump on changes
+local TABLE_MINOR = 2; -- bump on changes
 
 if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
 	return;
@@ -21,6 +21,7 @@ LibFroznFunctions:RegisterTableVersion(TABLE_NAME, TABLE_MINOR);
 LFF_ENCHANTID_TO_SPELLID_LOOKUP = {};
 
 LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
+	[1]={spellID=15568,spellIDDescription=2605},
 	[2]={spellID=8034,spellIDDescription=0},
 	[3]={spellID=436519,spellIDDescription=0},
 	[4]={spellID=436519,spellIDDescription=0},
@@ -2057,5 +2058,14 @@ LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
 	[7883]={spellID=1220735,spellIDDescription=1219510},
 	[7884]={spellID=1220743,spellIDDescription=1219512},
 	[7885]={spellID=1220754,spellIDDescription=1219511},
-	[7896]={spellID=1223687,spellIDDescription=0}
+	[7896]={spellID=1223687,spellIDDescription=0},
+	[7919]={spellID=1225951,spellIDDescription=0},
+	[7920]={spellID=1225982,spellIDDescription=0},
+	[7921]={spellID=1226001,spellIDDescription=0},
+	[7940]={spellID=1231124,spellIDDescription=0},
+	[7941]={spellID=1231152,spellIDDescription=1231139},
+	[7942]={spellID=1231163,spellIDDescription=1231164},
+	[7943]={spellID=1232169,spellIDDescription=0},
+	[7944]={spellID=1236217,spellIDDescription=0},
+	[8057]={spellID=22780,spellIDDescription=0}
 });
