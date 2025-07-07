@@ -344,9 +344,9 @@ function ttStyle:HighlightTipTacDeveloper(tip, currentDisplayParams, unitRecord,
 	end
 	
 	-- add text to level
-	-- local tipTacDeveloperText = (CreateAtlasMarkup("UI-QuestPoiLegendary-QuestBang") .. " " .. TT_TipTacDeveloper .. " " .. CreateAtlasMarkup("UI-QuestPoiLegendary-QuestBang")); -- available in DF, but not available in WotLKC
-	local tipScale = tip:GetScale();
-	local tipTacDeveloperText = (CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\QuestLegendaryMapIcons", 32, 32, 0, 0, 0.261719, 0.386719, 0.0078125, 0.257812, -2.5 * tipScale, 1.5 * tipScale) .. " " .. TT_TipTacDeveloper .. " " .. CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\QuestLegendaryMapIcons", 32, 32, 0, 0, 0.261719, 0.386719, 0.0078125, 0.257812, -1 * tipScale, 1.5 * tipScale));
+	-- local tipTacDeveloperIcon = CreateAtlasMarkup("UI-QuestPoiLegendary-QuestBang"); -- available in DF, but not available in WotLKC
+	local tipTacDeveloperIcon = CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\QuestLegendaryMapIcons", 256, 128, nil, nil, 0.26953125, 0.37890625, 0.0390625, 0.2421875);
+	local tipTacDeveloperText = (tipTacDeveloperIcon .. " " .. TT_TipTacDeveloper .. " " .. tipTacDeveloperIcon);
 	local modNameText = TT_COLOR.text.tipTacDeveloperTipTac:WrapTextInColorCode(MOD_NAME);
 	
 	lineLevel:Push(TT_COLOR.text.tipTacDeveloper:WrapTextInColorCode(tipTacDeveloperText:format(modNameText)));
