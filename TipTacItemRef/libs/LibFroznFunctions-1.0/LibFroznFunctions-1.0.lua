@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 44; -- bump on changes
+local LIB_MINOR = 45; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -185,7 +185,7 @@ end
 if (LibFroznFunctions.isWoWFlavor.CataC) then
 	LibFroznFunctions.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC = true;
 end
-if (LibFroznFunctions.isWoWFlavor.SL) then
+if (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 0;
 end
 if (LibFroznFunctions.isWoWFlavor.DF) then
@@ -836,9 +836,9 @@ end
 
 -- get specialization
 --
--- @param  isInspect  true if information for the inspected player should be returned
--- @param  isPet      true if information for the player's pet should be returned
--- @param  specGroup  index of a given specialization/talent/glyph group (1 for primary, 2 for secondary)
+-- @param  isInspect  optional. true if information for the inspected player should be returned
+-- @param  isPet      optional. true if information for the player's pet should be returned
+-- @param  specGroup  optional. index of a given specialization/talent/glyph group (1 for primary, 2 for secondary)
 -- @return currentSpec. returns nil if no specialization is currently learned.
 function LibFroznFunctions:GetSpecialization(isInspect, isPet, specGroup)
 	-- since mopc 5.5.0
@@ -848,6 +848,24 @@ function LibFroznFunctions:GetSpecialization(isInspect, isPet, specGroup)
 	
 	-- before mopc 5.5.0
 	return GetSpecialization(isInspect, isPet, specGroup);
+end
+
+-- get specialization info
+--
+-- @param  specIndex      index of the specialization to query, ascending from 1 to GetNumSpecializations().
+-- @param  isInspect      optional. true if information for the inspected player should be returned. hint: does not actually seem to work. you need to use GetInspectSpecialization().
+-- @param  isPet          optional. true if information for the player's pet should be returned
+-- @param  inspectTarget  optional. unit id to request data for when inspecting, e.g. "player", "target" or "mouseover"
+-- @param  sex            optional. player's sex as returned by UnitSex()
+-- @return id, name, description, icon, role, primaryStat
+function LibFroznFunctions:GetSpecializationInfo(specIndex, isInspect, isPet, inspectTarget, sex)
+	-- since mopc 5.5.0
+	if (C_SpecializationInfo) and (C_SpecializationInfo.GetSpecializationInfo) then
+		return C_SpecializationInfo.GetSpecializationInfo(specIndex, isInspect, isPet, inspectTarget, sex);
+	end
+	
+	-- before mopc 5.5.0
+	return GetSpecializationInfo(specIndex, isInspect, isPet, inspectTarget, sex);
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -4185,7 +4203,7 @@ function LibFroznFunctions:GetTalents(unitID)
 				return LFF_TALENTS.none;
 			end
 			
-			_, specializationName, _, specializationIcon, role = GetSpecializationInfo(specIndex);
+			_, specializationName, _, specializationIcon, role = self:GetSpecializationInfo(specIndex);
 		else -- inspecting
 			local specializationID = GetInspectSpecialization(unitID);
 			
@@ -4206,7 +4224,7 @@ function LibFroznFunctions:GetTalents(unitID)
 		local pointsSpent = {};
 		
 		if (isSelf) and (C_SpecializationInfo.CanPlayerUseTalentSpecUI()) or (not isSelf) and (C_Traits.HasValidInspectData()) then
-			local configID = (isSelf) and (C_ClassTalents.GetActiveConfigID()) or (not isSelf) and (Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID);
+			local configID = (isSelf) and (C_ClassTalents) and (C_ClassTalents.GetActiveConfigID) and (C_ClassTalents.GetActiveConfigID()) or (not isSelf) and (Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID);
 			
 			if (configID) then
 				local configInfo = C_Traits.GetConfigInfo(configID);
