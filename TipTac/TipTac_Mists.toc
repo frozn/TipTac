@@ -1,5 +1,5 @@
 ## Interface: 50500
-## Version: 25.07.08
+## Version: 25.07.12
 ## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
 ## Title: TipTac
 ## Author: Frozn45, Aezay (Earthen Ring EU)
