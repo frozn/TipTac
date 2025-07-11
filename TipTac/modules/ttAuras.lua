@@ -263,6 +263,7 @@ ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura
 	aura.cooldown:SetReverse(1);
 	aura.cooldown:SetAllPoints();
 	aura.cooldown:SetFrameLevel(aura:GetFrameLevel());
+	aura.cooldown:SetHideCountdownNumbers(true);
 	
 	aura.border = aura:CreateTexture(nil, "OVERLAY");
 	aura.border:SetPoint("TOPLEFT", -1, 1);
