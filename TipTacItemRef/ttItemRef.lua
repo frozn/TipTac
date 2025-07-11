@@ -2201,17 +2201,19 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 	end
 	-- now PVPRewardTemplate exists
 	if (addOnName == "Blizzard_PVPUI") or ((addOnName == MOD_NAME) and (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_PVPUI")) and (not addOnsLoaded['Blizzard_PVPUI'])) then
-		-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
-		local buttons = {
-			HonorFrame.BonusFrame.RandomBGButton,
-			HonorFrame.BonusFrame.Arena1Button,
-			HonorFrame.BonusFrame.RandomEpicBGButton,
-			HonorFrame.BonusFrame.BrawlButton,
-			HonorFrame.BonusFrame.BrawlButton2
-		};
-		
-		for i, button in pairs(buttons) do
-			button.Reward.EnlistmentBonus:HookScript("OnEnter", HFBFB_OnEnter);
+		if (HonorFrame) and (HonorFrame.BonusFrame) then -- frame "HonorFrame.BonusFrame" doesn't exist in mopc
+			-- Function to apply necessary hooks to PVPRewardTemplate, see HonorFrameBonusFrame_Update() in "Blizzard_PVPUI/Blizzard_PVPUI.lua"
+			local buttons = {
+				HonorFrame.BonusFrame.RandomBGButton,
+				HonorFrame.BonusFrame.Arena1Button,
+				HonorFrame.BonusFrame.RandomEpicBGButton,
+				HonorFrame.BonusFrame.BrawlButton,
+				HonorFrame.BonusFrame.BrawlButton2
+			};
+			
+			for i, button in pairs(buttons) do
+				button.Reward.EnlistmentBonus:HookScript("OnEnter", HFBFB_OnEnter);
+			end
 		end
 		
 		if (addOnName == MOD_NAME) then
