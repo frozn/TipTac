@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 45; -- bump on changes
+local LIB_MINOR = 46; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2613,7 +2613,7 @@ function LibFroznFunctions:WorldFrameIsMouseMotionFocus()
 		end
 	else
 		-- make shure that the WorldFrame can receive mouse hover events
-		if (not WorldFrame:IsForbidden()) and (not WorldFrame:IsMouseMotionEnabled()) then
+		if (not WorldFrame:IsForbidden()) and ((not WorldFrame:IsProtected()) or (not InCombatLockdown())) and (not WorldFrame:IsMouseMotionEnabled()) then
 			WorldFrame:EnableMouseMotion(true);
 		end
 		
