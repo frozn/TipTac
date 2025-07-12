@@ -568,9 +568,7 @@ if (TipTacTalents) then
 		{ type = "Header", label = "Talents", enabled = function(factory) return factory:GetConfigValue("t_enable") end }
 	};
 	
-	tinsert(tttOptions, { type = "Check", var = "t_talentOnlyInParty", label = "Only Show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown", enabled = function(factory) return factory:GetConfigValue("t_enable") end, y = 5 });
-	
-	option = { type = "Check", var = "t_showTalents", label = "Show Talents", tip = "This option makes the tip show the talent specialization of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end, y = 10 };
+	option = { type = "Check", var = "t_showTalents", label = "Show Talents", tip = "This option makes the tip show the talent specialization of other players", enabled = function(factory) return factory:GetConfigValue("t_enable") end };
 	if (not LibFroznFunctions.hasWoWFlavor.talentsAvailableForInspectedUnit) then
 		option.tip = option.tip .. ".\nNOTE: Inspecting other players' talents isn't available in Classic Era. Only own talents (available at level 10) will be shown.";
 	end
@@ -602,6 +600,11 @@ if (TipTacTalents) then
 	tinsert(tttOptions, { type = "DropDown", var = "t_gearScoreAlgorithm", label = "GearScore Algorithm", list = { ["TacoTip"] = { value = 1, tip = "The de-facto standard algorithm from addon TacoTip" }, ["TipTac"] = { value = 2, tip = PARENT_MOD_NAME .. "'s own implementation to simply calculate the GearScore is used here. This is the sum of all item levels weighted by performance per item level above/below base level of first tier set of current expansion, inventory type and item quality. Inventory slots for shirt, tabard and ranged are excluded." },}, tip = "Switch between different GearScore implementations", enabled = function(factory) return factory:GetConfigValue("t_enable") and factory:GetConfigValue("t_showGearScore") end });
 	
 	tinsert(tttOptions, { type = "Check", var = "t_colorAILAndGSTextByQuality", label = "Color Average Item Level and GearScore Text\nby Quality Color", tip = "With this option on, average item level and GearScore text is colored by the quality", enabled = function(factory) return factory:GetConfigValue("t_enable") and (factory:GetConfigValue("t_showAverageItemLevel") or factory:GetConfigValue("t_showGearScore")) end, y = 10 });
+	
+	tinsert(tttOptions, { type = "Header", label = "Others" });
+		
+	tinsert(tttOptions, { type = "Check", var = "t_talentOnlyInParty", label = "Only show Talents and Average Item Level\nfor Party and Raid Members", tip = "When you enable this, only talents and average item level of players in your party or raid will be requested and shown.", enabled = function(factory) return factory:GetConfigValue("t_enable") and (factory:GetConfigValue("t_showTalents") or factory:GetConfigValue("t_showAverageItemLevel") or factory:GetConfigValue("t_showGearScore")) end });
+	tinsert(tttOptions, { type = "Check", var = "t_talentDontShowOutOfRange", label = "Don't show Talents and Average Item Level\nfor players out of range", tip = "When you enable this, talents and average item level of players who are out of range won't be shown, suppressing the \"out of range\" message.", enabled = function(factory) return factory:GetConfigValue("t_enable") and (factory:GetConfigValue("t_showTalents") or factory:GetConfigValue("t_showAverageItemLevel") or factory:GetConfigValue("t_showGearScore")) end, y = 10 });
 	
 	tinsert(options, {
 		category = "Talents/AIL",
