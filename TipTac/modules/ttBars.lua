@@ -26,8 +26,8 @@ local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
 -- constants
-local TT_GTT_BARS_MARGIN_X = 7 + LibFroznFunctions.hasWoWFlavor.barMarginAdjustment;
-local TT_GTT_BARS_MARGIN_Y = 8 + LibFroznFunctions.hasWoWFlavor.barMarginAdjustment;
+local TT_GTT_BARS_MARGIN_X = 11 + LibFroznFunctions.hasWoWFlavor.barMarginAdjustment;
+local TT_GTT_BARS_MARGIN_Y = 11 + LibFroznFunctions.hasWoWFlavor.barMarginAdjustment;
 local TT_GTT_BARS_SPACING = 7;
 local TT_GTT_BARS_TEXT_OFFSET_X = 8;
 local TT_GTT_BARS_FADING_TIME = 0.5; -- fading time for bars in seconds
@@ -250,8 +250,8 @@ function ttBars:DisplayUnitTipsBar(barsPool, frameParams, tip, unitRecord, offse
 		-- initialize anchoring position and color
 		bar:ClearAllPoints();
 		
-		bar:SetPoint("BOTTOMLEFT", tip.NineSlice.Center, TT_ExtendedConfig.tipPaddingForGameTooltip.left + TT_GTT_BARS_MARGIN_X, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom + offsetY);
-		bar:SetPoint("BOTTOMRIGHT", tip.NineSlice.Center, -TT_ExtendedConfig.tipPaddingForGameTooltip.right + -TT_GTT_BARS_MARGIN_X, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom + offsetY);
+		bar:SetPoint("BOTTOMLEFT", tip, TT_ExtendedConfig.tipPaddingForGameTooltip.left + TT_GTT_BARS_MARGIN_X, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom + offsetY);
+		bar:SetPoint("BOTTOMRIGHT", tip, -TT_ExtendedConfig.tipPaddingForGameTooltip.right + -TT_GTT_BARS_MARGIN_X, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom + offsetY);
 		
 		newOffsetY = newOffsetY + cfg.barHeight + TT_GTT_BARS_SPACING;
 		

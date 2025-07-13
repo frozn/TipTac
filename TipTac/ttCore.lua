@@ -2664,8 +2664,8 @@ function tt:SetBackdropAndBackdropBorderColorToTip(tip)
 	
 	local tipParams = frameParams.config;
 	
-	-- set backdrop to tip not possible
-	if (not cfg.enableBackdrop) or (not tipParams.applyAppearance) then
+	-- set backdrop and backdrop border color to tip not possible
+	if (not tipParams.applyAppearance) then
 		return;
 	end
 	
@@ -3074,6 +3074,20 @@ function tt:SetBackdropLocked(tip, backdropInfo)
 	
 	isSettingBackdropLocked = false;
 	
+	-- get tip parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local tipParams = frameParams.config;
+	
+	-- set backdrop to tip not possible
+	if (not cfg.enableBackdrop) or (not tipParams.applyAppearance) then
+		return;
+	end
+	
 	-- set locked backdrop info
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -3115,6 +3129,20 @@ function tt:SetBackdropColorLocked(tip, r, g, b, a)
 	
 	isSettingBackdropColorLocked = false;
 	
+	-- get tip parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local tipParams = frameParams.config;
+	
+	-- set backdrop color to tip not possible
+	if (not tipParams.applyAppearance) then
+		return;
+	end
+	
 	-- set backdrop color locked
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -3148,6 +3176,20 @@ function tt:SetBackdropBorderColorLocked(tip, r, g, b, a)
 	end
 	
 	isSettingBackdropBorderColorLocked = false;
+	
+	-- get tip parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local tipParams = frameParams.config;
+	
+	-- set backdrop border color to tip not possible
+	if (not tipParams.applyAppearance) then
+		return;
+	end
 	
 	-- set backdrop border color locked
 	local frameParams = TT_CacheForFrames[tip];
@@ -3183,6 +3225,20 @@ function tt:SetCenterColorLocked(tip, r, g, b, a)
 	
 	isSettingCenterColorLocked = false;
 	
+	-- get tip parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local tipParams = frameParams.config;
+	
+	-- set center color to tip not possible
+	if (not tipParams.applyAppearance) then
+		return;
+	end
+	
 	-- set center color locked
 	local frameParams = TT_CacheForFrames[tip];
 	
@@ -3216,6 +3272,20 @@ function tt:SetBorderColorLocked(tip, r, g, b, a)
 	end
 	
 	isSettingBorderColorLocked = false;
+	
+	-- get tip parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local tipParams = frameParams.config;
+	
+	-- set border color to tip not possible
+	if (not tipParams.applyAppearance) then
+		return;
+	end
 	
 	-- set border color locked
 	local frameParams = TT_CacheForFrames[tip];
