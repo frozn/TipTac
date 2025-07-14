@@ -60,7 +60,7 @@ end
 --         .BCC        = true/false for BCC
 --         .WotLKC     = true/false for WotLKC
 --         .CataC      = true/false for CataC
---         .MoPC      = true/false for MoPC
+--         .MoPC       = true/false for MoPC
 --         .SL         = true/false for SL
 --         .DF         = true/false for DF
 --         .TWW        = true/false for TWW
