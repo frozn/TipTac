@@ -51,6 +51,7 @@ local TT_DefaultConfig = {
 	showMountIcon = true,
 	showMountText = true,
 	showMountSpeed = true,
+	showMountSource = false,
 	nameType = "title",
 	showRealm = "show",
 	showTarget = "last",
