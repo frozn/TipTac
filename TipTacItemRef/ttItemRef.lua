@@ -14,10 +14,16 @@ local ejtt = EncounterJournalTooltip;
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-local C_CurrencyInfo_GetCurrencyLink = C_CurrencyInfo.GetCurrencyLink;
-
-if (not C_CurrencyInfo_GetCurrencyLink) then
-	C_CurrencyInfo_GetCurrencyLink = GetCurrencyLink;
+local function C_CurrencyInfo_GetCurrencyLink(currencyID, currencyAmount)
+	local _currencyAmount = (currencyAmount or 0);
+	
+	-- since sl 9.0.1
+	if (C_CurrencyInfo) and (C_CurrencyInfo.GetCurrencyLink) then
+		return C_CurrencyInfo.GetCurrencyLink(currencyID, _currencyAmount);
+	end
+	
+	-- before sl 9.0.1
+	return GetCurrencyLink(currencyID, _currencyAmount);
 end
 
 local C_QuestLog_GetSelectedQuest = C_QuestLog.GetSelectedQuest;
