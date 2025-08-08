@@ -644,9 +644,9 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 end
 
 -- HOOK: SetUnitAura + SetUnitBuff + SetUnitDebuff
-local function SetUnitAura_Hook(self, unit, index, filter)
+local function SetUnitAura_Hook(self, alternateFilterIfNotDefined, unit, index, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local auraData = LibFroznFunctions:GetAuraDataByIndex(unit, index, filter); -- [18.07.19] 8.0/BfA: "dropped second parameter"
+		local auraData = LibFroznFunctions:GetAuraDataByIndex(unit, index, filter or alternateFilterIfNotDefined); -- [18.07.19] 8.0/BfA: "dropped second parameter"
 		if (auraData) and (auraData.spellId) then
 			local link = LibFroznFunctions:GetSpellLink(auraData.spellId);
 			if (link) then
@@ -1926,9 +1926,15 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				hooksecurefunc(tip, "SetHyperlink", function(self, ...)
 					ttif:SetHyperlink_Hook(self, ...)
 				end);
-				hooksecurefunc(tip, "SetUnitAura", SetUnitAura_Hook);
-				hooksecurefunc(tip, "SetUnitBuff", SetUnitAura_Hook);
-				hooksecurefunc(tip, "SetUnitDebuff", SetUnitAura_Hook);
+				hooksecurefunc(tip, "SetUnitAura", function(self, ...)
+					SetUnitAura_Hook(self, nil, ...);
+				end);
+				hooksecurefunc(tip, "SetUnitBuff", function(self, ...)
+					SetUnitAura_Hook(self, LFF_AURA_FILTERS.Helpful, ...);
+				end);
+				hooksecurefunc(tip, "SetUnitDebuff", function(self, ...)
+					SetUnitAura_Hook(self, LFF_AURA_FILTERS.Harmful, ...);
+				end);
 				hooksecurefunc(tip, "SetAction", SetAction_Hook);
 				hooksecurefunc(tip, "SetSpellBookItem", SetSpellBookItem_Hook);
 				hooksecurefunc(tip, "SetPetAction", SetPetAction_Hook);
