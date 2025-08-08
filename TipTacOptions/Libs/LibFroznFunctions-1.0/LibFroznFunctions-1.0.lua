@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 47; -- bump on changes
+local LIB_MINOR = 48; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -110,7 +110,6 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .talentsAvailableForInspectedUnit                           = true/false if getting talents from other players is available (since bc 2.3.0)
 --         .numTalentTrees                                             = number of talent trees
 --         .talentIconAvailable                                        = true/false if talent icon is available (since bc)
---         .GetTalentTabInfoReturnValuesFromCataC                      = true/false if GetTalentTabInfo() return values from catac (only catac since catac 4.4.0)
 --         .roleIconAvailable                                          = true/false if role icon is available (since MoP 5.0.4)
 --         .specializationAvailable                                    = true/false if specialization is available (since MoP 5.0.4)
 --         .itemLevelOfFirstRaidTierSet                                = item level of first raid tier set. false if not defined (yet).
@@ -133,7 +132,6 @@ LibFroznFunctions.hasWoWFlavor = {
 	talentsAvailableForInspectedUnit = true,
 	numTalentTrees = 2,
 	talentIconAvailable = true,
-	GetTalentTabInfoReturnValuesFromCataC = false,
 	roleIconAvailable = true,
 	specializationAvailable = true,
 	itemLevelOfFirstRaidTierSet = false,
@@ -180,9 +178,6 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip = false;
-end
-if (LibFroznFunctions.isWoWFlavor.CataC) then
-	LibFroznFunctions.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC = true;
 end
 if (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
 	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -1;
@@ -3894,7 +3889,7 @@ function frameForDelayedInspection:CreateUnitCacheRecord(unitID, unitGUID)
 	unitCacheRecord.timestampLastInspect = 0;
 	unitCacheRecord.callbacks = LibFroznFunctions:CreatePushArray();
 	
-	unitCacheRecord.talents = LibFroznFunctions:AreTalentsAvailable(unitID);
+	unitCacheRecord.talents = LibFroznFunctions:AreTalentsAvailable(unitID, unitCacheRecord.isSelf);
 	unitCacheRecord.averageItemLevel = LibFroznFunctions:IsAverageItemLevelAvailable(unitID);
 	
 	return unitCacheRecord;
@@ -4140,6 +4135,7 @@ end
 -- check if talents are available
 --
 -- @param  unitID  unit id for unit, e.g. "player", "target" or "mouseover"
+-- @param  isSelf  true if it's the player unit, false otherwise.
 -- @return returns "LFF_TALENTS.available" if talents are available.
 --         returns "LFF_TALENTS.na" if no talents are available.
 --         returns nil if unit id is missing or not a player
@@ -4149,7 +4145,7 @@ LFF_TALENTS = {
 	none = 3 -- no talents found
 };
 
-function LibFroznFunctions:AreTalentsAvailable(unitID)
+function LibFroznFunctions:AreTalentsAvailable(unitID, isSelf)
 	-- no unit id or not a player
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
 	
@@ -4185,7 +4181,8 @@ end
 --         returns nil if unit id is missing or not a player
 function LibFroznFunctions:GetTalents(unitID)
 	-- check if talents are available
-	local areTalentsAvailable = self:AreTalentsAvailable(unitID);
+	local isSelf = UnitIsUnit(unitID, "player");
+	local areTalentsAvailable = self:AreTalentsAvailable(unitID, isSelf);
 	
 	if (areTalentsAvailable ~= LFF_TALENTS.available) then
 		return areTalentsAvailable;
@@ -4193,7 +4190,6 @@ function LibFroznFunctions:GetTalents(unitID)
 	
 	-- get talents
 	local talents = {};
-	local isSelf = UnitIsUnit(unitID, "player");
 	
 	if (self.hasWoWFlavor.specializationAvailable) then -- retail, since MoP 5.0.4
 		local specializationName, specializationIcon, role, _;
@@ -4269,13 +4265,7 @@ function LibFroznFunctions:GetTalents(unitID)
 		local maxPointsSpent;
 		
 		for tabIndex = 1, numTalentTabs do
-			local _talentTabName, _talentTabIcon, _pointsSpent;
-			
-			if (self.hasWoWFlavor.GetTalentTabInfoReturnValuesFromCataC) then
-				_, _talentTabName, _, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
-			else
-				_talentTabName, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
-			end
+			local _, _talentTabName, _, _talentTabIcon, _pointsSpent = GetTalentTabInfo(tabIndex, not isSelf, nil, activeTalentGroup);
 			
 			tinsert(pointsSpent, _pointsSpent);
 			
