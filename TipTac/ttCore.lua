@@ -258,6 +258,19 @@ local TT_DefaultConfig = {
 	anchorFrameTipTypeDuringChallengeMode = "normal",
 	anchorFrameTipPointDuringChallengeMode = "BOTTOMRIGHT",
 	
+	enableAnchorOverrideWorldUnitDuringInstance = false,
+	anchorWorldUnitTypeDuringInstance = "normal",
+	anchorWorldUnitPointDuringInstance = "BOTTOMRIGHT",
+	enableAnchorOverrideWorldTipDuringInstance = false,
+	anchorWorldTipTypeDuringInstance = "normal",
+	anchorWorldTipPointDuringInstance = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameUnitDuringInstance = false,
+	anchorFrameUnitTypeDuringInstance = "normal",
+	anchorFrameUnitPointDuringInstance = "BOTTOMRIGHT",
+	enableAnchorOverrideFrameTipDuringInstance = false,
+	anchorFrameTipTypeDuringInstance = "normal",
+	anchorFrameTipPointDuringInstance = "BOTTOMRIGHT",
+	
 	enableAnchorOverrideWorldUnitDuringSkyriding = false,
 	anchorWorldUnitTypeDuringSkyriding = "normal",
 	anchorWorldUnitPointDuringSkyriding = "BOTTOMRIGHT",
@@ -301,6 +314,16 @@ local TT_DefaultConfig = {
 	hideTipsDuringChallengeModeItemTips = false,
 	hideTipsDuringChallengeModeActionTips = false,
 	hideTipsDuringChallengeModeExpBarTips = false,
+	
+	hideTipsDuringInstanceWorldUnits = false,
+	hideTipsDuringInstanceWorldTips = false,
+	hideTipsDuringInstanceFrameUnits = false,
+	hideTipsDuringInstanceFrameTips = false,
+	hideTipsDuringInstanceUnitTips = false,
+	hideTipsDuringInstanceSpellTips = false,
+	hideTipsDuringInstanceItemTips = false,
+	hideTipsDuringInstanceActionTips = false,
+	hideTipsDuringInstanceExpBarTips = false,
 	
 	hideTipsDuringSkyridingWorldUnits = false,
 	hideTipsDuringSkyridingWorldTips = false,
@@ -3590,7 +3613,7 @@ function tt:GetAnchorPosition(tip)
 	local anchorFrameName = (LibFroznFunctions:WorldFrameIsMouseMotionFocus() and "World" or "Frame") .. (isUnit and "Unit" or "Tip");
 	local var = "anchor" .. anchorFrameName;
 	
-	-- consider anchor override during challenge mode, during skyriding or in combat
+	-- consider anchor override during challenge mode, instance, during skyriding or in combat
 	local anchorOverride = "";
 	
 	if (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringChallengeMode"]) and (LibFroznFunctions.hasWoWFlavor.challengeMode) and (C_ChallengeMode.IsChallengeModeActive()) then
@@ -3608,6 +3631,10 @@ function tt:GetAnchorPosition(tip)
 				end
 			end
 		end
+	end
+	
+	if (anchorOverride == "") and (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringInstance"]) and (IsInInstance()) then
+		anchorOverride = "DuringInstance";
 	end
 	
 	if (anchorOverride == "") and (cfg["enableAnchorOverride" .. anchorFrameName .. "DuringSkyriding"]) and (LibFroznFunctions.hasWoWFlavor.skyriding) then
@@ -4316,7 +4343,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
-		-- consider hiding tips during challenge mode, during skyriding or in combat
+		-- consider hiding tips during challenge mode, instance, during skyriding or in combat
 		local hidingTip = "";
 		
 		if (LibFroznFunctions.hasWoWFlavor.challengeMode) and (C_ChallengeMode.IsChallengeModeActive()) then
@@ -4334,6 +4361,10 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					end
 				end
 			end
+		end
+		
+		if (hidingTip == "") and (IsInInstance()) then
+			hidingTip = "DuringInstance";
 		end
 		
 		if (hidingTip == "") and (LibFroznFunctions.hasWoWFlavor.skyriding) then
