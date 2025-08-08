@@ -683,6 +683,50 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						end
 						
 						lineInfo:Push(TT_Mount:format(mountText:Concat()));
+						if (cfg.showMountSource) and mountID and C_MountJournal and C_MountJournal.GetMountInfoExtraByID then
+                            -- Extracts and displays the mount's source (e.g., "Quest", "Achievement", "Vendor") and cost, if available.
+                            -- The source text from GetMountInfoExtraByID can contain multiple lines, including empty lines as separators
+                            -- and lines with cost information (identified by "|T" for icons).
+                            local _, _, sources = C_MountJournal.GetMountInfoExtraByID(mountID)
+                            if sources and sources ~= "" then
+                                -- `sourceReady` indicates if the next non-empty line is a mount source.
+                                -- The first line is always assumed to be a potential source.
+                                local sourceReady = true
+                                -- Stores the extracted source string before it's pushed to `lineInfo`.
+                                local source = nil
+                                -- Iterates through each line, splitting by the newline character "|n".
+                                for line in string.gmatch(sources .. "|n", "(.-)|n") do
+                                    -- An empty line resets `sourceReady`, indicating the next non-empty line is a new source.
+                                    if line == "" then
+                                        sourceReady = true
+                                    -- If `sourceReady` is true, the current line is a source. Store it.
+                                    -- If a previous source was stored, push it before overwriting.
+                                    elseif sourceReady then
+                                        if source then
+                                            lineInfo:Push("\n  " .. source)
+                                        end
+                                        source = line
+                                        sourceReady = false
+                                    -- If the line contains "|T", it's identified as a cost line.
+                                    elseif string.find(line, "|T") then
+                                        -- Remove "Cost: " or similar prefixes.
+                                        local cost = string.gsub(line, "^.-%s+", "")
+                                        -- If a source was stored, combine it with the cost; otherwise, just display the cost.
+                                        if source then
+                                            lineInfo:Push("\n  " .. source .. " (" .. cost .. ")")
+                                            source = nil -- Clear source as it has been used.
+                                        else
+                                            lineInfo:Push("\n  " .. cost)
+                                        end
+                                        sourceReady = false -- Cost lines do not signify a new source afterward.
+                                    end
+                                end
+                                -- Push any remaining stored source after the loop finishes.
+                                if source then
+                                    lineInfo:Push("\n  " .. source)
+                                end
+                            end
+                        end
 					end
 					
 					return true;
