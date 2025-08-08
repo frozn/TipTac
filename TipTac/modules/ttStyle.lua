@@ -69,6 +69,8 @@ local TT_COLOR = {
 		unitSpeed = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 		mountName = HIGHLIGHT_FONT_COLOR, -- white
 		mountSpeed = LIGHTYELLOW_FONT_COLOR,
+		mountSource = LIGHTYELLOW_FONT_COLOR,
+		mountLore = LIGHTYELLOW_FONT_COLOR,
 		tipTacDeveloper = RED_FONT_COLOR,
 		tipTacDeveloperTipTac = EPIC_PURPLE_COLOR
 	}
@@ -609,6 +611,9 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	end
 
 	-- Mount
+	local lineMount = LibFroznFunctions:CreatePushArray();
+	local lineMountLore = LibFroznFunctions:CreatePushArray();
+	
 	if (unitRecord.isPlayer) and (cfg.showMount) then
 		local unitID, filter = unitRecord.id, LFF_AURA_FILTERS.Helpful;
 		local index = 0;
@@ -622,9 +627,11 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				local mountID = LibFroznFunctions:GetMountFromSpell(spellID);
 				
 				if (mountID) then
+					-- determine if mount has already been collected
 					local mountText = LibFroznFunctions:CreatePushArray();
 					local spacer;
 					local mountNameAdded = false;
+					local mountSourceAdded = false;
 					
 					if (cfg.showMountCollected) then
 						local isCollected = LibFroznFunctions:IsMountCollected(mountID);
@@ -638,10 +645,12 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						end
 					end
 					
+					-- determine mount icon
 					if (cfg.showMountIcon) and (unitAuraInfo.icon) then
 						mountText:Push(CreateTextureMarkup(unitAuraInfo.icon, 64, 64, 0, 0, 0.07, 0.93, 0.07, 0.93));
 					end
 					
+					-- determine mount name
 					if (cfg.showMountText) and (unitAuraInfo.name) then
 						spacer = (mountText:GetCount() > 0) and " " or "";
 						
@@ -650,6 +659,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						mountNameAdded = true;
 					end
 					
+					-- determine mount speed
 					if (cfg.showMountSpeed) then
 						spacer = (mountText:GetCount() > 0) and " " or "";
 						
@@ -676,57 +686,40 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						end
 					end
 					
-					-- show mount text
-					if (mountText:GetCount() > 0) then
-						if (lineInfo:GetCount() > 0) then
-							lineInfo:Push("\n");
+					-- determine mount source and lore
+					if (cfg.showMountSource) or (cfg.showMountLore) then
+						local _, description, source = C_MountJournal.GetMountInfoExtraByID(mountID);
+						
+						spacer = string.rep(" ", 4);
+						
+						if (cfg.showMountSource) and (type(source) == "string") and (strtrim(source) ~= "") then
+							if (mountText:GetCount() > 0) then
+								mountText:Push("\n");
+							end
+							
+							mountText:Push(spacer .. TT_COLOR.text.mountSource:WrapTextInColorCode(source:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1"):gsub("|n", "|n" .. spacer)));
+							
+							mountSourceAdded = true;
 						end
 						
-						lineInfo:Push(TT_Mount:format(mountText:Concat()));
-						if (cfg.showMountSource) and mountID and C_MountJournal and C_MountJournal.GetMountInfoExtraByID then
-                            -- Extracts and displays the mount's source (e.g., "Quest", "Achievement", "Vendor") and cost, if available.
-                            -- The source text from GetMountInfoExtraByID can contain multiple lines, including empty lines as separators
-                            -- and lines with cost information (identified by "|T" for icons).
-                            local _, _, sources = C_MountJournal.GetMountInfoExtraByID(mountID)
-                            if sources and sources ~= "" then
-                                -- `sourceReady` indicates if the next non-empty line is a mount source.
-                                -- The first line is always assumed to be a potential source.
-                                local sourceReady = true
-                                -- Stores the extracted source string before it's pushed to `lineInfo`.
-                                local source = nil
-                                -- Iterates through each line, splitting by the newline character "|n".
-                                for line in string.gmatch(sources .. "|n", "(.-)|n") do
-                                    -- An empty line resets `sourceReady`, indicating the next non-empty line is a new source.
-                                    if line == "" then
-                                        sourceReady = true
-                                    -- If `sourceReady` is true, the current line is a source. Store it.
-                                    -- If a previous source was stored, push it before overwriting.
-                                    elseif sourceReady then
-                                        if source then
-                                            lineInfo:Push("\n  " .. source)
-                                        end
-                                        source = line
-                                        sourceReady = false
-                                    -- If the line contains "|T", it's identified as a cost line.
-                                    elseif string.find(line, "|T") then
-                                        -- Remove "Cost: " or similar prefixes.
-                                        local cost = string.gsub(line, "^.-%s+", "")
-                                        -- If a source was stored, combine it with the cost; otherwise, just display the cost.
-                                        if source then
-                                            lineInfo:Push("\n  " .. source .. " (" .. cost .. ")")
-                                            source = nil -- Clear source as it has been used.
-                                        else
-                                            lineInfo:Push("\n  " .. cost)
-                                        end
-                                        sourceReady = false -- Cost lines do not signify a new source afterward.
-                                    end
-                                end
-                                -- Push any remaining stored source after the loop finishes.
-                                if source then
-                                    lineInfo:Push("\n  " .. source)
-                                end
-                            end
-                        end
+						if (cfg.showMountLore) and (type(description) == "string") and (strtrim(description) ~= "") then
+							local mountLoreText = TT_COLOR.text.mountLore:WrapTextInColorCode(description:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1"):gsub("|n", "|n" .. spacer));
+							
+							if (mountText:GetCount() > 0) then
+								if (mountSourceAdded) then
+									lineMountLore:Push("\n" .. spacer .. mountLoreText);
+								else
+									lineMountLore:Push(spacer .. mountLoreText);
+								end
+							else
+								lineMountLore:Push(TT_Mount:format(mountLoreText));
+							end
+						end
+					end
+					
+					-- set mount text
+					if (mountText:GetCount() > 0) then
+						lineMount:Push(TT_Mount:format(mountText:Concat()));
 					end
 					
 					return true;
@@ -795,6 +788,38 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineInfoIndex]:SetText(nil);
 	end
 	
+	-- Mount Line
+	if (lineMount:GetCount() > 0) then
+		local tipLineMountText = lineMount:Concat();
+		
+		if (currentDisplayParams.tipLineMountIndex) then
+			_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineMountIndex]:SetText(tipLineMountText);
+		else
+			GameTooltip:AddLine(tipLineMountText);
+			currentDisplayParams.tipLineMountIndex = GameTooltip:NumLines();
+		end
+		
+		lineMount:Clear();
+	elseif (currentDisplayParams.tipLineMountIndex) then
+		_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineMountIndex]:SetText(nil);
+	end
+	
+	-- Mount Lore Line
+	if (lineMountLore:GetCount() > 0) then
+		local tipLineMountLoreText = lineMountLore:Concat();
+		
+		if (currentDisplayParams.tipLineMountLoreIndex) then
+			_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineMountLoreIndex]:SetText(tipLineMountLoreText);
+		else
+			GameTooltip:AddLine(tipLineMountLoreText, nil, nil, nil, true);
+			currentDisplayParams.tipLineMountLoreIndex = GameTooltip:NumLines();
+		end
+		
+		lineMountLore:Clear();
+	elseif (currentDisplayParams.tipLineMountLoreIndex) then
+		_G["GameTooltipTextLeft" .. currentDisplayParams.tipLineMountLoreIndex]:SetText(nil);
+	end
+	
 	-- Targeted By Line
 	if (lineTargetedBy:GetCount() > 0) then
 		local tipLineTargetedByText = format(TT_TargetedBy .. " (" .. TT_COLOR.text.default:WrapTextInColorCode(format("%d", lineTargetedBy:GetCount())) .. "): %s", TT_COLOR.text.default:WrapTextInColorCode(lineTargetedBy:Concat(", ")));
@@ -825,6 +850,8 @@ end
 function ttStyle:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 	-- set current display params for unit appearance
 	currentDisplayParams.tipLineInfoIndex = nil;
+	currentDisplayParams.tipLineMountIndex = nil;
+	currentDisplayParams.tipLineMountLoreIndex = nil;
 	currentDisplayParams.tipLineTargetedByIndex = nil;
 	currentDisplayParams.petLineLevelIndex = nil;
 	currentDisplayParams.mergeLevelLineWithGuildName = nil;
@@ -899,6 +926,8 @@ function ttStyle:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentD
 	
 	-- reset current display params for unit appearance
 	currentDisplayParams.tipLineInfoIndex = nil;
+	currentDisplayParams.tipLineMountIndex = nil;
+	currentDisplayParams.tipLineMountLoreIndex = nil;
 	currentDisplayParams.tipLineTargetedByIndex = nil;
 	currentDisplayParams.petLineLevelIndex = nil;
 	currentDisplayParams.mergeLevelLineWithGuildName = nil;
