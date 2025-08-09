@@ -2474,7 +2474,7 @@ function LibFroznFunctions:ShowPopupWithText(params)
 					local dialogInfo = StaticPopupDialogs[which];
 					
 					if (dialogInfo) and (dialogInfo.editBoxWidth and dialogInfo.editBoxWidth > 260) then
-						if (self.Resize) then -- since tww 11.2.0
+						if (self.Resize) then -- GameDialogMixin:Resize() available since tww 11.2.0
 							if (not SPWT_GameDialogResizeHooked[self]) then -- see GameDialogMixin:Resize() in "GameDialog.lua"
 								hooksecurefunc(self, "Resize", function(self)
 									local dialogInfo = self.dialogInfo;
@@ -2510,7 +2510,7 @@ function LibFroznFunctions:ShowPopupWithText(params)
 				local editBox = (self.GetEditBox and self:GetEditBox() or self.editBox); -- acccessor method GetEditBox() available since tww 11.2.0
 				
 				if (data) then
-					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
+					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]);
 					
 					if (alertIcon) then
 						alertIcon:SetTexture(data.iconFile);

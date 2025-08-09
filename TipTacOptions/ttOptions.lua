@@ -866,7 +866,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 			cancelButtonText = "Cancel",
 			onShowHandler = function(self, data)
 				-- fix icon position
-				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
+				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]);
 				
 				if (not alertIcon) then
 					return;
@@ -874,7 +874,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 				
 				alertIcon:ClearAllPoints();
 				
-				if (self.AlertIcon) then -- attribute ".AlertIcon" available since tww 11.2.0
+				if (self.Resize) then -- GameDialogMixin:Resize() available since tww 11.2.0
 					alertIcon:SetPoint("LEFT", 24, 7);
 				else
 					alertIcon:SetPoint("LEFT", 24, 4);
@@ -939,7 +939,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 				acceptButtonText = "Close",
 				onShowHandler = function(self, data)
 					-- fix icon position
-					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
+					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]);
 					
 					if (not alertIcon) then
 						return;
@@ -947,7 +947,7 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 					
 					alertIcon:ClearAllPoints();
 					
-					if (self.AlertIcon) then -- attribute ".AlertIcon" available since tww 11.2.0
+					if (self.Resize) then -- GameDialogMixin:Resize() available since tww 11.2.0
 						alertIcon:SetPoint("LEFT", 24, 6);
 					else
 						alertIcon:SetPoint("LEFT", 24, 3);
@@ -1000,7 +1000,7 @@ local function Misc_ReportDropDownOnClick(dropDownMenuButton, arg1, arg2)
 			acceptButtonText = "Close",
 			onShowHandler = function(self, data)
 				-- fix icon position
-				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
+				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]);
 				
 				if (not alertIcon) then
 					return;
@@ -1008,7 +1008,7 @@ local function Misc_ReportDropDownOnClick(dropDownMenuButton, arg1, arg2)
 				
 				alertIcon:ClearAllPoints();
 				
-				if (self.AlertIcon) then -- attribute ".AlertIcon" available since tww 11.2.0
+				if (self.Resize) then -- GameDialogMixin:Resize() available since tww 11.2.0
 					alertIcon:SetPoint("LEFT", 24, 7);
 				else
 					alertIcon:SetPoint("LEFT", 24, 5);
