@@ -866,18 +866,24 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 			cancelButtonText = "Cancel",
 			onShowHandler = function(self, data)
 				-- fix icon position
-				local alertIcon = _G[self:GetName() .. "AlertIcon"];
+				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
 				
 				if (not alertIcon) then
 					return;
 				end
 				
 				alertIcon:ClearAllPoints();
-				alertIcon:SetPoint("LEFT", 24, 4);
+				
+				if (self.AlertIcon) then -- attribute ".AlertIcon" available since tww 11.2.0
+					alertIcon:SetPoint("LEFT", 24, 7);
+				else
+					alertIcon:SetPoint("LEFT", 24, 4);
+				end
 			end,
 			onAcceptHandler = function(self, data)
 				-- import export string with new config
-				local encodedConfig = self.editBox:GetText();
+				local editBox = (self.GetEditBox and self:GetEditBox() or self.editBox); -- acccessor method GetEditBox() available since tww 11.2.0
+				local encodedConfig = editBox:GetText();
 				local compressedConfig = LibDeflate:DecodeForPrint(encodedConfig);
 				
 				local function addFailedMessageToChatFrame()
@@ -933,14 +939,19 @@ local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
 				acceptButtonText = "Close",
 				onShowHandler = function(self, data)
 					-- fix icon position
-					local alertIcon = _G[self:GetName() .. "AlertIcon"];
+					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
 					
 					if (not alertIcon) then
 						return;
 					end
 					
 					alertIcon:ClearAllPoints();
-					alertIcon:SetPoint("LEFT", 24, 3);
+					
+					if (self.AlertIcon) then -- attribute ".AlertIcon" available since tww 11.2.0
+						alertIcon:SetPoint("LEFT", 24, 6);
+					else
+						alertIcon:SetPoint("LEFT", 24, 3);
+					end
 				end
 			});
 		end
@@ -989,14 +1000,19 @@ local function Misc_ReportDropDownOnClick(dropDownMenuButton, arg1, arg2)
 			acceptButtonText = "Close",
 			onShowHandler = function(self, data)
 				-- fix icon position
-				local alertIcon = _G[self:GetName() .. "AlertIcon"];
+				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
 				
 				if (not alertIcon) then
 					return;
 				end
 				
 				alertIcon:ClearAllPoints();
-				alertIcon:SetPoint("LEFT", 24, 5);
+				
+				if (self.AlertIcon) then -- attribute ".AlertIcon" available since tww 11.2.0
+					alertIcon:SetPoint("LEFT", 24, 7);
+				else
+					alertIcon:SetPoint("LEFT", 24, 5);
+				end
 			end
 		});
 	end

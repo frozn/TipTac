@@ -2423,6 +2423,8 @@ end
 --          .cancelButtonText    cancel button text
 --          .onShowHandler       optional. handler for OnShow event of popup. parameters: self, data
 --          .onAcceptHandler     optional. handler for OnAccept event (button pressed) of popup. parameters: self, data
+local SPWT_GameDialogResizeHooked = {};
+
 function LibFroznFunctions:ShowPopupWithText(params)
 	-- no params
 	if (not params) then
@@ -2442,9 +2444,9 @@ function LibFroznFunctions:ShowPopupWithText(params)
 				return;
 			end
 			
-			local info = StaticPopupDialogs[which];
+			local dialogInfo = StaticPopupDialogs[which];
 			
-			if (not info) or (not info.hideOnEscape) then
+			if (not dialogInfo) or (not dialogInfo.hideOnEscape) then
 				return;
 			end
 			
@@ -2460,7 +2462,7 @@ function LibFroznFunctions:ShowPopupWithText(params)
 			end
 		end
 		
-		StaticPopupDialogs[popupName] = { -- hopefully no taint, see "StaticPopup.lua"
+		local definition = {
 			showAlertGear = 1,
 			hasEditBox = 1,
 			editBoxWidth = 400,
@@ -2469,21 +2471,46 @@ function LibFroznFunctions:ShowPopupWithText(params)
 				local which = self.which;
 				
 				if (which) then
-					local info = StaticPopupDialogs[which];
+					local dialogInfo = StaticPopupDialogs[which];
 					
-					if (info) and (info.editBoxWidth and info.editBoxWidth > 260) then
-						local width = self:GetWidth() + (info.editBoxWidth - 260);
-						
-						self:SetWidth(width);
-						self.maxWidthSoFar = width;
+					if (dialogInfo) and (dialogInfo.editBoxWidth and dialogInfo.editBoxWidth > 260) then
+						if (self.Resize) then -- since tww 11.2.0
+							if (not SPWT_GameDialogResizeHooked[self]) then -- see GameDialogMixin:Resize() in "GameDialog.lua"
+								hooksecurefunc(self, "Resize", function(self)
+									local dialogInfo = self.dialogInfo;
+									
+									if (not dialogInfo) then
+										return;
+									end
+									
+									local data = self.data;
+									
+									if (not data) or (not data.considerEditBoxWidth) then
+										return;
+									end
+									
+									self:SetMinimumWidth(self:GetMinimumWidth() + (dialogInfo.editBoxWidth - 260 - 19));
+									self:Layout();
+								end);
+								
+								SPWT_GameDialogResizeHooked[self] = true;
+							end
+							
+							data.considerEditBoxWidth = true;
+						else -- before tww 11.2.0
+							local width = self:GetWidth() + (dialogInfo.editBoxWidth - 260);
+							
+							self:SetWidth(width);
+							self.maxWidthSoFar = width;
+						end
 					end
 				end
 				
 				-- consider icon, locked edit box text and OnShow handler
-				local editBox = self.editBox;
+				local editBox = (self.GetEditBox and self:GetEditBox() or self.editBox); -- acccessor method GetEditBox() available since tww 11.2.0
 				
 				if (data) then
-					local alertIcon = _G[self:GetName() .. "AlertIcon"];
+					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]); -- attribute ".AlertIcon" available since tww 11.2.0
 					
 					if (alertIcon) then
 						alertIcon:SetTexture(data.iconFile);
@@ -2530,20 +2557,32 @@ function LibFroznFunctions:ShowPopupWithText(params)
 				end
 			end,
 			OnCancel = function(self, data)
-				local editBox = self.editBox;
+				local editBox = (self.GetEditBox and self:GetEditBox() or self.editBox); -- acccessor method GetEditBox() available since tww 11.2.0;
 				
 				editBoxOnEscapePressed(editBox, data);
 			end,
 			hideOnEscape = 1
 		};
+		
+		if (StaticPopup_AddDefinition) then -- since tww 11.2.0
+			StaticPopup_AddDefinition(popupName, definition);
+		else -- before tww 11.2.0
+			StaticPopupDialogs[popupName] = definition; -- hopefully no taint, see "StaticPopup.lua"
+		end
 	end
 	
 	-- set popup config
 	local staticPopupDialog = StaticPopupDialogs[popupName];
 	
 	staticPopupDialog.text = params.prompt;
-	staticPopupDialog.button1 = params.acceptButtonText;
-	staticPopupDialog.button2 = params.cancelButtonText;
+	
+	if (StaticPopup_SetButtonText) then -- since tww 11.2.0
+		StaticPopup_SetButtonText(popupName, 1, params.acceptButtonText);
+		StaticPopup_SetButtonText(popupName, 2, params.cancelButtonText);
+	else -- before tww 11.2.0
+		staticPopupDialog.button1 = params.acceptButtonText;
+		staticPopupDialog.button2 = params.cancelButtonText;
+	end
 	
 	-- show popup with text
 	StaticPopup_Show(popupName, nil, nil, {
