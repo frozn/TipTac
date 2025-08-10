@@ -699,7 +699,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 								cleanedSource = strtrim(source);
 								
 								if (cleanedSource ~= "") then
-									cleanedSource = LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(cleanedSource, "%|n");
+									cleanedSource = LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(cleanedSource, "|n");
 									cleanedSource = LibFroznFunctions:RemoveColorsFromText(cleanedSource);
 								end
 							end
@@ -722,7 +722,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 								cleanedDescription = strtrim(description);
 								
 								if (cleanedDescription ~= "") then
-									cleanedDescription = LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(cleanedDescription, "%|n");
+									cleanedDescription = LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(cleanedDescription, "|n");
 									cleanedDescription = LibFroznFunctions:RemoveColorsFromText(cleanedDescription);
 								end
 							end
