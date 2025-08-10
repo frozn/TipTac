@@ -692,27 +692,53 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						
 						spacer = string.rep(" ", 4);
 						
-						if (cfg.showMountSource) and (type(source) == "string") and (strtrim(source) ~= "") then
-							if (mountText:GetCount() > 0) then
-								mountText:Push("\n");
+						if (cfg.showMountSource) then
+							local cleanedSource = "";
+							
+							if (type(source) == "string") then
+								cleanedSource = strtrim(source);
+								
+								if (cleanedSource ~= "") then
+									cleanedSource = LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(cleanedSource, "%|n");
+									cleanedSource = LibFroznFunctions:RemoveColorsFromText(cleanedSource);
+								end
 							end
 							
-							mountText:Push(spacer .. TT_COLOR.text.mountSource:WrapTextInColorCode(source:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1"):gsub("|n", "|n" .. spacer)));
-							
-							mountSourceAdded = true;
+							if (cleanedSource ~= "") then
+								if (mountText:GetCount() > 0) then
+									mountText:Push("\n");
+								end
+								
+								mountText:Push(spacer .. TT_COLOR.text.mountSource:WrapTextInColorCode(cleanedSource:gsub("|n", "|n" .. spacer)));
+								
+								mountSourceAdded = true;
+							end
 						end
 						
-						if (cfg.showMountLore) and (type(description) == "string") and (strtrim(description) ~= "") then
-							local mountLoreText = TT_COLOR.text.mountLore:WrapTextInColorCode(description:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1"):gsub("|n", "|n" .. spacer));
+						if (cfg.showMountLore) then
+							local cleanedDescription = "";
 							
-							if (mountText:GetCount() > 0) then
-								if (mountSourceAdded) then
-									lineMountLore:Push("\n" .. spacer .. mountLoreText);
-								else
-									lineMountLore:Push(spacer .. mountLoreText);
+							if (type(description) == "string") then
+								cleanedDescription = strtrim(description);
+								
+								if (cleanedDescription ~= "") then
+									cleanedDescription = LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(cleanedDescription, "%|n");
+									cleanedDescription = LibFroznFunctions:RemoveColorsFromText(cleanedDescription);
 								end
-							else
-								lineMountLore:Push(TT_Mount:format(mountLoreText));
+							end
+							
+							if (cleanedDescription ~= "") then
+								local mountLoreText = TT_COLOR.text.mountLore:WrapTextInColorCode(cleanedDescription:gsub("|n", "|n" .. spacer));
+								
+								if (mountText:GetCount() > 0) then
+									if (mountSourceAdded) then
+										lineMountLore:Push("\n" .. spacer .. mountLoreText);
+									else
+										lineMountLore:Push(spacer .. mountLoreText);
+									end
+								else
+									lineMountLore:Push(TT_Mount:format(mountLoreText));
+								end
 							end
 						end
 					end

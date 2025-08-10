@@ -121,7 +121,7 @@ if (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) th
 	tinsert(ttOptionsGeneral, { type = "Check", var = "hideSpecializationAndClassText", label = "Hide Specialization & Class Text From Unit Tip", tip = "Strips the Specialization & Class text from the unit tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
 end
 
-if (LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInPlayerUnitTip) then
+if (LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip) then
 	tinsert(ttOptionsGeneral, { type = "Check", var = "hideRightClickForFrameSettingsText", label = "Hide Right Click for Frame Settings Text From Unit Tip", tip = "Strips the right click for frame settings text from the unit tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
 end
 

@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 48; -- bump on changes
+local LIB_MINOR = 49; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -903,6 +903,31 @@ function LibFroznFunctions:FormatText(text, replacements, ...)
 	end
 	
 	return string.format(newText, ...);
+end
+
+-- remove pattern from end of text multiple times
+--
+-- @param  text     text to remove pattern from the end of multiple times
+-- @param  pattern  pattern to remove multiple times from end of text
+-- @return text with removed pattern from the end of multiple times
+function LibFroznFunctions:RemovePatternFromEndOfTextMultipleTimes(text, pattern)
+	local newText = tostring(text);
+	
+	newText = newText:gsub(pattern .. "$", "");
+	
+	if (newText == text) then
+		return newText;
+	end
+	
+	return self:RemovePatternFromEndOfTextMultipleTimes(newText, pattern);
+end
+
+-- remove colors from text
+--
+-- @param  text     text to remove colors from
+-- @return text with removed colors
+function LibFroznFunctions:RemoveColorsFromText(text)
+	return tostring(text):gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1");
 end
 
 -- camel case text
