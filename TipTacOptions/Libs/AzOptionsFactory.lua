@@ -57,7 +57,7 @@
 	- classic era: removed the workaround for blizzard bug in classic era 1.15.4: the UISliderTemplateWithLabels template defined in "SliderTemplates.xml" is missing. fixed with WoW build 1.15.4.56857.
 	25.05.18 Rev 32 11.1.5/The War Within #frozn45
 	- replaced newlines in header of tooltip with a space for all option types
-	25.xx.xx Rev 33 11.1.5/The War Within #frozn45
+	25.08.13 Rev 33 11.1.5/The War Within #frozn45
 	- added attributes "get" and "set" for any element to pass an individual getter/setter instead of "var".
 	- consider different text color on drop down for "Select value..." text.
 	- added a button for the TextEdit element to save the changes
