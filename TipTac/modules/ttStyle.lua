@@ -630,13 +630,16 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 					-- determine if mount has already been collected
 					local mountText = LibFroznFunctions:CreatePushArray();
 					local spacer;
+					local mountIsCollected;
 					local mountNameAdded = false;
 					local mountSourceAdded = false;
 					
+					if (cfg.showMountCollected) or (cfg.showMountSourceIfNotCollected) then
+						mountIsCollected = LibFroznFunctions:IsMountCollected(mountID);
+					end
+					
 					if (cfg.showMountCollected) then
-						local isCollected = LibFroznFunctions:IsMountCollected(mountID);
-						
-						if (isCollected) then
+						if (mountIsCollected) then
 							-- mountText:Push(CreateAtlasMarkup("common-icon-checkmark")); -- available in DF, but not available in WotLKC
 							mountText:Push(CreateTextureMarkup("Interface\\AddOns\\" .. MOD_NAME .. "\\media\\CommonIcons", 64, 64, 0, 0, 0.000488281, 0.125488, 0.504883, 0.754883));
 						else
@@ -687,12 +690,12 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 					end
 					
 					-- determine mount source and lore
-					if (cfg.showMountSource) or (cfg.showMountLore) then
+					if (cfg.showMountSourceIfNotCollected) or (cfg.showMountSource) or (cfg.showMountLore) then
 						local _, description, source = C_MountJournal.GetMountInfoExtraByID(mountID);
 						
 						spacer = string.rep(" ", 4);
 						
-						if (cfg.showMountSource) then
+						if (cfg.showMountSourceIfNotCollected) and (not mountIsCollected) or (cfg.showMountSource) then
 							local cleanedSource = "";
 							
 							if (type(source) == "string") then
