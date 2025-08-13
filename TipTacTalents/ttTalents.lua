@@ -107,12 +107,8 @@ ttt:RegisterEvent("ADDON_LOADED");
 
 -- setup config
 function ttt:SetupConfig()
-	-- use TipTac config if installed
-	if (TipTac_Config) then
-		cfg = LibFroznFunctions:ChainTables(TipTac_Config, TTT_DefaultConfig);
-	else
-		cfg = TTT_DefaultConfig;
-	end
+	-- Use TipTac config if installed
+	cfg = select(2, LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TTT_DefaultConfig));
 end
 
 ----------------------------------------------------------------------------------------------------

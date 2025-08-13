@@ -41,6 +41,8 @@
 	——— 24.07.25 ——— Rev 19 ——— 11.0.0/Dragonflight ——— #frozn45
 	- adjusted hit rect insets for Dropdown Menu Item Button
 	- enabled mouse events for DropDown Menu to prevent firing OnEnter/OnLeave events for underlying frames
+	——— 24.xx.xx ——— Rev 20 ——— 11.2.0/The War Within ——— #frozn45
+	- don't initially select header item
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -60,7 +62,7 @@
 	tip			Tooltip will be shown when mouse is over item
 --]]
 
-local REVISION = 19; -- bump on changes
+local REVISION = 20; -- bump on changes
 if (type(AzDropDown) == "table") and (AzDropDown.vers >= REVISION) then
 	return;
 end
@@ -99,6 +101,7 @@ local backdropBorderColor = CreateColor(0,0,0);
 -- Constants
 local MENU_ITEM_HEIGHT = 14;
 local DEF_MAX_MENU_ITEMS = 16;
+AzDropDown.selectValueText = "|cff00ff00Select Value...";
 
 --------------------------------------------------------------------------------------------------------
 --                                         Helper Functions                                           --
@@ -394,12 +397,12 @@ function DropDownFrameMixin:InitSelectedItem(selectedValue)
 		CreateDropDownMenu();
 	end
 
-	self:SetText("|cff00ff00Select Value...");	-- set before calling QueryItems() as that may override it
+	self:SetText(AzDropDown.selectValueText);	-- set before calling QueryItems() as that may override it
 	self.selectedValue = selectedValue;
 
 	local list = menu:QueryItems(self);
 	for _, entry in ipairs(list) do
-		if (entry.value == selectedValue) then
+		if (not entry.header) and (entry.value == selectedValue) then
 			self:SetText(entry.text);
 			return;
 		end

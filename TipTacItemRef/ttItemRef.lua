@@ -1,3 +1,9 @@
+-- create addon
+local MOD_NAME = ...;
+local PARENT_MOD_NAME = "TipTac";
+local ttif = CreateFrame("Frame", MOD_NAME);
+
+-- upvalues
 local AceHook = LibStub:GetLibrary("AceHook-3.0");
 local format = string.format;
 local unpack = unpack;
@@ -35,11 +41,6 @@ if (not C_QuestLog_GetSelectedQuest) then
 		return questID;
 	end
 end
-
--- Addon
-local MOD_NAME = ...;
-local PARENT_MOD_NAME = "TipTac";
-local ttif = CreateFrame("Frame", MOD_NAME);
 
 -- Register with TipTac core addon if available
 local TipTac = _G[PARENT_MOD_NAME];
@@ -407,13 +408,9 @@ function ttif:VARIABLES_LOADED(event)
 		tipsToModify = TipTac.tipsToModify;
 	end
 
-	-- Use TipTac settings if installed
-	if (TipTac_Config) then
-		cfg = LibFroznFunctions:ChainTables(TipTac_Config, TTIF_DefaultConfig);
-	else
-		cfg = TTIF_DefaultConfig;
-	end
-
+	-- Use TipTac config if installed
+	cfg = select(2, LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TTIF_DefaultConfig));
+	
 	-- Hook Tips & Apply Settings
 	self:HookTips();
 	self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);

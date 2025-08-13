@@ -1,11 +1,13 @@
-local cfg = TipTac_Config;
+-- create addon
 local MOD_NAME = ...;
 local PARENT_MOD_NAME = "TipTac";
+local f = CreateFrame("Frame",MOD_NAME,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
-local LibSerialize = LibStub:GetLibrary("LibSerialize");
-local LibDeflate = LibStub:GetLibrary("LibDeflate");
+
+-- set config
+local configDb, cfg = LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config");
 
 -- constants
 local TT_OPTIONS_CATEGORY_LIST_WIDTH = 117;
@@ -60,6 +62,14 @@ local DROPDOWN_BARTEXTFORMAT = {
 	["Values"] = "value",
 	["Values & Percent"] = "full",
 	["Deficit"] = "deficit",
+};
+
+-- colors
+local TTO_COLOR = {
+	text = {
+		default = HIGHLIGHT_FONT_COLOR, -- white
+		currentProfile = LIGHTYELLOW_FONT_COLOR
+	}
 };
 
 -- Options -- The "y" value of a category subtable, will further increase the vertical offset position of the item
@@ -583,15 +593,6 @@ local options = {
 	{
 		category = "Hyperlink",
 		enabled = { type = "Check", var = "enableChatHoverTips", label = "Enable (Guild & Community) ChatFrame Hover Hyperlinks", tip = "When hovering the mouse over a link in the (Guild & Community) Chatframe, show the tooltip without having to click on it" }
- 	},
-	-- Layouts
-	{
-		category = "Layouts",
-		options = {
-			{ type = "DropDown", label = "Layout Template", init = TipTacLayouts.LoadLayout_Init },
---			{ type = "Text", label = "Save Layout", func = nil },
---			{ type = "DropDown", label = "Delete Layout", init = TipTacLayouts.DeleteLayout_Init },
-		}
 	},
 };
 
@@ -750,11 +751,40 @@ if (TipTacItemRef) then
 	});
 end
 
+-- Layouts
+tinsert(options, {
+	category = "Layouts",
+	btnResetDisabled = true,
+	options = {
+		{ type = "Header", label = "Available Profiles" },
+		
+		{ type = "TextOnly", var = "func_currentProfile", get = function() return "Current Profile: " .. TTO_COLOR.text.currentProfile:WrapTextInColorCode(configDb:GetCurrentProfile()); end, set = function() end },
+		
+		{ type = "DropDown", label = "Switch to Profile", init = TipTacLayouts.SwitchProfile_Init, enabled = function(factory) return #LibFroznFunctions:GetProfilesFromDbFromLibAceDB(configDb, true) >= 1 end },
+		
+		{ type = "Header", label = "Change Current Profile" },
+		
+		{ type = "DropDown", label = "Copy Settings from\nother Profile", init = TipTacLayouts.CopyProfile_Init, enabled = function(factory) return #LibFroznFunctions:GetProfilesFromDbFromLibAceDB(configDb, true) >= 1 end },
+		
+		{ type = "DropDown", label = "Load Predefined\nLayout Template", init = TipTacLayouts.LoadLayout_Init },
+--		{ type = "Text", label = "Save Layout", func = nil },
+--		{ type = "DropDown", label = "Delete Layout", init = TipTacLayouts.DeleteLayout_Init },
+		
+		{ type = "Button", label = "Export Settings", width = 140, click = TipTacLayouts.ExportSettings_SelectValue, y = 10 },
+		{ type = "Button", label = "Import Settings", width = 140, click = TipTacLayouts.ImportSettings_SelectValue, x = 163 },
+		
+		{ type = "Button", label = "Reset Current Profile to Default Settings", width = 303, click = TipTacLayouts.ResetProfile_SelectValue, y = 10 },
+		
+		{ type = "Header", label = "Manage Profiles" },
+		
+		{ type = "Text", var = "func_createNewProfile", get = function() return ""; end, set = TipTacLayouts.CreateProfile_SelectValue, label = "Create New Profile\nwith Default Settings" },
+		{ type = "DropDown", label = "Delete Profile", init = TipTacLayouts.DeleteProfile_Init, tip = "The \"Default\" profile can't be deleted.", enabled = function(factory) return #LibFroznFunctions:GetProfilesFromDbFromLibAceDB(configDb, true, true) >= 1 end },
+	}
+});
+
 --------------------------------------------------------------------------------------------------------
 --                                          Initialize Frame                                          --
 --------------------------------------------------------------------------------------------------------
-
-local f = CreateFrame("Frame",MOD_NAME,UIParent,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
 
 tinsert(UISpecialFrames, f:GetName()); -- hopefully no taint
 
@@ -843,120 +873,19 @@ local function Reset_OnLeave(self)
 	GameTooltip:Hide();
 end
 
-f.btnMisc = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
-f.btnMisc:SetSize(75,24);
-f.btnMisc:SetPoint("LEFT",f.btnAnchor,"RIGHT",9,0);
-f.btnMisc:SetScript("OnClick",Reset_OnClick);
-f.btnMisc:SetScript("OnEnter", Reset_OnEnter);
-f.btnMisc:SetScript("OnLeave", Reset_OnLeave);
-f.btnMisc:SetText("Defaults");
+f.btnReset = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
+f.btnReset:SetSize(75,24);
+f.btnReset:SetPoint("LEFT",f.btnAnchor,"RIGHT",9,0);
+f.btnReset:SetScript("OnClick",Reset_OnClick);
+f.btnReset:SetScript("OnEnter", Reset_OnEnter);
+f.btnReset:SetScript("OnLeave", Reset_OnLeave);
+f.btnReset:SetText("Defaults");
 
 local function Misc_OnClick(self)
-	ToggleDropDownMenu(1, nil, f.btnReport.dropDownMenu, f.btnReport, 0, 0);
+	ToggleDropDownMenu(1, nil, f.btnMisc.dropDownMenu, f.btnMisc, 0, 0);
 end
 
 local function Misc_SettingsDropDownOnClick(dropDownMenuButton, arg1, arg2)
-	if (arg1 == "settingsImport") then
-		-- open popup to get import string with new config
-		LibFroznFunctions:ShowPopupWithText({
-			prompt = "Paste export string with new config:",
-			iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
-			iconTexCoord = { 0.924316, 0.944824, 0.0380859, 0.0771484 },
-			acceptButtonText = "Import",
-			cancelButtonText = "Cancel",
-			onShowHandler = function(self, data)
-				-- fix icon position
-				local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]);
-				
-				if (not alertIcon) then
-					return;
-				end
-				
-				alertIcon:ClearAllPoints();
-				
-				if (self.Resize) then -- GameDialogMixin:Resize() available since tww 11.2.0
-					alertIcon:SetPoint("LEFT", 24, 7);
-				else
-					alertIcon:SetPoint("LEFT", 24, 4);
-				end
-			end,
-			onAcceptHandler = function(self, data)
-				-- import export string with new config
-				local editBox = (self.GetEditBox and self:GetEditBox() or self.editBox); -- acccessor method GetEditBox() available since tww 11.2.0
-				local encodedConfig = editBox:GetText();
-				local compressedConfig = LibDeflate:DecodeForPrint(encodedConfig);
-				
-				local function addFailedMessageToChatFrame()
-					TipTac:AddMessageToChatFrame("{caption:" .. PARENT_MOD_NAME .. "}: {error:Couldn't import new config. Export string may be corrupt.}");
-				end
-				
-				if (not compressedConfig) then
-					addFailedMessageToChatFrame();
-					return;
-				end
-				
-				local serializedConfig = LibDeflate:DecompressDeflate(compressedConfig);
-				
-				if (not serializedConfig) then
-					addFailedMessageToChatFrame();
-					return;
-				end
-				
-				local success, newCfg = LibSerialize:Deserialize(serializedConfig);
-				
-				if (not success) or (type(newCfg) ~= "table") then
-					addFailedMessageToChatFrame();
-					return;
-				end
-				
-				-- apply new config
-				LibFroznFunctions:MixinWholeObjects(cfg, newCfg);
-				
-				-- inform group that the config has been loaded
-				-- LibFroznFunctions:FireGroupEvent(PARENT_MOD_NAME, "OnConfigLoaded", TT_CacheForFrames, cfg, TT_ExtendedConfig);
-				
-				-- apply config
-				TipTac:ApplyConfig();
-				f:BuildCategoryPage();
-				f:BuildCategoryList();
-				
-				TipTac:AddMessageToChatFrame("{caption:" .. PARENT_MOD_NAME .. "}: Successfully imported new config.");
-			end
-		});
-	elseif (arg1 == "settingsExport") then
-		-- build export string with current config
-		local serializedConfig = LibSerialize:Serialize(cfg);
-		local compressedConfig = LibDeflate:CompressDeflate(serializedConfig);
-		local encodedConfig = LibDeflate:EncodeForPrint(compressedConfig);
-		
-		-- open popup with export string with current config
-		if (encodedConfig) then
-			LibFroznFunctions:ShowPopupWithText({
-				prompt = "Copy this export string with current config:",
-				lockedText = encodedConfig,
-				iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
-				iconTexCoord = { 0.924316, 0.942871, 0.000976562, 0.0361328 },
-				acceptButtonText = "Close",
-				onShowHandler = function(self, data)
-					-- fix icon position
-					local alertIcon = (self.AlertIcon or _G[self:GetName() .. "AlertIcon"]);
-					
-					if (not alertIcon) then
-						return;
-					end
-					
-					alertIcon:ClearAllPoints();
-					
-					if (self.Resize) then -- GameDialogMixin:Resize() available since tww 11.2.0
-						alertIcon:SetPoint("LEFT", 24, 6);
-					else
-						alertIcon:SetPoint("LEFT", 24, 3);
-					end
-				end
-			});
-		end
-	end
-	
 	-- close dropdown
 	CloseDropDownMenus();
 end
@@ -1026,36 +955,6 @@ local function Misc_DropDownOnInitialize(dropDownMenu, level, menuList)
 	
 	if (level == 1) then
 		list:Push({
-			iconText = { "Interface\\HelpFrame\\HelpIcon-CharacterStuck", 64, 64, nil, nil, 0.1875, 0.796875, 0.203125, 0.796875 },
-			text = "Settings",
-			menuList = "settings"
-		});
-		list:Push({
-			iconText = { "Interface\\HelpFrame\\ReportLagIcon-Mail", 64, 64, nil, nil, 0.171875, 0.828125, 0.21875, 0.78125 },
-			text = "Report",
-			menuList = "report"
-		});
-		list:Push({
-			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\CommonIcons", 64, 64, nil, nil, 0.126465, 0.251465, 0.504883, 0.754883 },
-			text = "Cancel",
-			func = Misc_SettingsDropDownOnClick,
-			arg1 = "cancel"
-		});
-	elseif (menuList == "settings") then
-		list:Push({
-			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents", 2048, 1024, nil, nil, 0.924316, 0.944824, 0.0380859, 0.0771484 },
-			text = "Import",
-			func = Misc_SettingsDropDownOnClick,
-			arg1 = "settingsImport"
-		});
-		list:Push({
-			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents", 2048, 1024, nil, nil, 0.924316, 0.942871, 0.000976562, 0.0361328 },
-			text = "Export",
-			func = Misc_SettingsDropDownOnClick,
-			arg1 = "settingsExport"
-		});
-	elseif (menuList == "report") then
-		list:Push({
 			iconText = { "Interface\\HelpFrame\\HelpIcon-Bug", 64, 64, nil, nil, 0.1875, 0.78125, 0.1875, 0.78125 },
 			text = "Report bug",
 			menuList = "reportBug"
@@ -1064,6 +963,12 @@ local function Misc_DropDownOnInitialize(dropDownMenu, level, menuList)
 			iconText = { "Interface\\HelpFrame\\HelpIcon-Suggestion", 64, 64, nil, nil, 0.21875, 0.765625, 0.234375, 0.78125 },
 			text = "Request feature",
 			menuList = "requestFeature"
+		});
+		list:Push({
+			iconText = { "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\CommonIcons", 64, 64, nil, nil, 0.126465, 0.251465, 0.504883, 0.754883 },
+			text = "Cancel",
+			func = Misc_SettingsDropDownOnClick,
+			arg1 = "cancel"
 		});
 	elseif (menuList == "reportBug") then
 		list:Push({
@@ -1123,7 +1028,7 @@ end
 local function Misc_OnEnter(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	GameTooltip:AddLine("Misc", 1, 1, 1);
-	GameTooltip:AddLine("Import/Export settings, report bugs or request features.", nil, nil, nil, 1);
+	GameTooltip:AddLine("Report bugs or request features.", nil, nil, nil, 1);
 	GameTooltip:Show();
 end
 
@@ -1131,20 +1036,20 @@ local function Misc_OnLeave(self)
 	GameTooltip:Hide();
 end
 
-f.btnReport = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
-f.btnReport:SetSize(75,24);
-f.btnReport:SetPoint("LEFT",f.btnMisc,"RIGHT",9,0);
-f.btnReport:SetScript("OnClick", Misc_OnClick);
-f.btnReport:SetScript("OnEnter", Misc_OnEnter);
-f.btnReport:SetScript("OnLeave", Misc_OnLeave);
-f.btnReport:SetText("Misc");
+f.btnMisc = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
+f.btnMisc:SetSize(75,24);
+f.btnMisc:SetPoint("LEFT",f.btnReset,"RIGHT",9,0);
+f.btnMisc:SetScript("OnClick", Misc_OnClick);
+f.btnMisc:SetScript("OnEnter", Misc_OnEnter);
+f.btnMisc:SetScript("OnLeave", Misc_OnLeave);
+f.btnMisc:SetText("Misc");
 
-f.btnReport.dropDownMenu = CreateFrame("Frame", nil, f.btnReport, "UIDropDownMenuTemplate");
-UIDropDownMenu_Initialize(f.btnReport.dropDownMenu, Misc_DropDownOnInitialize, "MENU");
+f.btnMisc.dropDownMenu = CreateFrame("Frame", nil, f.btnMisc, "UIDropDownMenuTemplate");
+UIDropDownMenu_Initialize(f.btnMisc.dropDownMenu, Misc_DropDownOnInitialize, "MENU");
 
 f.btnClose = CreateFrame("Button",nil,f,"UIPanelButtonTemplate");
 f.btnClose:SetSize(75,24);
-f.btnClose:SetPoint("LEFT",f.btnReport,"RIGHT",10,0);
+f.btnClose:SetPoint("LEFT",f.btnMisc,"RIGHT",10,0);
 f.btnClose:SetScript("OnClick",function() f:Hide(); end);
 f.btnClose:SetText("Close");
 
@@ -1329,6 +1234,9 @@ function f:BuildCategoryPage(noUpdateScrollFrame)
 	local finalContentHeight = (newContentHeight or 0) + (contentChildMostBottom and contentChildMostBottom:GetHeight() or 0);
 	
 	f.content:SetHeight(finalContentHeight > 0 and finalContentHeight or 1);
+	
+	-- disable btnReset if necessary
+	f.btnReset:SetEnabled(not f.options[activePage].btnResetDisabled);
 end
 
 --------------------------------------------------------------------------------------------------------
