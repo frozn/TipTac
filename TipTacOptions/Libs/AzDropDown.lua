@@ -41,7 +41,7 @@
 	——— 24.07.25 ——— Rev 19 ——— 11.0.0/Dragonflight ——— #frozn45
 	- adjusted hit rect insets for Dropdown Menu Item Button
 	- enabled mouse events for DropDown Menu to prevent firing OnEnter/OnLeave events for underlying frames
-	——— 24.xx.xx ——— Rev 20 ——— 11.2.0/The War Within ——— #frozn45
+	——— 24.08.13 ——— Rev 20 ——— 11.2.0/The War Within ——— #frozn45
 	- don't initially select header item
 
 	Keys set in the parent frame table
