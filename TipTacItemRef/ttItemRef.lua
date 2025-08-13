@@ -114,7 +114,9 @@ local TTIF_DefaultConfig = {
 	if_iconAnchor = "BOTTOMLEFT",
 	if_iconTooltipAnchor = "TOPLEFT",
 	if_iconOffsetX = 2.5,
-	if_iconOffsetY = -2.5
+	if_iconOffsetY = -2.5,
+	
+	if_hideClickForSettingsTextInCurrencyTip = true
 };
 local cfg;
 local TT_ExtendedConfig;
@@ -1583,6 +1585,36 @@ local function TDM_OnEnter_Hook(self)
 	end
 end
 
+-- HOOK: TokenEntryMixin:ShowCurrencyTooltip
+local function TEM_ShowCurrencyTooltip_Hook(self)
+	if (cfg.if_enable) and (gtt:IsShown()) then
+		-- Remove Unwanted Lines
+		local hideClickForSettingsTextInCurrencyTip = (cfg.if_hideClickForSettingsTextInCurrencyTip) and (LibFroznFunctions.hasWoWFlavor.clickForSettingsTextInCurrencyTip) and (CURRENCY_BUTTON_TOOLTIP_CLICK_INSTRUCTION);
+		
+		if (hideClickForSettingsTextInCurrencyTip) then
+			for i = 2, gtt:NumLines() do
+				local gttLine = _G["GameTooltipTextLeft" .. i];
+				local gttLineText = gttLine:GetText();
+				
+				if (type(gttLineText) == "string") then
+					local isGttLineTextCurrencyButtonTooltipClickInstruction = (hideClickForSettingsTextInCurrencyTip) and (gttLineText == CURRENCY_BUTTON_TOOLTIP_CLICK_INSTRUCTION);
+					
+					if (isGttLineTextCurrencyButtonTooltipClickInstruction) then
+						gttLine:SetText(nil);
+						
+						if (isGttLineTextCurrencyButtonTooltipClickInstruction) and (i > 1) then
+							_G["GameTooltipTextLeft" .. (i - 1)]:SetText(nil);
+						end
+						
+						gtt:Show();
+						break;
+					end
+				end
+			end
+		end
+	end
+end
+
 -- HOOK: PlayerChoicePowerChoiceTemplateMixin:OnEnter
 local function PCPCTM_OnEnter_Hook(self)
 	if (cfg.if_enable) and (not tipDataAdded[gtt]) and (gtt:IsShown()) then
@@ -1984,6 +2016,8 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 					LibFroznFunctions:HookSecureFuncIfExists(DressUpOutfitDetailsSlotMixin, "OnEnter", DUODSM_OnEnter_Hook);
 					-- since df
 					LibFroznFunctions:HookSecureFuncIfExists(TalentDisplayMixin, "OnEnter", TDM_OnEnter_Hook);
+					-- since tww
+					LibFroznFunctions:HookSecureFuncIfExists(TokenEntryMixin, "ShowCurrencyTooltip", TEM_ShowCurrencyTooltip_Hook);
 				end
 				tipHooked = true;
 			else

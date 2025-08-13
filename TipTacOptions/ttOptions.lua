@@ -133,7 +133,7 @@ if (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) th
 end
 
 if (LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip) then
-	tinsert(ttOptionsGeneral, { type = "Check", var = "hideRightClickForFrameSettingsText", label = "Hide Right Click for Frame Settings Text From Unit Tip", tip = "Strips the right click for frame settings text from the unit tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
+	tinsert(ttOptionsGeneral, { type = "Check", var = "hideRightClickForFrameSettingsTextInUnitTip", label = "Hide \"Right Click for Frame Settings\" Text From Unit Tip", tip = "Strips the \"right click for frame settings\" text from the unit tooltip", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
 end
 
 -- Colors
@@ -744,6 +744,12 @@ if (TipTacItemRef) then
 	tinsert(ttifOptions, { type = "DropDown", var = "if_iconTooltipAnchor", label = "Icon Tooltip Anchor", tip = "The anchor of the tooltip that the icon should anchor to.", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("if_enable") and factory:GetConfigValue("if_showIcon") end });
 	tinsert(ttifOptions, { type = "Slider", var = "if_iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("if_enable") and factory:GetConfigValue("if_showIcon") end });
 	tinsert(ttifOptions, { type = "Slider", var = "if_iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("if_enable") and factory:GetConfigValue("if_showIcon") end });
+	
+	if (LibFroznFunctions.hasWoWFlavor.clickForSettingsTextInCurrencyTip) then
+		tinsert(ttifOptions, { type = "Header", label = "Strip default text from tooltip", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
+		
+		tinsert(ttifOptions, { type = "Check", var = "if_hideClickForSettingsTextInCurrencyTip", label = "Hide \"Click for Settings\" Text From Currency Tip", tip = "Strips the \"click for settings\" text from the currency tooltip", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
+	end
 	
 	tinsert(options, {
 		category = "ItemRef",

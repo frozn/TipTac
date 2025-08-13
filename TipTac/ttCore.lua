@@ -67,7 +67,7 @@ local TT_DefaultConfig = {
 	showBattlePetTip = true,
 	hidePvpText = true,
 	hideSpecializationAndClassText = true,
-	hideRightClickForFrameSettingsText = true,
+	hideRightClickForFrameSettingsTextInUnitTip = true,
 	highlightTipTacDeveloper = true, -- hidden
 	
 	-- colors
@@ -4494,6 +4494,14 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			{
 				["25.07.07"] = function()
 					cfg.t_gearScoreAlgorithm = 2; -- LFF_GEAR_SCORE_ALGORITHM.TipTac, TipTac's GearScore algorithm
+				end
+			},
+			-- changes in config with 25.08.13:
+			--
+			-- renamed: hideRightClickForFrameSettingsText -> hideRightClickForFrameSettingsTextInUnitTip
+			{
+				["25.08.13"] = function()
+					cfg.hideRightClickForFrameSettingsTextInUnitTip = cfg.hideRightClickForFrameSettingsText;
 				end
 			}
 		};
