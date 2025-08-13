@@ -1,5 +1,5 @@
 ## Interface: 110200
-## Version: 25.08.09
+## Version: 25.08.13
 ## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
 ## Title: TipTacOptions
 ## Author: Frozn45, Aezay (Earthen Ring EU)
