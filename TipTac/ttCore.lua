@@ -1330,7 +1330,6 @@ tt:SetMovable(true);
 tt:EnableMouse(true);
 tt:SetToplevel(true);
 tt:SetClampedToScreen(true);
-tt:SetPoint("CENTER");
 
 tt.text = tt:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
 tt.text:SetText(MOD_NAME .. "Anchor");
@@ -1354,13 +1353,35 @@ tt:SetScript("OnMouseUp", function(self)
 	cfg.left, cfg.top = self:GetLeft(), self:GetTop();
 end);
 
+-- show TipTac anchor on default position
+local function showTipTacAnchorOnDefaultPosition()
+	tt:ClearAllPoints();
+	-- tt:SetPoint("CENTER");
+	tt.SetOwner = function() end;
+	GameTooltip_SetDefaultAnchor(tt);
+	tt.SetOwner = nil;
+	
+	tt:Show();
+end
+
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnConfigLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
-		-- set position of TipTac anchor
-		if (cfg.left) and (cfg.top) then
+		-- show TipTac anchor on default position if no position for it is set
+		if (not cfg.left) or (not cfg.top) then
+			showTipTacAnchorOnDefaultPosition()
+		
+		-- set position of TipTac anchor if position for it is set
+		else
 			tt:ClearAllPoints();
 			tt:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", cfg.left, cfg.top);
+		
+		end
+	end,
+	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- show TipTac anchor on default position if no position for it is set
+		if (not cfg.left) or (not cfg.top) then
+			showTipTacAnchorOnDefaultPosition()
 		end
 	end
 }, MOD_NAME .. " - TipTac Anchor");
@@ -1749,19 +1770,9 @@ function tt:SetupConfig()
 	TT_DefaultConfig.barFontFace, TT_DefaultConfig.barFontSize, TT_DefaultConfig.barFontFlags = NumberFontNormalSmall:GetFont();
 	TT_DefaultConfig.barFontSize = Round(TT_DefaultConfig.barFontSize);
 	TT_DefaultConfig.barFontFlags = TT_DefaultConfig.barFontFlags:match("^[^,]*");
-
-	-- set config
-	if (not TipTac_Config) then
-		-- create config
-		TipTac_Config = {};
-	end
 	
-	cfg = LibFroznFunctions:ChainTables(TipTac_Config, TT_DefaultConfig);
-
-	-- show TipTac anchor if no position for it is set
-	if (not cfg.left) or (not cfg.top) then
-		self:Show();
-	end
+	-- set config
+	cfg = select(2, LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TT_DefaultConfig));
 	
 	-- set custom class colors config
 	self:SetCustomClassColorsConfig();
