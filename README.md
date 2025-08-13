@@ -38,6 +38,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - prevented flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
 - fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
+- added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+- changed default position of tooltip's normal anchor to blizzards default tooltip anchor instead of center of screen
 - added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
 - added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop, AceConfigDialog-3.0, LibDBIcon, LibUIDropDownMenu-4.0, LibDropDownMenu, LibDropdown, LibDropdownMC, LibQTip, LibExtraTip, auras from addon Plater, tooltips from addon ElvUI, OPie and RaiderIO
 - changes regarding config option "Hyperlink->Enable (Guild & Community) ChatFrame Hover Hyperlinks":
@@ -61,10 +63,10 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added showing of role and talent/specialization icon, coloring talents by class color, average item level, the de facto standard GearScore algorithm from addon TacoTip and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
 - completely rewritten ttCore, ttBars, ttAuras, ttHyperlink and ttIcons. also applied necessary changes to ttStyle.
 - scanning/inspecting of talents and average item level completely rewritten
-- added option in "Anchors" to override anchor for world/frame units/tips during challenge mode, during an instance, during skyriding or in combat and (Guild & Community, addon WIM) ChatFrame
+- added option in "Anchors" to override anchor for world/frame units/tips during challenge mode (in/out of combat), during an instance (in/out of combat), during skyriding or in combat and (Guild & Community, addon WIM) ChatFrame
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "Backdrop->BG Texture Layout" to set if the background texture should be repeated or stretched to fit the tip
-- added option "Hiding->Hide Tips Out Of Combat" and "Hiding->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action-bar/experience-bar tips during challenge mode, during an instance, during skyriding or in/out of combat
+- added option "Hiding->Hide Tips Out Of Combat" and "Hiding->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action-bar/experience-bar tips during challenge mode (in/out of combat), during an instance (in/out of combat), during skyriding or in/out of combat
 - added option "General->Show Player Guild Realm" to show player guild realm if the guild is from a foreign realm
 - added option "General->Show Player Guild Rank" to show/hide guild name/rank
 - added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
@@ -79,7 +81,6 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option in "ItemRef" to show stack count of items in tooltip
 - added options "ItemRef->Show Expansion Icon/Name" to show the expansion icon/name of the item. This feature is only available in retail and not in WotLKC or classic era.
 - added option "ItemRef->Show Item Enchant ID/Description"
-- added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 - considered debuff border for aura positions
 - splitted options for auras from spells
 - prevented auras from moving off-screen
@@ -88,7 +89,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "Reactions->Show the unit's reaction as icon"
 - added unit reaction for honored, revered and exalted NPCs
 - added option "General->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
-- added option "General->Hide Right Click for Frame Settings Text From Unit Tip" to strip the "right click for frame settings text" from the tooltip introduced with tww 11.0.7
+- added option "General->Hide 'Right Click for Frame Settings' Text From Unit Tip" to strip the "right click for frame settings" text from the unit tooltip introduced with tww 11.0.7
+- added option "ItemRef->Hide 'Click for Settings' Text From Currency Tip" to strip the "click for settings" text from the currency tooltip introduced with tww 11.0.0
 - added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
 - added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
 - added option "Talents/AIL->Don't show Talents and Average Item Level for players out of range" to suppress the "out of range" message
@@ -100,6 +102,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - improved using custom class colors from other addons if ColorMixin methods are not available
 - stripped creature type text from tooltip for npcs or wild battle pets if creature family isn't available to prevent displaying the creature type twice
 - added feature to enable/disable/set custom class colors in options under "Colors"
+- moved TipTac's config to lib AceDB-3.0 to support different profiles
 - classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic era: added missing styling of auras
 - classic era: reactivated talent format option
