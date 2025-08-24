@@ -2502,7 +2502,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 	end
 	
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(link);
-	local splits = StringSplitIntoTable(":", link);
+	local refString = link:match("|H([^|]+)|h") or link;
+	local splits = StringSplitIntoTable(":", refString);
 	if (classID == 5) and (subClassID == 1) then -- keystone
 		local mapID = splits[17];
 		local keystoneLevel = splits[19];
