@@ -100,6 +100,10 @@ if (C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
 	tinsert(ttOptionsGeneral, { type = "DropDown", var = "mythicPlusDungeonScoreFormat", label = "Format Dungeon Score", list = { ["Dungeon Score only"] = "dungeonScore", ["Dungeon Score + Highest successfull run"] = "both", ["Highest successfull run only"] = "highestSuccessfullRun" }, enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
 end
 
+if (LibFroznFunctions:IsAddOnEnabled("MythicDungeonTools")) then
+	tinsert(ttOptionsGeneral, { type = "Check", var = "showMythicPlusForcesFromMDT", label = "Show Mythic+ Forces from Addon\nMythic Dungeon Tools (MDT) for NPCs", tip = "This will show the mythic+ forces from addon Mythic Dungeon Tools (MDT) for NPCs.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
+end
+
 tinsert(ttOptionsGeneral, { type = "Check", var = "showMount", label = "Show Mount", tip = "This will show the current mount of the player.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 });
 tinsert(ttOptionsGeneral, { type = "Check", var = "showMountCollected", label = "Collected", tip = "This option makes the tip show an icon indicating if you already have collected the mount.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122 });
 tinsert(ttOptionsGeneral, { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210 });

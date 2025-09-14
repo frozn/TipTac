@@ -1743,6 +1743,16 @@ end
 --                                             Addons                                             --
 ----------------------------------------------------------------------------------------------------
 
+-- is addon enabled
+--
+-- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
+-- @return true if the addon is enabled, false otherwise.
+function LibFroznFunctions:IsAddOnEnabled(indexOrName)
+	local loaded, finished = C_AddOns.IsAddOnLoaded(indexOrName)
+	
+	return loaded;
+end
+
 -- is addon finished loading
 --
 -- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
@@ -3526,7 +3536,10 @@ function LibFroznFunctions:GetUnitRecordFromCache(_unitID, _unitGUID, tryToDeter
 		LibFroznFunctions:UpdateUnitRecord(unitRecordFromCache, unitID);
 	else
 		unitRecordFromCache = LibFroznFunctions:CreateUnitRecord(unitID);
-		cacheUnitRecords[unitGUID] = unitRecordFromCache;
+		
+		if (unitRecordFromCache) then
+			cacheUnitRecords[unitGUID] = unitRecordFromCache;
+		end
 	end
 	
 	return unitRecordFromCache;
@@ -3568,6 +3581,7 @@ end
 --           .power                               power of unit
 --           .powerMax                            max power of unit
 --           .isTipTacDeveloper                   true if it's a unit of a TipTac developer, false for other units.
+--           .npcID                               npc id of npc
 --         returns nil if no unit id is supplied
 local LFF_CURRENT_REGION_ID = GetCurrentRegion();
 local LFF_TIPTAC_DEVELOPER = {
@@ -3584,10 +3598,17 @@ function LibFroznFunctions:CreateUnitRecord(unitID)
 		return;
 	end
 	
+	-- no unit guid
+	local unitGUID = UnitGUID(unitID);
+	
+	if (not unitGUID) then
+		return;
+	end
+	
 	-- create unit record
 	local unitRecord = {};
 	
-	unitRecord.guid = UnitGUID(unitID);
+	unitRecord.guid = unitGUID;
 	unitRecord.id = unitID;
 	
 	unitRecord.isPlayer = UnitIsPlayer(unitID);
@@ -3612,6 +3633,8 @@ function LibFroznFunctions:CreateUnitRecord(unitID)
 	unitRecord.className, unitRecord.classFile, unitRecord.classID = UnitClass(unitID);
 	unitRecord.classification = UnitClassification(unitID);
 	unitRecord.isTipTacDeveloper = (unitRecord.isPlayer) and (LFF_TIPTAC_DEVELOPER[LFF_CURRENT_REGION_ID]) and (LFF_TIPTAC_DEVELOPER[LFF_CURRENT_REGION_ID][unitRecord.guid]) or false;
+	
+	unitRecord.npcID = (unitRecord.isNPC) and tonumber(unitRecord.guid:match("-(%d+)-%x+$"));
 	
 	self:UpdateUnitRecord(unitRecord);
 	

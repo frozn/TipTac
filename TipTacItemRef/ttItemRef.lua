@@ -3164,14 +3164,13 @@ end
 
 -- unit
 function LinkTypeFuncs:unit(link, linkType, unitID)
-	local unitGUID = UnitGUID(unitID);
-	local npcID = (not UnitIsPlayer(unitID)) and unitGUID and tonumber(unitGUID:match("-(%d+)-%x+$"));
+	local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
 	
 	-- NpcID -- Only alter the tip if we got a valid "npcID"
-	local showId = (npcID and cfg.if_showNpcId);
+	local showId = (unitRecord.npcID and cfg.if_showNpcId);
 	
 	if (showId) then
-		self:AddLine(format("NpcID: %d", tonumber(npcID)), unpack(cfg.if_infoColor));
+		self:AddLine(format("NpcID: %d", tonumber(unitRecord.npcID)), unpack(cfg.if_infoColor));
 	end
 end
 

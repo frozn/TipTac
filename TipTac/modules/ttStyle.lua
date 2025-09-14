@@ -67,6 +67,7 @@ local TT_COLOR = {
 		targetedBy = HIGHLIGHT_FONT_COLOR, -- white
 		guildRank = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 		unitSpeed = CreateColor(0.8, 0.8, 0.8, 1), -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
+		mythicPlusPercentMaxCountEnemyForces = LIGHTYELLOW_FONT_COLOR,
 		mountName = HIGHLIGHT_FONT_COLOR, -- white
 		mountSpeed = LIGHTYELLOW_FONT_COLOR,
 		mountSource = LIGHTYELLOW_FONT_COLOR,
@@ -75,12 +76,6 @@ local TT_COLOR = {
 		tipTacDeveloperTipTac = EPIC_PURPLE_COLOR
 	}
 };
-
-local TT_COLOR_TEXT = HIGHLIGHT_FONT_COLOR; -- white
-local TT_COLOR_TEXT_TARGETING = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-local TT_COLOR_TEXT_TARGETED_BY = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-local TT_COLOR_TEXT_GUILD_RANK = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
-local TT_COLOR_TEXT_UNIT_SPEED = CreateColor(0.8, 0.8, 0.8, 1); -- light+ grey (QUEST_OBJECTIVE_FONT_COLOR)
 
 --------------------------------------------------------------------------------------------------------
 --                                         Style Unit Tooltip                                         --
@@ -509,6 +504,9 @@ function ttStyle:GenerateNpcLines(tip, currentDisplayParams, unitRecord, first)
 end
 
 -- Modify Tooltip Lines (name + info)
+local mapChallengeModeIDToDungeonIndexLookup = {};
+local npcIDToEnemyIdxLookup = {};
+
 function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	-- obtain unit properties
 	unitRecord.reactionColor = CreateColor(unpack(cfg["colorReactText" .. unitRecord.reactionIndex]));
@@ -585,26 +583,104 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				end
 			end
 			
-			local mythicPlusText = LibFroznFunctions:CreatePushArray();
+			local mythicPlusDungeonScoreText = LibFroznFunctions:CreatePushArray();
 			if (cfg.mythicPlusDungeonScoreFormat == "highestSuccessfullRun") then
 				if (mythicPlusBestRunLevel) then
-					mythicPlusText:Push(TT_COLOR.text.default:WrapTextInColorCode("+" .. mythicPlusBestRunLevel));
+					mythicPlusDungeonScoreText:Push(TT_COLOR.text.default:WrapTextInColorCode("+" .. mythicPlusBestRunLevel));
 				end
 			else
 				if (mythicPlusDungeonScore > 0) then
 					local mythicPlusDungeonScoreColor = (C_ChallengeMode.GetDungeonScoreRarityColor(mythicPlusDungeonScore) or TT_COLOR.text.default);
-					mythicPlusText:Push(mythicPlusDungeonScoreColor:WrapTextInColorCode(mythicPlusDungeonScore));
+					mythicPlusDungeonScoreText:Push(mythicPlusDungeonScoreColor:WrapTextInColorCode(mythicPlusDungeonScore));
 				end
 			end
-			if (mythicPlusText:GetCount() > 0) then
+			if (mythicPlusDungeonScoreText:GetCount() > 0) then
 				if (lineInfo:GetCount() > 0) then
 					lineInfo:Push("\n");
 				end
 				lineInfo:Push("|cffffd100");
-				lineInfo:Push(TT_MythicPlusDungeonScore:format(mythicPlusText:Concat()));
+				lineInfo:Push(TT_MythicPlusDungeonScore:format(mythicPlusDungeonScoreText:Concat()));
 				
 				if (cfg.mythicPlusDungeonScoreFormat == "both") and (mythicPlusBestRunLevel) then
 					lineInfo:Push(" |cffffff99(+" .. mythicPlusBestRunLevel .. ")|r");
+				end
+			end
+		end
+	end
+
+	-- Mythic+ Forces from addon "Mythic Dungeon Tools" (MDT) for NPCs
+	if (MDT) and (unitRecord.isNPC) and (cfg.showMythicPlusForcesFromMDT) and (C_MythicPlus.IsMythicPlusActive()) and (UnitCanAttack("player", unitRecord.id)) then
+		local mapChallengeModeID = C_ChallengeMode.GetActiveChallengeMapID();
+		
+		if (mapChallengeModeID) then
+			local dungeonIndex = mapChallengeModeIDToDungeonIndexLookup[mapChallengeModeID];
+			
+			if (not dungeonIndex) then
+				for _dungeonIndex, mapInfo in pairs(MDT.mapInfo) do
+					if (mapInfo.mapID == mapChallengeModeID) then
+						dungeonIndex = _dungeonIndex;
+						mapChallengeModeIDToDungeonIndexLookup[mapChallengeModeID] = dungeonIndex;
+						break;
+					end
+				end
+			end
+			
+			if (dungeonIndex) then
+				local dungeonEnemies = MDT.dungeonEnemies[dungeonIndex];
+				
+				if (dungeonEnemies) then
+					local enemyIdx = (npcIDToEnemyIdxLookup[mapChallengeModeID] and npcIDToEnemyIdxLookup[mapChallengeModeID][unitRecord.npcID]);
+					
+					if (not enemyIdx) then
+						for _enemyIdx, _dungeonEnemy in pairs(dungeonEnemies) do
+							if (_dungeonEnemy.id == unitRecord.npcID) then
+								enemyIdx = _enemyIdx;
+								
+								if (not npcIDToEnemyIdxLookup[mapChallengeModeID]) then
+									npcIDToEnemyIdxLookup[mapChallengeModeID] = {};
+								end
+								
+								npcIDToEnemyIdxLookup[mapChallengeModeID][unitRecord.npcID] = enemyIdx;
+								
+								break;
+							end
+						end
+					end
+					
+					if (enemyIdx) then
+						local dungeonEnemy = MDT.dungeonEnemies[dungeonIndex][enemyIdx];
+						
+						if (dungeonEnemy) then
+							local dungeonTotalCount = MDT.dungeonTotalCount[dungeonIndex];
+							local isTeeming = false;
+							local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo();
+							
+							if (activeAffixIDs) then
+								for _, activeAffixID in ipairs(activeAffixIDs) do
+									if (activeAffixID == 5) then -- teeming
+										isTeeming = true;
+										break;
+									end
+								end
+							end
+							
+							local countEnemyForces = (isTeeming and dungeonEnemy.teemingCount or dungeonEnemy.count);
+							local maxCountEnemyForces = (dungeonTotalCount) and (isTeeming and dungeonTotalCount.teeming or dungeonTotalCount.normal);
+							
+							if (countEnemyForces) then
+								if (lineInfo:GetCount() > 0) then
+									lineInfo:Push("\n");
+								end
+								
+								lineInfo:Push("|cffffd100");
+								lineInfo:Push(MDT.L["Forces"] .. " (MDT): " .. TT_COLOR.text.default:WrapTextInColorCode(countEnemyForces));
+								
+								if (maxCountEnemyForces) then
+									lineInfo:Push(TT_COLOR.text.mythicPlusPercentMaxCountEnemyForces:WrapTextInColorCode(format(" (%.2f%%)", (countEnemyForces / maxCountEnemyForces) * 100)));
+								end
+							end
+						end
+					end
 				end
 			end
 		end

@@ -46,6 +46,7 @@ local TT_DefaultConfig = {
 	showCurrentUnitSpeed = true,
 	showMythicPlusDungeonScore = true,
 	mythicPlusDungeonScoreFormat = "both",
+	showMythicPlusForcesFromMDT = true,
 	showMount = true,
 	showMountCollected = true,
 	showMountIcon = true,
