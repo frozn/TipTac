@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 49; -- bump on changes
+local LIB_MINOR = 50; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -1214,7 +1214,6 @@ function LibFroznFunctions:CreateLinkedTableFromTableWithKey(originalTable, keyF
 			originalTable[keyFromOriginalTable][key] = value;
 		end,
 		__call = function(tab, ...)
-		print("drin");
 			return originalTable(...);
 		end
 	};

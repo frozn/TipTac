@@ -933,6 +933,7 @@ local function Reset_OnClick(self)
 		if (option.var) then
 			cfg[option.var] = nil;	-- when cleared, they will read the default value from the metatable
 		end
+		configDb:RegisterDefaults(configDb.defaults);
 	end
 	TipTac:ApplyConfig();
 	f:BuildCategoryPage();
