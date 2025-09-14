@@ -107,6 +107,7 @@ local TTIF_DefaultConfig = {
 	
 	if_showIcon = true,
 	if_smartIcons = true,
+	if_smartIconsShowStackCount = true,
 	if_stackCountToTooltip = "none",
 	if_showIconId = false,
 	if_borderlessIcons = false,
@@ -322,17 +323,14 @@ local function ttifGetOutputStackCount(stackCount)
 end
 
 -- Add stack count to tooltip
-local function ttifAddStackCount(tooltip, stackCount)
-	if (cfg.if_stackCountToTooltip == "always") or (cfg.if_stackCountToTooltip == "noicon") and ((not tooltip.ttIcon) or (not tooltip.ttIcon:IsShown())) then
-		local outputStackCount = ttifGetOutputStackCount(stackCount);
-		if (outputStackCount) then
-			tooltip:AddLine(format("Stacks to %d", outputStackCount), unpack(cfg.if_infoColor));
-		end
+local function ttifAddStackCount(tooltip, outputStackCount)
+	if (outputStackCount) and ((cfg.if_stackCountToTooltip == "always") or (cfg.if_stackCountToTooltip == "noicon") and ((not tooltip.ttIcon) or (not tooltip.ttIcon:IsShown()))) then
+		tooltip:AddLine(format("Stacks to %d", outputStackCount), unpack(cfg.if_infoColor));
 	end
 end
 
 -- Set Texture and Text
-local function ttSetIconTextureAndText(self, texture, stackCount)
+local function ttSetIconTextureAndText(self, texture, outputStackCount)
 	-- check if insecure interaction with the tip is currently forbidden
 	if (self:IsForbidden()) then
 		return;
@@ -341,7 +339,6 @@ local function ttSetIconTextureAndText(self, texture, stackCount)
 	-- Set Texture and Text
 	if (texture) then
 		self.ttIcon:SetTexture(texture ~= "" and texture or "Interface\\Icons\\INV_Misc_QuestionMark");
-		local outputStackCount = ttifGetOutputStackCount(stackCount);
 		if (outputStackCount) then
 			self.ttCount:SetText(outputStackCount);
 		else
@@ -2521,11 +2518,12 @@ function LinkTypeFuncs:item(link, linkType, id)
 	local enchantID = splits[3];
 	
 	-- Icon
-	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
+	local outputStackCount = ttifGetOutputStackCount(stackCount);
+	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType) or (cfg.if_smartIconsShowStackCount and outputStackCount));
 	
 	if (showIcon) then
-		self:ttSetIconTextureAndText(itemTexture, stackCount);
+		self:ttSetIconTextureAndText(itemTexture, outputStackCount);
 	end
 	
 	-- Stack Count
@@ -2534,7 +2532,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 		targetTooltip = self.Item1.tooltip;
 	end
 	
-	ttifAddStackCount(targetTooltip, stackCount);
+	ttifAddStackCount(targetTooltip, outputStackCount);
 	
 	-- Quality Border
 	if (not self.IsEmbedded) and (cfg.if_itemQualityBorder) then
@@ -2678,15 +2676,16 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	local expansionName = expansionID and _G["EXPANSION_NAME" .. expansionID];
 	
 	-- Icon
-	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
+	local outputStackCount = ttifGetOutputStackCount(stackCount);
+	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType) or (cfg.if_smartIconsShowStackCount and outputStackCount));
 	
 	if (showIcon) then
-		self:ttSetIconTextureAndText(itemTexture, stackCount);
+		self:ttSetIconTextureAndText(itemTexture, outputStackCount);
 	end
 	
 	-- Stack Count
-	ttifAddStackCount(self, stackCount);
+	ttifAddStackCount(self, outputStackCount);
 	
 	-- Quality Border
 	if (cfg.if_itemQualityBorder) then
@@ -3417,15 +3416,16 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 	end
 
 	-- Icon
-	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType));
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
+	local outputStackCount = ttifGetOutputStackCount(stackCount);
+	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType) or (cfg.if_smartIconsShowStackCount and outputStackCount));
 	
 	if (showIcon) then
-		self:ttSetIconTextureAndText(itemTexture, stackCount);
+		self:ttSetIconTextureAndText(itemTexture, outputStackCount);
 	end
 	
 	-- Stack Count
-	ttifAddStackCount(self, stackCount);
+	ttifAddStackCount(self, outputStackCount);
 	
 	-- ItemID + IconID
 	local showItemID = cfg.if_showTransmogAppearanceItemId;
