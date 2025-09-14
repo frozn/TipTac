@@ -143,18 +143,17 @@ local function setExtraPaddingRightForMinimumWidth(self, TT_CacheForFrames, tip,
 	
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
-			if (bar:GetParent() == tip) then
-				local tipCenterWidth = tip.NineSlice.Center:GetWidth() - (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
+			if (bar:GetParent() == tip) and (bar:IsShown()) then
+				local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - bar:GetWidth() + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
 				
-				if (tipCenterWidth < cfg.barTipMinimumWidth) then
-					local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - tipCenterWidth;
-					local tipEffectiveScale = tip:GetEffectiveScale();
-					
-					if (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs((newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) * tipEffectiveScale) > 0.5) then
-						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
-					end
-				else
-					currentDisplayParams.extraPaddingRightForMinimumWidth = nil;
+				if (newExtraPaddingRightForMinimumWidth <= 0) then
+					newExtraPaddingRightForMinimumWidth = nil;
+				end
+				
+				local tipEffectiveScale = tip:GetEffectiveScale();
+				
+				if (not newExtraPaddingRightForMinimumWidth) or (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs((newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) * tipEffectiveScale) > 0.5) then
+					currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
 				end
 				
 				breakFor = true;
