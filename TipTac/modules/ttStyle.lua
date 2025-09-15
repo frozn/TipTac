@@ -426,7 +426,7 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 			lineInfo:Push("|cffffd100");
 			lineInfo:Push(TT_PlayerZone .. TT_COLOR.text.default:WrapTextInColorCode(zoneText));
 			
-			if (subzoneText)) then
+			if (subzoneText) then
 				lineInfo:Push("\n");
 				lineInfo:Push(TT_PlayerSubzone .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(subzoneText));
 			end
