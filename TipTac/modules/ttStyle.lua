@@ -392,18 +392,26 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 		end
 	end
 	-- map, zone and subzone
-	if (cfg.showMapAndZoneAndSubzone ~= "none") then
+	if (cfg.showPlayerLocation ~= "none") then
 		-- determine map, zone and subzone text
 		local mapText, zoneText, subzoneText;
 		
-		if (unitRecord.map) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "mapAndZone", "map" })) then
+		if (unitRecord.map) and (LibFroznFunctions:ExistsInTable(cfg.showPlayerLocation, { "mapAndZoneAndSubzone", "mapAndZone", "map" })) then
 			mapText = unitRecord.map;
 		end
 		
-		if (unitRecord.zone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "mapAndZone", "zoneAndSubzone", "zone" })) then
+		if (not unitRecord.isSelf) and (cfg.showPlayerLocationOnlyForeignMap) then
+			local playerUnitRecord = LibFroznFunctions:GetUnitRecordFromCache("player");
+			
+			if (playerUnitRecord) and (mapText == playerUnitRecord.map) then
+				mapText = nil;
+			end
+		end
+		
+		if (unitRecord.zone) and (LibFroznFunctions:ExistsInTable(cfg.showPlayerLocation, { "mapAndZoneAndSubzone", "mapAndZone", "zoneAndSubzone", "zone" })) then
 			zoneText = unitRecord.zone;
 			
-			if (unitRecord.subzone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "zoneAndSubzone" })) then
+			if (unitRecord.subzone) and (LibFroznFunctions:ExistsInTable(cfg.showPlayerLocation, { "mapAndZoneAndSubzone", "zoneAndSubzone" })) then
 				subzoneText = unitRecord.subzone;
 			end
 		end
