@@ -393,26 +393,42 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 	end
 	-- map, zone and subzone
 	if (cfg.showMapAndZoneAndSubzone ~= "none") then
+		-- determine map, zone and subzone text
+		local mapText, zoneText, subzoneText;
+		
 		if (unitRecord.map) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "mapAndZone", "map" })) then
-			if (lineInfo:GetCount() > 0) then
-				lineInfo:Push("\n");
-			end
-			
-			lineInfo:Push("|cffffd100");
-			lineInfo:Push(TT_PlayerMap .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(unitRecord.map));
+			mapText = unitRecord.map;
 		end
 		
 		if (unitRecord.zone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "mapAndZone", "zoneAndSubzone", "zone" })) then
+			zoneText = unitRecord.zone;
+			
+			if (unitRecord.subzone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "zoneAndSubzone" })) then
+				subzoneText = unitRecord.subzone;
+			end
+		end
+		
+		-- add map, zone and subzone text
+		if (mapText) and (mapText ~= zoneText) then
 			if (lineInfo:GetCount() > 0) then
 				lineInfo:Push("\n");
 			end
 			
 			lineInfo:Push("|cffffd100");
-			lineInfo:Push(TT_PlayerZone .. TT_COLOR.text.default:WrapTextInColorCode(unitRecord.zone));
-			
-			if (unitRecord.subzone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "zoneAndSubzone" })) then
+			lineInfo:Push(TT_PlayerMap .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(mapText));
+		end
+		
+		if (zoneText) then
+			if (lineInfo:GetCount() > 0) then
 				lineInfo:Push("\n");
-				lineInfo:Push(TT_PlayerSubzone .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(unitRecord.subzone));
+			end
+			
+			lineInfo:Push("|cffffd100");
+			lineInfo:Push(TT_PlayerZone .. TT_COLOR.text.default:WrapTextInColorCode(zoneText));
+			
+			if (subzoneText)) then
+				lineInfo:Push("\n");
+				lineInfo:Push(TT_PlayerSubzone .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(subzoneText));
 			end
 		end
 	end
