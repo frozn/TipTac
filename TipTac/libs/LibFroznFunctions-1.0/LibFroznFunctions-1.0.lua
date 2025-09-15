@@ -3580,8 +3580,11 @@ end
 --           .powerType                           power type of unit, e.g. 0 (Mana) or (1) Rage, see "Enum.PowerType"
 --           .power                               power of unit
 --           .powerMax                            max power of unit
---           .isTipTacDeveloper                   true if it's a unit of a TipTac developer, false for other units.
 --           .npcID                               npc id of npc
+--           .map                                 map of player unit
+--           .zone                                zone of the player unit
+--           .subzone                             subzone of the player unit
+--           .isTipTacDeveloper                   true if it's a unit of a TipTac developer, false for other units.
 --         returns nil if no unit id is supplied
 local LFF_CURRENT_REGION_ID = GetCurrentRegion();
 local LFF_TIPTAC_DEVELOPER = {
@@ -3657,6 +3660,7 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	
 	-- update unit record
 	local unitPVPName = UnitPVPName(unitID); -- returns nil or "" if the unit is currently not visible to the client
+	local mapID = C_Map.GetBestMapForUnit(unitID);
 	
 	unitRecord.id = unitID;
 	unitRecord.timestamp = GetTime();
@@ -3671,6 +3675,26 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.powerType = UnitPowerType(unitID);
 	unitRecord.power = UnitPower(unitID);
 	unitRecord.powerMax = UnitPowerMax(unitID);
+	
+	unitRecord.map = nil;
+	unitRecord.zone = nil;
+	unitRecord.subzone = nil;
+	
+	-- add location (map, zone and subzone) to unit record
+	if (unitRecord.isPlayer) then
+		if (mapID) then
+			local mapInfo = C_Map.GetMapInfo(mapID);
+			
+			unitRecord.map = (mapInfo) and (mapInfo.name);
+		end
+		
+		if (unitRecord.isSelf) then
+			local subzone = GetSubZoneText();
+			
+			unitRecord.zone = GetRealZoneText();
+			unitRecord.subzone = (subzone ~= "") and (subzone);
+		end
+	end
 	
 	-- add role play name to unit record
 	if (unitRecord.isPlayer) then

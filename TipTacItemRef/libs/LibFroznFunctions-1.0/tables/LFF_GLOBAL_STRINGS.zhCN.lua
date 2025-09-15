@@ -2,7 +2,7 @@
 
 -- define table
 local TABLE_NAME = "LFF_GLOBAL_STRINGS";
-local TABLE_MINOR = 3; -- bump on changes
+local TABLE_MINOR = 4; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -13,6 +13,7 @@ end
 -- create table
 LFF_GLOBAL_STRINGS.zhCN = {
 	["RENOWN_REWARD_MOUNT_NAME_FORMAT"] = "坐骑： %s",
+	["TIPTAC_SUBZONE"] = "子区域",
 	["TIPTAC_TIPTAC_DEVELOPER"] = "插件开发者 %s",
 	["TIPTAC_TARGETED_BY"] = "目标"
 }

@@ -29,6 +29,9 @@ local TT_Unknown = UNKNOWN; -- "Unknown"
 local TT_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TT_Targeting = BINDING_HEADER_TARGETING;	-- "Targeting"
 local TT_TargetedBy = LibFroznFunctions:GetGlobalString("TIPTAC_TARGETED_BY") or "Targeted by"; -- "Targeted by"
+local TT_PlayerMap = BRAWL_TOOLTIP_MAP; -- "Map"
+local TT_PlayerZone = FRIENDS_LIST_ZONE; -- "Zone: "
+local TT_PlayerSubzone = LibFroznFunctions:GetGlobalString("TIPTAC_SUBZONE") or "Subzone"; -- "Subzone"
 local TT_MythicPlusDungeonScore = CHALLENGE_COMPLETE_DUNGEON_SCORE; -- "Mythic+ Rating: %s"
 local TT_Mount = LibFroznFunctions:GetGlobalString("RENOWN_REWARD_MOUNT_NAME_FORMAT") or "Mount: %s"; -- "Mount: %s"
 local TT_PlayerGuildMemberNote = GUILD .. " " .. LABEL_NOTE; -- "Guild" "Note"
@@ -386,6 +389,31 @@ function ttStyle:GeneratePlayerLines(tip, currentDisplayParams, unitRecord, firs
 		local status = (not UnitIsConnected(unitRecord.id) and " <DC>") or (UnitIsAFK(unitRecord.id) and " <AFK>") or (UnitIsDND(unitRecord.id) and " <DND>");
 		if (status) then
 			lineName:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(status));
+		end
+	end
+	-- map, zone and subzone
+	if (cfg.showMapAndZoneAndSubzone ~= "none") then
+		if (unitRecord.map) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "mapAndZone", "map" })) then
+			if (lineInfo:GetCount() > 0) then
+				lineInfo:Push("\n");
+			end
+			
+			lineInfo:Push("|cffffd100");
+			lineInfo:Push(TT_PlayerMap .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(unitRecord.map));
+		end
+		
+		if (unitRecord.zone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "mapAndZone", "zoneAndSubzone", "zone" })) then
+			if (lineInfo:GetCount() > 0) then
+				lineInfo:Push("\n");
+			end
+			
+			lineInfo:Push("|cffffd100");
+			lineInfo:Push(TT_PlayerZone .. TT_COLOR.text.default:WrapTextInColorCode(unitRecord.zone));
+			
+			if (unitRecord.subzone) and (LibFroznFunctions:ExistsInTable(cfg.showMapAndZoneAndSubzone, { "mapAndZoneAndSubzone", "zoneAndSubzone" })) then
+				lineInfo:Push("\n");
+				lineInfo:Push(TT_PlayerSubzone .. ": " .. TT_COLOR.text.default:WrapTextInColorCode(unitRecord.subzone));
+			end
 		end
 	end
 	-- guild

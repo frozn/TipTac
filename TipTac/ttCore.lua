@@ -57,6 +57,7 @@ local TT_DefaultConfig = {
 	showMountLore = false,
 	nameType = "title",
 	showRealm = "show",
+	showMapAndZoneAndSubzone = "mapAndZoneAndSubzone",
 	showTarget = "last",
 	targetYouText = "<<YOU>>",
 	showGuild = true,
