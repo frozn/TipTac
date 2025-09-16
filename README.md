@@ -71,13 +71,17 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "General->Show Player Guild Rank" to show/hide guild name/rank
 - added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
 - added option "General->Show Player Guild Member/Officer note"
+- added option "General->Show Player Location" to show the map, zone and subzone of player units
+- added option "General->Only show map for party members on a foreign map" 
 - added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
+- added option "General->Show Mythic+ Forces from Addon Mythic Dungeon Tools (MDT) for NPCs"
 - added option "General->Show Current Unit Speed" to show current unit speed after race & class
 - added option "General->Show Mount" to show the player's mount icon/name/speed/source/lore and an icon indicating if you already have collected the mount
 - added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
 - added option "Colors->Enable Coloring of Faction Text" to change the color of the unit's faction text
 - added option "ItemRef->Show Mount ID" to show the mount id
 - added option "ItemRef->Show Icon ID" to show the icon id
+- added option "ItemRef->Always Show Icon If Stack Count Is Available"
 - added option in "ItemRef" to show stack count of items in tooltip
 - added options "ItemRef->Show Expansion Icon/Name" to show the expansion icon/name of the item. This feature is only available in retail and not in WotLKC or classic era.
 - added option "ItemRef->Show Item Enchant ID/Description"
