@@ -2520,7 +2520,7 @@ function LinkTypeFuncs:item(link, linkType, id)
 	-- Icon
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
 	local outputStackCount = ttifGetOutputStackCount(stackCount);
-	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType) or (cfg.if_smartIconsShowStackCount and outputStackCount));
+	local showIcon = (not self.IsEmbedded) and (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or (cfg.if_smartIconsShowStackCount and outputStackCount) or SmartIconEvaluation(self,linkType));
 	
 	if (showIcon) then
 		self:ttSetIconTextureAndText(itemTexture, outputStackCount);
@@ -2678,7 +2678,7 @@ function LinkTypeFuncs:keystone(link, linkType, itemID, mapID, keystoneLevel, ..
 	-- Icon
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
 	local outputStackCount = ttifGetOutputStackCount(stackCount);
-	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType) or (cfg.if_smartIconsShowStackCount and outputStackCount));
+	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or (cfg.if_smartIconsShowStackCount and outputStackCount) or SmartIconEvaluation(self,linkType));
 	
 	if (showIcon) then
 		self:ttSetIconTextureAndText(itemTexture, outputStackCount);
@@ -3167,7 +3167,7 @@ function LinkTypeFuncs:unit(link, linkType, unitID)
 	local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
 	
 	-- NpcID -- Only alter the tip if we got a valid "npcID"
-	local showId = (unitRecord.npcID and cfg.if_showNpcId);
+	local showId = (unitRecord and unitRecord.npcID and cfg.if_showNpcId);
 	
 	if (showId) then
 		self:AddLine(format("NpcID: %d", tonumber(unitRecord.npcID)), unpack(cfg.if_infoColor));
@@ -3417,7 +3417,7 @@ function LinkTypeFuncs:transmogappearance(link, linkType, sourceID)
 	-- Icon
 	local stackCount = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
 	local outputStackCount = ttifGetOutputStackCount(stackCount);
-	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkType) or (cfg.if_smartIconsShowStackCount and outputStackCount));
+	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or (cfg.if_smartIconsShowStackCount and outputStackCount) or SmartIconEvaluation(self,linkType));
 	
 	if (showIcon) then
 		self:ttSetIconTextureAndText(itemTexture, outputStackCount);
