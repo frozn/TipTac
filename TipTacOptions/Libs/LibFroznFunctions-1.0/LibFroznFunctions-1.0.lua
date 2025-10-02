@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 50; -- bump on changes
+local LIB_MINOR = 51; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3344,7 +3344,7 @@ end
 
 -- get unit id from unit guid
 --
--- @param  unit guid  unit guid
+-- @param  unitGUID  unit guid
 -- @return unit id, unit name. nil, unit name otherwise.
 function LibFroznFunctions:GetUnitIDFromGUID(unitGUID)
 	-- no unit guid
@@ -3505,6 +3505,22 @@ function LibFroznFunctions:GetUnitReactionIndex(unitID)
 	return LFF_UNIT_REACTION_INDEX.exaltedNPC;
 end
 
+-- get npc id from unit guid
+--
+-- @param  unitGUID  unit guid
+-- @return npc id of npc, nil otherwise.
+function LibFroznFunctions:GetNpcIDFromGUID(unitGUID)
+	-- no unit guid
+	if (not unitGUID) then
+		return;
+	end
+	
+	-- get npc id from unit guid
+	local npcID = tonumber(unitGUID:match("-(%d+)-%x+$"));
+	
+	return npcID;
+end
+
 -- get unit record from cache
 --
 -- @param  unitID                            unit id, e.g. "player", "target" or "mouseover"
@@ -3637,7 +3653,7 @@ function LibFroznFunctions:CreateUnitRecord(unitID)
 	unitRecord.classification = UnitClassification(unitID);
 	unitRecord.isTipTacDeveloper = (unitRecord.isPlayer) and (LFF_TIPTAC_DEVELOPER[LFF_CURRENT_REGION_ID]) and (LFF_TIPTAC_DEVELOPER[LFF_CURRENT_REGION_ID][unitRecord.guid]) or false;
 	
-	unitRecord.npcID = (unitRecord.isNPC) and tonumber(unitRecord.guid:match("-(%d+)-%x+$"));
+	unitRecord.npcID = (unitRecord.isNPC) and self:GetNpcIDFromGUID(unitRecord.guid);
 	
 	self:UpdateUnitRecord(unitRecord);
 	
@@ -3936,7 +3952,7 @@ end
 
 -- get player guild club member info
 --
--- @param  unit guid  unit guid
+-- @param  unitGUID  unit guid
 -- @return playerGuildClubMemberInfo, nil otherwise.
 local frameForGroupRosterUpdate, playerGuildClubIDCache;
 local playerGuildClubMemberInfosCache = {};
