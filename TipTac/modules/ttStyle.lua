@@ -667,7 +667,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		if (mapChallengeModeID) then
 			local dungeonIndex = mapChallengeModeIDToDungeonIndexLookup[mapChallengeModeID];
 			
-			if (not dungeonIndex) then
+			if (not dungeonIndex) and (type(MDT.mapInfo) == "table") then
 				for _dungeonIndex, mapInfo in pairs(MDT.mapInfo) do
 					if (mapInfo.mapID == mapChallengeModeID) then
 						dungeonIndex = _dungeonIndex;
@@ -677,7 +677,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 				end
 			end
 			
-			if (dungeonIndex) then
+			if (dungeonIndex) and (type(MDT.dungeonEnemies) == "table") then
 				local dungeonEnemies = MDT.dungeonEnemies[dungeonIndex];
 				
 				if (dungeonEnemies) then
@@ -703,7 +703,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 						local dungeonEnemy = MDT.dungeonEnemies[dungeonIndex][enemyIdx];
 						
 						if (dungeonEnemy) then
-							local dungeonTotalCount = MDT.dungeonTotalCount[dungeonIndex];
+							local dungeonTotalCount = (type(MDT.dungeonTotalCount) == "table") and MDT.dungeonTotalCount[dungeonIndex];
 							local isTeeming = false;
 							local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo();
 							
@@ -719,7 +719,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 							local countEnemyForces = (isTeeming and dungeonEnemy.teemingCount or dungeonEnemy.count);
 							local maxCountEnemyForces = (dungeonTotalCount) and (isTeeming and dungeonTotalCount.teeming or dungeonTotalCount.normal);
 							
-							if (countEnemyForces) then
+							if (countEnemyForces) and (MDT.L) and (MDT.L["Forces"]) then
 								if (lineInfo:GetCount() > 0) then
 									lineInfo:Push("\n");
 								end
@@ -727,7 +727,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 								lineInfo:Push("|cffffd100");
 								lineInfo:Push(MDT.L["Forces"] .. " (MDT): " .. TT_COLOR.text.default:WrapTextInColorCode(countEnemyForces));
 								
-								if (maxCountEnemyForces) then
+								if (maxCountEnemyForces) and (maxCountEnemyForces > 0) then
 									lineInfo:Push(TT_COLOR.text.mythicPlusPercentMaxCountEnemyForces:WrapTextInColorCode(format(" (%.2f%%)", (countEnemyForces / maxCountEnemyForces) * 100)));
 								end
 							end
