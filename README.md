@@ -20,7 +20,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 11.2.0 - The War Within [TWW]
+  * 11.2.5 - The War Within [TWW]
   * 5.5.1 - Mists of Pandaria Classic [MoPC]
   * 1.15.7 - Classic Era / Vanilla [Classic Era]
 * added many enhancements
