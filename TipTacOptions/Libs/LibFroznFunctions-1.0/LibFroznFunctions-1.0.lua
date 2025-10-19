@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 51; -- bump on changes
+local LIB_MINOR = 52; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -211,6 +211,17 @@ LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
 	NotCancelable = "NOT_CANCELABLE",
 	Maw = "MAW",
 };
+
+-- world elapsed timer types
+LFF_WORLD_ELAPSED_TIMER_TYPES = Enum.WorldElapsedTimerTypes; -- see WorldElapsedTimerTypes in "WorldElapsedTimerConstantsDocumentation.lua"
+
+if (not LFF_WORLD_ELAPSED_TIMER_TYPES) then
+	LFF_WORLD_ELAPSED_TIMER_TYPES = {
+		None = 0, -- LE_WORLD_ELAPSED_TIMER_TYPE_NONE
+		ChallengeMode = 1, -- LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE
+		ProvingGround = 2 -- LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND
+	};
+end
 
 -- is unit a battle pet
 --

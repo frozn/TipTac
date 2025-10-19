@@ -3692,7 +3692,7 @@ function tt:GetAnchorPosition(tip)
 				local timerID = GetWorldElapsedTimers();
 				local _, elapsedTime, timerType = GetWorldElapsedTime(timerID);
 				
-				if (timerType == LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE) and (elapsedTime >= 0) then
+				if (timerType == LFF_WORLD_ELAPSED_TIMER_TYPES.ChallengeMode) and (elapsedTime >= 0) then
 					anchorOverride = "DuringChallengeMode" .. anchorOverridePartInCombat;
 				end
 			end
@@ -4422,7 +4422,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					local timerID = GetWorldElapsedTimers();
 					local _, elapsedTime, timerType = GetWorldElapsedTime(timerID);
 					
-					if (timerType == LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE) and (elapsedTime >= 0) then
+					if (timerType == LFF_WORLD_ELAPSED_TIMER_TYPES.ChallengeMode) and (elapsedTime >= 0) then
 						hidingTip = "DuringChallengeMode" .. (UnitAffectingCombat("player") and "InCombat" or "");
 					end
 				end
