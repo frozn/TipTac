@@ -690,8 +690,8 @@ TT_ExtendedConfig.tipsToModify = {
 			-- UIDropDownMenu
 			
 			-- add UIDropDownMenu frames
-			local function addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName)
-				local UIDROPDOWNMENU_MAXLEVELS = _G[nameUIDROPDOWNMENU_MAXLEVELS];
+			local function addUIDropDownMenuFrames(fenv, last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName)
+				local UIDROPDOWNMENU_MAXLEVELS = fenv[nameUIDROPDOWNMENU_MAXLEVELS];
 				
 				for i = last_UIDROPDOWNMENU_MAXLEVELS + 1, UIDROPDOWNMENU_MAXLEVELS do -- see "UIDropDownMenu.lua"
 					tt:AddModifiedTip(prefixName .. i);
@@ -701,7 +701,7 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- reapply appearance to UIDropDownMenu
-			local function reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
+			local function reapplyAppearanceToUIDropDownMenu(fenv, nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 				-- check if insecure interaction with the tip is currently forbidden
 				local _level = (level or 1);
 				local tip = _G[prefixName .. _level];
@@ -733,7 +733,7 @@ TT_ExtendedConfig.tipsToModify = {
 				end
 				
 				-- fix anchoring because of different scale, see ToggleDropDownMenu() in "UIDropDownMenu.lua"
-				local UIDROPDOWNMENU_OPEN_MENU = _G[nameUIDROPDOWNMENU_OPEN_MENU];
+				local UIDROPDOWNMENU_OPEN_MENU = fenv[nameUIDROPDOWNMENU_OPEN_MENU];
 				local TT_UIScale = UIParent:GetEffectiveScale();
 				local tipEffectiveScale = tip:GetEffectiveScale();
 				local point, relativePoint, relativeTo;
@@ -924,25 +924,25 @@ TT_ExtendedConfig.tipsToModify = {
 			end
 			
 			-- style UIDropDownMenu
-			local function styleUIDropDownMenu(nameUIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_OPEN_MENU, tbl, returningSelf, prefixName)
+			local function styleUIDropDownMenu(fenv, nameUIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_OPEN_MENU, tbl, returningSelf, prefixName)
 				local last_UIDROPDOWNMENU_MAXLEVELS = 0;
 				
-				last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+				last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(fenv, last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
 				
 				-- HOOK: UIDropDownMenu_CreateFrames() to add the new frames
 				if (tbl) then
 					if (returningSelf) then
 						hooksecurefunc(tbl, "UIDropDownMenu_CreateFrames", function(self, level, index)
-							last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+							last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(fenv, last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
 						end);
 					else
 						hooksecurefunc(tbl, "UIDropDownMenu_CreateFrames", function(level, index)
-							last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+							last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(fenv, last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
 						end);
 					end
 				else
 					hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
-						last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
+						last_UIDROPDOWNMENU_MAXLEVELS = addUIDropDownMenuFrames(fenv, last_UIDROPDOWNMENU_MAXLEVELS, nameUIDROPDOWNMENU_MAXLEVELS, prefixName);
 					end);
 				end
 				
@@ -951,39 +951,39 @@ TT_ExtendedConfig.tipsToModify = {
 					if (returningSelf) then
 						hooksecurefunc(tbl, "ToggleDropDownMenu", function(self, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 							-- reapply appearance to UIDropDownMenu
-							reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
+							reapplyAppearanceToUIDropDownMenu(fenv, nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
 						end);
 					else
 						hooksecurefunc(tbl, "ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 							-- reapply appearance to UIDropDownMenu
-							reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
+							reapplyAppearanceToUIDropDownMenu(fenv, nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
 						end);
 					end
 				else
 					hooksecurefunc("ToggleDropDownMenu", function(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode)
 						-- reapply appearance to UIDropDownMenu
-						reapplyAppearanceToUIDropDownMenu(nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
+						reapplyAppearanceToUIDropDownMenu(fenv, nameUIDROPDOWNMENU_OPEN_MENU, prefixName, level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay, overrideDisplayMode);
 					end);
 				end
 			end
 			
 			-- style UIDropDownMenu
-			styleUIDropDownMenu("UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", nil, nil, "DropDownList");
+			styleUIDropDownMenu(_G, "UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", nil, nil, "DropDownList");
 			
 			-- LibUIDropDownMenu-4.0, e.g used by addon BetterBags
 			local LibUIDropDownMenu = LibStub:GetLibrary("LibUIDropDownMenu-4.0", true);
 			
 			if (LibUIDropDownMenu) then
 				-- style LibUIDropDownMenu-4.0
-				styleUIDropDownMenu("L_UIDROPDOWNMENU_MAXLEVELS", "L_UIDROPDOWNMENU_OPEN_MENU", LibUIDropDownMenu, true, "L_DropDownList");
+				styleUIDropDownMenu(_G, "L_UIDROPDOWNMENU_MAXLEVELS", "L_UIDROPDOWNMENU_OPEN_MENU", LibUIDropDownMenu, true, "L_DropDownList");
 			end
 			
-			-- LibDropDownMenu, e.g used by addon Broker_Everything
+			-- LibDropDownMenu, e.g used by addon Broker_Everything or WIM (WoW Instant Messenger) v3
 			local LibDropDownMenu = LibStub:GetLibrary("LibDropDownMenu", true);
 			
 			if (LibDropDownMenu) then
 				-- style LibDropDownMenu
-				styleUIDropDownMenu("UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", LibDropDownMenu, false, "LibDropDownMenu_List");
+				styleUIDropDownMenu(LibDropDownMenu, "UIDROPDOWNMENU_MAXLEVELS", "UIDROPDOWNMENU_OPEN_MENU", LibDropDownMenu, false, "LibDropDownMenu_List");
 			end
 			
 			-- LibDropdown-1.0, e.g used by addon Recount
