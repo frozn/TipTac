@@ -1,4 +1,4 @@
-## Interface: 50501
+## Interface: 50502
 ## Version: 25.10.19
 ## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
 ## Title: TipTacOptions
