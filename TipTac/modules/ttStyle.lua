@@ -123,30 +123,30 @@ local TT_COLOR = {
 --
 -- GameTooltip lines of pet (determined via: not UnitIsPlayer(unitID) and UnitPlayerControlled(unitID)):
 --
--- content                                                                     color                                                                    example
--- --------------------------------------------------------------------------  -----------------------------------------------------------------------  ------------------------------------------
---  1. <name>                                                                  white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Grimkresh" or "Wildwichtel"
--- [2. <reaction, only colorblind mode>]                                       white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
---  3. <"Diener von" or "Wächter von"> <name of controlling player>[-<realm>]  white (HIGHLIGHT_FONT_COLOR)                                             "Diener von Eliyanna-Alleria" or "Wächter von Nijra-Alleria"
---  4. <level>                                                                 white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 69"
--- [5. PvP]                                                                    white (HIGHLIGHT_FONT_COLOR)
+-- content                                                                                        color                                                                    example
+-- ---------------------------------------------------------------------------------------------  -----------------------------------------------------------------------  ------------------------------------------
+--  1. <name>                                                                                     white (HIGHLIGHT_FONT_COLOR), color based on reaction if PvP is enabled  "Grimkresh" or "Wildwichtel"
+-- [2. <reaction, only colorblind mode>]                                                          white (HIGHLIGHT_FONT_COLOR)                                             "Freundlich"
+--  3. <"Diener von" or "Wächter von" or "Begleiter von"> <name of controlling player>[-<realm>]  white (HIGHLIGHT_FONT_COLOR)                                             "Diener von Eliyanna-Alleria" or "Wächter von Nijra-Alleria"
+--  4. <level>                                                                                    white (HIGHLIGHT_FONT_COLOR)                                             "Stufe 69"
+-- [5. PvP]                                                                                       white (HIGHLIGHT_FONT_COLOR)
 --
 -- GameTooltip lines of battle pet (determined via: UnitIsBattlePetCompanion(unitID)):
 --
--- content                                                                     color                         example
--- --------------------------------------------------------------------------  ----------------------------  ------------------------------------------
---  1. <name>                                                                  color based on quality        "Schössling von Teldrassil"
--- [2. <reaction, only colorblind mode>]                                       white (HIGHLIGHT_FONT_COLOR)  "Freundlich"
---  3. Gefährte von <name of controlling player>[-<realm>]                     white (HIGHLIGHT_FONT_COLOR)  "Gefährte von Camassea"
---  4. <level>, <type>                                                         white (HIGHLIGHT_FONT_COLOR)  "Haustierstufe 1, Elementar"
+-- content                                                  color                         example
+-- -------------------------------------------------------  ----------------------------  ------------------------------------------
+--  1. <name>                                               color based on quality        "Schössling von Teldrassil"
+-- [2. <reaction, only colorblind mode>]                    white (HIGHLIGHT_FONT_COLOR)  "Freundlich"
+--  3. Gefährte von <name of controlling player>[-<realm>]  white (HIGHLIGHT_FONT_COLOR)  "Gefährte von Camassea"
+--  4. <level>, <type>                                      white (HIGHLIGHT_FONT_COLOR)  "Haustierstufe 1, Elementar"
 --
 -- GameTooltip lines of wild/tameable battle pet (determined via: UnitIsWildBattlePet(unitID)):
 --
--- content                                                                     color                         example
--- --------------------------------------------------------------------------  ----------------------------  ------------------------------------------
---  1. <name>                                                                  color based on reaction       "Kaninchen"
--- [2. <reaction, only colorblind mode>]                                       white (HIGHLIGHT_FONT_COLOR)  "Neutral"
---  3. <level>, <type>                                                         white (HIGHLIGHT_FONT_COLOR)  "Haustierstufe 1, Kleintier"
+-- content                                color                         example
+-- -------------------------------------  ----------------------------  ------------------------------------------
+--  1. <name>                             color based on reaction       "Kaninchen"
+-- [2. <reaction, only colorblind mode>]  white (HIGHLIGHT_FONT_COLOR)  "Neutral"
+--  3. <level>, <type>                    white (HIGHLIGHT_FONT_COLOR)  "Haustierstufe 1, Kleintier"
 --
 
 -- remove unwanted lines from tip, such as "Alliance", "Horde", "PvP" and "Shadow Priest".
@@ -528,10 +528,13 @@ function ttStyle:GeneratePetLines(tip, currentDisplayParams, unitRecord, first)
 		lineLevel:Push(" ");
 		lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 	else -- unitRecord.isBattlePetCompanion
-		lineLevel.Index = currentDisplayParams.petLineLevelIndex or 2;
-		local expectedLine = 3 + (unitRecord.isColorBlind and 1 or 0);
-		if (lineLevel.Index > expectedLine) then
-			GameTooltipTextLeft2:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
+		if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then -- since WoD, npc title can be a single space character
+			lineLevel.Index = currentDisplayParams.petLineLevelIndex or 3;
+			local expectedLine = 2 + (unitRecord.isColorBlind and 1 or 0);
+			if (lineLevel.Index > expectedLine) then
+				local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
+				gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
+			end
 		end
 	end
 end
@@ -541,8 +544,8 @@ function ttStyle:GenerateNpcLines(tip, currentDisplayParams, unitRecord, first)
 	-- name
 	lineName:Push(unitRecord.nameColor:WrapTextInColorCode(unitRecord.name));
 
-	-- guild/title -- since WoD, npc title can be a single space character
-	if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then
+	-- guild/title
+	if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then -- since WoD, npc title can be a single space character
 		-- Az: this doesn't work with "Mini Diablo" or "Mini Thor", which has the format: 1) Mini Diablo 2) Lord of Terror 3) Player's Pet 4) Level 1 Non-combat Pet
 		local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
 		gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
@@ -550,9 +553,17 @@ function ttStyle:GenerateNpcLines(tip, currentDisplayParams, unitRecord, first)
 	end
 
 	-- race
-	local race = UnitCreatureFamily(unitRecord.id) or UnitCreatureType(unitRecord.id) or TT_Unknown;
+	local creatureFamily = UnitCreatureFamily(unitRecord.id);
+	local creatureType = UnitCreatureType(unitRecord.id);
+	local race = creatureFamily or creatureType or TT_Unknown;
 	lineLevel:Push(" ");
 	lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
+	
+	-- creature type
+	if (unitRecord.isPet) and (creatureFamily) and (creatureType) then
+		lineLevel:Push("\n");
+		lineLevel:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(creatureType));
+	end
 end
 
 -- Modify Tooltip Lines (name + info)
@@ -1051,9 +1062,10 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 			if (type(unitRecord.petOrBattlePetOrNPCTitle) == "string") and (unitRecord.petOrBattlePetOrNPCTitle:find(TT_LevelMatch)) then
 				unitRecord.petOrBattlePetOrNPCTitle = nil;
 			end
+		end
 		
 		-- find battle pet companion level line
-		elseif (unitRecord.isBattlePetCompanion) then
+		if (unitRecord.isBattlePetCompanion) then
 			for i = 2, min(#unitTooltipData.lines, 4) do
 				local gttLineText = unitTooltipData.lines[i].leftText;
 				if (type(gttLineText) == "string") and (gttLineText:find(TT_LevelMatchPet)) then

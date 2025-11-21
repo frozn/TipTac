@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 52; -- bump on changes
+local LIB_MINOR = 53; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -229,7 +229,7 @@ end
 -- @return true if it's a battle pet unit, false otherwise.
 function LibFroznFunctions:UnitIsBattlePet(unitID)
 	if (UnitIsBattlePet) then
-		return UnitIsBattlePet(unitID);
+		return (not not UnitIsBattlePet(unitID));
 	end
 	
 	return false;
