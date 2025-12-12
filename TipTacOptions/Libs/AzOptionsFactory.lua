@@ -63,10 +63,12 @@
 	- added a button for the TextEdit element to save the changes
 	- added the possibility to set the TextOnly element by var or getter
 	- added a Button element
+	25.12.12 Rev 34 11.1.7/The War Within #frozn45
+	- added an optional "disabled" key for dropdown menu list entry
 --]]
 
 -- create new library
-local REVISION = 33; -- bump on changes
+local REVISION = 34; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -741,10 +743,12 @@ local function Default_Init(dropDown,list)
 	dropDown.selectValueFunc = Default_SelectValue;
 	for text, option in next, dropDown.option.list do
 		local tbl = list[#list + 1]
+		tbl.option = option;
 		tbl.text = text;
 		if (type(option) == "table") then
 			tbl.value = option.value;
 			tbl.tip = option.tip;
+			tbl.disabled = option.disabled;
 		else
 			tbl.value = option;
 		end
@@ -863,10 +867,12 @@ azof.objects.DropDown = {
 		self.initFunc = (option.init or option.media and SharedMediaLib_Init or Default_Init);
 		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
 		self.button:SetEnabled(enabled);
-		self:InitSelectedItem(cfgValue);
+		local menuListEntryDisabled = self:InitSelectedItem(cfgValue);
 		if (enabled) then
 			if (self.label:GetText() == AzDropDown.selectValueText) then
 				self.label:SetTextColor(0, 1, 0);
+			elseif (menuListEntryDisabled) then
+				self.label:SetTextColor(0.5, 0.5, 0.5);
 			else
 				self.label:SetTextColor(1, 1, 1);
 			end

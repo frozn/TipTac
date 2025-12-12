@@ -43,6 +43,8 @@
 	- enabled mouse events for DropDown Menu to prevent firing OnEnter/OnLeave events for underlying frames
 	——— 24.08.13 ——— Rev 20 ——— 11.2.0/The War Within ——— #frozn45
 	- don't initially select header item
+	——— 24.12.12 ——— Rev 21 ——— 11.2.7/The War Within ——— #frozn45
+	- added an optional "disabled" key for a dropdown menu list entry
 
 	Keys set in the parent frame table
 	----------------------------------
@@ -58,11 +60,12 @@
 	text		The text that is displayed in the dropdown menu
 	value		Value of the item, is passed on to the "selectValueFunc"
 	header		If true, the item appears as a header item, and cannot be selected
+	disabled	If true, the item appears as a disabled item, and cannot be selected
 	checked		Item appears selected by having a checkmark next to it
 	tip			Tooltip will be shown when mouse is over item
 --]]
 
-local REVISION = 20; -- bump on changes
+local REVISION = 21; -- bump on changes
 if (type(AzDropDown) == "table") and (AzDropDown.vers >= REVISION) then
 	return;
 end
@@ -309,12 +312,13 @@ local function UpdateScroll(self)
 		index = (index + 1);
 		local item = menu.items[i] or CreateMenuItem();
 		local entry = menu.list[index];
+		local disabled = entry.disabled and entry.disabled(menu.parent.factory, menu.parent, entry.option, menu.parent.factory:GetConfigValue(entry.option.var));
 
 		item.index = index;
 		item.text:SetText(entry.text);
-		item.text:SetTextColor(1,entry.header and 0.82 or 1,entry.header and 0 or 1);
+		item.text:SetTextColor(disabled and 0.5 or 1,entry.header and 0.82 or disabled and 0.5 or 1,entry.header and 0 or disabled and 0.5 or 1);
 
-		(entry.header and item.Disable or item.Enable)(item);
+		((entry.header or disabled) and item.Disable or item.Enable)(item);
 
 		local checkState = (entry.checked) or (entry.checked == nil and menu.parent.isAutoSelect and entry.value ~= nil and entry.value == menu.parent.selectedValue);
 		item.check:SetShown(checkState);
@@ -404,7 +408,9 @@ function DropDownFrameMixin:InitSelectedItem(selectedValue)
 	for _, entry in ipairs(list) do
 		if (not entry.header) and (entry.value == selectedValue) then
 			self:SetText(entry.text);
-			return;
+			
+			local disabled = entry.disabled and entry.disabled(menu.parent.factory, menu.parent, entry.option, menu.parent.factory:GetConfigValue(entry.option.var));
+			return disabled;
 		end
 	end
 end

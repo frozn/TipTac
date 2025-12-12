@@ -117,6 +117,12 @@ local TTIF_DefaultConfig = {
 	if_iconOffsetX = 2.5,
 	if_iconOffsetY = -2.5,
 	
+	if_modifyShoppingTooltipCH = "doNothing",
+	if_modifyIconOffsetForCH = true,
+	if_iconOffsetX_CH = 0,
+	if_iconOffsetX_CH_addCHWidth = true,
+	if_iconOffsetY_CH = -2.5,
+	
 	if_hideClickForSettingsTextInCurrencyTip = true
 };
 local cfg;
@@ -329,6 +335,25 @@ local function ttifAddStackCount(tooltip, outputStackCount)
 	end
 end
 
+-- Set Point
+local function ttSetIconPoint(tooltip, onlyAdjustForCHWidth)
+	if (onlyAdjustForCHWidth) and ((not tooltip.ttIcon) or (not tooltip.ttIcon:IsShown())) then
+		return;
+	end
+	
+	if (cfg.if_modifyIconOffsetForCH) and (tooltip.CompareHeader) then
+		if (onlyAdjustForCHWidth) and (not cfg.if_iconOffsetX_CH_addCHWidth) then
+			return;
+		end
+		
+		tooltip.ttIcon:ClearAllPoints();
+		tooltip.ttIcon:SetPoint(cfg.if_iconAnchor, tooltip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX_CH + (cfg.if_iconOffsetX_CH_addCHWidth and tooltip.CompareHeader:GetWidth() or 0), cfg.if_iconOffsetY_CH);
+	elseif (not onlyAdjustForCHWidth) then
+		tooltip.ttIcon:ClearAllPoints();
+		tooltip.ttIcon:SetPoint(cfg.if_iconAnchor, tooltip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
+	end
+end
+
 -- Set Texture and Text
 local function ttSetIconTextureAndText(self, texture, outputStackCount)
 	-- check if insecure interaction with the tip is currently forbidden
@@ -354,7 +379,7 @@ end
 -- Create Icon with Counter Text for Tooltip
 function ttif:CreateTooltipIcon(tip)
 	tip.ttIcon = tip:CreateTexture(nil, "BACKGROUND");
-	tip.ttIcon:SetPoint(cfg.if_iconAnchor,tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
+	ttSetIconPoint(tip);
 	tip.ttIcon:Hide();
 
 	tip.ttCount = tip:CreateFontString(nil, "ARTWORK");
@@ -443,8 +468,7 @@ function ttif:OnApplyConfig(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
 				else
 					tip.ttIcon:SetTexCoord(0, 1, 0, 1);
 				end
-				tip.ttIcon:ClearAllPoints();
-				tip.ttIcon:SetPoint(cfg.if_iconAnchor, tip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
+				ttSetIconPoint(tip);
 			elseif (tip.ttSetIconTextureAndText) then
 				tip.ttIcon:Hide();
 				tip.ttSetIconTextureAndText = nil;
@@ -1324,6 +1348,13 @@ local function OnTooltipSetItem(self, ...)
 				end
 			end
 		end
+	end
+
+	if (self.CompareHeader) and
+		((cfg.if_modifyShoppingTooltipCH == "alwaysHideCH") or
+			(cfg.if_modifyShoppingTooltipCH == "hideCHIfIcon") and (self.ttIcon) and (self.ttIcon:IsShown())) then
+			
+		self.CompareHeader:Hide();
 	end
 end
 
@@ -2533,6 +2564,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 	end
 	
 	ttifAddStackCount(targetTooltip, outputStackCount);
+	
+	-- Set Point
+	ttSetIconPoint(targetTooltip, true);
 	
 	-- Quality Border
 	if (not self.IsEmbedded) and (cfg.if_itemQualityBorder) then
