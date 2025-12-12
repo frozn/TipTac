@@ -407,6 +407,8 @@ local TT_DefaultConfig = {
 	hideTipsActionTips = false,
 	hideTipsExpBarTips = false,
 	
+	hideTipsEJDungeonRaidSetItemsSTT = false,
+	
 	showHiddenModifierKey = "shift",
 	
 	-- hyperlink
@@ -1293,6 +1295,7 @@ local TT_TipsToModifyFromOtherMods = {};
 --
 -- tipContent                                        see TT_TIP_CONTENT
 -- hideTip                                           true if tip will be hidden, false otherwise.
+-- hideShoppingTips                                  true if shopping tips will be hidden, false otherwise.
 -- ignoreNextSetCurrentDisplayParams                 true if ignoring next tooltip's current display parameters to be set, nil otherwise.
 --
 -- lockedBackdropInfo                                locked backdropInfo, nil otherwise.
@@ -2256,6 +2259,11 @@ function tt:SetCurrentDisplayParams(tip, tipContent)
 		return;
 	end
 	
+	-- shopping tips will be hidden
+	if (currentDisplayParams.hideShoppingTips) then
+		self:HideShoppingTips(tip);
+	end
+	
 	-- inform group that the tip's styling needs to be set
 	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipSetStyling", TT_CacheForFrames, tip, currentDisplayParams, tipContent);
 	
@@ -2296,6 +2304,7 @@ function tt:ResetCurrentDisplayParams(tip, noFireGroupEvent)
 	currentDisplayParams.isSetTimestamp = nil;
 	
 	currentDisplayParams.hideTip = false;
+	currentDisplayParams.hideShoppingTips = false;
 	currentDisplayParams.ignoreNextSetCurrentDisplayParams = nil;
 end
 
@@ -2303,6 +2312,13 @@ end
 function tt:HideTip(tip)
 	if (not tip:IsForbidden()) and (tip:IsShown()) then
 		tip:Hide();
+	end
+end
+
+-- hide shopping tips
+function tt:HideShoppingTips(tip)
+	if (not tip:IsForbidden()) and (tip:IsShown()) then
+		GameTooltip_HideShoppingTooltips(tip);
 	end
 end
 
@@ -2341,6 +2357,10 @@ function tt:HideTipIfNeedsToBeHidden(tip)
 	-- tip will be hidden
 	if (currentDisplayParams.hideTip) then
 		self:HideTip(tip);
+	
+	-- shopping tips will be hidden
+	elseif (currentDisplayParams.hideShoppingTips) then
+		self:HideShoppingTips(tip);
 	end
 end
 
@@ -4371,6 +4391,26 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
+	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+		-- HOOK: GameTooltip_ShowCompareItem() to hide shopping tooltips
+		hooksecurefunc("GameTooltip_ShowCompareItem", function(self, anchorFrame)
+			local tip = (self or GameTooltip);
+			
+			-- get current display parameters
+			local frameParams = TT_CacheForFrames[tip];
+			
+			if (not frameParams) then
+				return;
+			end
+			
+			local currentDisplayParams = frameParams.currentDisplayParams;
+			
+			-- hide shopping tips
+			if (currentDisplayParams.hideShoppingTips) then
+				tt:HideShoppingTips(tip);
+			end
+		end);
+	end,
 	OnTipSetHidden = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- determine if tip comes from experience bar
 		local isTipFromExpBar = false;
@@ -4458,6 +4498,26 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		if (cfg["hideTips" .. hidingTip .. tipContentName .. "Tips"]) then
 			currentDisplayParams.hideTip = true;
 			return;
+		end
+		
+		-- hide other tips
+		if (tip == GameTooltip) then
+			-- hide shopping tips of dungeon/raid/set items in adventure guide
+			if (cfg.hideTipsEJDungeonRaidSetItemsSTT) and (not currentDisplayParams.hideShoppingTips) then
+				local isAddOnBlizzard_EncounterJournalLoaded = LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_EncounterJournal");
+				
+				if (isAddOnBlizzard_EncounterJournalLoaded) then
+					local tipOwner = tip:GetOwner();
+					
+					if (tipOwner) and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
+								EncounterJournalEncounterFrameInfo.LootContainer.ScrollBox.ScrollTarget,
+								EncounterJournal.LootJournalItems.ItemSetsFrame.ScrollBox.ScrollTarget
+							}, 3)) then
+						
+						currentDisplayParams.hideShoppingTips = true;
+					end
+				end
+			end
 		end
 	end
 }, MOD_NAME .. " - Hide Tips");

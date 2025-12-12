@@ -440,6 +440,12 @@ tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsItemTips", label = "Hi
 tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden." });
 tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden.", x = 160 });
 
+if (LibFroznFunctions:IsAddOnEnabled("Blizzard_EncounterJournal")) then
+	tinsert(ttOptionsHiding, { type = "Header", label = "Hide Other Tips" });
+
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsEJDungeonRaidSetItemsSTT", label = "Hide Shopping Tips of Dungeon/Raid/Set Items\nin Adventure Guide", tip = "When you have this option checked, Shopping Tips of Dungeon/Raid/Set Items in Adventure Guide will be hidden." });
+end
+
 tinsert(ttOptionsHiding, { type = "Header", label = "Others" });
 
 tinsert(ttOptionsHiding, { type = "DropDown", var = "showHiddenModifierKey", label = "Still Show Hidden Tips\nwhen Holding\nModifier Key", list = { ["Shift"] = "shift", ["Ctrl"] = "ctrl", ["Alt"] = "alt", ["|cffffa0a0None"] = "none" } });

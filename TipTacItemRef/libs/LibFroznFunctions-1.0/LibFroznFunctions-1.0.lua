@@ -1792,9 +1792,9 @@ end
 -- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
 -- @return true if the addon is enabled, false otherwise.
 function LibFroznFunctions:IsAddOnEnabled(indexOrName)
-	local loaded, finished = C_AddOns.IsAddOnLoaded(indexOrName)
+	local loadable, reason = C_AddOns.IsAddOnLoadable(indexOrName, UnitGUID("player"), true);
 	
-	return loaded;
+	return loadable;
 end
 
 -- is addon finished loading
@@ -1802,7 +1802,7 @@ end
 -- @param  indexOrName  index in the addon list (cannot query Blizzard addons by index) or name of the addon (as in TOC/folder filename, case insensitive)
 -- @return true if the addon finished loading, false otherwise.
 function LibFroznFunctions:IsAddOnFinishedLoading(indexOrName)
-	local loaded, finished = C_AddOns.IsAddOnLoaded(indexOrName)
+	local loaded, finished = C_AddOns.IsAddOnLoaded(indexOrName);
 	
 	return loaded and finished;
 end
