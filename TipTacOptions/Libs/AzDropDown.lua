@@ -43,7 +43,7 @@
 	- enabled mouse events for DropDown Menu to prevent firing OnEnter/OnLeave events for underlying frames
 	——— 24.08.13 ——— Rev 20 ——— 11.2.0/The War Within ——— #frozn45
 	- don't initially select header item
-	——— 24.12.12 ——— Rev 21 ——— 11.2.7/The War Within ——— #frozn45
+	——— 24.12.13 ——— Rev 21 ——— 11.2.7/The War Within ——— #frozn45
 	- added an optional "disabled" key for a dropdown menu list entry
 
 	Keys set in the parent frame table

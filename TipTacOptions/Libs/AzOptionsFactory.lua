@@ -63,7 +63,7 @@
 	- added a button for the TextEdit element to save the changes
 	- added the possibility to set the TextOnly element by var or getter
 	- added a Button element
-	25.12.12 Rev 34 11.1.7/The War Within #frozn45
+	25.12.13 Rev 34 11.1.7/The War Within #frozn45
 	- added an optional "disabled" key for dropdown menu list entry
 --]]
 

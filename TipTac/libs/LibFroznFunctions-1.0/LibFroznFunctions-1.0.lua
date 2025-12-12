@@ -2601,11 +2601,12 @@ end
 -- @param  maxLevelBack           optional. max level to search back in frame chain, e.g. 1 = actual level, 2 = actual and one level back.
 -- @return true if frame or pattern in frame chain exists, false otherwise.
 function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndNamePatterns, maxLevel)
+	local framesAndNamePatternsTable = self:ConvertToTable(framesAndNamePatterns);
 	local currentFrame = referenceFrame;
 	local currentLevel = 1;
 	
 	while (currentFrame) do
-		for _, frameAndNamePattern in ipairs(self:ConvertToTable(framesAndNamePatterns)) do
+		for _, frameAndNamePattern in ipairs(framesAndNamePatternsTable) do
 			if (type(frameAndNamePattern) == "table") then
 				if (currentFrame == frameAndNamePattern) then
 					return true;
