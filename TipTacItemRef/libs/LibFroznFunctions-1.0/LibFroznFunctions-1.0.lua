@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 54; -- bump on changes
+local LIB_MINOR = 55; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -2445,13 +2445,34 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 		sideAnchorFrame = self.anchorFrame:GetParent():GetParent();
 	end
 	
+	-- recalculate size of tip and shopping tips to ensure that they have the correct dimensions -- added start
+	LibFroznFunctions:RecalculateSizeOfGameTooltip(tooltip);
+	
+	if (primaryShown) then
+		LibFroznFunctions:RecalculateSizeOfGameTooltip(primaryTooltip);
+	end
+	
+	if (secondaryShown) then
+		LibFroznFunctions:RecalculateSizeOfGameTooltip(secondaryTooltip);
+	end
+	
+	-- sometimes the sideAnchorFrame is an actual tooltip, and sometimes it's a script region, so make sure we're getting the actual anchor type
+	local anchorType = sideAnchorFrame.GetAnchorType and sideAnchorFrame:GetAnchorType() or tooltip:GetAnchorType();
+	
+	-- reset the slide of the tooltip
+	if (anchorType and anchorType ~= "ANCHOR_PRESERVE") then --we never slide a tooltip with a preserved anchor
+		local _slideAmount = 0;
+		if sideAnchorFrame.SetAnchorType then
+			sideAnchorFrame:SetAnchorType(anchorType, _slideAmount, 0);
+		else
+			tooltip:SetAnchorType(anchorType, _slideAmount, 0);
+		end
+	end
+	
 	-- local leftPos = sideAnchorFrame:GetLeft(); -- removed
 	-- local rightPos = sideAnchorFrame:GetRight(); -- removed
 	local leftPos = (sideAnchorFrame:GetLeft() ~= nil) and (sideAnchorFrame:GetLeft() * sideAnchorFrame:GetEffectiveScale()); -- added
 	local rightPos = (sideAnchorFrame:GetRight() ~= nil) and (sideAnchorFrame:GetRight() * sideAnchorFrame:GetEffectiveScale()); -- added
-	
-	-- recalculate size of tip to ensure that it has the correct dimensions
-	LibFroznFunctions:RecalculateSizeOfGameTooltip(tooltip);
 	
 	-- local selfLeftPos = tooltip:GetLeft(); -- removed
 	-- local selfRightPos = tooltip:GetRight(); -- removed
@@ -2468,7 +2489,7 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	end
 	
 	-- sometimes the sideAnchorFrame is an actual tooltip, and sometimes it's a script region, so make sure we're getting the actual anchor type
-	local anchorType = sideAnchorFrame.GetAnchorType and sideAnchorFrame:GetAnchorType() or tooltip:GetAnchorType();
+	-- local anchorType = sideAnchorFrame.GetAnchorType and sideAnchorFrame:GetAnchorType() or tooltip:GetAnchorType(); -- moved to top
 	
 	local totalWidth = 0;
 	if primaryShown then
