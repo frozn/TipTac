@@ -4511,7 +4511,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 					
 					if (tipOwner) and (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, {
 								EncounterJournalEncounterFrameInfo.LootContainer.ScrollBox.ScrollTarget,
-								EncounterJournal.LootJournalItems.ItemSetsFrame.ScrollBox.ScrollTarget
+								(EncounterJournal.LootJournalItems and EncounterJournal.LootJournalItems.ItemSetsFrame.ScrollBox.ScrollTarget)
 							}, 3)) then
 						
 						currentDisplayParams.hideShoppingTips = true;
