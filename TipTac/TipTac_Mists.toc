@@ -1,4 +1,4 @@
-## Interface: 50502
+## Interface: 50503
 ## Version: 25.11.21
 ## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
 ## Title: TipTac
