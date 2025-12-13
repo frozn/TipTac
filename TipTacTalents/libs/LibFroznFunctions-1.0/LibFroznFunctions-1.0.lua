@@ -2445,7 +2445,7 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 		sideAnchorFrame = self.anchorFrame:GetParent():GetParent();
 	end
 	
-	-- recalculate size of tip and shopping tips to ensure that they have the correct dimensions -- added start
+	-- recalculate size of tip and shopping tips to ensure that they have the correct dimensions
 	LibFroznFunctions:RecalculateSizeOfGameTooltip(tooltip);
 	
 	if (primaryShown) then
