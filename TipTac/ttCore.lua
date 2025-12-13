@@ -3930,7 +3930,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- HOOK: GameTooltip_ShowCompareItem() to refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 		hooksecurefunc("GameTooltip_ShowCompareItem", function(self, anchorFrame)
 			-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
-			local tip = self or GameTooltip;
+			local tip = (self or GameTooltip);
 			
 			LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 		end);
