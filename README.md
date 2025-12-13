@@ -67,6 +67,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
 - added option "Backdrop->BG Texture Layout" to set if the background texture should be repeated or stretched to fit the tip
 - added option "Hiding->Hide Tips Out Of Combat" and "Hiding->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action-bar/experience-bar tips during challenge mode (in/out of combat), during an instance (in/out of combat), during skyriding or in/out of combat
+- added option "Hiding->Hide Shopping Tips of Dungeon/Raid/Set Items in Adventure Guide"
 - added option "General->Show Player Guild Realm" to show player guild realm if the guild is from a foreign realm
 - added option "General->Show Player Guild Rank" to show/hide guild name/rank
 - added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
@@ -95,6 +96,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "General->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
 - added option "General->Hide 'Right Click for Frame Settings' Text From Unit Tip" to strip the "right click for frame settings" text from the unit tooltip introduced with tww 11.0.7
 - added option "ItemRef->Hide 'Click for Settings' Text From Currency Tip" to strip the "click for settings" text from the currency tooltip introduced with tww 11.0.0
+- added option "ItemRef->Consider Shopping Tooltip Compare Header" to consider the shopping tooltip compare header introduced with patch tww 11.2.7
 - added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
 - added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
 - added option "Talents/AIL->Don't show Talents and Average Item Level for players out of range" to suppress the "out of range" message
