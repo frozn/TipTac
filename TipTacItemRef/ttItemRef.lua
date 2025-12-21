@@ -74,6 +74,7 @@ local TTIF_DefaultConfig = {
 	if_colorAuraCasterByClass = false,
 	if_showNpcId = false,
 	if_showMountId = false,
+	if_showGlyphId = false,
 	if_questDifficultyBorder = true,
 	if_showQuestLevel = false,
 	if_showQuestId = false,
@@ -1059,6 +1060,37 @@ local function SetToyByItemID_Hook(self, itemID)
 	end
 end
 
+-- HOOK: GameTooltip:SetGlyph
+local function SetGlyph_Hook(self, socketID, talentGroup)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local enabled, glyphType, glyphIndex, glyphSpellID, iconFile, glyphID = GetGlyphSocketInfo(socketID, talentGroup);
+		if (glyphID) then
+			local name, _glyphType, isKnown, icon, spellID, link = C_GlyphInfo.GetGlyphInfoByID(glyphID);
+			if (link) then
+				local linkType, _unknown, _glyphID = link:match("H?(%a+):(%d+):(%d+)");
+				if (_glyphID) then
+					tipDataAdded[self] = linkType;
+					LinkTypeFuncs.glyph(self, link, linkType, _unknown, _glyphID);
+				end
+			end
+		end
+	end
+end
+
+-- HOOK: GameTooltip:SetGlyphByID
+local function SetGlyphByID_Hook(self, glyphID)
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local name, glyphType, isKnown, icon, spellID, link = C_GlyphInfo.GetGlyphInfoByID(glyphID);
+		if (link) then
+			local linkType, _unknown, _glyphID = link:match("H?(%a+):(%d+):(%d+)");
+			if (_glyphID) then
+				tipDataAdded[self] = linkType;
+				LinkTypeFuncs.glyph(self, link, linkType, _unknown, _glyphID);
+			end
+		end
+	end
+end
+
 -- HOOK: GameTooltip:SetLFGDungeonReward
 local function SetLFGDungeonReward_Hook(self, dungeonID, rewardIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) and (self:IsShown()) then
@@ -2005,6 +2037,8 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetCompanionPet", SetCompanionPet_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetMountBySpellID", SetMountBySpellID_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetToyByItemID", SetToyByItemID_Hook);
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetGlyph", SetGlyph_Hook);
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetGlyphByID", SetGlyphByID_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetLFGDungeonReward", SetLFGDungeonReward_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetLFGDungeonShortageReward", SetLFGDungeonShortageReward_Hook);
 				-- since sl
@@ -2453,12 +2487,18 @@ local function SmartIconEvaluation(tip,linkType)
 			end
 		end
 	end
-
-	-- IconTexture sub texture
+	-- Glyph
 	local ownerName = owner:GetName();
 	if (ownerName) then
-		if (_G[ownerName.."IconTexture"]) or (ownerName:match("SendMailAttachment(%d+)")) then
-			return false;
+		if (linkType == "glyph") then
+			if (_G[ownerName.."Icon"]) or (_G[ownerName.."Glyph"]) then
+				return false;
+			end
+		end
+	-- IconTexture sub texture
+		elseif (_G[ownerName.."IconTexture"]) or (ownerName:match("SendMailAttachment(%d+)")) then
+				return false;
+			end
 		end
 	end
 
@@ -3596,7 +3636,7 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 	if (showIcon) then
 		self:ttSetIconTextureAndText(essenceInfo.icon);
 	end
-
+	
 	-- EssenceID + IconID
 	local showEssenceID = cfg.if_showAzeriteEssenceId;
 	local showIconID = (cfg.if_showIconId and essenceInfo.icon);
@@ -3620,6 +3660,40 @@ function LinkTypeFuncs:azessence(link, linkType, essenceID, essenceRank)
 			local essenceColor = LibFroznFunctions:GetItemQualityColor(quality + 1);
 			ttif:SetBackdropBorderColorLocked(self, essenceColor:GetRGBA());
 		end
+	end
+end
+
+-- glyph
+function LinkTypeFuncs:glyph(link, linkType, _unknown, glyphID)
+	local name, glyphType, isKnown, icon, spellID, link = C_GlyphInfo.GetGlyphInfoByID(glyphID);
+	
+	local rank = LibFroznFunctions:GetSpellSubtext(spellID);	-- will return nil at first unless its locally cached
+	rank = (rank and rank ~= "" and ", "..rank or "");
+	
+	-- Icon
+	local showIcon = (self.ttSetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self, linkType));
+	
+	if (showIcon) then
+		self:ttSetIconTextureAndText(icon);
+	end
+	
+	-- GlyphID + (SpellID + Rank) + IconID
+	local showGlyphID = (cfg.if_showGlyphId and glyphID);
+	local showSpellIdAndRank = (cfg.if_showSpellIdAndRank and spellID and (spellID ~= 0));
+	local showIconID = (cfg.if_showIconId and icon);
+	
+	if (showGlyphID) then
+		self:AddLine(format("GlyphID: %d", glyphID), unpack(cfg.if_infoColor));
+	end
+	if (showSpellIdAndRank) then
+		self:AddLine(format("SpellID: %d", spellID)..rank, unpack(cfg.if_infoColor));
+	end
+	if (showIconID) then
+		self:AddLine(format("IconID: %d", icon), unpack(cfg.if_infoColor));
+	end
+	
+	if (showGlyphID or shoshowSpellIdAndRankwIconID or showIconID) then
+		self:Show();	-- call Show() to resize tip after adding lines.
 	end
 end
 
