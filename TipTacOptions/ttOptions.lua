@@ -770,7 +770,10 @@ if (TipTacItemRef) then
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_showNpcId", label = "Show NPC ID", tip = "For npc or battle pet tooltips, show their npcID", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showMountId", label = "Show Mount ID", tip = "For item, spell and aura tooltips, show their mountID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
-	tinsert(ttifOptions, { type = "Check", var = "if_showGlyphId", label = "Show Glyph ID", tip = "For glyph tooltips, show their glyphID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
+	
+	if (LibFroznFunctions:IsAddOnEnabled("Blizzard_GlyphUI")) then
+		tinsert(ttifOptions, { type = "Check", var = "if_showGlyphId", label = "Show Glyph ID", tip = "For glyph tooltips, show their glyphID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
+	end
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
