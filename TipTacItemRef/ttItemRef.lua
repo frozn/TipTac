@@ -2496,8 +2496,7 @@ local function SmartIconEvaluation(tip,linkType)
 			end
 	-- IconTexture sub texture
 		elseif (_G[ownerName.."IconTexture"]) or (ownerName:match("SendMailAttachment(%d+)")) then
-				return false;
-			end
+			return false;
 		end
 	end
 
