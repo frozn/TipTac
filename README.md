@@ -109,6 +109,8 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - stripped creature type text from tooltip for npcs or wild battle pets if creature family isn't available to prevent displaying the creature type twice
 - added feature to enable/disable/set custom class colors in options under "Colors"
 - moved TipTac's config to lib AceDB-3.0 to support different profiles
+- classic: added option "ItemRef->Show Glyph ID"
+- classic: added displaying of spell/icon id for glyph tooltips
 - classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
 - classic era: added missing styling of auras
 - classic era: reactivated talent format option
