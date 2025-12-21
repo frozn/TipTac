@@ -1293,10 +1293,11 @@ local TT_TipsToModifyFromOtherMods = {};
 --
 -- isSetTimestamp                                    timestamp of current display parameters were set, nil otherwise.
 --
+-- ignoreNextSetCurrentDisplayParams                 true if ignoring next tooltip's current display parameters to be set, nil otherwise.
 -- tipContent                                        see TT_TIP_CONTENT
 -- hideTip                                           true if tip will be hidden, false otherwise.
 -- hideShoppingTips                                  true if shopping tips will be hidden, false otherwise.
--- ignoreNextSetCurrentDisplayParams                 true if ignoring next tooltip's current display parameters to be set, nil otherwise.
+-- lastTipScale                                      last tip scale, nil otherwise.
 --
 -- lockedBackdropInfo                                locked backdropInfo, nil otherwise.
 -- lockedBackdropColor                               locked backdrop color, nil otherwise.
@@ -2421,8 +2422,25 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	end
 	
 	if (not tipParams.isFromLibQTip) then -- don't reduce scale if frame belongs to LibQTip-1.0, because tip:UpdateScrolling() from LibQTip-1.0 will resize the tooltip to fit the screen and show a scrollbar if needed.
+		LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
+		
 		local tipWidthWithNewScaling = tip:GetWidth() * newTipEffectiveScale;
 		local tipHeightWithNewScaling = tip:GetHeight() * newTipEffectiveScale;
+		
+		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
+		
+		if (leftOffset) then
+			tipWidthWithNewScaling = tipWidthWithNewScaling + leftOffset * newTipEffectiveScale;
+		end
+		if (rightOffset) then
+			tipWidthWithNewScaling = tipWidthWithNewScaling + rightOffset * newTipEffectiveScale;
+		end
+		if (topOffset) then
+			tipHeightWithNewScaling = tipHeightWithNewScaling + topOffset * newTipEffectiveScale;
+		end
+		if (bottomOffset) then
+			tipHeightWithNewScaling = tipHeightWithNewScaling + bottomOffset * newTipEffectiveScale;
+		end
 		
 		local UIParentWidth = UIParent:GetWidth() * TT_UIScale;
 		local UIParentHeight = UIParent:GetHeight() * TT_UIScale;
@@ -2443,6 +2461,11 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 		end
 	end
 	
+	-- don't set scale to tip if last scale has been lower than the new scale
+	if (currentDisplayParams.lastTipScale) and (currentDisplayParams.lastTipScale <= newTipScale) then
+		return;
+	end
+	
 	-- don't set scale to tip if change results in less than 0.5 pixels difference
 	local tipWidth = tip:GetWidth() * tipEffectiveScale;
 	local tipHeight = tip:GetHeight() * tipEffectiveScale;
@@ -2455,6 +2478,8 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	isSettingScaleToTip = true;
 	tip:SetScale(newTipScale);
 	isSettingScaleToTip = false;
+	
+	currentDisplayParams.lastTipScale = newTipScale;
 	
 	-- inform group that the tip has been rescaled
 	if (not noFireGroupEvent) then
@@ -2613,6 +2638,10 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- reapply scale to tip
 		tt:SetScaleToTip(tip);
 	end,
+	OnTipResized = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- reapply scale to tip
+		tt:SetScaleToTip(tip);
+	end,
 	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reapply gradient to tip
 		tt:SetGradientToTip(tip);
@@ -2632,6 +2661,10 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	OnModifierStateChanged = function(self, TT_CacheForFrames)
 		-- hide tips if need to be hidden
 		tt:HideTipsIfNeedToBeHidden();
+	end,
+	OnTipResetCurrentDisplayParams = function(self, TT_CacheForFrames, tip, currentDisplayParams)
+		-- reset current display parameters for scaling
+		currentDisplayParams.lastTipScale = nil;
 	end
 }, MOD_NAME .. " - Apply Config");
 
@@ -3913,13 +3946,16 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 	end,
 	OnTipPostSetStyling = function(self, TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 		-- refreshing anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips,
-		-- because after GameTooltip_ShowCompareItem() (hook see below) has been called within TooltipDataRules.FinalizeItemTooltip(), the tooltip isn't finished yet, e.g. if hovering over monthly activities reward button.
+		-- because after GameTooltip_ShowCompareItem() (see hook for TooltipComparisonManager:AnchorShoppingTooltips() or GameTooltip_AnchorComparisonTooltips() below) has been called within TooltipDataRules.FinalizeItemTooltip(), the tooltip isn't finished yet, e.g. if hovering over monthly activities reward button.
 		-- so the tooltip may change in size after finishing the remaining TooltipDataHandler calls/callbacks and TipTac's own OnTipSetStyling to finalize the tooltip.
 		LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 	end,
 	OnTipRescaled = function(self, TT_CacheForFrames, tip, currentDisplayParams)
 		-- reapply anchor tip to mouse position
 		tt:AnchorTipToMouse(tip);
+		
+		-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+		LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 	end,
 	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
 		-- HOOK: GameTooltip_SetDefaultAnchor() for re-anchoring
@@ -3927,13 +3963,23 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			tt:SetDefaultAnchorHook(tip, parent);
 		end);
 		
-		-- HOOK: GameTooltip_ShowCompareItem() to refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
-		hooksecurefunc("GameTooltip_ShowCompareItem", function(self, anchorFrame)
-			-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
-			local tip = (self or GameTooltip);
-			
-			LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
-		end);
+		-- HOOK: TooltipComparisonManager:AnchorShoppingTooltips() or GameTooltip_AnchorComparisonTooltips() (called within GameTooltip_ShowCompareItem()) to refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+		if (GameTooltip_AnchorComparisonTooltips) then -- before df 10.0.2
+			hooksecurefunc("GameTooltip_AnchorComparisonTooltips", function(self, anchorFrame, shoppingTooltip1, shoppingTooltip2, primaryItemShown, secondaryItemShown)
+				-- we have to call this again because :SetOwner() clears the tooltip
+				shoppingTooltip1:SetCompareItem(shoppingTooltip2, self);
+				
+				-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+				LibFroznFunctions:RefreshAnchorShoppingTooltips(self);
+			end);
+		else -- since df 10.0.2
+			hooksecurefunc(TooltipComparisonManager, "AnchorShoppingTooltips", function(self, primaryShown, secondaryShown)
+				-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
+				local tip = self.tooltip;
+				
+				LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
+			end);
+		end
 	end,
 	SetDefaultAnchorHook = function(self, tip, parent)
 		-- hook after set default anchor to tip
