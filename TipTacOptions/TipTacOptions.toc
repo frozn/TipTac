@@ -1,4 +1,4 @@
-## Interface: 110207
+## Interface: 120000, 120001
 ## Version: 25.12.21
 ## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
 ## Title: TipTacOptions
@@ -24,4 +24,5 @@
 embeds.xml
 
 ttLayouts.lua
+
 ttOptions.lua
