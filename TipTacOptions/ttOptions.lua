@@ -61,6 +61,7 @@ local DROPDOWN_BARTEXTFORMAT = {
 	["Current Only"] = "current",
 	["Values"] = "value",
 	["Values & Percent"] = "full",
+	["Deficit"] = "deficit",
 };
 
 -- colors
@@ -1464,4 +1465,3 @@ function f:BuildCategoryList()
 		end
 	end
 end
-
