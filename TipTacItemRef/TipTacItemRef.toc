@@ -1,4 +1,4 @@
-## Interface: 110207
+## Interface: 120000, 120001
 ## Version: 25.12.21
 ## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
 ## Title: TipTacItemRef
@@ -21,5 +21,6 @@
 ## X-Website: https://www.curseforge.com/wow/addons/tiptac-reborn
 ## X-Curse-Project-ID: 695153
 embeds.xml
+
 
 ttItemRef.lua

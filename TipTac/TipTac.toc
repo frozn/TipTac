@@ -1,4 +1,4 @@
-## Interface: 110207
+## Interface: 120000, 120001
 ## Version: 25.12.21
 ## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
 ## Title: TipTac
@@ -34,4 +34,5 @@ modules\ttAuras.lua
 modules\ttBars.lua
 modules\ttIcons.lua
 modules\ttHyperlink.lua
+
 modules\ttStyle.lua
