@@ -1,6 +1,6 @@
 ![TipTac Reborn](https://github.com/user-attachments/assets/69b67fe4-4922-48c4-8ea7-bf83ec3b9a5d)
 
-![Available for](https://img.shields.io/badge/available%20for-retail%20(tww)%20%2B%20classic%20(mopc)%20%2B%20classic%20era%20(vanilla)-brightgreen)
+![Available for](https://img.shields.io/badge/available%20for-retail/TWW%20%2B%20classic/MoPC%20%2B%20anniversary/TBC%20%2B%20classic%20era/Vanilla-brightgreen)
 
 [![Install CurseForge](https://img.shields.io/badge/install-curseforge-F16436)](https://www.curseforge.com/wow/addons/tiptac-reborn/files)
 &nbsp; 
@@ -12,7 +12,7 @@
 [![PayPal](https://img.shields.io/badge/PayPal-Donate-blue)](https://www.paypal.com/donate/?hosted_button_id=X5Y2RAL3PTP6W&item_name=TipTac%20Reborn%20%28from%20curseforge.com%29&cmd=_s-xclick)
 
 # TipTac Reborn
-WoW AddOn TipTac Reborn [TWW] [MoPC] [Classic Era]
+WoW AddOn TipTac Reborn [retail/TWW] [classic/MoPC] [anniversary/TBC] [classic era/Vanilla]
 
 TipTac Reborn is a tooltip enhancement addon, it allows you to configure various aspects of the tooltip, such as moving where it's shown, the font, the scale of tips, plus a lot more. It's the successor of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac) (abandoned since Nov 2020) with massive modifications since then.
 
@@ -20,9 +20,10 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 11.2.5 - The War Within [TWW]
-  * 5.5.2 - Mists of Pandaria Classic [MoPC]
-  * 1.15.8 - Classic Era / Vanilla [Classic Era]
+  * 11.2.7 - The War Within [retail/TWW]
+  * 5.5.3 - Mists of Pandaria Classic [classic/MoPC]
+  * 2.5.5 - Burning Crusade Classic [anniversary/TBC]
+  * 1.15.8 - Vanilla [classic era/Vanilla]
 * added many enhancements
 
 ### The following problems are fixed respectively enhancements were added
