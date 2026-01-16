@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 55; -- bump on changes
+local LIB_MINOR = 56; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -118,8 +118,9 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips         = true/false if GameTooltip:FadeOut() will not be called for worldframe unit tips (till mopc)
 --         .ShoppingTooltipHasCompareHeader                            = true/false if ShoppingTooltip1/2.CompareHeader exist (since tww 11.2.7)
 --         .barMarginAdjustment                                        = bar margin adjustment (since bc till mopc)
---         .experienceBarFrame                                         = frame of experience bar
 --         .experienceBarDockedToInterfaceBar                          = true/false if experience bar is docked to interface bar (till df 10.0.0)
+--         .experienceBarFrame                                         = frame of experience bar
+--         .experienceBarMaxLevelBack                                  = max level to search back in frame chain to search for frame of experience bar
 --         .realGetSpellLinkAvailable                                  = true/false if the real GetSpellLink() is available (since bc 2.3.0). in classic era this function only returns the spell name instead of a spell link.
 --         .relatedExpansionForItemAvailable                           = true/false if C_Item.GetItemInfo() return the related expansion for an item (parameter expansionID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
@@ -172,13 +173,14 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
 	LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable = false;
 end
-if (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
+if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate = "OptionsSliderTemplate";
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
-	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = MainMenuExpBar;
 	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
+	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = (MainMenuExpBar or MainStatusTrackingBarContainer);
+	LibFroznFunctions.hasWoWFlavor.experienceBarMaxLevelBack = (MainMenuExpBar and 1 or MainStatusTrackingBarContainer and 3);
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip = false;
@@ -2668,7 +2670,7 @@ end
 -- @param  framesAndNamePatterns  frame or pattern to search back in frame chain, or a table of this.
 -- @param  maxLevelBack           optional. max level to search back in frame chain, e.g. 1 = actual level, 2 = actual and one level back.
 -- @return true if frame or pattern in frame chain exists, false otherwise.
-function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndNamePatterns, maxLevel)
+function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndNamePatterns, maxLevelBack)
 	local framesAndNamePatternsTable = self:ConvertToTable(framesAndNamePatterns);
 	local currentFrame = referenceFrame;
 	local currentLevel = 1;
@@ -2690,7 +2692,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 			end
 		end
 		
-		if (maxLevel) and (currentLevel >= maxLevel) then
+		if (maxLevelBack) and (currentLevel >= maxLevelBack) then
 			return false;
 		end
 		

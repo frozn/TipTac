@@ -1,0 +1,37 @@
+## Interface: 20505
+## Version: 25.12.21
+## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
+## Title: TipTac
+## Author: Frozn45, Aezay (Earthen Ring EU)
+## Notes: Highly Customizable Tooltip Enhancement Addon
+## SavedVariables: TipTac_Config
+## Category-enUS: User Interface
+## Category-deDE: Benutzerinterface
+## Category-esES: Interfaz de usuario
+## Category-esMX: Interfaz de usuario
+## Category-frFR: Interface utilisateur
+## Category-itIT: Interfaccia utente
+## Category-koKR: 사용자 인터페이스
+## Category-ptBR: Interface do usuário
+## Category-ruRU: Интерфейс пользователя
+## Category-zhCN: 用户界面
+## Category-zhTW: 使用者介面
+## AddonCompartmentFunc: TipTac_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: TipTac_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: TipTac_OnAddonCompartmentLeave
+## X-Category: Tooltip
+## X-Website: https://www.curseforge.com/wow/addons/tiptac-reborn
+## X-Curse-Project-ID: 695153
+
+# embeds
+embeds.xml
+
+# core
+ttCore.lua
+
+# modules
+modules\ttAuras.lua
+modules\ttBars.lua
+modules\ttIcons.lua
+modules\ttHyperlink.lua
+modules\ttStyle.lua

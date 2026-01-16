@@ -4466,7 +4466,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 				if (not tip:IsForbidden()) then
 					local tipOwner = tip:GetOwner();
 					
-					if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
+					if (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, LibFroznFunctions.hasWoWFlavor.experienceBarMaxLevelBack)) then
 						isTipFromExpBar = true;
 					end
 				end
