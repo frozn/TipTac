@@ -3,7 +3,7 @@
 -- only catac flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-if (not LibFroznFunctions.isWoWFlavor.MoPC) then
+if (not LibFroznFunctions.isWoWFlavor.BCC) then
 	return;
 end
 
