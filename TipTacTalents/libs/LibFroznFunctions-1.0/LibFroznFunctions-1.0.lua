@@ -1851,7 +1851,7 @@ function LibFroznFunctions:CreateDbWithLibAceDB(tblNameOrObject, defaultConfig)
 			db:RegisterDefaults({ profile = newDefaults });
 		end
 	else
-		-- database doesn't exists in lib AceDB-3.0 yet. create new database
+		-- database doesn't exists in lib AceDB-3.0 yet. create new database.
 		db = LibAceDB:New(tblNameOrObject, (defaultConfig and { profile = defaultConfig } or nil), true);
 	end
 	
