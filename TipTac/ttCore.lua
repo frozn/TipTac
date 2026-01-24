@@ -2090,13 +2090,18 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 					return;
 				end
 				
-				tip:HookScript("OnSizeChanged", function(...)
+				tip:HookScript("OnSizeChanged", function(self, width, height)
 					-- check if insecure interaction with the tip is currently forbidden
 					if (tip:IsForbidden()) then
 						return;
 					end
-					
-					tip.OnBackdropSizeChanged(...);
+
+					-- In WoW 12.0.0+, width/height may be secret values - skip backdrop update if so
+					if issecretvalue(width) or issecretvalue(height) then
+						return;
+					end
+
+					tip.OnBackdropSizeChanged(self, width, height);
 				end);
 			end);
 		end
@@ -2412,7 +2417,12 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	-- calculate new scale for tip
 	local tipScale = tip:GetScale();
 	local tipEffectiveScale = tip:GetEffectiveScale();
-	
+
+	-- In WoW 12.0.0+, GetScale/GetEffectiveScale may return secret values - skip scaling if so
+	if issecretvalue(tipScale) or issecretvalue(tipEffectiveScale) then
+		return;
+	end
+
 	local newTipScale = cfg.gttScale * TT_UIScale / (tipEffectiveScale / tipScale); -- consider applied SetIgnoreParentScale() on tip regarding scaling
 	local newTipEffectiveScale = tipEffectiveScale * newTipScale / tipScale;
 	
@@ -2475,11 +2485,17 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	end
 	
 	-- don't set scale to tip if change results in less than 0.5 pixels difference
-	local tipWidth = tip:GetWidth() * tipEffectiveScale;
-	local tipHeight = tip:GetHeight() * tipEffectiveScale;
-	
-	if (tipWidth > 0) and (math.abs((newTipScale / tipScale - 1) * tipWidth) <= 0.5) and (tipHeight > 0) and (math.abs((newTipScale / tipScale - 1) * tipHeight) <= 0.5) then
-		return;
+	-- In WoW 12.0.0+, GetWidth/GetHeight may return secret values - skip this optimization if so
+	local rawTipWidth = tip:GetWidth();
+	local rawTipHeight = tip:GetHeight();
+
+	if (not issecretvalue(rawTipWidth)) and (not issecretvalue(rawTipHeight)) then
+		local tipWidth = rawTipWidth * tipEffectiveScale;
+		local tipHeight = rawTipHeight * tipEffectiveScale;
+
+		if (tipWidth > 0) and (math.abs((newTipScale / tipScale - 1) * tipWidth) <= 0.5) and (tipHeight > 0) and (math.abs((newTipScale / tipScale - 1) * tipHeight) <= 0.5) then
+			return;
+		end
 	end
 	
 	-- set scale to tip

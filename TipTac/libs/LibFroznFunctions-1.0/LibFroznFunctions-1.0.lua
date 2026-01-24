@@ -2599,7 +2599,14 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	if (not primaryShown) and (not secondaryShown) then
 		return;
 	end
-	
+
+	-- In WoW 12.0.0+, GetWidth/GetEffectiveScale may return secret values - skip anchoring if so
+	local primaryScale = primaryTooltip:GetEffectiveScale();
+	local primaryWidth = primaryTooltip:GetWidth();
+	if issecretvalue(primaryScale) or issecretvalue(primaryWidth) then
+		return;
+	end
+
 	-- refresh anchor of shopping tooltips
 	local self;
 	

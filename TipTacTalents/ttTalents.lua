@@ -194,7 +194,12 @@ function TTT_UpdateTooltip(unitCacheRecord)
 	if (not unitID) then
 		return;
 	end
-	
+
+	-- In WoW 12.0.0+, unitID may be a secret value - UnitGUID cannot accept secret arguments
+	if issecretvalue(unitID) then
+		return;
+	end
+
 	local unitGUID = UnitGUID(unitID);
 	
 	if (unitGUID ~= unitCacheRecord.guid) then

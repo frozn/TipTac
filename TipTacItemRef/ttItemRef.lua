@@ -674,7 +674,8 @@ end
 local function SetUnitAura_Hook(self, alternateFilterIfNotDefined, unit, index, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local auraData = LibFroznFunctions:GetAuraDataByIndex(unit, index, filter or alternateFilterIfNotDefined); -- [18.07.19] 8.0/BfA: "dropped second parameter"
-		if (auraData) and (auraData.spellId) then
+		-- In WoW 12.0.0+, auraData.spellId may be a secret value
+		if (auraData) and (auraData.spellId) and (not issecretvalue(auraData.spellId)) then
 			local link = LibFroznFunctions:GetSpellLink(auraData.spellId);
 			if (link) then
 				local linkType, _spellID = link:match("H?(%a+):(%d+)");
@@ -697,7 +698,8 @@ local function SetUnitBuffByAuraInstanceID_Hook(self, unit, auraInstanceID, filt
 		if (aura) then
 			local spellID = aura.spellId;
 			local source = aura.sourceUnit;
-			if (spellID) then
+			-- In WoW 12.0.0+, aura.spellId may be a secret value
+			if (spellID) and (not issecretvalue(spellID)) then
 				local link = LibFroznFunctions:GetSpellLink(spellID);
 				if (link) then
 					local linkType, _spellID = link:match("H?(%a+):(%d+)");
