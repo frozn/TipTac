@@ -1702,8 +1702,13 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
+		-- creation of new table needed so that saving of minimap config is possible
+		if (LibFroznFunctions:IsTableEmpty(cfg.minimapConfig)) then
+			cfg.minimapConfig = {};
+		end
+		
 		-- register minimap icon to LibDBIcon-1.0
-		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, LibFroznFunctions:CreateLinkedTableFromTableWithKey(cfg, "minimapConfig"));
+		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, cfg.minimapConfig);
 		
 		minimapIconRegistered = true;
 	end,
@@ -2418,30 +2423,38 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	
 	if (not tipParams.isFromLibQTip) then -- don't reduce scale if frame belongs to LibQTip-1.0, because tip:UpdateScrolling() from LibQTip-1.0 will resize the tooltip to fit the screen and show a scrollbar if needed.
 		LibFroznFunctions:RecalculateSizeOfGameTooltip(tip);
-		
-		local tipWidthWithNewScaling = tip:GetWidth() * newTipEffectiveScale;
-		local tipHeightWithNewScaling = tip:GetHeight() * newTipEffectiveScale;
-		
-		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
-		
-		if (leftOffset) then
-			tipWidthWithNewScaling = tipWidthWithNewScaling + leftOffset * newTipEffectiveScale;
-		end
-		if (rightOffset) then
-			tipWidthWithNewScaling = tipWidthWithNewScaling + rightOffset * newTipEffectiveScale;
-		end
-		if (topOffset) then
-			tipHeightWithNewScaling = tipHeightWithNewScaling + topOffset * newTipEffectiveScale;
-		end
-		if (bottomOffset) then
-			tipHeightWithNewScaling = tipHeightWithNewScaling + bottomOffset * newTipEffectiveScale;
-		end
-		
-		local UIParentWidth = UIParent:GetWidth() * TT_UIScale;
-		local UIParentHeight = UIParent:GetHeight() * TT_UIScale;
-		
-		if (tipWidthWithNewScaling > UIParentWidth) or (tipHeightWithNewScaling > UIParentHeight) then
-			newTipScale = newTipScale / math.max(tipWidthWithNewScaling / UIParentWidth, tipHeightWithNewScaling / UIParentHeight) * 0.95; -- 95% of maximum UIParent width/height
+
+		-- In WoW 12.0.0+, GetWidth/GetHeight may return secret values - skip scaling adjustment if so
+		local tipWidth = tip:GetWidth();
+		local tipHeight = tip:GetHeight();
+		local uiParentWidth = UIParent:GetWidth();
+		local uiParentHeight = UIParent:GetHeight();
+
+		if (not issecretvalue(tipWidth)) and (not issecretvalue(tipHeight)) and (not issecretvalue(uiParentWidth)) and (not issecretvalue(uiParentHeight)) then
+			local tipWidthWithNewScaling = tipWidth * newTipEffectiveScale;
+			local tipHeightWithNewScaling = tipHeight * newTipEffectiveScale;
+
+			local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
+
+			if (leftOffset) and (not issecretvalue(leftOffset)) then
+				tipWidthWithNewScaling = tipWidthWithNewScaling + leftOffset * newTipEffectiveScale;
+			end
+			if (rightOffset) and (not issecretvalue(rightOffset)) then
+				tipWidthWithNewScaling = tipWidthWithNewScaling + rightOffset * newTipEffectiveScale;
+			end
+			if (topOffset) and (not issecretvalue(topOffset)) then
+				tipHeightWithNewScaling = tipHeightWithNewScaling + topOffset * newTipEffectiveScale;
+			end
+			if (bottomOffset) and (not issecretvalue(bottomOffset)) then
+				tipHeightWithNewScaling = tipHeightWithNewScaling + bottomOffset * newTipEffectiveScale;
+			end
+
+			local UIParentWidth = uiParentWidth * TT_UIScale;
+			local UIParentHeight = uiParentHeight * TT_UIScale;
+
+			if (tipWidthWithNewScaling > UIParentWidth) or (tipHeightWithNewScaling > UIParentHeight) then
+				newTipScale = newTipScale / math.max(tipWidthWithNewScaling / UIParentWidth, tipHeightWithNewScaling / UIParentHeight) * 0.95; -- 95% of maximum UIParent width/height
+			end
 		end
 	end
 	
@@ -4046,6 +4059,11 @@ function tt:SetUnitRecordFromTip(tip)
 		return;
 	end
 	
+	if (issecretvalue(unitID)) then
+        currentDisplayParams.unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
+        return;  -- Cannot use UnitIsUnit with secret values, exit early
+    end
+
 	-- a "mouseover" unitID is better to have as we can then safely say the tip should no longer show when it becomes invalid. Harder to say with a "party2" unit.
 	-- this also helps fix the problem that "mouseover" units aren't valid for group members out of range, a bug that has been in WoW since about 3.0.2.
 	if (UnitIsUnit(unitID, "mouseover")) then

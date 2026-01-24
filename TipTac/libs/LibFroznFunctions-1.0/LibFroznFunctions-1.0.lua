@@ -546,11 +546,20 @@ end
 --         returns 0 if the spell/aura is from a mount, but there is no specific mount, e.g. "Running Wild" for worgen.
 --         returns nil if spell/aura doesn't belong to a mount.
 function LibFroznFunctions:GetMountFromSpell(spellID)
+	-- In WoW 12.0.0+, spellID may be secret - cannot use as table key
+	if (issecretvalue(spellID)) then
+		-- Try C_MountJournal API which may accept secrets
+		if (C_MountJournal) and (C_MountJournal.GetMountFromSpell) then
+			return C_MountJournal.GetMountFromSpell(spellID);
+		end
+		return nil; -- Cannot look up mount without the API when spellID is secret
+	end
+
 	-- since BfA 8.0.1
 	if (C_MountJournal) and (C_MountJournal.GetMountFromSpell) then
 		return C_MountJournal.GetMountFromSpell(spellID) or LFF_SPELLID_TO_MOUNTID_LOOKUP[tonumber(spellID)]; -- also check LFF_SPELLID_TO_MOUNTID_LOOKUP, because some mounted auras doesn't belong to a mount, e.g. "Running Wild" for worgen
 	end
-	
+
 	-- before BfA 8.0.1
 	return LFF_SPELLID_TO_MOUNTID_LOOKUP[tonumber(spellID)];
 end
@@ -562,11 +571,20 @@ end
 --         returns 0 if the spell/aura is from a mount, but there is no specific mount, e.g. "Running Wild" for worgen.
 --         returns nil if spell/aura doesn't belong to a mount.
 function LibFroznFunctions:GetMountFromItem(itemID)
+	-- In WoW 12.0.0+, itemID may be secret - cannot use as table key
+	if (issecretvalue(itemID)) then
+		-- Try C_MountJournal API which may accept secrets
+		if (C_MountJournal) and (C_MountJournal.GetMountFromItem) then
+			return C_MountJournal.GetMountFromItem(itemID);
+		end
+		return nil; -- Cannot look up mount without the API when itemID is secret
+	end
+
 	-- since BfA 8.1.0
 	if (C_MountJournal) and (C_MountJournal.GetMountFromItem) then
 		return C_MountJournal.GetMountFromItem(itemID) or LFF_ITEMID_TO_MOUNTID_LOOKUP[tonumber(itemID)]; -- also check LFF_ITEMID_TO_MOUNTID_LOOKUP, because some mount items doesn't belong to a mount, e.g. "Clutch of Ha-Li" (ItemID 173887)
 	end
-	
+
 	-- before BfA 8.1.0
 	return LFF_ITEMID_TO_MOUNTID_LOOKUP[tonumber(itemID)];
 end
@@ -577,6 +595,9 @@ end
 -- @return true if mount is collected, false otherwise. returns nil if it can't be determined if the mount is collected.
 function LibFroznFunctions:IsMountCollected(mountID)
 	-- since Legion 7.0.3
+	if (issecretvalue(mountID)) then
+        return nil;
+    end
 	if (C_MountJournal) and (C_MountJournal.GetMountInfoByID) then
 		return select(11, C_MountJournal.GetMountInfoByID(mountID));
 	end
@@ -915,6 +936,109 @@ function LibFroznFunctions:GetSpecializationInfo(specIndex, isInspect, isPet, in
 end
 
 ----------------------------------------------------------------------------------------------------
+--                                    12.0.0 Secrets API Support                                  --
+----------------------------------------------------------------------------------------------------
+
+-- Color curves for health/power bars (cached for reuse)
+local LFF_HealthColorCurve = nil;
+local LFF_PowerColorCurve = nil;
+
+-- get health color curve for use with UnitHealthPercent()
+-- Uses green -> yellow -> red gradient based on health percentage
+--
+-- @return ColorCurveObject or nil if C_CurveUtil is not available
+function LibFroznFunctions:GetHealthColorCurve()
+	-- Only available in WoW 12.0.0+
+	if (not C_CurveUtil) or (not C_CurveUtil.CreateColorCurve) then
+		return nil;
+	end
+
+	if (not LFF_HealthColorCurve) then
+		LFF_HealthColorCurve = C_CurveUtil.CreateColorCurve();
+		LFF_HealthColorCurve:SetType(Enum.LuaCurveType.Linear);
+		LFF_HealthColorCurve:AddPoint(0.0, CreateColor(1, 0, 0, 1));    -- 0%: Red
+		LFF_HealthColorCurve:AddPoint(0.25, CreateColor(1, 0.5, 0, 1)); -- 25%: Orange
+		LFF_HealthColorCurve:AddPoint(0.5, CreateColor(1, 1, 0, 1));    -- 50%: Yellow
+		LFF_HealthColorCurve:AddPoint(1.0, CreateColor(0, 1, 0, 1));    -- 100%: Green
+	end
+
+	return LFF_HealthColorCurve;
+end
+
+-- get unit health color using ColorCurve (12.0.0+)
+-- Works with secret values - returns a color that can be used directly
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return ColorMixin or nil if not available. In 12.0.0+ this works even when health is secret.
+function LibFroznFunctions:GetUnitHealthColorFromCurve(unitID)
+	local curve = self:GetHealthColorCurve();
+
+	if (curve) and (UnitHealthPercent) then
+		-- UnitHealthPercent with curve returns a color directly (works with secrets)
+		local healthColor = UnitHealthPercent(unitID, curve);
+		-- In edge cases, API may still return a secret - protect against this
+		if (not issecretvalue(healthColor)) then
+			return healthColor;
+		end
+	end
+
+	-- Fallback for pre-12.0.0: calculate manually if health is not secret
+	local health = UnitHealth(unitID);
+	local healthMax = UnitHealthMax(unitID);
+
+	if (issecretvalue(health)) or (issecretvalue(healthMax)) then
+		return nil; -- Cannot calculate without curve API
+	end
+
+	if (healthMax > 0) then
+		local percent = health / healthMax;
+		-- Manual gradient: green -> yellow -> red
+		if (percent > 0.5) then
+			local factor = (percent - 0.5) * 2;
+			return CreateColor(1 - factor, 1, 0, 1); -- Yellow to Green
+		else
+			local factor = percent * 2;
+			return CreateColor(1, factor, 0, 1); -- Red to Yellow
+		end
+	end
+
+	return CreateColor(0, 1, 0, 1); -- Default green
+end
+
+-- check if unit identity should be secret (12.0.0+)
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return true if unit identity (name, GUID, etc.) should be secret, false otherwise
+function LibFroznFunctions:ShouldUnitIdentityBeSecret(unitID)
+	if (C_Secrets) and (C_Secrets.ShouldUnitIdentityBeSecret) then
+		return C_Secrets.ShouldUnitIdentityBeSecret(unitID);
+	end
+	return false;
+end
+
+-- check if unit aura should be secret (12.0.0+)
+--
+-- @param  unitID   unit id, e.g. "player", "target" or "mouseover"
+-- @param  spellID  spell id of the aura
+-- @return true if aura data should be secret, false otherwise
+function LibFroznFunctions:ShouldUnitAuraBeSecret(unitID, spellID)
+	if (C_Secrets) and (C_Secrets.ShouldUnitAuraBeSecret) then
+		return C_Secrets.ShouldUnitAuraBeSecret(unitID, spellID);
+	end
+	return false;
+end
+
+-- check if cooldowns should be secret (12.0.0+)
+--
+-- @return true if cooldown data should be secret, false otherwise
+function LibFroznFunctions:ShouldCooldownsBeSecret()
+	if (C_RestrictedActions) and (C_RestrictedActions.ShouldCooldownsBeSecret) then
+		return C_RestrictedActions.ShouldCooldownsBeSecret();
+	end
+	return false;
+end
+
+----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
 ----------------------------------------------------------------------------------------------------
 
@@ -993,8 +1117,18 @@ end
 --
 -- @param  number      number
 -- @param  abbreviate  optional. true if number should be abbreviated.
--- @return formatted number
+-- @return formatted number (or secret string if number is secret in 12.0.0+)
 function LibFroznFunctions:FormatNumber(number, abbreviate)
+	if (issecretvalue(number)) then
+		-- In WoW 12.0.0+, use AbbreviateNumbers which accepts secrets and returns secret strings
+		-- These secret strings can be passed to FontString:SetText() and display correctly
+		if (abbreviate) and (AbbreviateNumbers) then
+			return AbbreviateNumbers(number); -- Returns secret string
+		end
+		-- Fallback: tostring() accepts secrets and returns secret string in 12.0.0+
+		return tostring(number);
+	end
+
 	local realNumber = tonumber(number);
 	
 	if (abbreviate) then
@@ -1214,7 +1348,20 @@ local pushArray = {
 			return itemsRemoved;
 		end,
 		Concat = function(tab, sep)
-			return table.concat(tab, sep);
+			-- In WoW 12.0.0+, table.concat cannot handle secret values
+			-- Use manual string concatenation which works with secret strings
+			local result = "";
+			local separator = sep or "";
+			for i = 1, tab.count do
+				local value = rawget(tab, i);
+				if (i > 1) then
+					result = result .. separator;
+				end
+				if (value ~= nil) then
+					result = result .. value;  -- String concat works with secrets
+				end
+			end
+			return result;
 		end
 	},
 	__newindex = function(tab, key, value)
@@ -1851,7 +1998,7 @@ function LibFroznFunctions:CreateDbWithLibAceDB(tblNameOrObject, defaultConfig)
 			db:RegisterDefaults({ profile = newDefaults });
 		end
 	else
-		-- database doesn't exists in lib AceDB-3.0 yet. create new database.
+		-- database doesn't exists in lib AceDB-3.0 yet. create new database
 		db = LibAceDB:New(tblNameOrObject, (defaultConfig and { profile = defaultConfig } or nil), true);
 	end
 	
@@ -3162,6 +3309,10 @@ function LibFroznFunctions:GetAuraDescription(unitID, index, filter, callbackFor
 	if (not spellID) then
 		return LFF_AURA_DESCRIPTION.none;
 	end
+
+	if(issecretvalue(spellID)) then
+		return LFF_AURA_DESCRIPTION.none;
+	end
 	
 	local spell = Spell:CreateFromSpellID(spellID);
 	
@@ -3646,6 +3797,10 @@ end
 local cacheUnitRecords = {};
 
 function LibFroznFunctions:GetUnitRecordFromCache(_unitID, _unitGUID, tryToDetermineUnitIDFromUnitGUID)
+	if (issecretvalue(_unitID)) then
+        return LibFroznFunctions:CreateUnitRecord(_unitID);
+    end
+	
 	-- no valid unit any more e.g. during fading out
 	local unitGUID = (_unitID) and (UnitGUID(_unitID)) or (_unitGUID);
 	
@@ -3732,7 +3887,13 @@ function LibFroznFunctions:CreateUnitRecord(unitID)
 	if (not unitID) then
 		return;
 	end
-	
+
+	-- In WoW 12.0.0+, unitID may be secret - cannot use with Unit* APIs
+	-- Note: UnitIsUnit also cannot accept secret arguments, so we cannot find equivalent tokens
+	if (issecretvalue(unitID)) then
+		return;
+	end
+
 	-- no unit guid
 	local unitGUID = UnitGUID(unitID);
 	
@@ -4202,6 +4363,10 @@ function LibFroznFunctions:InspectUnit(unitID, callbackForInspectData, removeCal
 	if (removeCallbackFromQueuedInspectCallbacks) then
 		self:RemoveCallbackFromQueuedInspectCallbacks(callbackForInspectData);
 	end
+
+	if (issecretvalue(unitID)) then
+        return;
+    end
 	
 	-- no unit id or not a player
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));

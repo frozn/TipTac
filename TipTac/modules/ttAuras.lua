@@ -32,6 +32,16 @@ local validSelfCasterUnits = {
 	vehicle = true
 };
 
+-- Fallback for DebuffTypeColor if not available (removed in WoW 12.0.0)
+local DebuffTypeColor = DebuffTypeColor or {
+	none    = { r = 0.80, g = 0.00, b = 0.00 },  -- Red
+	Magic   = { r = 0.20, g = 0.60, b = 1.00 },  -- Blue
+	Curse   = { r = 0.60, g = 0.00, b = 1.00 },  -- Purple
+	Disease = { r = 0.60, g = 0.40, b = 0.00 },  -- Brown
+	Poison  = { r = 0.00, g = 0.60, b = 0.00 },  -- Green
+	[""]    = { r = 0.80, g = 0.00, b = 0.00 },  -- Red (empty string fallback)
+};
+
 ----------------------------------------------------------------------------------------------------
 --                                         Element Events                                         --
 ----------------------------------------------------------------------------------------------------
@@ -215,22 +225,37 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 				-- anchor to last
 				aura:SetPoint(horzAnchor1, lastAura, horzAnchor2, xOffsetBasis * 2, 0);
 			end
-			
-			-- show cooldown model if enabled and aura duration is available
-			if (cfg.showAuraCooldown) and (unitAuraData.duration and (unitAuraData.duration > 0) and unitAuraData.expirationTime and (unitAuraData.expirationTime > 0)) then
-				aura.cooldown:SetCooldown(unitAuraData.expirationTime - unitAuraData.duration, unitAuraData.duration);
+
+			if(not issecretvalue(unitAuraData.duration)) then
+				-- show cooldown model if enabled and aura duration is available
+				if (cfg.showAuraCooldown) and (unitAuraData.duration and (unitAuraData.duration > 0) and unitAuraData.expirationTime and (unitAuraData.expirationTime > 0)) then
+					aura.cooldown:SetCooldown(unitAuraData.expirationTime - unitAuraData.duration, unitAuraData.duration);
+				else
+					aura.cooldown:Hide();
+				end
 			else
 				aura.cooldown:Hide();
 			end
 			
 			-- set texture and count
 			aura.icon:SetTexture(unitAuraData.icon);
-			aura.count:SetText(unitAuraData.applications and (unitAuraData.applications > 1) and unitAuraData.applications or "");
+			if(not issecretvalue(unitAuraData.applications)) then
+				aura.count:SetText(unitAuraData.applications and (unitAuraData.applications > 1) and unitAuraData.applications or "");
+			else
+				aura.count:SetText("");
+			end
 			
 			-- show border, only for debuffs
 			if (auraType == "HARMFUL") then
-				local color = (DebuffTypeColor[unitAuraData.dispelName] or DebuffTypeColor["none"]);
-				
+				-- In WoW 12.0.0+, dispelName may be secret - cannot use as table index
+				local dispelName = unitAuraData.dispelName;
+				local color;
+				if (issecretvalue(dispelName)) then
+					color = DebuffTypeColor["none"];
+				else
+					color = (DebuffTypeColor[dispelName] or DebuffTypeColor["none"]);
+				end
+
 				aura.border:SetVertexColor(color.r, color.g, color.b);
 				aura.border:Show();
 			else

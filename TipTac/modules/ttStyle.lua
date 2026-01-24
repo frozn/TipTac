@@ -174,7 +174,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		local gttLine = _G["GameTooltipTextLeft" .. i];
 		local gttLineText = gttLine:GetText();
 		
-		if (type(gttLineText) == "string") then
+		if (type(gttLineText) == "string") and (not issecretvalue(gttLineText)) then
 			local isGttLineTextUnitPopupRightClick = (hideRightClickForFrameSettingsTextInUnitTip) and (gttLineText == UNIT_POPUP_RIGHT_CLICK);
 			
 			if (isGttLineTextUnitPopupRightClick) or
@@ -195,14 +195,22 @@ end
 
 -- Add target
 local function AddTarget(lineList,target,targetName)
-	if (UnitIsUnit("player",target)) then
+	-- In WoW 12.0.0+, UnitIsUnit may return a secret boolean for certain units
+	local isPlayer = UnitIsUnit("player",target);
+	if (not issecretvalue(isPlayer)) and (isPlayer) then
 		lineList:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(cfg.targetYouText));
 	else
 		local targetReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(target)]));
 		lineList:Push(targetReactionColor:WrapTextInColorCode("["));
 		if (UnitIsPlayer(target)) then
 			local targetClassID = select(3, UnitClass(target));
-			local targetClassColor = LibFroznFunctions:GetClassColor(targetClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targeting;
+			local targetClassColor;
+			-- In WoW 12.0.0+, targetClassID may be a secret value
+			if (issecretvalue(targetClassID)) then
+				targetClassColor = TT_COLOR.text.targeting;
+			else
+				targetClassColor = LibFroznFunctions:GetClassColor(targetClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targeting;
+			end
 			lineList:Push(targetClassColor:WrapTextInColorCode(targetName));
 		else
 			lineList:Push(targetReactionColor:WrapTextInColorCode(targetName));
@@ -212,10 +220,14 @@ local function AddTarget(lineList,target,targetName)
 end
 
 -- TARGET
+-- In WoW 12.0.0+, UnitName may return secret values that cannot be compared
+-- but can still be displayed via WrapTextInColorCode
 function ttStyle:GenerateTargetLines(unitRecord, method)
 	local target = unitRecord.id .."target";
 	local targetName = UnitName(target);
-	if (targetName) and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
+	local isTargetNameSecret = issecretvalue(targetName);
+	-- For secret values, skip string comparisons and use UnitExists only
+	if (isTargetNameSecret and UnitExists(target)) or ((not isTargetNameSecret) and targetName and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target))) then
 		if (method == "afterName") then
 			lineName:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(" : "));
 			AddTarget(lineName,target,targetName);
@@ -238,9 +250,14 @@ function ttStyle:GenerateTargetLines(unitRecord, method)
 end
 
 -- TARGETTED BY
+-- In WoW 12.0.0+, UnitName and UnitClass may return secret values
+-- Secret strings can still be used with WrapTextInColorCode and displayed via SetText
 function ttStyle:GenerateTargetedByLines(unitRecord)
+	if (issecretvalue(unitRecord)) then
+		return;
+	end
 	local numUnits, inGroup, inRaid, nameplates;
-	
+
 	local numGroup = GetNumGroupMembers();
 	if (numGroup) and (numGroup >= 1) then
 		numUnits = numGroup;
@@ -251,19 +268,62 @@ function ttStyle:GenerateTargetedByLines(unitRecord)
 		numUnits = #nameplates;
 		inGroup = false;
 	end
-	
+
 	for i = 1, numUnits do
 		local unit = inGroup and (inRaid and "raid"..i or "party"..i) or (nameplates[i].namePlateUnitToken or "nameplate"..i);
-		if (UnitIsUnit(unit.."target", unitRecord.id)) and (not UnitIsUnit(unit, "player")) then
-			local unitName = UnitName(unit);
-			
-			if (UnitIsPlayer(unit)) then
-				local unitClassID = select(3, UnitClass(unit));
-				local unitClassColor = LibFroznFunctions:GetClassColor(unitClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targetedBy;
-				lineTargetedBy:Push(unitClassColor:WrapTextInColorCode(unitName));
-			else
-				local unitReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(unit)]));
-				lineTargetedBy:Push(unitReactionColor:WrapTextInColorCode(unitName));
+		if (issecretvalue(unit)) then
+			return;
+		end
+		local isNotPlayer = UnitIsUnit(unit, "player");
+		-- In WoW 12.0.0+, UnitIsUnit may return secret boolean
+		if (issecretvalue(isNotPlayer)) or (not isNotPlayer) then
+			-- Check if this unit is actually targeting the tooltip's unit
+			local isTargetingUnit = UnitIsUnit(unit .. "target", unitRecord.id);
+			-- In WoW 12.0.0+, this may also return secret boolean - skip if secret or not targeting
+			if (not issecretvalue(isTargetingUnit)) and (isTargetingUnit) then
+				local unitName = UnitName(unit);
+
+			-- In WoW 12.0.0+, skip if unitName is secret (causes WrapTextInColorCode issues)
+			if (not issecretvalue(unitName)) and (unitName) then
+				-- Wrap in pcall to catch any unexpected secret value errors
+				pcall(function()
+					local isPlayer = UnitIsPlayer(unit);
+					-- In WoW 12.0.0+, UnitIsPlayer may return secret boolean
+					if (not issecretvalue(isPlayer)) and (isPlayer) then
+						local unitClassID = select(3, UnitClass(unit));
+						local unitClassColor;
+
+						-- In 12.0.0+, classID may be secret - cannot use as table key
+						if (issecretvalue(unitClassID)) then
+							-- Use default "targeted by" color when classID is secret
+							unitClassColor = TT_COLOR.text.targetedBy;
+						else
+							unitClassColor = LibFroznFunctions:GetClassColor(unitClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targetedBy;
+						end
+
+						lineTargetedBy:Push(unitClassColor:WrapTextInColorCode(unitName));
+					else
+						-- In 12.0.0+, GetUnitReactionIndex may fail with secret values from Unit* APIs
+						local success, reactionIndex = pcall(LibFroznFunctions.GetUnitReactionIndex, LibFroznFunctions, unit);
+						local unitReactionColor;
+
+						-- Use fallback if pcall failed, reaction is secret, or nil
+						if (not success) or (issecretvalue(reactionIndex)) or (not reactionIndex) then
+							-- Use neutral color when reaction cannot be determined
+							unitReactionColor = TT_COLOR.text.targetedBy;
+						else
+							local configColor = cfg["colorReactText"..reactionIndex];
+							if (configColor) then
+								unitReactionColor = CreateColor(unpack(configColor));
+							else
+								unitReactionColor = TT_COLOR.text.targetedBy;
+							end
+						end
+
+						lineTargetedBy:Push(unitReactionColor:WrapTextInColorCode(unitName));
+					end
+				end);
+			end
 			end
 		end
 	end
@@ -764,8 +824,9 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 			
 			if (spellID) then
 				local mountID = LibFroznFunctions:GetMountFromSpell(spellID);
-				
-				if (mountID) then
+
+				-- In WoW 12.0.0+, mountID may be secret - cannot use with C_MountJournal APIs
+				if (mountID) and (not issecretvalue(mountID)) then
 					-- determine if mount has already been collected
 					local mountText = LibFroznFunctions:CreatePushArray();
 					local spacer;

@@ -666,25 +666,54 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- set formatted bar values
-local function barSetFormattedBarValues(self, value, maxValue, valueType)
+-- In WoW 12.0.0+, value/maxValue may be secret - use secret string APIs where possible
+local function barSetFormattedBarValues(self, value, maxValue, valueType, unitID)
 	local barText = self.text;
-	
+	local isValueSecret = issecretvalue(value);
+	local isMaxValueSecret = issecretvalue(maxValue);
+	local isAnySecret = isValueSecret or isMaxValueSecret;
+
 	if (valueType == "none") then
 		barText:SetText("");
-	elseif (valueType == "value") or (maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
-		barText:SetFormattedText("%s / %s", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues));
+	elseif (valueType == "value") or ((not isAnySecret) and (maxValue == 0)) then
+		-- FormatNumber now handles secrets and returns secret strings (12.0.0+)
+		-- SetText accepts secret strings - they display correctly to the user
+		local valStr = LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues);
+		local maxStr = LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues);
+		if (isAnySecret) then
+			-- Use string concat which works with secret strings in 12.0.0+
+			barText:SetText(valStr .. " / " .. maxStr);
+		else
+			barText:SetFormattedText("%s / %s", valStr, maxStr);
+		end
 	elseif (valueType == "current") then
-		barText:SetFormattedText("%s", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues));
+		barText:SetText(LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues));
 	elseif (valueType == "full") then
-		barText:SetFormattedText("%s / %s (%.0f%%)", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues), value / maxValue * 100);
+		local valStr = LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues);
+		local maxStr = LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues);
+		if (isAnySecret) then
+			-- Cannot calculate percentage when values are secret - show value/max only
+			barText:SetText(valStr .. " / " .. maxStr);
+		else
+			barText:SetFormattedText("%s / %s (%.0f%%)", valStr, maxStr, value / maxValue * 100);
+		end
 	elseif (valueType == "deficit") then
-		if (value ~= maxValue) then
+		if (isAnySecret) then
+			-- Cannot calculate deficit when values are secret - show empty
+			barText:SetText("");
+		elseif (value ~= maxValue) then
 			barText:SetFormattedText("-%s", LibFroznFunctions:FormatNumber(maxValue - value, cfg.barsCondenseValues));
 		else
 			barText:SetText("");
 		end
 	elseif (valueType == "percent") then
-		barText:SetFormattedText("%.0f%%", value / maxValue * 100);
+		if (isAnySecret) then
+			-- Cannot calculate percentage when values are secret
+			-- In 12.0.0+, could use UnitHealthPercent but it also returns secret
+			barText:SetText("");
+		else
+			barText:SetFormattedText("%.0f%%", value / maxValue * 100);
+		end
 	end
 end
 
@@ -700,37 +729,57 @@ function ttBars.HealthBarMixin:GetVisibility(tip, unitRecord)
 end
 
 -- get color of bar
+-- In WoW 12.0.0+, uses ColorCurve when health values are secret
 function ttBars.HealthBarMixin:GetColor(tip, unitRecord)
+	-- Check if health is secret (12.0.0+)
+	local isHealthSecret = issecretvalue(unitRecord.health);
+
+	-- For players with class color setting enabled
 	if (unitRecord.isPlayer) and (cfg.healthBarClassColor) then
 		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
-		
+
 		return classColor:GetRGBA();
-	else
-		return unpack(cfg.healthBarColor);
 	end
+
+	-- For non-players or when class color is disabled:
+	-- Try to use ColorCurve-based health gradient (12.0.0+) when health is secret
+	-- or when dynamic health coloring would be beneficial
+	if (isHealthSecret) then
+		-- In 12.0.0+, use ColorCurve to get color based on health percentage
+		-- This works even when health values are secret
+		local healthColor = LibFroznFunctions:GetUnitHealthColorFromCurve(unitRecord.id);
+		if (healthColor) then
+			return healthColor:GetRGBA();
+		end
+	end
+
+	-- Fallback to static configured color
+	return unpack(cfg.healthBarColor);
 end
 
 -- update value
+-- In WoW 12.0.0+, SetMinMaxValues and SetValue accept secret values directly
 function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
-	
+
 	local value, maxValue, valueType = unitRecord.health, unitRecord.healthMax, cfg.healthBarText;
-	
+
 	-- consider unit health from addon RealMobHealth
 	if (RealMobHealth) then
 		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
-		
+
 		if (rmhValue) and (rmhMaxValue) then
 			value = rmhValue;
 			maxValue = rmhMaxValue;
 		end
 	end
-	
+
 	-- update value
+	-- In 12.0.0+, SetMinMaxValues and SetValue accept secret values
 	if (value) then
 		self:SetMinMaxValues(0, maxValue);
 		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, valueType);
+		self:SetFormattedBarValues(value, maxValue, valueType, unitRecord.id);
 	end
 end
 
@@ -744,8 +793,13 @@ ttBars.HealthBarMixin.SetFormattedBarValues = barSetFormattedBarValues;
 ttBars.PowerBarMixin = {};
 
 -- get visibility of bar
+-- In WoW 12.0.0+, powerMax may be secret - use issecretvalue check
 function ttBars.PowerBarMixin:GetVisibility(tip, unitRecord)
-	return (unitRecord.powerMax ~= 0) and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
+	-- Check if powerMax is secret (12.0.0+) - if so, assume we should show the bar
+	local isPowerMaxSecret = issecretvalue(unitRecord.powerMax);
+	local hasPower = isPowerMaxSecret or (unitRecord.powerMax ~= 0);
+
+	return hasPower and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
 end
 
 -- get color of bar
@@ -754,23 +808,25 @@ function ttBars.PowerBarMixin:GetColor(tip, unitRecord)
 	if (unitRecord.powerType == 0) then
 		return unpack(cfg.manaBarColor);
 	end
-	
+
 	-- other power types
 	local powerColor = LibFroznFunctions:GetPowerColor(unitRecord.powerType, Enum.PowerType.Runes);
-	
+
 	return powerColor:GetRGBA();
 end
 
 -- update value
+-- In WoW 12.0.0+, SetMinMaxValues and SetValue accept secret values directly
 function ttBars.PowerBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
-	
+
 	local value, maxValue, valueType = unitRecord.power, unitRecord.powerMax, (unitRecord.powerType == 0 and cfg.manaBarText or cfg.powerBarText);
-	
+
+	-- In 12.0.0+, SetMinMaxValues and SetValue accept secret values
 	if (value) then
 		self:SetMinMaxValues(0, maxValue);
 		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, valueType);
+		self:SetFormattedBarValues(value, maxValue, valueType, unitRecord.id);
 	end
 end
 

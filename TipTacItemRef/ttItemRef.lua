@@ -346,9 +346,15 @@ local function ttSetIconPoint(tooltip, onlyAdjustForCHWidth)
 		if (onlyAdjustForCHWidth) and (not cfg.if_iconOffsetX_CH_addCHWidth) then
 			return;
 		end
-		
+
+		-- In WoW 12.0.0+, GetWidth() may return secret value - use 0 as fallback
+		local chWidth = tooltip.CompareHeader:GetWidth();
+		if (issecretvalue(chWidth)) then
+			chWidth = 0;
+		end
+
 		tooltip.ttIcon:ClearAllPoints();
-		tooltip.ttIcon:SetPoint(cfg.if_iconAnchor, tooltip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX_CH + (cfg.if_iconOffsetX_CH_addCHWidth and tooltip.CompareHeader:GetWidth() or 0), cfg.if_iconOffsetY_CH);
+		tooltip.ttIcon:SetPoint(cfg.if_iconAnchor, tooltip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX_CH + (cfg.if_iconOffsetX_CH_addCHWidth and chWidth or 0), cfg.if_iconOffsetY_CH);
 	elseif (not onlyAdjustForCHWidth) then
 		tooltip.ttIcon:ClearAllPoints();
 		tooltip.ttIcon:SetPoint(cfg.if_iconAnchor, tooltip, cfg.if_iconTooltipAnchor, cfg.if_iconOffsetX, cfg.if_iconOffsetY);
