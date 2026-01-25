@@ -3267,7 +3267,14 @@ function tt:SetBackdropLocked(tip, backdropInfo)
 	newBackDropInfo.insets.right = self:GetNearestPixelSize(tip, newBackDropInfo.insets.right, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
 	newBackDropInfo.insets.top = self:GetNearestPixelSize(tip, newBackDropInfo.insets.top, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
 	newBackDropInfo.insets.bottom = self:GetNearestPixelSize(tip, newBackDropInfo.insets.bottom, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
-	
+
+	-- In WoW 12.0.0+, GetWidth/GetHeight may return secret values - SetBackdrop uses them internally
+	local tipWidth = tip:GetWidth();
+	local tipHeight = tip:GetHeight();
+	if issecretvalue(tipWidth) or issecretvalue(tipHeight) then
+		return;
+	end
+
 	-- set backdrop locked
 	isSettingBackdropLocked = true;
 	tip:SetBackdrop(newBackDropInfo);
