@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 56; -- bump on changes
+local LIB_MINOR = 57; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3111,7 +3111,7 @@ function LibFroznFunctions:GetTooltipDataFromScanTip(scanTipName, functionName, 
 		scanTip = CreateFrame("GameTooltip", completeScanTipName, nil, "GameTooltipTemplate");
 		getTooltipDataFromScanTipFrames[completeScanTipName] = scanTip;
 		
-		scanTip:SetOwner(UIParent, "ANCHOR_NONE");
+		scanTip:SetOwner(WorldFrame, "ANCHOR_NONE");
 	end
 	
 	-- get tooltip data from scanning tooltip
