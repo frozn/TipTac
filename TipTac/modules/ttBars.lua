@@ -671,6 +671,8 @@ local function barSetFormattedBarValues(self, value, maxValue, valueType)
 	
 	if (valueType == "none") then
 		barText:SetText("");
+	elseif (LibFroznFunctions:issecretvalue(value)) then
+		barText:SetText(value);
 	elseif (valueType == "value") or (maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
 		barText:SetFormattedText("%s / %s", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues));
 	elseif (valueType == "current") then

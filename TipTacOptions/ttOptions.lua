@@ -64,6 +64,11 @@ local DROPDOWN_BARTEXTFORMAT = {
 	["Deficit"] = "deficit",
 };
 
+local DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES = {
+	["|cffffa0a0None"] = "none",
+	["Current Only"] = "current",
+};
+
 -- colors
 local TTO_COLOR = {
 	text = {
@@ -120,7 +125,7 @@ tinsert(ttOptionsGeneral, { type = "DropDown", var = "showTarget", label = "Show
 tinsert(ttOptionsGeneral, { type = "Text", var = "targetYouText", label = "Targeting You Text", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 });
 
 tinsert(ttOptionsGeneral, { type = "Check", var = "showGuild", label = "Show Player Guild", tip = "This will show the guild of the player.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 });
-tinsert(ttOptionsGeneral, { type = "DropDown", var = "showGuildRealm", label = "Show Player Guild\nRealm", tip = "Player guild realm will only be shown if the guild is from a foreign realm.", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show realm in new line"] = "showInNewLine", ["Show (*) instead"] = "asterisk" }, enabled = function(factory) return factory:GetConfigValue("showGuild") end });
+tinsert(ttOptionsGeneral, { type = "DropDown", var = "showGuildRealm", label = "Show Player Guild\nRealm", tip = "Player guild realm will only be shown if the guild is from a foreign realm.", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show realm in new line"] = "showInNewLine", ["Show (*) instead"] = "asterisk" }, enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") end });
 tinsert(ttOptionsGeneral, { type = "Check", var = "showGuildRank", label = "Show Player Guild Rank", tip = "In addition to the guild name, with this option on, you will also see their guild rank by title and/or level", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") end });
 tinsert(ttOptionsGeneral, { type = "DropDown", var = "guildRankFormat", label = "Format Guild Rank", list = { ["Title only"] = "title", ["Title + level"] = "both", ["Level only"] = "level" }, enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") and factory:GetConfigValue("showGuildRank") end });
 tinsert(ttOptionsGeneral, { type = "Check", var = "showGuildMemberNote", label = "Show Player Guild Member Note", tip = "This will show the guild member note of the player.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
@@ -576,7 +581,7 @@ local options = {
 			{ type = "Header", label = "Unit Tip Bars: Health Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "healthBar", label = "Show Health Bar", tip = "Will show a health bar of the unit.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-			{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
+			{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValues and DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES or DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 			{ type = "Color", var = "healthBarColor", label = "Health Bar Color", tip = "The color of the health bar. Has no effect for players with the option above enabled", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 			{ type = "Check", var = "healthBarClassColor", label = "Class Colored Health Bar", tip = "This options colors the health bar in the same color as the player class", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end, y = 2, x = 130 },
 			{ type = "Check", var = "hideDefaultBar", label = "Hide the Default Health Bar", tip = "Check this to hide the default health bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
@@ -584,13 +589,13 @@ local options = {
 			{ type = "Header", label = "Unit Tip Bars: Mana Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "manaBar", label = "Show Mana Bar", tip = "If the unit has mana, a mana bar will be shown.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-			{ type = "DropDown", var = "manaBarText", label = "Mana Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
+			{ type = "DropDown", var = "manaBarText", label = "Mana Bar Text", list = LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues and DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES or DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
 			{ type = "Color", var = "manaBarColor", label = "Mana Bar Color", tip = "The color of the mana bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
 			
 			{ type = "Header", label = "Unit Tip Bars: Bar for other Power Types", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "powerBar", label = "Show Bar for other Power Types\n(e.g. Energy, Rage, Runic Power or Focus)", tip = "If the unit uses other power types than mana (e.g. energy, rage, runic power or focus), a bar for that will be shown.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-			{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("powerBar") end },
+			{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues and DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES or DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("powerBar") end },
 			
 			{ type = "Header", label = "Unit Tip Bars: Cast Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			

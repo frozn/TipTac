@@ -64,6 +64,7 @@ end
 --         .SL         = true/false for SL
 --         .DF         = true/false for DF
 --         .TWW        = true/false for TWW
+--         .MN         = true/false for MN
 LibFroznFunctions.isWoWFlavor = {
 	ClassicEra = false,
 	BCC = false,
@@ -72,7 +73,8 @@ LibFroznFunctions.isWoWFlavor = {
 	MoPC = false,
 	SL = false,
 	DF = false,
-	TWW = false
+	TWW = false,
+	MN = false
 };
 
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
@@ -85,13 +87,15 @@ elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.CataC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MISTS_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.MoPC = true;
-else -- retail
+else -- WOW_PROJECT_MAINLINE (retail)
 	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
 		LibFroznFunctions.isWoWFlavor.SL = true;
 	elseif (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_DRAGONFLIGHT"]) then
 		LibFroznFunctions.isWoWFlavor.DF = true;
-	else
+	elseif (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_WAR_WITHIN"]) then
 		LibFroznFunctions.isWoWFlavor.TWW = true;
+	else
+		LibFroznFunctions.isWoWFlavor.MN = true;
 	end
 end
 
@@ -127,6 +131,8 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate". since df 10.0.0, catac 4.4.0 and 1.15.4 "UISliderTemplateWithLabels")
 --         .skyriding                                                  = true/false if skyriding is available (since df 10.0.2)
 --         .challengeMode                                              = true/false if challenge mode is available (since Legion 7.0.3)
+--         .UnitHealthAlwaysReturnsSecretValues                        = true/false if UnitHealth() always returns secret values (since mn 12.0.0)
+--         .UnitPowerAlwaysReturnsSecretValues                         = true/false if UnitPower() always returns secret values (since mn 12.0.0)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
@@ -150,7 +156,9 @@ LibFroznFunctions.hasWoWFlavor = {
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
 	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
-	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false)
+	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
+	UnitHealthAlwaysReturnsSecretValues = true,
+	UnitPowerAlwaysReturnsSecretValues = true
 };
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
@@ -187,6 +195,10 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.clickForSettingsTextInCurrencyTip = false;
 	LibFroznFunctions.hasWoWFlavor.ShoppingTooltipHasCompareHeader = false;
 end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
+	LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValues = false;
+	LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues = false;
+end
 if (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
 	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -1;
 end
@@ -203,7 +215,8 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.CataC      and 359 or -- Stormrider's Robes (Druid, Tier 11)
 	LibFroznFunctions.isWoWFlavor.MoPC       and 397 or -- Deep Earth Robes (Druid, Tier 13)
 	LibFroznFunctions.isWoWFlavor.DF         and 395 or -- Lost Landcaller's Robes (Druid, Tier 29)
-	LibFroznFunctions.isWoWFlavor.TWW        and 571;   -- Hide of the Greatlynx (Druid, Tier 32)
+	LibFroznFunctions.isWoWFlavor.TWW        and 571 or -- Hide of the Greatlynx (Druid, Tier 32)
+	LibFroznFunctions.isWoWFlavor.MN         and 219;   -- Trunk of the Luminous Bloom (Druid, Tier 35)
 
 -- aura filters, see "AuraUtil.lua"
 LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
@@ -226,6 +239,18 @@ if (not LFF_WORLD_ELAPSED_TIMER_TYPES) then
 		ChallengeMode = 1, -- LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE
 		ProvingGround = 2 -- LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND
 	};
+end
+
+-- is secret value
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return true if it's a battle pet unit, false otherwise.
+function LibFroznFunctions:issecretvalue(value)
+	if (issecretvalue) then
+		return issecretvalue(value);
+	end
+	
+	return false;
 end
 
 -- is unit a battle pet
