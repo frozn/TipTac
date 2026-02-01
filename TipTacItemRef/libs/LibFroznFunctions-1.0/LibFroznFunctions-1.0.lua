@@ -3826,18 +3826,36 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.level = (unitRecord.isBattlePet) and (UnitBattlePetLevel(unitID)) or (UnitLevel(unitID)) or -1;
 	unitRecord.reactionIndex = self:GetUnitReactionIndex(unitID);
 	
-	unitRecord.health = UnitHealth(unitID);
-	unitRecord.healthMax = UnitHealthMax(unitID);
-	
 	unitRecord.powerType = UnitPowerType(unitID);
 	unitRecord.power = UnitPower(unitID);
 	unitRecord.powerMax = UnitPowerMax(unitID);
 	
+	-- consider unit health from addon RealMobHealth
+	local health, healthMax, healthPercent;
+	
+	if (RealMobHealth) then
+		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
+		
+		if (rmhValue) and (rmhMaxValue) then
+			health = rmhValue;
+			healthMax = rmhMaxValue;
+		end
+	end
+	
+	if (not health) and (not healthMax) then
+		health = UnitHealth(unitID);
+		healthMax = UnitHealthMax(unitID);
+	end
+	
+	unitRecord.health = (health) or 0;
+	unitRecord.healthMax = (healthMax) or 0;
+	unitRecord.healthPercentIfHealthIsSecret = (UnitHealthPercent) and UnitHealthPercent(unitID, false, CurveConstants.ScaleTo100) or 0;
+	
+	-- add location (map, zone and subzone) to unit record
 	unitRecord.map = nil;
 	unitRecord.zone = nil;
 	unitRecord.subzone = nil;
 	
-	-- add location (map, zone and subzone) to unit record
 	if (unitRecord.isPlayer) then
 		if (mapID) then
 			local mapInfo = C_Map.GetMapInfo(mapID);
