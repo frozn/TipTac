@@ -2061,12 +2061,9 @@ local powerTypeToPowerTokenLookup = { -- see powerTypeToStringLookup in "Blizzar
 	[Enum.PowerType.Insanity] = "INSANITY",
 	[Enum.PowerType.ArcaneCharges] = "ARCANE_CHARGES",
 	[Enum.PowerType.Fury] = "FURY",
-	[Enum.PowerType.Pain] = "PAIN"
+	[Enum.PowerType.Pain] = "PAIN",
+	[Enum.PowerType.Essence] = "ESSENCE"
 };
-
-if (Enum.PowerType.Essence) then
-	powerTypeToPowerTokenLookup[Enum.PowerType.Essence] = POWER_TYPE_ESSENCE;
-end
 
 function LibFroznFunctions:GetPowerColor(powerType, alternatePowerTypeIfNotFound)
 	return self:CreateColorSmart((powerTypeToPowerTokenLookup[powerType] and PowerBarColor[powerTypeToPowerTokenLookup[powerType]]) or (powerTypeToPowerTokenLookup[alternatePowerTypeIfNotFound] and PowerBarColor[powerTypeToPowerTokenLookup[alternatePowerTypeIfNotFound]]));
@@ -3826,9 +3823,16 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.level = (unitRecord.isBattlePet) and (UnitBattlePetLevel(unitID)) or (UnitLevel(unitID)) or -1;
 	unitRecord.reactionIndex = self:GetUnitReactionIndex(unitID);
 	
+	unitRecord.health = UnitHealth(unitID);
+	unitRecord.healthMax = UnitHealthMax(unitID);
+	unitRecord.healthPercent = UnitHealthPercent(unitID, false, CurveConstants.ScaleTo100)
+	unitRecord.healthMissing = UnitHealthMissing(unitID, false)
+	
 	unitRecord.powerType = UnitPowerType(unitID);
 	unitRecord.power = UnitPower(unitID);
 	unitRecord.powerMax = UnitPowerMax(unitID);
+	unitRecord.powerPercent = UnitPowerPercent(unitID, unitRecord.powerType, false, CurveConstants.ScaleTo100)
+	unitRecord.powerMissing = UnitPowerMissing(unitID, unitRecord.powerType, false)
 	
 	-- consider unit health from addon RealMobHealth
 	local health, healthMax, healthPercent;

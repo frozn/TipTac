@@ -666,9 +666,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- set formatted bar values
-local function barSetFormattedBarValues(self, value, maxValue, valueType, valuePercentIfValueIsSecret)
+local function barSetFormattedBarValues(self, value, maxValue, percentValue, missingValue, valueType)
 	local barText = self.text;
-	
+
 	if (valueType == "none") then
 		barText:SetText("");
 	elseif (LibFroznFunctions:issecretvalue(value)) then
@@ -678,19 +678,15 @@ local function barSetFormattedBarValues(self, value, maxValue, valueType, valueP
 			barText:SetText(value);
 		end
 	elseif (valueType == "value") or (maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
-		barText:SetFormattedText("%s / %s", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues));
+		barText:SetFormattedText("%s / %s", value, maxValue);
 	elseif (valueType == "current") then
-		barText:SetFormattedText("%s", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues));
+		barText:SetFormattedText("%s", value);
 	elseif (valueType == "full") then
-		barText:SetFormattedText("%s / %s (%.0f%%)", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues), value / maxValue * 100);
+		barText:SetFormattedText("%s / %s (%.0f%%)", value, maxValue, percentValue);
 	elseif (valueType == "deficit") then
-		if (value ~= maxValue) then
-			barText:SetFormattedText("-%s", LibFroznFunctions:FormatNumber(maxValue - value, cfg.barsCondenseValues));
-		else
-			barText:SetText("");
-		end
+		barText:SetFormattedText("-%s", missingValue);
 	elseif (valueType == "percent") then
-		barText:SetFormattedText("%.0f%%", value / maxValue * 100);
+		barText:SetFormattedText("%.0f%%", percentValue);
 	end
 end
 
@@ -720,12 +716,24 @@ end
 function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
 	
-	local value, maxValue, valueType, valuePercentIfValueIsSecret = unitRecord.health, unitRecord.healthMax, cfg.healthBarText, unitRecord.healthPercentIfHealthIsSecret;
+	local value, maxValue, valueType = unitRecord.health, unitRecord.healthMax, cfg.healthBarText;
+    local percentValue = unitRecord.healthPercent
+	local missingValue = unitRecord.healthMissing
+
+	-- consider unit health from addon RealMobHealth
+	if (RealMobHealth) then
+		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
+		
+		if (rmhValue) and (rmhMaxValue) then
+			value = rmhValue;
+			maxValue = rmhMaxValue;
+		end
+	end
 	
 	if (value) then
 		self:SetMinMaxValues(0, maxValue);
 		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, valueType, valuePercentIfValueIsSecret);
+		self:SetFormattedBarValues(value, maxValue, percentValue, missingValue, valueType);
 	end
 end
 
@@ -740,7 +748,7 @@ ttBars.PowerBarMixin = {};
 
 -- get visibility of bar
 function ttBars.PowerBarMixin:GetVisibility(tip, unitRecord)
-	return (unitRecord.powerMax ~= 0) and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
+	return (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
 end
 
 -- get color of bar
@@ -761,11 +769,13 @@ function ttBars.PowerBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
 	
 	local value, maxValue, valueType = unitRecord.power, unitRecord.powerMax, (unitRecord.powerType == 0 and cfg.manaBarText or cfg.powerBarText);
-	
+    local percentValue = unitRecord.powerPercent
+	local missingValue = unitRecord.powerMissing
+
 	if (value) then
 		self:SetMinMaxValues(0, maxValue);
 		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, valueType);
+		self:SetFormattedBarValues(value, maxValue, percentValue, missingValue, valueType);
 	end
 end
 

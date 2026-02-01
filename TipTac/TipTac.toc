@@ -34,4 +34,5 @@ modules\ttAuras.lua
 modules\ttBars.lua
 modules\ttIcons.lua
 modules\ttHyperlink.lua
+
 modules\ttStyle.lua
