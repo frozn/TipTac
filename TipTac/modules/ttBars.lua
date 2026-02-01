@@ -666,13 +666,17 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- set formatted bar values
-local function barSetFormattedBarValues(self, value, maxValue, valueType)
+local function barSetFormattedBarValues(self, value, maxValue, valueType, valuePercentIfValueIsSecret)
 	local barText = self.text;
 	
 	if (valueType == "none") then
 		barText:SetText("");
 	elseif (LibFroznFunctions:issecretvalue(value)) then
-		barText:SetText(value);
+		if (valueType == "percent") then
+			barText:SetFormattedText("%.0f%%", valuePercentIfValueIsSecret);
+		else
+			barText:SetText(value);
+		end
 	elseif (valueType == "value") or (maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
 		barText:SetFormattedText("%s / %s", LibFroznFunctions:FormatNumber(value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(maxValue, cfg.barsCondenseValues));
 	elseif (valueType == "current") then
@@ -716,23 +720,12 @@ end
 function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
 	
-	local value, maxValue, valueType = unitRecord.health, unitRecord.healthMax, cfg.healthBarText;
+	local value, maxValue, valueType, valuePercentIfValueIsSecret = unitRecord.health, unitRecord.healthMax, cfg.healthBarText, unitRecord.healthPercentIfHealthIsSecret;
 	
-	-- consider unit health from addon RealMobHealth
-	if (RealMobHealth) then
-		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
-		
-		if (rmhValue) and (rmhMaxValue) then
-			value = rmhValue;
-			maxValue = rmhMaxValue;
-		end
-	end
-	
-	-- update value
 	if (value) then
 		self:SetMinMaxValues(0, maxValue);
 		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, valueType);
+		self:SetFormattedBarValues(value, maxValue, valueType, valuePercentIfValueIsSecret);
 	end
 end
 
