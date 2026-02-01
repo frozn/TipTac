@@ -1,4 +1,4 @@
-## Interface: 11508
+## Interface: 20505
 ## Version: 26.01.16
 ## IconTexture: Interface\AddOns\TipTacTalents\media\tiptac_logo
 ## Title: TipTacTalents

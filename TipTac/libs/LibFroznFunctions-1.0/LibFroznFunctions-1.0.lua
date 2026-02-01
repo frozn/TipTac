@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 55; -- bump on changes
+local LIB_MINOR = 57; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -64,6 +64,7 @@ end
 --         .SL         = true/false for SL
 --         .DF         = true/false for DF
 --         .TWW        = true/false for TWW
+--         .MN         = true/false for MN
 LibFroznFunctions.isWoWFlavor = {
 	ClassicEra = false,
 	BCC = false,
@@ -72,7 +73,8 @@ LibFroznFunctions.isWoWFlavor = {
 	MoPC = false,
 	SL = false,
 	DF = false,
-	TWW = false
+	TWW = false,
+	MN = false
 };
 
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
@@ -85,13 +87,15 @@ elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.CataC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MISTS_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.MoPC = true;
-else -- retail
+else -- WOW_PROJECT_MAINLINE (retail)
 	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
 		LibFroznFunctions.isWoWFlavor.SL = true;
 	elseif (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_DRAGONFLIGHT"]) then
 		LibFroznFunctions.isWoWFlavor.DF = true;
-	else
+	elseif (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_WAR_WITHIN"]) then
 		LibFroznFunctions.isWoWFlavor.TWW = true;
+	else
+		LibFroznFunctions.isWoWFlavor.MN = true;
 	end
 end
 
@@ -118,14 +122,17 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips         = true/false if GameTooltip:FadeOut() will not be called for worldframe unit tips (till mopc)
 --         .ShoppingTooltipHasCompareHeader                            = true/false if ShoppingTooltip1/2.CompareHeader exist (since tww 11.2.7)
 --         .barMarginAdjustment                                        = bar margin adjustment (since bc till mopc)
---         .experienceBarFrame                                         = frame of experience bar
 --         .experienceBarDockedToInterfaceBar                          = true/false if experience bar is docked to interface bar (till df 10.0.0)
+--         .experienceBarFrame                                         = frame of experience bar
+--         .experienceBarMaxLevelBack                                  = max level to search back in frame chain to search for frame of experience bar
 --         .realGetSpellLinkAvailable                                  = true/false if the real GetSpellLink() is available (since bc 2.3.0). in classic era this function only returns the spell name instead of a spell link.
 --         .relatedExpansionForItemAvailable                           = true/false if C_Item.GetItemInfo() return the related expansion for an item (parameter expansionID) (since Legion 7.1.0)
 --         .defaultGearScoreAlgorithm                                  = default GearScore algorithm
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate". since df 10.0.0, catac 4.4.0 and 1.15.4 "UISliderTemplateWithLabels")
 --         .skyriding                                                  = true/false if skyriding is available (since df 10.0.2)
 --         .challengeMode                                              = true/false if challenge mode is available (since Legion 7.0.3)
+--         .UnitHealthAlwaysReturnsSecretValues                        = true/false if UnitHealth() always returns secret values (since mn 12.0.0)
+--         .UnitPowerAlwaysReturnsSecretValues                         = true/false if UnitPower() always returns secret values (since mn 12.0.0)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
@@ -149,7 +156,9 @@ LibFroznFunctions.hasWoWFlavor = {
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
 	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
-	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false)
+	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
+	UnitHealthAlwaysReturnsSecretValues = true,
+	UnitPowerAlwaysReturnsSecretValues = true
 };
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
@@ -172,18 +181,23 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
 	LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable = false;
 end
-if (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
+if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate = "OptionsSliderTemplate";
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
-	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = MainMenuExpBar;
 	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
+	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = (MainMenuExpBar or MainStatusTrackingBarContainer);
+	LibFroznFunctions.hasWoWFlavor.experienceBarMaxLevelBack = (MainMenuExpBar and 1 or MainStatusTrackingBarContainer and 3);
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip = false;
 	LibFroznFunctions.hasWoWFlavor.clickForSettingsTextInCurrencyTip = false;
 	LibFroznFunctions.hasWoWFlavor.ShoppingTooltipHasCompareHeader = false;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
+	LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValues = false;
+	LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues = false;
 end
 if (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
 	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -1;
@@ -201,7 +215,8 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.CataC      and 359 or -- Stormrider's Robes (Druid, Tier 11)
 	LibFroznFunctions.isWoWFlavor.MoPC       and 397 or -- Deep Earth Robes (Druid, Tier 13)
 	LibFroznFunctions.isWoWFlavor.DF         and 395 or -- Lost Landcaller's Robes (Druid, Tier 29)
-	LibFroznFunctions.isWoWFlavor.TWW        and 571;   -- Hide of the Greatlynx (Druid, Tier 32)
+	LibFroznFunctions.isWoWFlavor.TWW        and 571 or -- Hide of the Greatlynx (Druid, Tier 32)
+	LibFroznFunctions.isWoWFlavor.MN         and 219;   -- Trunk of the Luminous Bloom (Druid, Tier 35)
 
 -- aura filters, see "AuraUtil.lua"
 LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
@@ -224,6 +239,18 @@ if (not LFF_WORLD_ELAPSED_TIMER_TYPES) then
 		ChallengeMode = 1, -- LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE
 		ProvingGround = 2 -- LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND
 	};
+end
+
+-- is secret value
+--
+-- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
+-- @return true if it's a battle pet unit, false otherwise.
+function LibFroznFunctions:issecretvalue(value)
+	if (issecretvalue) then
+		return issecretvalue(value);
+	end
+	
+	return false;
 end
 
 -- is unit a battle pet
@@ -1849,7 +1876,7 @@ function LibFroznFunctions:CreateDbWithLibAceDB(tblNameOrObject, defaultConfig)
 			db:RegisterDefaults({ profile = newDefaults });
 		end
 	else
-		-- database doesn't exists in lib AceDB-3.0 yet. create new database
+		-- database doesn't exists in lib AceDB-3.0 yet. create new database.
 		db = LibAceDB:New(tblNameOrObject, (defaultConfig and { profile = defaultConfig } or nil), true);
 	end
 	
@@ -2665,7 +2692,7 @@ end
 -- @param  framesAndNamePatterns  frame or pattern to search back in frame chain, or a table of this.
 -- @param  maxLevelBack           optional. max level to search back in frame chain, e.g. 1 = actual level, 2 = actual and one level back.
 -- @return true if frame or pattern in frame chain exists, false otherwise.
-function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndNamePatterns, maxLevel)
+function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndNamePatterns, maxLevelBack)
 	local framesAndNamePatternsTable = self:ConvertToTable(framesAndNamePatterns);
 	local currentFrame = referenceFrame;
 	local currentLevel = 1;
@@ -2687,7 +2714,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 			end
 		end
 		
-		if (maxLevel) and (currentLevel >= maxLevel) then
+		if (maxLevelBack) and (currentLevel >= maxLevelBack) then
 			return false;
 		end
 		
@@ -3106,7 +3133,7 @@ function LibFroznFunctions:GetTooltipDataFromScanTip(scanTipName, functionName, 
 		scanTip = CreateFrame("GameTooltip", completeScanTipName, nil, "GameTooltipTemplate");
 		getTooltipDataFromScanTipFrames[completeScanTipName] = scanTip;
 		
-		scanTip:SetOwner(UIParent, "ANCHOR_NONE");
+		scanTip:SetOwner(WorldFrame, "ANCHOR_NONE");
 	end
 	
 	-- get tooltip data from scanning tooltip
@@ -3807,11 +3834,32 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.powerPercent = UnitPowerPercent(unitID, unitRecord.powerType, false, CurveConstants.ScaleTo100)
 	unitRecord.powerMissing = UnitPowerMissing(unitID, unitRecord.powerType, false)
 	
+	-- consider unit health from addon RealMobHealth
+	local health, healthMax, healthPercent;
+	
+	if (RealMobHealth) then
+		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
+		
+		if (rmhValue) and (rmhMaxValue) then
+			health = rmhValue;
+			healthMax = rmhMaxValue;
+		end
+	end
+	
+	if (not health) and (not healthMax) then
+		health = UnitHealth(unitID);
+		healthMax = UnitHealthMax(unitID);
+	end
+	
+	unitRecord.health = (health) or 0;
+	unitRecord.healthMax = (healthMax) or 0;
+	unitRecord.healthPercentIfHealthIsSecret = (UnitHealthPercent) and UnitHealthPercent(unitID, false, CurveConstants.ScaleTo100) or 0;
+	
+	-- add location (map, zone and subzone) to unit record
 	unitRecord.map = nil;
 	unitRecord.zone = nil;
 	unitRecord.subzone = nil;
 	
-	-- add location (map, zone and subzone) to unit record
 	if (unitRecord.isPlayer) then
 		if (mapID) then
 			local mapInfo = C_Map.GetMapInfo(mapID);

@@ -1702,13 +1702,8 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			return;
 		end
 		
-		-- creation of new table needed so that saving of minimap config is possible
-		if (LibFroznFunctions:IsTableEmpty(cfg.minimapConfig)) then
-			cfg.minimapConfig = {};
-		end
-		
 		-- register minimap icon to LibDBIcon-1.0
-		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, cfg.minimapConfig);
+		LibDBIcon:Register(MOD_NAME, TT_LDB_DataObject, LibFroznFunctions:CreateLinkedTableFromTableWithKey(cfg, "minimapConfig"));
 		
 		minimapIconRegistered = true;
 	end,
@@ -4466,7 +4461,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 				if (not tip:IsForbidden()) then
 					local tipOwner = tip:GetOwner();
 					
-					if (tipOwner == LibFroznFunctions.hasWoWFlavor.experienceBarFrame) then
+					if (LibFroznFunctions:IsFrameBackInFrameChain(tipOwner, { LibFroznFunctions.hasWoWFlavor.experienceBarFrame }, LibFroznFunctions.hasWoWFlavor.experienceBarMaxLevelBack)) then
 						isTipFromExpBar = true;
 					end
 				end

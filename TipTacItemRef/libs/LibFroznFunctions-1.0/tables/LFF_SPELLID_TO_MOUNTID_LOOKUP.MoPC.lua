@@ -2,7 +2,7 @@
 
 -- define table
 local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 4; -- bump on changes
+local TABLE_MINOR = 5; -- bump on changes
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 

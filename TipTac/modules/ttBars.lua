@@ -671,6 +671,12 @@ local function barSetFormattedBarValues(self, value, maxValue, percentValue, mis
 
 	if (valueType == "none") then
 		barText:SetText("");
+	elseif (LibFroznFunctions:issecretvalue(value)) then
+		if (valueType == "percent") then
+			barText:SetFormattedText("%.0f%%", valuePercentIfValueIsSecret);
+		else
+			barText:SetText(value);
+		end
 	elseif (valueType == "value") or (maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
 		barText:SetFormattedText("%s / %s", value, maxValue);
 	elseif (valueType == "current") then
@@ -724,7 +730,6 @@ function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 		end
 	end
 	
-	-- update value
 	if (value) then
 		self:SetMinMaxValues(0, maxValue);
 		self:SetValue(value);
