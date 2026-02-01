@@ -666,27 +666,55 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- set formatted bar values
-local function barSetFormattedBarValues(self, value, maxValue, percentValue, missingValue, valueType)
+-- local function barSetFormattedBarValues(self, value, maxValue, valueType, valuePercentIfValueIsSecretValue, valueMissingIfValueIsSecretValue)
+--
+-- @param self                                 bar
+-- @param valueParams                          value parameters
+--          .valueType                           value type
+--          .value                               value
+--          .maxValue                            max value
+--          .valueIsSecretValue                  true if value is a secret value, false otherwise.
+--          .valuePercentIfValueIsSecretValue    value percent if value is a secret value
+--          .valueMissingIfValueIsSecretValue    value missing if value is a secret value
+local function barSetFormattedBarValues(self, valueParams)
 	local barText = self.text;
-
-	if (valueType == "none") then
+	
+	if (valueParams.valueType == "none") then
 		barText:SetText("");
-	elseif (LibFroznFunctions:issecretvalue(value)) then
-		if (valueType == "percent") then
-			barText:SetFormattedText("%.0f%%", valuePercentIfValueIsSecret);
+	elseif (valueParams.valueType == "value") or (not valueParams.valueIsSecretValue) and (valueParams.maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
+		if (valueParams.valueIsSecretValue) then
+			barText:SetFormattedText("%s / %s", valueParams.value, valueParams.maxValue);
 		else
-			barText:SetText(value);
+			barText:SetFormattedText("%s / %s", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(valueParams.maxValue, cfg.barsCondenseValues));
 		end
-	elseif (valueType == "value") or (maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
-		barText:SetFormattedText("%s / %s", value, maxValue);
-	elseif (valueType == "current") then
-		barText:SetFormattedText("%s", value);
-	elseif (valueType == "full") then
-		barText:SetFormattedText("%s / %s (%.0f%%)", value, maxValue, percentValue);
-	elseif (valueType == "deficit") then
-		barText:SetFormattedText("-%s", missingValue);
-	elseif (valueType == "percent") then
-		barText:SetFormattedText("%.0f%%", percentValue);
+	elseif (valueParams.valueType == "current") then
+		if (valueParams.valueIsSecretValue) then
+			barText:SetFormattedText("%s", valueParams.value);
+		else
+			barText:SetFormattedText("%s", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues));
+		end
+	elseif (valueParams.valueType == "full") then
+		if (valueParams.valueIsSecretValue) then
+			barText:SetFormattedText("%s / %s (%.0f%%)", valueParams.value, valueParams.maxValue, valueParams.valuePercentIfValueIsSecretValue);
+		else
+			barText:SetFormattedText("%s / %s (%.0f%%)", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(valueParams.maxValue, cfg.barsCondenseValues), valueParams.value / valueParams.maxValue * 100);
+		end
+	elseif (valueParams.valueType == "deficit") then
+		if (valueParams.valueIsSecretValue) then
+			barText:SetFormattedText("-%s", valueParams.valueMissingIfValueIsSecretValue);
+		else
+			if (valueParams.value ~= valueParams.maxValue) then
+				barText:SetFormattedText("-%s", LibFroznFunctions:FormatNumber(valueParams.maxValue - valueParams.value, cfg.barsCondenseValues));
+			else
+				barText:SetText("");
+			end
+		end
+	elseif (valueParams.valueType == "percent") then
+		if (valueParams.valueIsSecretValue) then
+			barText:SetFormattedText("%.0f%%", valueParams.valuePercentIfValueIsSecretValue);
+		else
+			barText:SetFormattedText("%.0f%%", valueParams.value / valueParams.maxValue * 100);
+		end
 	end
 end
 
@@ -716,24 +744,19 @@ end
 function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
 	
-	local value, maxValue, valueType = unitRecord.health, unitRecord.healthMax, cfg.healthBarText;
-    local percentValue = unitRecord.healthPercent
-	local missingValue = unitRecord.healthMissing
-
-	-- consider unit health from addon RealMobHealth
-	if (RealMobHealth) then
-		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
-		
-		if (rmhValue) and (rmhMaxValue) then
-			value = rmhValue;
-			maxValue = rmhMaxValue;
-		end
-	end
+	local valueParams = {
+		valueType = cfg.healthBarText,
+		value = unitRecord.health,
+		maxValue = unitRecord.healthMax,
+		valueIsSecretValue = unitRecord.healthIsSecretValue,
+		valuePercentIfValueIsSecretValue = unitRecord.healthPercentIfHealthIsSecretValue,
+		valueMissingIfValueIsSecretValue = unitRecord.healthMissingIfHealthIsSecretValue
+	};
 	
-	if (value) then
-		self:SetMinMaxValues(0, maxValue);
-		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, percentValue, missingValue, valueType);
+	if (valueParams.value) then
+		self:SetMinMaxValues(0, valueParams.maxValue);
+		self:SetValue(valueParams.value);
+		self:SetFormattedBarValues(valueParams);
 	end
 end
 
@@ -748,7 +771,7 @@ ttBars.PowerBarMixin = {};
 
 -- get visibility of bar
 function ttBars.PowerBarMixin:GetVisibility(tip, unitRecord)
-	return (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
+	return ((unitRecord.powerIsSecretValue) or (unitRecord.powerMax ~= 0)) and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
 end
 
 -- get color of bar
@@ -768,14 +791,19 @@ end
 function ttBars.PowerBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
 	
-	local value, maxValue, valueType = unitRecord.power, unitRecord.powerMax, (unitRecord.powerType == 0 and cfg.manaBarText or cfg.powerBarText);
-    local percentValue = unitRecord.powerPercent
-	local missingValue = unitRecord.powerMissing
-
-	if (value) then
-		self:SetMinMaxValues(0, maxValue);
-		self:SetValue(value);
-		self:SetFormattedBarValues(value, maxValue, percentValue, missingValue, valueType);
+	local valueParams = {
+		valueType = (unitRecord.powerType == 0 and cfg.manaBarText or cfg.powerBarText),
+		value = unitRecord.power,
+		maxValue = unitRecord.powerMax,
+		valueIsSecretValue = unitRecord.powerIsSecretValue,
+		valuePercentIfValueIsSecretValue = unitRecord.powerPercentIfPowerIsSecretValue,
+		valueMissingIfValueIsSecretValue = unitRecord.powerMissingIfPowerIsSecretValue
+	};
+	
+	if (valueParams.value) then
+		self:SetMinMaxValues(0, valueParams.maxValue);
+		self:SetValue(valueParams.value);
+		self:SetFormattedBarValues(valueParams);
 	end
 end
 

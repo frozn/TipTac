@@ -22,5 +22,4 @@
 ## X-Curse-Project-ID: 695153
 embeds.xml
 
-
 ttTalents.lua

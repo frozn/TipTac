@@ -131,8 +131,8 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .optionsSliderTemplate                                      = options slider template ("OptionsSliderTemplate". since df 10.0.0, catac 4.4.0 and 1.15.4 "UISliderTemplateWithLabels")
 --         .skyriding                                                  = true/false if skyriding is available (since df 10.0.2)
 --         .challengeMode                                              = true/false if challenge mode is available (since Legion 7.0.3)
---         .UnitHealthAlwaysReturnsSecretValues                        = true/false if UnitHealth() always returns secret values (since mn 12.0.0)
---         .UnitPowerAlwaysReturnsSecretValues                         = true/false if UnitPower() always returns secret values (since mn 12.0.0)
+--         .UnitHealthAlwaysReturnsSecretValue                         = true/false if UnitHealth() always returns a secret value (since mn 12.0.0)
+--         .UnitPowerAlwaysReturnsSecretValue                          = true/false if UnitPower() always returns a secret value (since mn 12.0.0)
 LibFroznFunctions.hasWoWFlavor = {
 	guildNameInPlayerUnitTip = true,
 	specializationAndClassTextInPlayerUnitTip = true,
@@ -157,8 +157,8 @@ LibFroznFunctions.hasWoWFlavor = {
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
 	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
 	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
-	UnitHealthAlwaysReturnsSecretValues = true,
-	UnitPowerAlwaysReturnsSecretValues = true
+	UnitHealthAlwaysReturnsSecretValue = true,
+	UnitPowerAlwaysReturnsSecretValue = true
 };
 
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
@@ -196,8 +196,8 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.ShoppingTooltipHasCompareHeader = false;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
-	LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValues = false;
-	LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues = false;
+	LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValue = false;
+	LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValue = false;
 end
 if (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
 	LibFroznFunctions.hasWoWFlavor.barMarginAdjustment = -1;
@@ -245,7 +245,7 @@ end
 --
 -- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
 -- @return true if it's a battle pet unit, false otherwise.
-function LibFroznFunctions:issecretvalue(value)
+function LibFroznFunctions:IsSecretValue(value)
 	if (issecretvalue) then
 		return issecretvalue(value);
 	end
@@ -2045,12 +2045,12 @@ end
 -- @param  powerType                     power type of unit, e.g. 0 (Mana) or (1) Rage, see "Enum.PowerType"
 -- @param  alternatePowerTypeIfNotFound  alternate power type if color for param "powerType" doesn't exist
 -- @return ColorMixin  returns nil if power type for param "powerType" and "alternatePowerTypeIfNotFound" doesn't exist.
-local powerTypeToPowerTokenLookup = { -- see powerTypeToStringLookup in "Blizzard_CombatLog.lua"
+local powerTypeToPowerTokenLookup = { -- see COMBAT_LOG_POWER_TYPE_STRINGS in "CombatLogConstants.lua"
 	[Enum.PowerType.Mana] = "MANA",
 	[Enum.PowerType.Rage] = "RAGE",
 	[Enum.PowerType.Focus] = "FOCUS",
 	[Enum.PowerType.Energy] = "ENERGY",
-	[Enum.PowerType.ComboPoints] = "COMBO_POINTS",
+	[Enum.PowerType.Happiness] = "HAPPINESS", -- not available in PowerBarColor, see "PowerBarColorUtil.lua"
 	[Enum.PowerType.Runes] = "RUNES",
 	[Enum.PowerType.RunicPower] = "RUNIC_POWER",
 	[Enum.PowerType.SoulShards] = "SOUL_SHARDS",
@@ -2059,14 +2059,16 @@ local powerTypeToPowerTokenLookup = { -- see powerTypeToStringLookup in "Blizzar
 	[Enum.PowerType.Maelstrom] = "MAELSTROM",
 	[Enum.PowerType.Chi] = "CHI",
 	[Enum.PowerType.Insanity] = "INSANITY",
+	[Enum.PowerType.ComboPoints] = "COMBO_POINTS",
 	[Enum.PowerType.ArcaneCharges] = "ARCANE_CHARGES",
 	[Enum.PowerType.Fury] = "FURY",
 	[Enum.PowerType.Pain] = "PAIN",
-	[Enum.PowerType.Essence] = "ESSENCE"
+	[Enum.PowerType.Essence] = "ESSENCE", -- not available in PowerBarColor, see "PowerBarColorUtil.lua"
+	[Enum.PowerType.Balance] = "BALANCE" -- not available in PowerBarColor, see "PowerBarColorUtil.lua"
 };
 
 function LibFroznFunctions:GetPowerColor(powerType, alternatePowerTypeIfNotFound)
-	return self:CreateColorSmart((powerTypeToPowerTokenLookup[powerType] and PowerBarColor[powerTypeToPowerTokenLookup[powerType]]) or (powerTypeToPowerTokenLookup[alternatePowerTypeIfNotFound] and PowerBarColor[powerTypeToPowerTokenLookup[alternatePowerTypeIfNotFound]]));
+	return self:CreateColorSmart((powerTypeToPowerTokenLookup[powerType] and GetPowerBarColor(powerTypeToPowerTokenLookup[powerType])) or (powerTypeToPowerTokenLookup[alternatePowerTypeIfNotFound] and GetPowerBarColor(powerTypeToPowerTokenLookup[alternatePowerTypeIfNotFound])));
 end
 
 -- get item quality color
@@ -3731,9 +3733,15 @@ end
 --           .reactionIndex                       reaction index of unit, see LFF_UNIT_REACTION_INDEX
 --           .health                              health of unit
 --           .healthMax                           max health of unit
+--           .healthIsSecretValue                 true if health of unit is a secret value, false otherwise.
+--           .healthPercentIfHealthIsSecretValue  health percent of unit if health is a secret value, 0 otherwise.
+--           .healthMissingIfHealthIsSecretValue  health missing of unit if health is a secret value, 0 otherwise.
 --           .powerType                           power type of unit, e.g. 0 (Mana) or (1) Rage, see "Enum.PowerType"
 --           .power                               power of unit
 --           .powerMax                            max power of unit
+--           .powerIsSecretValue                  true if power of unit is a secret value, false otherwise.
+--           .powerPercentIfHealthIsSecretValue   power percent of unit if power is a secret value, 0 otherwise.
+--           .powerMissingIfHealthIsSecretValue   power missing of unit if power is a secret value, 0 otherwise.
 --           .npcID                               npc id of npc
 --           .map                                 map of player unit
 --           .zone                                zone of the player unit
@@ -3823,19 +3831,15 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.level = (unitRecord.isBattlePet) and (UnitBattlePetLevel(unitID)) or (UnitLevel(unitID)) or -1;
 	unitRecord.reactionIndex = self:GetUnitReactionIndex(unitID);
 	
-	unitRecord.health = UnitHealth(unitID);
-	unitRecord.healthMax = UnitHealthMax(unitID);
-	unitRecord.healthPercent = UnitHealthPercent(unitID, false, CurveConstants.ScaleTo100)
-	unitRecord.healthMissing = UnitHealthMissing(unitID, false)
-	
 	unitRecord.powerType = UnitPowerType(unitID);
 	unitRecord.power = UnitPower(unitID);
 	unitRecord.powerMax = UnitPowerMax(unitID);
-	unitRecord.powerPercent = UnitPowerPercent(unitID, unitRecord.powerType, false, CurveConstants.ScaleTo100)
-	unitRecord.powerMissing = UnitPowerMissing(unitID, unitRecord.powerType, false)
+	unitRecord.powerIsSecretValue = (self:IsSecretValue(unitRecord.power));
+	unitRecord.powerPercentIfPowerIsSecretValue = (unitRecord.powerIsSecretValue) and (UnitPowerPercent) and UnitPowerPercent(unitID, nil, nil, CurveConstants.ScaleTo100) or 0;
+	unitRecord.powerMissingIfPowerIsSecretValue = (unitRecord.powerIsSecretValue) and (UnitPowerMissing) and UnitPowerMissing(unitID) or 0;
 	
 	-- consider unit health from addon RealMobHealth
-	local health, healthMax, healthPercent;
+	local health, healthMax;
 	
 	if (RealMobHealth) then
 		local rmhValue, rmhMaxValue = RealMobHealth.GetUnitHealth(unitRecord.id);
@@ -3853,7 +3857,9 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	
 	unitRecord.health = (health) or 0;
 	unitRecord.healthMax = (healthMax) or 0;
-	unitRecord.healthPercentIfHealthIsSecret = (UnitHealthPercent) and UnitHealthPercent(unitID, false, CurveConstants.ScaleTo100) or 0;
+	unitRecord.healthIsSecretValue = (self:IsSecretValue(unitRecord.health));
+	unitRecord.healthPercentIfHealthIsSecretValue = (unitRecord.healthIsSecretValue) and (UnitHealthPercent) and UnitHealthPercent(unitID, nil, CurveConstants.ScaleTo100) or 0;
+	unitRecord.healthMissingIfHealthIsSecretValue = (unitRecord.healthIsSecretValue) and (UnitHealthMissing) and UnitHealthMissing(unitID) or 0;
 	
 	-- add location (map, zone and subzone) to unit record
 	unitRecord.map = nil;

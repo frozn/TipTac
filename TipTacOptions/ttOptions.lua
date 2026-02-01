@@ -64,12 +64,6 @@ local DROPDOWN_BARTEXTFORMAT = {
 	["Deficit"] = "deficit",
 };
 
-local DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES = {
-	["|cffffa0a0None"] = "none",
-	["Percentage"] = "percent",
-	["Current Only"] = "current",
-};
-
 -- colors
 local TTO_COLOR = {
 	text = {
@@ -197,7 +191,7 @@ local ttOptionsBars = {
 	{ type = "Header", label = "Unit Tip Bars: Health Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 	
 	{ type = "Check", var = "healthBar", label = "Show Health Bar", tip = "Will show a health bar of the unit.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-	{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValues and DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES or DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
+	{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 	{ type = "Color", var = "healthBarColor", label = "Health Bar Color", tip = "The color of the health bar. Has no effect for players with the option above enabled", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 	{ type = "Check", var = "healthBarClassColor", label = "Class Colored Health Bar", tip = "This options colors the health bar in the same color as the player class", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end, y = 2, x = 130 },
 	{ type = "Check", var = "hideDefaultBar", label = "Hide the Default Health Bar", tip = "Check this to hide the default health bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
@@ -205,13 +199,13 @@ local ttOptionsBars = {
 	{ type = "Header", label = "Unit Tip Bars: Mana Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 	
 	{ type = "Check", var = "manaBar", label = "Show Mana Bar", tip = "If the unit has mana, a mana bar will be shown.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-	{ type = "DropDown", var = "manaBarText", label = "Mana Bar Text", list = LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues and DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES or DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
+	{ type = "DropDown", var = "manaBarText", label = "Mana Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
 	{ type = "Color", var = "manaBarColor", label = "Mana Bar Color", tip = "The color of the mana bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("manaBar") end },
 	
 	{ type = "Header", label = "Unit Tip Bars: Bar for other Power Types", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 	
 	{ type = "Check", var = "powerBar", label = "Show Bar for other Power Types\n(e.g. Energy, Rage, Runic Power or Focus)", tip = "If the unit uses other power types than mana (e.g. energy, rage, runic power or focus), a bar for that will be shown.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-	{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues and DROPDOWN_BARTEXTFORMAT_FOR_SECRET_VALUES or DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("powerBar") end },
+	{ type = "DropDown", var = "powerBarText", label = "Power Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("powerBar") end },
 	
 	{ type = "Header", label = "Unit Tip Bars: Cast Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 	
@@ -227,7 +221,7 @@ local ttOptionsBars = {
 	{ type = "Header", label = "Unit Tip Bars: Others", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end }
 };
 
-if (LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValues and LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValues) then
+if (LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValue and LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValue) then
 	tinsert(ttOptionsBars, { type = "Check", var = "barsCondenseValues", label = "Show Condensed Bar Values", tip = "You can enable this option to condense values shown on the bars. It does this by showing 57254 as 57.3k as an example", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar")) end });
 	
 	nextYOffset = 10;
