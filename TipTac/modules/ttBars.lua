@@ -113,7 +113,9 @@ end
 -- tooltip's current display parameters has to be set
 function ttBars:OnTipSetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams, tipContent)
 	-- unregister unit events
-	self:UnregisterUnitEvents(tip);
+	if (tip:IsForbidden()) or (not tip:IsShown()) then -- unregister unit events only if tip isn't visible any more. needed to finish fading out the cast bar.
+		self:UnregisterUnitEvents(tip);
+	end
 	
 	-- register unit events
 	self:RegisterUnitEvents(tip);
@@ -144,16 +146,20 @@ local function setExtraPaddingRightForMinimumWidth(self, TT_CacheForFrames, tip,
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
 			if (bar:GetParent() == tip) and (bar:IsShown()) then
-				local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - bar:GetWidth() + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
+				local barWidth = bar:GetWidth();
 				
-				if (newExtraPaddingRightForMinimumWidth <= 0) then
-					newExtraPaddingRightForMinimumWidth = nil;
-				end
-				
-				local tipEffectiveScale = tip:GetEffectiveScale();
-				
-				if (not newExtraPaddingRightForMinimumWidth) or (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs((newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) * tipEffectiveScale) > 0.5) then
-					currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
+				if (barWidth > 0) then -- bar width of health bar is 0 after fading out the cast bar
+					local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - barWidth + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
+					
+					if (newExtraPaddingRightForMinimumWidth <= 0) then
+						newExtraPaddingRightForMinimumWidth = nil;
+					end
+					
+					local tipEffectiveScale = tip:GetEffectiveScale();
+					
+					if (not newExtraPaddingRightForMinimumWidth) or (not currentDisplayParams.extraPaddingRightForMinimumWidth) or (math.abs((newExtraPaddingRightForMinimumWidth - currentDisplayParams.extraPaddingRightForMinimumWidth) * tipEffectiveScale) > 0.5) then
+						currentDisplayParams.extraPaddingRightForMinimumWidth = newExtraPaddingRightForMinimumWidth;
+					end
 				end
 				
 				breakFor = true;
@@ -181,7 +187,9 @@ end
 -- tooltip's current display parameters has to be reset
 function ttBars:OnTipResetCurrentDisplayParams(TT_CacheForFrames, tip, currentDisplayParams)
 	-- unregister unit events
-	self:UnregisterUnitEvents(tip);
+	if (tip:IsForbidden()) or (not tip:IsShown()) then -- unregister unit events only if tip isn't visible any more. needed to finish fading out the cast bar.
+		self:UnregisterUnitEvents(tip);
+	end
 	
 	-- hide unit tip's bars
 	self:HideUnitTipsBars(tip);

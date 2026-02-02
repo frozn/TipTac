@@ -3876,7 +3876,7 @@ function tt:ResetCurrentDisplayParamsForAnchoring(tip, resetOnlyDefaultAnchor)
 	local currentDisplayParams = frameParams.currentDisplayParams;
 	
 	-- reset current display params for anchoring
-	if (tip:IsForbidden()) or (not tip:IsShown()) then
+	if (tip:IsForbidden()) or (not tip:IsShown()) then -- reset "tip is default anchored" only if tip isn't visible any more
 		currentDisplayParams.defaultAnchored = false;
 		currentDisplayParams.defaultAnchoredParentFrame = nil;
 	end
