@@ -217,7 +217,7 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			end
 			
 			-- show cooldown model if enabled and aura duration is available
-			if (cfg.showAuraCooldown) and (unitAuraData.duration and (unitAuraData.duration > 0) and unitAuraData.expirationTime and (unitAuraData.expirationTime > 0)) then
+			if (cfg.showAuraCooldown) and (not LibFroznFunctions:IsSecretValue(unitAuraData.duration)) and (unitAuraData.duration and (unitAuraData.duration > 0) and unitAuraData.expirationTime and (unitAuraData.expirationTime > 0)) then
 				aura.cooldown:SetCooldown(unitAuraData.expirationTime - unitAuraData.duration, unitAuraData.duration);
 			else
 				aura.cooldown:Hide();
@@ -225,13 +225,14 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			
 			-- set texture and count
 			aura.icon:SetTexture(unitAuraData.icon);
-			aura.count:SetText(unitAuraData.applications and (unitAuraData.applications > 1) and unitAuraData.applications or "");
+			aura.count:SetText((cfg.auraStackCount) and (not LibFroznFunctions:IsSecretValue(unitAuraData.applications)) and unitAuraData.applications and (unitAuraData.applications > 1) and unitAuraData.applications or "")
 			
 			-- show border, only for debuffs
 			if (auraType == "HARMFUL") then
-				local color = (DebuffTypeColor[unitAuraData.dispelName] or DebuffTypeColor["none"]);
+				local debuffDisplayInfoTable = LibFroznFunctions:GetDebuffDisplayInfoTable();
+				local debuffDisplayInfo = ((not LibFroznFunctions:IsSecretValue(unitAuraData.dispelName)) and debuffDisplayInfoTable[unitAuraData.dispelName] or debuffDisplayInfoTable["None"]); -- see RefreshDebuffs() in "AuraUtil.lua"
 				
-				aura.border:SetVertexColor(color.r, color.g, color.b);
+				aura.border:SetVertexColor(debuffDisplayInfo.color:GetRGBA());
 				aura.border:Show();
 			else
 				aura.border:Hide();

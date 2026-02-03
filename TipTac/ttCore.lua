@@ -219,6 +219,7 @@ local TT_DefaultConfig = {
 	selfAurasOnly = false,
 	showAuraCooldown = true,
 	noCooldownCount = false,
+	auraStackCount = true,
 	auraSize = 16,
 	auraMaxRows = 2,
 	aurasAtBottom = false,
