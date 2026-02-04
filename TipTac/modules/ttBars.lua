@@ -635,7 +635,7 @@ function ttBars:RegisterUnitEvents(tip)
 	end
 	
 	-- register unit events
-	if (not frameForUnitEvents.unitEventsHooked) then
+	if (not frameForUnitEvents.unitEventsHooked) and (unitRecord ~= LFF_UNIT_RECORD.SecretValue) then
 		for unitEvent, unitEventConfig in pairs(TT_ConfigUnitEvents) do
 			LibFroznFunctions:RegisterUnitEventIfExists(frameForUnitEvents, unitEvent, unitRecord.id);
 		end
@@ -733,12 +733,12 @@ ttBars.HealthBarMixin = {};
 
 -- get visibility of bar
 function ttBars.HealthBarMixin:GetVisibility(tip, unitRecord)
-	return cfg.healthBar;
+	return cfg.healthBar and (unitRecord ~= LFF_UNIT_RECORD.SecretValue);
 end
 
 -- get color of bar
 function ttBars.HealthBarMixin:GetColor(tip, unitRecord)
-	if (unitRecord.isPlayer) and (cfg.healthBarClassColor) then
+	if (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and (unitRecord.isPlayer) and (cfg.healthBarClassColor) then
 		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 		
 		return classColor:GetRGBA();
@@ -750,6 +750,10 @@ end
 -- update value
 function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
+	
+	if (unitRecord == LFF_UNIT_RECORD.SecretValue) then
+		return;
+	end
 	
 	local valueParams = {
 		valueType = cfg.healthBarText,
@@ -778,7 +782,7 @@ ttBars.PowerBarMixin = {};
 
 -- get visibility of bar
 function ttBars.PowerBarMixin:GetVisibility(tip, unitRecord)
-	return ((unitRecord.powerIsSecretValue) or (unitRecord.powerMax ~= 0)) and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
+	return (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and ((unitRecord.powerIsSecretValue) or (unitRecord.powerMax ~= 0)) and (cfg.manaBar and unitRecord.powerType == 0 or cfg.powerBar and unitRecord.powerType ~= 0);
 end
 
 -- get color of bar
@@ -797,6 +801,10 @@ end
 -- update value
 function ttBars.PowerBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
+	
+	if (unitRecord == LFF_UNIT_RECORD.SecretValue) then
+		return;
+	end
 	
 	local valueParams = {
 		valueType = (unitRecord.powerType == 0 and cfg.manaBarText or cfg.powerBarText),
@@ -858,7 +866,7 @@ function ttBars.CastBarMixin:GetVisibility(tip, unitRecord)
 	end
 	
 	-- get information about the new spell currently being cast/channeled
-	local unitCastingSpell = LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
+	local unitCastingSpell = (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
 	
 	if (not ttBars:IsActiveSpellCast(unitCastingSpell)) then
 		return cfg.castBarAlwaysShow;

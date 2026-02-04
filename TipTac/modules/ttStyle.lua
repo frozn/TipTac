@@ -215,7 +215,7 @@ end
 function ttStyle:GenerateTargetLines(unitRecord, method)
 	local target = unitRecord.id .."target";
 	local targetName = UnitName(target);
-	if (targetName) and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
+	if (not LibFroznFunctions:IsSecretValue(targetName)) and (targetName) and and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
 		if (method == "afterName") then
 			lineName:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(" : "));
 			AddTarget(lineName,target,targetName);
@@ -254,7 +254,8 @@ function ttStyle:GenerateTargetedByLines(unitRecord)
 	
 	for i = 1, numUnits do
 		local unit = inGroup and (inRaid and "raid"..i or "party"..i) or (nameplates[i].namePlateUnitToken or "nameplate"..i);
-		if (UnitIsUnit(unit.."target", unitRecord.id)) and (not UnitIsUnit(unit, "player")) then
+		local unitTargettingUnit = UnitIsUnit(unit.."target", unitRecord.id);
+		if (not LibFroznFunctions:IsSecretValue(unitTargettingUnit)) and (unitTargettingUnit) and (not UnitIsUnit(unit, "player")) then
 			local unitName = UnitName(unit);
 			
 			if (UnitIsPlayer(unit)) then
@@ -1033,9 +1034,14 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 		return;
 	end
 	
-	-- some things only need to be done once initially when the tip is first displayed
+	-- check if unit record isn't a secret value
 	local unitRecord = currentDisplayParams.unitRecord;
 	
+	if (unitRecord == LFF_UNIT_RECORD.SecretValue) then
+		return;
+	end
+	
+	-- some things only need to be done once initially when the tip is first displayed
 	if (first) then
 		-- get unit tooltip data because current unit tip may already have been manipulated (e.g. by addon "ElvUI")
 		local unitTooltipData = LibFroznFunctions:GetTooltipInfo("GetUnit", unitRecord.id)

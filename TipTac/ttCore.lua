@@ -4030,19 +4030,19 @@ function tt:SetUnitRecordFromTip(tip)
 	-- concated unit tokens such as "targettarget" cannot be returned as the unit id by GameTooltip:GetUnit() aka TooltipUtil.GetDisplayedUnit(GameTooltip),
 	-- and it will return as "mouseover", but the "mouseover" unit id is still invalid at this point for those unitframes!
 	-- to overcome this problem, we look if the mouse is over a unitframe, and if that unitframe has a unit attribute set?
-	if (not unitID) then
+	if (LibFroznFunctions:IsSecretValue(unitID)) or (not unitID) then
 		local mouseFocus = LibFroznFunctions:GetMouseFocus();
 		
 		unitID = mouseFocus and mouseFocus.GetAttribute and mouseFocus:GetAttribute("unit");
 	end
 	
 	-- a mage's mirror images sometimes doesn't return a unit id, this would fix it.
-	if (not unitID) and (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) then
+	if ((LibFroznFunctions:IsSecretValue(unitID)) or (not unitID)) and (UnitExists("mouseover")) and (not UnitIsUnit("mouseover", "player")) then
 		unitID = "mouseover";
 	end
 	
 	-- sometimes when you move your mouse quickly over units in the worldframe, we can get here without a unit id.
-	if (not unitID) then
+	if (LibFroznFunctions:IsSecretValue(unitID)) or (not unitID) then
 		currentDisplayParams.unitRecord = nil;
 		return;
 	end
@@ -4076,7 +4076,7 @@ function tt:SetUnitAppearanceToTip(tip, first)
 	end
 	
 	-- no valid unit any more e.g. during fading out
-	if (not UnitGUID(unitRecord.id)) then
+	if (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and (not UnitGUID(unitRecord.id)) then
 		return;
 	end
 	
@@ -4084,16 +4084,16 @@ function tt:SetUnitAppearanceToTip(tip, first)
 	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnUnitTipPreStyle", TT_CacheForFrames, tip, currentDisplayParams, first);
 	
 	-- set backdrop color to tip by unit reaction index
-	if (cfg.reactColoredBackdrop) then
+	if (cfg.reactColoredBackdrop) and (unitRecord ~= LFF_UNIT_RECORD.SecretValue) then
 		self:SetBackdropColorLocked(tip, unpack(cfg["colorReactBack" .. unitRecord.reactionIndex]));
 	end
 
 	-- set backdrop border color to tip by unit class or by unit reaction index
-	if (cfg.classColoredBorder) and (unitRecord.isPlayer) then
+	if (cfg.classColoredBorder) and (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and (unitRecord.isPlayer) then
 		local classColor = LibFroznFunctions:GetClassColor(unitRecord.classID, 5, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil);
 		
 		self:SetBackdropBorderColorLocked(tip, classColor:GetRGBA());
-	elseif (cfg.reactColoredBorder) then
+	elseif (cfg.reactColoredBorder) and (unitRecord ~= LFF_UNIT_RECORD.SecretValue) then
 		self:SetBackdropBorderColorLocked(tip, unpack(cfg["colorReactText" .. unitRecord.reactionIndex]));
 	end
 	
@@ -4131,10 +4131,10 @@ function tt:UpdateUnitAppearanceToTip(tip, force)
 		return;
 	end
 	
-	-- no unit record
+	-- no unit record or unit record is a secret value
 	local unitRecord = currentDisplayParams.unitRecord;
 	
-	if (not unitRecord) then
+	if (not unitRecord) or (unitRecord == LFF_UNIT_RECORD.SecretValue) then
 		return;
 	end
 	

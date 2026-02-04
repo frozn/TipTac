@@ -3744,11 +3744,19 @@ end
 -- @param  unitGUID                          optional. unit guid if unit id is missing.
 -- @param  tryToDetermineUnitIDFromUnitGUID  optional. true if it should be tried to determine the unit id from the unit guid.
 -- @return unitRecord, see LibFroznFunctions:CreateUnitRecord()
+LFF_UNIT_RECORD = {
+	SecretValue = 1 -- unit record is a secret value
+};
+
 local cacheUnitRecords = {};
 
 function LibFroznFunctions:GetUnitRecordFromCache(_unitID, _unitGUID, tryToDetermineUnitIDFromUnitGUID)
-	-- no valid unit any more e.g. during fading out
-	local unitGUID = (_unitID) and (UnitGUID(_unitID)) or (_unitGUID);
+	-- no valid unit any more (e.g. during fading out) or unit guid is a secret value
+	local unitGUID = (not self:IsSecretValue(_unitID)) and (_unitID) and (UnitGUID(_unitID)) or (_unitGUID);
+	
+	if (self:IsSecretValue(unitGUID)) then
+		return LFF_UNIT_RECORD.SecretValue;
+	end
 	
 	if (not unitGUID) then
 		return;

@@ -126,8 +126,8 @@ end
 function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIconFrameIndex)
 	local unitRecord = currentDisplayParams.unitRecord;
 	
-	-- unit doesn't exist
-	if (not UnitExists(unitRecord.id)) then
+	-- unit record is a secret value or unit doesn't exist
+	if (unitRecord == LFF_UNIT_RECORD.SecretValue) or (not UnitExists(unitRecord.id)) then
 		return 0;
 	end
 	

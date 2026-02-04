@@ -143,7 +143,12 @@ end
 
 -- display unit tip's buffs and debuffs
 function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, startingAuraFrameIndex, lastAura, offsetForClampRectInsets)
+	-- check if unit record isn't a secret value
 	local unitRecord = currentDisplayParams.unitRecord;
+	
+	if (unitRecord == LFF_UNIT_RECORD.SecretValue) then
+		return 0, nil, 0;
+	end
 	
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
 	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2)); -- auras we can fit into one row based on the current size of the tooltip
