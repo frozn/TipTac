@@ -1040,7 +1040,15 @@ end
 -- HOOK: GameTooltip:SetRecipeReagentItem
 local function SetRecipeReagentItem_Hook(self, recipeID, dataSlotIndex)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
-		local link = C_TradeSkillUI.GetRecipeFixedReagentItemLink(recipeID, dataSlotIndex);
+		-- C_TradeSkillUI.GetRecipeFixedReagentItemLink was removed in WoW 12.0.0 - use fallback
+		local link;
+		if C_TradeSkillUI.GetRecipeFixedReagentItemLink then
+			link = C_TradeSkillUI.GetRecipeFixedReagentItemLink(recipeID, dataSlotIndex);
+		else
+			-- Fallback: get item link from tooltip
+			local _, itemLink = LibFroznFunctions:GetItemFromTooltip(self);
+			link = itemLink;
+		end
 		if (link) then
 			local linkType, itemID = link:match("H?(%a+):(%d+)");
 			if (itemID) then

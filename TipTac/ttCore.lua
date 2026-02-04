@@ -2889,16 +2889,26 @@ function tt:SetPaddingToTip(tip)
 	
 	if (isItemTooltipShown) then
 		tip:SetPadding(0, 0, 0, 0);
-		
-		GameTooltip_CalculatePadding(tip);
-		
+
+		-- In WoW 12.0.0+, GetWidth may return secret values - GameTooltip_CalculatePadding uses them internally
+		local itemWidth = itemTooltip:GetWidth();
+		if (not issecretvalue(itemWidth)) then
+			GameTooltip_CalculatePadding(tip);
+		end
+
 		newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = tip:GetPadding();
 		newPaddingLeft = newPaddingLeft or 0;
 		newPaddingTop = newPaddingTop or 0;
+
+		-- In WoW 12.0.0+, GetPadding may return secret values after GameTooltip_CalculatePadding
+		if issecretvalue(newPaddingRight) or issecretvalue(newPaddingBottom) or issecretvalue(newPaddingLeft) or issecretvalue(newPaddingTop) then
+			isSettingPaddingToTip = false;
+			return;
+		end
 	else
 		newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = 0, 0, 0, 0;
 	end
-	
+
 	newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop = newPaddingRight + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.right, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingBottom + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.bottom, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingLeft + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.left, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop), newPaddingTop + self:GetNearestPixelSize(tip, TT_ExtendedConfig.tipPaddingForGameTooltip.top, cfg.pixelPerfectBackdrop, cfg.pixelPerfectBackdrop);
 	
 	newPaddingRight = newPaddingRight + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0) + (currentDisplayParams.extraPaddingRightForCloseButton or 0);

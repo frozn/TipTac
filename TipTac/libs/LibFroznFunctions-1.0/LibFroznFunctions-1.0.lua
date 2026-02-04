@@ -356,9 +356,14 @@ end
 function LibFroznFunctions:GetUnitFromTooltip(tooltip)
 	-- since df 10.0.2
 	if (TooltipUtil) then
-		return TooltipUtil.GetDisplayedUnit(tooltip);
+		-- In WoW 12.0.0+, TooltipUtil.GetDisplayedUnit may fail with secret values
+		local success, name, unitID = pcall(TooltipUtil.GetDisplayedUnit, tooltip);
+		if success then
+			return name, unitID;
+		end
+		return nil, nil;
 	end
-	
+
 	-- before df 10.0.2
 	return tooltip:GetUnit();
 end
@@ -3201,8 +3206,14 @@ function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
 	if (tip:IsForbidden()) or (type(tip.GetObjectType) ~= "function") or (tip:GetObjectType() ~= "GameTooltip") then
 		return;
 	end
-	
-	tip:SetPadding(tip:GetPadding());
+
+	-- In WoW 12.0.0+, GetPadding may return secret values - SetPadding cannot accept them
+	local right, bottom, left, top = tip:GetPadding();
+	if issecretvalue(right) or issecretvalue(bottom) or (left and issecretvalue(left)) or (top and issecretvalue(top)) then
+		return;
+	end
+
+	tip:SetPadding(right, bottom, left, top);
 	tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.
 end
 
