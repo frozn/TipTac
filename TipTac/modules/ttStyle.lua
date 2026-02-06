@@ -215,7 +215,7 @@ end
 function ttStyle:GenerateTargetLines(unitRecord, method)
 	local target = unitRecord.id .."target";
 	local targetName = UnitName(target);
-	if (not LibFroznFunctions:IsSecretValue(targetName)) and (targetName) and and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
+	if (not LibFroznFunctions:IsSecretValue(targetName)) and (targetName) and (targetName ~= TT_UnknownObject and targetName ~= "" or UnitExists(target)) then
 		if (method == "afterName") then
 			lineName:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(" : "));
 			AddTarget(lineName,target,targetName);
