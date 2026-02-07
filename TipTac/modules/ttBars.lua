@@ -689,39 +689,30 @@ local function barSetFormattedBarValues(self, valueParams)
 	if (valueParams.valueType == "none") then
 		barText:SetText("");
 	elseif (valueParams.valueType == "value") or (not valueParams.valueIsSecretValue) and (valueParams.maxValue == 0) then -- maxValue should never be zero, but if it is, don't let it pass through to the "percent" value type, or there will be an error.
-		if (valueParams.valueIsSecretValue) then
-			barText:SetFormattedText("%s / %s", valueParams.value, valueParams.maxValue);
-		else
-			barText:SetFormattedText("%s / %s", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(valueParams.maxValue, cfg.barsCondenseValues));
-		end
+		barText:SetFormattedText("%s / %s",
+			LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues, valueParams.valueIsSecretValue),
+			LibFroznFunctions:FormatNumber(valueParams.maxValue, cfg.barsCondenseValues, valueParams.valueIsSecretValue)
+		);
 	elseif (valueParams.valueType == "current") then
-		if (valueParams.valueIsSecretValue) then
-			barText:SetFormattedText("%s", valueParams.value);
-		else
-			barText:SetFormattedText("%s", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues));
-		end
+		barText:SetFormattedText("%s", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues, valueParams.valueIsSecretValue));
 	elseif (valueParams.valueType == "full") then
-		if (valueParams.valueIsSecretValue) then
-			barText:SetFormattedText("%s / %s (%.0f%%)", valueParams.value, valueParams.maxValue, valueParams.valuePercentIfValueIsSecretValue);
-		else
-			barText:SetFormattedText("%s / %s (%.0f%%)", LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues), LibFroznFunctions:FormatNumber(valueParams.maxValue, cfg.barsCondenseValues), valueParams.value / valueParams.maxValue * 100);
-		end
+		barText:SetFormattedText("%s / %s (%.0f%%)",
+			LibFroznFunctions:FormatNumber(valueParams.value, cfg.barsCondenseValues, valueParams.valueIsSecretValue),
+			LibFroznFunctions:FormatNumber(valueParams.maxValue, cfg.barsCondenseValues, valueParams.valueIsSecretValue),
+			valueParams.valueIsSecretValue and valueParams.valuePercentIfValueIsSecretValue or (valueParams.value / valueParams.maxValue * 100)
+		);
 	elseif (valueParams.valueType == "deficit") then
 		if (valueParams.valueIsSecretValue) then
 			barText:SetFormattedText("-%s", valueParams.valueMissingIfValueIsSecretValue);
 		else
-			if (valueParams.value ~= valueParams.maxValue) then
-				barText:SetFormattedText("-%s", LibFroznFunctions:FormatNumber(valueParams.maxValue - valueParams.value, cfg.barsCondenseValues));
+			if (valueParams.valueIsSecretValue) or (valueParams.value ~= valueParams.maxValue) then
+				barText:SetFormattedText("-%s", LibFroznFunctions:FormatNumber(valueParams.valueIsSecretValue and valueParams.valueMissingIfValueIsSecretValue or (valueParams.maxValue - valueParams.value), cfg.barsCondenseValues, valueParams.valueIsSecretValue));
 			else
 				barText:SetText("");
 			end
 		end
 	elseif (valueParams.valueType == "percent") then
-		if (valueParams.valueIsSecretValue) then
-			barText:SetFormattedText("%.0f%%", valueParams.valuePercentIfValueIsSecretValue);
-		else
-			barText:SetFormattedText("%.0f%%", valueParams.value / valueParams.maxValue * 100);
-		end
+		barText:SetFormattedText("%.0f%%", valueParams.valueIsSecretValue and valueParams.valuePercentIfValueIsSecretValue or (valueParams.value / valueParams.maxValue * 100));
 	end
 end
 

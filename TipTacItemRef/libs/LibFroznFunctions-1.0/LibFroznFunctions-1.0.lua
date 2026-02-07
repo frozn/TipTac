@@ -1060,10 +1060,13 @@ end
 
 -- format number
 --
--- @param  number      number
--- @param  abbreviate  optional. true if number should be abbreviated.
+-- @param  number               number
+-- @param  abbreviate           optional. true if number should be abbreviated.
+-- @param  numberIsSecretValue  optional. true if value is a secret value, false otherwise.
 -- @return formatted number
-function LibFroznFunctions:FormatNumber(number, abbreviate)
+local numberAbbrevOptions;
+
+function LibFroznFunctions:FormatNumber(number, abbreviate, numberIsSecretValue)
 	local realNumber = tonumber(number);
 	
 	if (abbreviate) then
@@ -1071,37 +1074,97 @@ function LibFroznFunctions:FormatNumber(number, abbreviate)
 		local BILLION_NUMBER = 10^9;
 		local locale = GetLocale();
 		
-		if (self:ExistsInTable(quality, { "frFR", "esMX", "esES" })) then
+		if (self:ExistsInTable(locale, { "frFR", "esMX", "esES" })) then
 			BILLION_NUMBER = 10^12
 		end
 		
-		local absRealNumber = math.abs(realNumber);
-		local abbreviatedRealNumber, abbreviatedFormat;
-		
-		if (absRealNumber >= BILLION_NUMBER) then
-			abbreviatedFormat = "%.1fb";
-			abbreviatedRealNumber = realNumber / BILLION_NUMBER;
-		elseif (absRealNumber >= 1000000000) then
-			abbreviatedFormat = "%.0fm";
-			abbreviatedRealNumber = realNumber / 1000000;
-		elseif (absRealNumber >= 10000000) then
-			abbreviatedFormat = "%.1fm";
-			abbreviatedRealNumber = realNumber / 1000000;
-		elseif (absRealNumber >= 1000000) then
-			abbreviatedFormat = "%.2fm";
-			abbreviatedRealNumber = realNumber / 1000000;
-		elseif (absRealNumber >= 100000) then
-			abbreviatedFormat = "%.0fk";
-			abbreviatedRealNumber = realNumber / 1000;
-		elseif (absRealNumber >= 10000) then
-			abbreviatedFormat = "%.1fk";
-			abbreviatedRealNumber = realNumber / 1000;
+		if (numberIsSecretValue) or (self:IsSecretValue(number)) then
+			if (not numberAbbrevOptions) then
+				numberAbbrevOptions = {
+					config = CreateAbbreviateConfig({
+						[1] = {
+							breakpoint = BILLION_NUMBER,
+							abbreviation = "b",
+							significandDivisor = BILLION_NUMBER / 100,
+							fractionDivisor = 100,
+							abbreviationIsGlobal = false
+						},
+						[2] = {
+							breakpoint = 1000000000,
+							abbreviation = "m",
+							significandDivisor = 1000000,
+							fractionDivisor = 1,
+							abbreviationIsGlobal = false
+						},
+						[3] = {
+							breakpoint = 10000000,
+							abbreviation = "m",
+							significandDivisor = 100000,
+							fractionDivisor = 10,
+							abbreviationIsGlobal = false
+						},
+						[4] = {
+							breakpoint = 1000000,
+							abbreviation = "m",
+							significandDivisor = 10000,
+							fractionDivisor = 100,
+							abbreviationIsGlobal = false
+						},
+						[5] = {
+							breakpoint = 100000,
+							abbreviation = "k",
+							significandDivisor = 1000,
+							fractionDivisor = 1,
+							abbreviationIsGlobal = false
+						},
+						[6] = {
+							breakpoint = 10000,
+							abbreviation = "k",
+							significandDivisor = 100,
+							fractionDivisor = 10,
+							abbreviationIsGlobal = false
+						},
+						[7] = {
+							breakpoint = 0,
+							abbreviation = "",
+							significandDivisor = 1,
+							fractionDivisor = 1,
+							abbreviationIsGlobal = false
+						}
+					})
+				};
+			end
+			
+			return AbbreviateNumbers(realNumber, numberAbbrevOptions);
 		else
-			abbreviatedFormat = "%.0f";
-			abbreviatedRealNumber = realNumber;
+			local absRealNumber = math.abs(realNumber);
+			local abbreviatedRealNumber, abbreviatedFormat;
+			
+			if (absRealNumber >= BILLION_NUMBER) then
+				abbreviatedFormat = "%0.2fb";
+				abbreviatedRealNumber = realNumber / BILLION_NUMBER;
+			elseif (absRealNumber >= 1000000000) then
+				abbreviatedFormat = "%.0fm";
+				abbreviatedRealNumber = realNumber / 1000000;
+			elseif (absRealNumber >= 10000000) then
+				abbreviatedFormat = "%.1fm";
+				abbreviatedRealNumber = realNumber / 1000000;
+			elseif (absRealNumber >= 1000000) then
+				abbreviatedFormat = "%.2fm";
+				abbreviatedRealNumber = realNumber / 1000000;
+			elseif (absRealNumber >= 100000) then
+				abbreviatedFormat = "%.0fk";
+				abbreviatedRealNumber = realNumber / 1000;
+			elseif (absRealNumber >= 10000) then
+				abbreviatedFormat = "%.1fk";
+				abbreviatedRealNumber = realNumber / 1000;
+			else
+				abbreviatedFormat = "%.0f";
+				abbreviatedRealNumber = realNumber;
+			end
+			
+			return string.format(abbreviatedFormat, abbreviatedRealNumber);
 		end
-		
-		return string.format(abbreviatedFormat, abbreviatedRealNumber);
 	end
 	
 	return BreakUpLargeNumbers(realNumber);
