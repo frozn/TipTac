@@ -80,7 +80,6 @@ local TTO_COLOR = {
 local activePage = 1;
 local options = {};
 local option;
-local nextYOffset = 0;
 
 -- General
 local ttOptionsGeneral = {
@@ -231,15 +230,9 @@ tinsert(ttOptionsBars, { type = "Color", var = "castBarSparkColor", label = "Cas
 
 tinsert(ttOptionsBars, { type = "Header", label = "Unit Tip Bars: Others", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end });
 
-if (LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValue and LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValue) then
-	tinsert(ttOptionsBars, { type = "Check", var = "barsCondenseValues", label = "Show Condensed Bar Values", tip = "You can enable this option to condense values shown on the bars. It does this by showing 57254 as 57.3k as an example", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar")) end });
-	
-	nextYOffset = 10;
-else
-	nextYOffset = 0;
-end
+tinsert(ttOptionsBars, { type = "Check", var = "barsCondenseValues", label = "Show Condensed Bar Values", tip = "You can enable this option to condense values shown on the bars. It does this by showing 57254 as 57.3k as an example", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar")) end });
 
-tinsert(ttOptionsBars, { type = "DropDown", var = "barFontFace", label = "Font Face", media = "font", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end, y = nextYOffset });
+tinsert(ttOptionsBars, { type = "DropDown", var = "barFontFace", label = "Font Face", media = "font", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end, y = 10 });
 tinsert(ttOptionsBars, { type = "DropDown", var = "barFontFlags", label = "Font Flags", list = DROPDOWN_FONTFLAGS, enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end });
 tinsert(ttOptionsBars, { type = "Slider", var = "barFontSize", label = "Font Size", min = 6, max = 29, step = 1, enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end });
 

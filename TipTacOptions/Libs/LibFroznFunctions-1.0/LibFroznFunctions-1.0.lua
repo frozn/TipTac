@@ -131,8 +131,6 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .optionsSliderTemplate                                                              = options slider template ("OptionsSliderTemplate". since df 10.0.0, catac 4.4.0 and 1.15.4 "UISliderTemplateWithLabels")
 --         .skyriding                                                                          = true/false if skyriding is available (since df 10.0.2)
 --         .challengeMode                                                                      = true/false if challenge mode is available (since Legion 7.0.3)
---         .UnitHealthAlwaysReturnsSecretValue                                                 = true/false if UnitHealth() always returns a secret value (since mn 12.0.0)
---         .UnitPowerAlwaysReturnsSecretValue                                                  = true/false if UnitPower() always returns a secret value (since mn 12.0.0)
 --         .GetMountFromSpellNotPossibleInCombat                                               = true/false if calling C_MountJournal.GetMountFromSpell() isn't possible in combat because spellID is a secret value in this case (since mn 12.0.0)
 --         .castBarCastTimeAndNotInterruptibleNotAvailableForNonThePlayerUnitsWhichAreInCombat = true/false if the cast time and "not interruptable" shield of the cast bar are not available for non-the-player units which are in combat because of secret values (since mn 12.0.0)
 --         .aurasCooldownCountAndDebuffTypeNotAvailableInCombat                                = true/false if the cooldown, count and debuff type of the auras are not available in combat because of secret values (since mn 12.0.0)
@@ -160,8 +158,6 @@ LibFroznFunctions.hasWoWFlavor = {
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
 	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
 	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
-	UnitHealthAlwaysReturnsSecretValue = true,
-	UnitPowerAlwaysReturnsSecretValue = true,
 	GetMountFromSpellNotPossibleInCombat = true,
 	castBarCastTimeAndNotInterruptibleNotAvailableForNonThePlayerUnitsWhichAreInCombat = true,
 	aurasCooldownCountAndDebuffTypeNotAvailableInCombat = true
@@ -202,8 +198,6 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.ShoppingTooltipHasCompareHeader = false;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
-	LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValue = false;
-	LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValue = false;
 	LibFroznFunctions.hasWoWFlavor.GetMountFromSpellNotPossibleInCombat = false;
 	LibFroznFunctions.hasWoWFlavor.castBarCastTimeAndNotInterruptibleNotAvailableForNonThePlayerUnitsWhichAreInCombat = false;
 	LibFroznFunctions.hasWoWFlavor.aurasCooldownCountAndDebuffTypeNotAvailableInCombat = false;
@@ -1062,7 +1056,7 @@ end
 --
 -- @param  number               number
 -- @param  abbreviate           optional. true if number should be abbreviated.
--- @param  numberIsSecretValue  optional. true if value is a secret value, false otherwise.
+-- @param  numberIsSecretValue  optional. true if number is a secret value, false otherwise.
 -- @return formatted number
 local numberAbbrevOptions;
 
