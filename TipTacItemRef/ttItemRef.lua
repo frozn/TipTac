@@ -313,6 +313,16 @@ local TTIF_ExpansionIcon = {
 		rightTexel = 0.828125,
 		topTexel = 0.21875,
 		bottomTexel = 0.75
+	},
+	[11] = {  -- Midnight
+		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\mn_logo",
+		textureWidth = 64,
+		textureHeight = 32,
+		aspectRatio = 36 / 17,
+		leftTexel = 0.21875,
+		rightTexel = 0.78125,
+		topTexel = 0.109375,
+		bottomTexel = 0.875
 	}
 };
 
