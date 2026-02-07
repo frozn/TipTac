@@ -1,15 +1,15 @@
--- tww 11.1.7 build 61609, from https://wago.tools/db2/SpellItemEnchantment?build=11.1.7.61609, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
+-- mn 12.0.0 build 65727, from https://wago.tools/db2/SpellItemEnchantment?build=12.0.0.65727, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
 
--- only tww flavor
+-- only mn flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-if (not LibFroznFunctions.isWoWFlavor.TWW) then
+if (not LibFroznFunctions.isWoWFlavor.MN) then
 	return;
 end
 
 -- define table
 local TABLE_NAME = "LFF_ENCHANTID_TO_SPELLID_LOOKUP";
-local TABLE_MINOR = 4; -- bump on changes
+local TABLE_MINOR = 5; -- bump on changes (in all LFF_ENCHANTID_TO_SPELLID_LOOKUP files)
 
 if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
 	return;
@@ -891,5 +891,93 @@ LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
 	[7928]={spellID=1227295,spellIDDescription=1233392},
 	[7930]={spellID=1227297,spellIDDescription=1227294},
 	[7931]={spellID=1227312,spellIDDescription=1233394},
-	[7933]={spellID=1227314,spellIDDescription=1227311}
+	[7933]={spellID=1227314,spellIDDescription=1227311},
+	[7936]={spellID=1229450,spellIDDescription=1229453},
+	[7937]={spellID=1229452,spellIDDescription=1229454},
+	[7960]={spellID=1242751,spellIDDescription=0},
+	[7961]={spellID=1242755,spellIDDescription=0},
+	[7966]={spellID=1236700,spellIDDescription=0},
+	[7967]={spellID=1236701,spellIDDescription=0},
+	[7978]={spellID=1236733,spellIDDescription=0},
+	[7979]={spellID=1236734,spellIDDescription=0},
+	[7980]={spellID=1236724,spellIDDescription=0},
+	[7981]={spellID=1236725,spellIDDescription=0},
+	[7982]={spellID=1236727,spellIDDescription=0},
+	[7983]={spellID=1236728,spellIDDescription=0},
+	[7990]={spellID=1242799,spellIDDescription=0},
+	[7991]={spellID=1242800,spellIDDescription=0},
+	[8006]={spellID=1236735,spellIDDescription=0},
+	[8007]={spellID=1236736,spellIDDescription=0},
+	[8008]={spellID=1236737,spellIDDescription=0},
+	[8009]={spellID=1236738,spellIDDescription=0},
+	[8010]={spellID=1236729,spellIDDescription=0},
+	[8011]={spellID=1236730,spellIDDescription=0},
+	[8012]={spellID=1236707,spellIDDescription=0},
+	[8013]={spellID=1236708,spellIDDescription=0},
+	[8016]={spellID=1242772,spellIDDescription=0},
+	[8017]={spellID=1242773,spellIDDescription=0},
+	[8036]={spellID=1236739,spellIDDescription=0},
+	[8037]={spellID=1236740,spellIDDescription=0},
+	[8038]={spellID=1236741,spellIDDescription=0},
+	[8039]={spellID=1236742,spellIDDescription=0},
+	[8040]={spellID=1236712,spellIDDescription=0},
+	[8041]={spellID=1236721,spellIDDescription=0},
+	[8042]={spellID=1236743,spellIDDescription=0},
+	[8043]={spellID=1236743,spellIDDescription=0},
+	[8044]={spellID=1236744,spellIDDescription=0},
+	[8045]={spellID=1236744,spellIDDescription=0},
+	[8046]={spellID=1236745,spellIDDescription=0},
+	[8047]={spellID=1236745,spellIDDescription=0},
+	[8053]={spellID=1237014,spellIDDescription=0},
+	[8054]={spellID=1237016,spellIDDescription=0},
+	[8055]={spellID=1237009,spellIDDescription=0},
+	[8056]={spellID=1237012,spellIDDescription=0},
+	[8064]={spellID=1234419,spellIDDescription=0},
+	[8066]={spellID=1234424,spellIDDescription=0},
+	[8067]={spellID=1234429,spellIDDescription=0},
+	[8068]={spellID=1234434,spellIDDescription=0},
+	[8069]={spellID=1234414,spellIDDescription=0},
+	[8070]={spellID=1234404,spellIDDescription=0},
+	[8071]={spellID=1234399,spellIDDescription=0},
+	[8072]={spellID=1234420,spellIDDescription=0},
+	[8073]={spellID=1234425,spellIDDescription=0},
+	[8074]={spellID=1234430,spellIDDescription=0},
+	[8075]={spellID=1234435,spellIDDescription=0},
+	[8076]={spellID=1234415,spellIDDescription=0},
+	[8077]={spellID=1234405,spellIDDescription=0},
+	[8078]={spellID=1234400,spellIDDescription=0},
+	[8079]={spellID=1234421,spellIDDescription=0},
+	[8080]={spellID=1234426,spellIDDescription=0},
+	[8081]={spellID=1234431,spellIDDescription=0},
+	[8082]={spellID=1234286,spellIDDescription=0},
+	[8083]={spellID=1234416,spellIDDescription=0},
+	[8084]={spellID=1234406,spellIDDescription=0},
+	[8085]={spellID=1234401,spellIDDescription=0},
+	[8086]={spellID=1234418,spellIDDescription=0},
+	[8087]={spellID=1234423,spellIDDescription=0},
+	[8088]={spellID=1234428,spellIDDescription=0},
+	[8089]={spellID=1234433,spellIDDescription=0},
+	[8090]={spellID=1234413,spellIDDescription=0},
+	[8091]={spellID=1234403,spellIDDescription=0},
+	[8092]={spellID=1234398,spellIDDescription=0},
+	[8556]={spellID=1258209,spellIDDescription=0},
+	[8557]={spellID=1258209,spellIDDescription=0},
+	[8558]={spellID=1258210,spellIDDescription=0},
+	[8559]={spellID=1258210,spellIDDescription=0},
+	[8575]={spellID=1258769,spellIDDescription=0},
+	[8576]={spellID=1258770,spellIDDescription=0},
+	[8577]={spellID=1258771,spellIDDescription=0},
+	[8578]={spellID=1258768,spellIDDescription=0},
+	[8608]={spellID=1262056,spellIDDescription=0},
+	[8609]={spellID=1262111,spellIDDescription=0},
+	[8610]={spellID=1262120,spellIDDescription=0},
+	[8611]={spellID=1262120,spellIDDescription=0},
+	[8612]={spellID=1262295,spellIDDescription=1262297},
+	[8613]={spellID=1262298,spellIDDescription=1262300},
+	[8614]={spellID=1262337,spellIDDescription=1262341},
+	[8615]={spellID=1262339,spellIDDescription=1262344},
+	[8638]={spellID=1269475,spellIDDescription=1269474},
+	[8649]={spellID=1236743,spellIDDescription=0},
+	[8650]={spellID=1236744,spellIDDescription=0},
+	[8651]={spellID=1236745,spellIDDescription=0}
 });

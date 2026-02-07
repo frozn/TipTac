@@ -57,7 +57,7 @@ end
 -- WoW flavor
 --
 -- @return .ClassicEra = true/false for Classic Era
---         .BCC        = true/false for BCC
+--         .TBC        = true/false for TBC
 --         .WotLKC     = true/false for WotLKC
 --         .CataC      = true/false for CataC
 --         .MoPC       = true/false for MoPC
@@ -67,7 +67,7 @@ end
 --         .MN         = true/false for MN
 LibFroznFunctions.isWoWFlavor = {
 	ClassicEra = false,
-	BCC = false,
+	TBC = false,
 	WotLKC = false,
 	CataC = false,
 	MoPC = false,
@@ -80,7 +80,7 @@ LibFroznFunctions.isWoWFlavor = {
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.ClassicEra = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_BURNING_CRUSADE_CLASSIC"]) then
-	LibFroznFunctions.isWoWFlavor.BCC = true;
+	LibFroznFunctions.isWoWFlavor.TBC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_WRATH_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.WotLKC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
@@ -173,15 +173,15 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
 	LibFroznFunctions.hasWoWFlavor.talentIconAvailable = false;
 	LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable = false;
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
 	LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TacoTip;
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) then
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 3;
 	LibFroznFunctions.hasWoWFlavor.roleIconAvailable = false;
 	LibFroznFunctions.hasWoWFlavor.specializationAvailable = false;
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
 	LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true;
 	LibFroznFunctions.hasWoWFlavor.GameTooltipSetPaddingWithLeftAndTop = false;
 	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
@@ -190,18 +190,18 @@ end
 if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.optionsSliderTemplate = "OptionsSliderTemplate";
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
 	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
 	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = (MainMenuExpBar or MainStatusTrackingBarContainer);
 	LibFroznFunctions.hasWoWFlavor.experienceBarMaxLevelBack = (MainMenuExpBar and 1 or MainStatusTrackingBarContainer and 3);
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
 	LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip = false;
 	LibFroznFunctions.hasWoWFlavor.clickForSettingsTextInCurrencyTip = false;
 	LibFroznFunctions.hasWoWFlavor.ShoppingTooltipHasCompareHeader = false;
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.BCC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
 	LibFroznFunctions.hasWoWFlavor.UnitHealthAlwaysReturnsSecretValue = false;
 	LibFroznFunctions.hasWoWFlavor.UnitPowerAlwaysReturnsSecretValue = false;
 	LibFroznFunctions.hasWoWFlavor.GetMountFromSpellNotPossibleInCombat = false;
@@ -219,7 +219,7 @@ if (LibFroznFunctions.isWoWFlavor.DF) then
 end
 LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet = 
 	LibFroznFunctions.isWoWFlavor.ClassicEra and  66 or -- Cenarion Vestments (Druid, Tier 1)
-	LibFroznFunctions.isWoWFlavor.BCC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
+	LibFroznFunctions.isWoWFlavor.TBC        and 120 or -- Chestguard of Malorne (Druid, Tier 4)
 	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
 	LibFroznFunctions.isWoWFlavor.CataC      and 359 or -- Stormrider's Robes (Druid, Tier 11)
 	LibFroznFunctions.isWoWFlavor.MoPC       and 397 or -- Deep Earth Robes (Druid, Tier 13)
@@ -5121,7 +5121,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 	if (LibFroznFunctions.isWoWFlavor.WotLKC) then -- added
 		BRACKET_SIZE = 1000
 	-- elseif (CI:IsTBC()) then
-	elseif (LibFroznFunctions.isWoWFlavor.BCC) then -- added
+	elseif (LibFroznFunctions.isWoWFlavor.TBC) then -- added
 		BRACKET_SIZE = 400
 	-- elseif (CI:IsClassic()) then
 	elseif (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- added

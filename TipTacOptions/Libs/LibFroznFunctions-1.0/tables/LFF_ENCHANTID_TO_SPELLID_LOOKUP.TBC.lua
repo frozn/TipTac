@@ -1,15 +1,15 @@
--- tbc 2.5.5 build 65417, from https://wago.tools/db2/SpellItemEnchantment?build=2.5.5.65417, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
+-- tbc 2.5.5 build 65795, from https://wago.tools/db2/SpellItemEnchantment?build=2.5.5.65795, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
 
--- only catac flavor
+-- only tbc flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-if (not LibFroznFunctions.isWoWFlavor.BCC) then
+if (not LibFroznFunctions.isWoWFlavor.TBC) then
 	return;
 end
 
 -- define table
 local TABLE_NAME = "LFF_ENCHANTID_TO_SPELLID_LOOKUP";
-local TABLE_MINOR = 4; -- bump on changes
+local TABLE_MINOR = 5; -- bump on changes (in all LFF_ENCHANTID_TO_SPELLID_LOOKUP files)
 
 if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
 	return;

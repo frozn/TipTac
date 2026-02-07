@@ -1,4 +1,4 @@
--- classic era 1.15.7 build 61582, from https://wago.tools/db2/SpellItemEnchantment?build=1.15.7.61582, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
+-- classic era 1.15.8 build 65300, from https://wago.tools/db2/SpellItemEnchantment?build=1.15.8.65300, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
 
 -- only classic era flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
@@ -9,7 +9,7 @@ end
 
 -- define table
 local TABLE_NAME = "LFF_ENCHANTID_TO_SPELLID_LOOKUP";
-local TABLE_MINOR = 4; -- bump on changes
+local TABLE_MINOR = 5; -- bump on changes (in all LFF_ENCHANTID_TO_SPELLID_LOOKUP files)
 
 if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
 	return;

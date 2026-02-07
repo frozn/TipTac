@@ -1,6 +1,6 @@
--- mopc 5.5.0 build 61820, from https://wago.tools/db2/SpellItemEnchantment?build=5.5.0.61820, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
+-- mopc 5.5.3 build 65746, from https://wago.tools/db2/SpellItemEnchantment?build=5.5.3.65746, converted to "Lua - Dictionary Table" by enchantID with EffectArg_0 as spellID with https://thdoan.github.io/mr-data-converter/
 
--- only catac flavor
+-- only mopc flavor
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 if (not LibFroznFunctions.isWoWFlavor.MoPC) then
@@ -9,7 +9,7 @@ end
 
 -- define table
 local TABLE_NAME = "LFF_ENCHANTID_TO_SPELLID_LOOKUP";
-local TABLE_MINOR = 4; -- bump on changes
+local TABLE_MINOR = 5; -- bump on changes (in all LFF_ENCHANTID_TO_SPELLID_LOOKUP files)
 
 if ((LibFroznFunctions:GetTableVersion(TABLE_NAME) or 0) >= TABLE_MINOR) then
 	return;
@@ -640,7 +640,7 @@ LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
 	[3803]={spellID=55358,spellIDDescription=0},
 	[3804]={spellID=55358,spellIDDescription=0},
 	[3805]={spellID=55358,spellIDDescription=0},
-	[3832]={spellID=60694,spellIDDescription=60692},
+	[3832]={spellID=60694,spellIDDescription=68274},
 	[3847]={spellID=62157,spellIDDescription=62158},
 	[3849]={spellID=43588,spellIDDescription=62201},
 	[3859]={spellID=55001,spellIDDescription=0},
@@ -774,5 +774,6 @@ LibFroznFunctions:ChainTables(LFF_ENCHANTID_TO_SPELLID_LOOKUP, {
 	[5111]={spellID=104335,spellIDDescription=142175},
 	[5115]={spellID=132346,spellIDDescription=0},
 	[5124]={spellID=142536,spellIDDescription=142469},
-	[5125]={spellID=142531,spellIDDescription=142468}
+	[5125]={spellID=142531,spellIDDescription=142468},
+	[8550]={spellID=43588,spellIDDescription=1257682}
 });

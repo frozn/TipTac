@@ -18,7 +18,7 @@
 
 	<Script file="tables\LFF_MAWPOWERID_TO_MAWPOWER_LOOKUP.lua" />
 
-	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.TWW.lua" />
+	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.MN.lua" />
 	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.MoPC.lua" />
 	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.TBC.lua" />
 	<Script file="tables\LFF_ENCHANTID_TO_SPELLID_LOOKUP.ClassicEra.lua" />
