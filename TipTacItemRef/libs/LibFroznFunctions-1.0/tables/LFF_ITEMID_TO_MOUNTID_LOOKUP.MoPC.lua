@@ -1,8 +1,8 @@
--- mopc 5.5.0 build 61820, from https://wago.tools/db2/ItemEffect?build=5.5.0.61820 with SpellCategoryID = 330 (Mount), converted to "Lua - Dictionary Table" by itemID with mountID with https://thdoan.github.io/mr-data-converter/
+-- mopc 5.5.3 build 65746, from https://wago.tools/db2/ItemEffect?build=5.5.3.65746 with SpellCategoryID = 330 (Mount), converted to "Lua - Dictionary Table" by itemID with mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_ITEMID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 5; -- bump on changes
+local TABLE_MINOR = 6; -- bump on changes (in all LFF_ITEMID_TO_MOUNTID_LOOKUP files)
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -545,11 +545,14 @@ LibFroznFunctions:ChainTables(LFF_ITEMID_TO_MOUNTID_LOOKUP, {
 	[207097]=208033,
 	[209876]=211011,
 	[209946]=211026,
+	[226805]=228064,
+	[226812]=228083,
 	[228754]=229834,
 	[230214]=232025,
 	[230221]=232050,
 	[230222]=232051,
 	[230223]=232053,
+	[232614]=233780,
 	[233212]=234503,
 	[233214]=234505,
 	[233282]=73780,
@@ -557,15 +560,12 @@ LibFroznFunctions:ChainTables(LFF_ITEMID_TO_MOUNTID_LOOKUP, {
 	[233284]=73780,
 	[233285]=73780,
 	[233286]=73780,
+	[235562]=237291,
 	[238297]=240149,
 	[238330]=240158,
 	[238331]=240159,
 	[238332]=240160,
 	[238333]=240161,
 	[238943]=23408,
-	[238994]=23408,
-	[248741]=248909,
-	[248742]=248914,
-	[248743]=248912,
-	[248744]=248913
+	[238994]=23408
 });

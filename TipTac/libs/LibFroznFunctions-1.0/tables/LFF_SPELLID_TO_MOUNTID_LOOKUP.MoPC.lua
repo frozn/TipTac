@@ -1,8 +1,8 @@
--- mopc 5.5.0 build 61820, from https://wago.tools/db2/SpellEffect?build=5.5.0.61820 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
+-- mopc 5.5.3 build 65746, from https://wago.tools/db2/SpellEffect?build=5.5.3.65746 with Effect = 6 (APPLY_AURA) and EffectAura = 78 (MOUNTED), converted to "Lua - Dictionary Table" by spellID with EffectMiscValue_0 as mountID with https://thdoan.github.io/mr-data-converter/
 
 -- define table
 local TABLE_NAME = "LFF_SPELLID_TO_MOUNTID_LOOKUP";
-local TABLE_MINOR = 5; -- bump on changes
+local TABLE_MINOR = 6; -- bump on changes (in all LFF_SPELLID_TO_MOUNTID_LOOKUP files)
 
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
@@ -593,11 +593,14 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[423869]=211026,
 	[440915]=211011,
 	[446902]=222854,
+	[459486]=228064,
+	[459538]=228083,
 	[463045]=229834,
 	[466948]=232025,
 	[466977]=232050,
 	[466980]=232051,
 	[466983]=232053,
+	[471440]=233780,
 	[473478]=234503,
 	[473487]=234505,
 	[473739]=73780,
@@ -605,6 +608,7 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[473743]=73780,
 	[473744]=73780,
 	[473745]=73780,
+	[1217476]=237291,
 	[1224596]=240149,
 	[1224643]=240158,
 	[1224645]=240159,
@@ -612,8 +616,26 @@ LibFroznFunctions:ChainTables(LFF_SPELLID_TO_MOUNTID_LOOKUP, {
 	[1224647]=240161,
 	[1226760]=23408,
 	[1226983]=23408,
+	[1229670]=242230,
+	[1229672]=242231,
+	[1238816]=245570,
+	[1239204]=245696,
+	[1239240]=245700,
+	[1239372]=245759,
 	[1247591]=248909,
 	[1247596]=248912,
 	[1247597]=248913,
-	[1247598]=248914
+	[1247598]=248914,
+	[1249659]=249607,
+	[1250045]=249670,
+	[1257516]=252937,
+	[1266345]=255826,
+	[1266866]=256065,
+	[1272988]=257860,
+	[1278947]=259097,
+	[1280068]=259427,
+	[1283471]=260321,
+	[1284044]=260684,
+	[1285724]=261155,
+	[1285725]=261154
 });
