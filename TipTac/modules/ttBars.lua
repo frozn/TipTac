@@ -401,7 +401,7 @@ end
 -- check if active spell cast is available
 function ttBars:IsActiveSpellCast(unitCastingSpell)
 	return (unitCastingSpell and ((unitCastingSpell.isCasting) or (unitCastingSpell.isChanneling) or (unitCastingSpell.isCharging)) and
-		((LibFroznFunctions:IsSecretValue(unitCastingSpell.spellID)) or (unitCastingSpell.startTime) and (unitCastingSpell.endTime) and (unitCastingSpell.spellID)));
+		((unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.durationIfSpellIDIsSecretValue) or (unitCastingSpell.spellID) and (unitCastingSpell.startTime) and (unitCastingSpell.endTime)));
 end
 
 -- update unit tip's bars
@@ -533,7 +533,11 @@ ttBars.unitEventsPool = CreateFramePool("Frame", nil, nil, nil, false, function(
 		end
 
 		-- no fading out if there is no active spell cast, different spell or interrupted/failed channeling spell
-		if (unitEventConfig.fadeOutEnabled) and ((not self:IsActiveSpellCast()) or ((not LibFroznFunctions:IsSecretValue(self.unitCastingSpell.spellID)) and (self.unitCastingSpell.spellID ~= spellID)) or (unitEventConfig.interruptedOrFailed and self.unitCastingSpell.isChanneling)) then
+		if (unitEventConfig.fadeOutEnabled) and
+				((not self:IsActiveSpellCast()) or
+				((not self.unitCastingSpell.spellIDIsSecretValue) and (not LibFroznFunctions:IsSecretValue(spellID)) and (self.unitCastingSpell.spellID ~= spellID)) or
+				(unitEventConfig.interruptedOrFailed and self.unitCastingSpell.isChanneling)) then
+				
 			return;
 		end
 		
@@ -552,7 +556,6 @@ ttBars.unitEventsPool = CreateFramePool("Frame", nil, nil, nil, false, function(
 	-- set active spell cast
 	function frameForUnitEvents:SetActiveSpellCast(unitCastingSpell, unitRecord)
 		self.unitCastingSpell = unitCastingSpell;
-		self.unitCastingSpell.endTime = (frameForUnitEvents.unitCastingSpell.endTime) and (frameForUnitEvents.unitCastingSpell.endTime + (self.unitCastingSpell.isCharging and (GetUnitEmpowerHoldAtMaxTime(unitRecord.id) * 1000) or 0)) or nil;
 	end
 	
 	-- check if active spell cast is available
@@ -839,25 +842,36 @@ function ttBars.CastBarMixin:GetVisibility(tip, unitRecord)
 		return (fadingOut or cfg.castBarAlwaysShow);
 	end
 	
-	-- get visibility of bar if there is an active spell cast
+	-- try enabling fading out after spell cast
+	local unitCastingSpell;
+	
 	if (frameForUnitEvents) and (frameForUnitEvents:IsActiveSpellCast()) then
 		-- check if end time has been reached without stop event
-		if (frameForUnitEvents.unitCastingSpell.endTime) then
-			if (frameForUnitEvents.unitCastingSpell.endTime <= GetTime()) then
-				-- try enabling fading out after spell cast
-				frameForUnitEvents:TryEnablingFadingOut({
-					fadeOutEnabled = true,
-					fadeOutGenericStopEvent = true,
-					fadeOutCastSuccess = true
-				}, frameForUnitEvents.unitCastingSpell.spellID);
-			end
+		local endTimeHasBeenReached = false;
+		
+		if (frameForUnitEvents.unitCastingSpell.spellIDIsSecretValue) and (frameForUnitEvents.unitCastingSpell.durationIfSpellIDIsSecretValue) then
+			-- get information about the new spell currently being cast/channeled/charged
+			unitCastingSpell = (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
 			
-			return true;
+			if (unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.durationIfSpellIDIsSecretValue) and (not ttBars:IsActiveSpellCast(unitCastingSpell)) then
+				endTimeHasBeenReached = true;
+			end
 		end
+		
+		if (endTimeHasBeenReached) or (frameForUnitEvents.unitCastingSpell.endTime) and (frameForUnitEvents.unitCastingSpell.endTime <= GetTime()) then
+			-- try enabling fading out after spell cast
+			frameForUnitEvents:TryEnablingFadingOut({
+				fadeOutEnabled = true,
+				fadeOutGenericStopEvent = true,
+				fadeOutCastSuccess = true
+			}, frameForUnitEvents.unitCastingSpell.spellID);
+		end
+		
+		return true;
 	end
 	
-	-- get information about the new spell currently being cast/channeled
-	local unitCastingSpell = (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
+	-- get information about the new spell currently being cast/channeled/charged
+	unitCastingSpell = (unitCastingSpell) or (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
 	
 	if (not ttBars:IsActiveSpellCast(unitCastingSpell)) then
 		return cfg.castBarAlwaysShow;
@@ -896,13 +910,19 @@ function ttBars.CastBarMixin:UpdateValue(tip, unitRecord)
 	local frameForUnitEvents = ttBars:GetFrameForUnitEvents(tip);
 	
 	-- set value of bar if fade out is enabled
-	if (frameForUnitEvents) and (frameForUnitEvents.castBarFadeOutEnabled) then
-		local minValue, maxValue = self:GetMinMaxValues();
+	local unitCastingSpell;
+	
+	if (frameForUnitEvents) then
+		unitCastingSpell = frameForUnitEvents.unitCastingSpell;
 		
-		self:SetValue(frameForUnitEvents.unitCastingSpell.isChanneling and minValue or maxValue);
-		self.spark:Hide();
-		
-		return;
+		if (frameForUnitEvents.castBarFadeOutEnabled) then
+			local minValue, maxValue = self:GetMinMaxValues();
+			
+			self:SetValue(unitCastingSpell.isChanneling and minValue or maxValue);
+			self.spark:Hide();
+			
+			return;
+		end
 	end
 	
 	-- don't set value of bar if there is no active spell cast
@@ -918,29 +938,35 @@ function ttBars.CastBarMixin:UpdateValue(tip, unitRecord)
 	end
 	
 	-- set value of bar if there is an active spell cast
-	local value, maxValue;
+	local value, maxValue, duration;
 	
-	if (frameForUnitEvents.unitCastingSpell.startTime) and (frameForUnitEvents.unitCastingSpell.endTime) then
+	if (unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.durationIfSpellIDIsSecretValue) then
+		duration = unitCastingSpell.durationIfSpellIDIsSecretValue;
+		
 		value, maxValue =
-			frameForUnitEvents.unitCastingSpell.isChanneling and (frameForUnitEvents.unitCastingSpell.endTime - GetTime()) or (GetTime() - frameForUnitEvents.unitCastingSpell.startTime),
-			frameForUnitEvents.unitCastingSpell.endTime - frameForUnitEvents.unitCastingSpell.startTime;
+			unitCastingSpell.isChanneling and (duration:GetRemainingDuration()) or (duration:GetElapsedDuration()),
+			duration:GetTotalDuration();
+	elseif (unitCastingSpell.startTime) and (unitCastingSpell.endTime) then
+		value, maxValue =
+			unitCastingSpell.isChanneling and (unitCastingSpell.endTime - GetTime()) or (GetTime() - unitCastingSpell.startTime),
+			unitCastingSpell.endTime - unitCastingSpell.startTime;
 	end
 	
 	local text = LibFroznFunctions:CreatePushArray();
 	local spacer;
 	
-	if (not LibFroznFunctions:IsSecretValue(frameForUnitEvents.unitCastingSpell.notInterruptible)) and (frameForUnitEvents.unitCastingSpell.notInterruptible) then
+	if (not LibFroznFunctions:IsSecretValue(unitCastingSpell.notInterruptible)) and (unitCastingSpell.notInterruptible) then
 		text:Push(CreateAtlasMarkup("nameplates-InterruptShield"));
 	end
 	
-	if (frameForUnitEvents.unitCastingSpell.textureFile) then
-		text:Push(CreateTextureMarkup(frameForUnitEvents.unitCastingSpell.textureFile, 64, 64, nil, nil, 0.07, 0.93, 0.07, 0.93));
+	if (unitCastingSpell.textureFile) then
+		text:Push(CreateTextureMarkup(unitCastingSpell.textureFile, 64, 64, nil, nil, 0.07, 0.93, 0.07, 0.93));
 	end
 	
-	if (frameForUnitEvents.unitCastingSpell.displayName) then
+	if (unitCastingSpell.displayName) then
 		spacer = (text:GetCount() > 0) and " " or "";
 		
-		text:Push(spacer .. frameForUnitEvents.unitCastingSpell.displayName);
+		text:Push(spacer .. unitCastingSpell.displayName);
 	end
 	
 	-- update value
@@ -950,7 +976,22 @@ function ttBars.CastBarMixin:UpdateValue(tip, unitRecord)
 	
 	if (value) and (maxValue) then
 		self.spark:ClearAllPoints();
-		self.spark:SetPoint("CENTER", self, "LEFT", value / maxValue * self:GetWidth(), 0);
+		
+		if (unitCastingSpell.spellIDIsSecretValue) then
+			local curveScaleToCastBarWidth = C_CurveUtil.CreateCurve();
+			
+			curveScaleToCastBarWidth:SetType(Enum.LuaCurveType.Linear);
+			curveScaleToCastBarWidth:AddPoint(0.0, 0);
+			curveScaleToCastBarWidth:AddPoint(1.0, self:GetWidth());
+			
+			-- #todo: temporarily hiding the spark, even though the correct value is being delivered.
+			-- self.spark:SetPoint("CENTER", self, "LEFT", duration:EvaluateElapsedPercent(curveScaleToCastBarWidth), 0);
+			self.spark:Hide();
+			return;
+		else
+			self.spark:SetPoint("CENTER", self, "LEFT", value / maxValue * self:GetWidth(), 0);
+		end
+		
 		self.spark:Show();
 	else
 		self.spark:Hide();

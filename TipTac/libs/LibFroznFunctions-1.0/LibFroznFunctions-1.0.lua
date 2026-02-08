@@ -2659,13 +2659,17 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	
 	-- local leftPos = sideAnchorFrame:GetLeft(); -- removed
 	-- local rightPos = sideAnchorFrame:GetRight(); -- removed
-	local leftPos = (sideAnchorFrame:GetLeft() ~= nil) and (sideAnchorFrame:GetLeft() * sideAnchorFrame:GetEffectiveScale()); -- added
-	local rightPos = (sideAnchorFrame:GetRight() ~= nil) and (sideAnchorFrame:GetRight() * sideAnchorFrame:GetEffectiveScale()); -- added
+	local sideAnchorFrameGetLeft = sideAnchorFrame:GetLeft(); -- added
+	local sideAnchorFrameGetRight = sideAnchorFrame:GetRight(); -- added
+	local leftPos = (sideAnchorFrameGetLeft ~= nil) and (not LibFroznFunctions:IsSecretValue(sideAnchorFrameGetLeft)) and (sideAnchorFrameGetLeft * sideAnchorFrame:GetEffectiveScale()); -- added
+	local rightPos = (sideAnchorFrameGetRight ~= nil) and (not LibFroznFunctions:IsSecretValue(sideAnchorFrameGetRight)) and (sideAnchorFrameGetRight * sideAnchorFrame:GetEffectiveScale()); -- added
 	
 	-- local selfLeftPos = tooltip:GetLeft(); -- removed
 	-- local selfRightPos = tooltip:GetRight(); -- removed
-	local selfLeftPos = (tooltip:GetLeft() ~= nil) and (tooltip:GetLeft() * tooltip:GetEffectiveScale()); -- added
-	local selfRightPos = (tooltip:GetRight() ~= nil) and (tooltip:GetRight() * tooltip:GetEffectiveScale()); -- added
+	local tooltipGetLeft = tooltip:GetLeft(); -- added
+	local tooltipGetRight = tooltip:GetRight(); -- added
+	local selfLeftPos = (tooltipGetLeft ~= nil) and (not LibFroznFunctions:IsSecretValue(tooltipGetLeft)) and (tooltipGetLeft * tooltip:GetEffectiveScale()); -- added
+	local selfRightPos = (tooltipGetRight ~= nil) and (not LibFroznFunctions:IsSecretValue(tooltipGetRight)) and (tooltipGetRight * tooltip:GetEffectiveScale()); -- added
 	
 	-- if we get the Left, we have the Right
 	if leftPos and selfLeftPos then
@@ -4180,56 +4184,85 @@ end
 --
 -- @param unitID  unit id, e.g. "player", "target" or "mouseover"
 -- @return information about the spell currently being cast/channeled/charged
---           .isCasting         true if spell is cast
---           .isChanneling      true if spell is channeled
---           .isCharging        true if spell is charging
---           .name              name of the spell
---           .displayName       name to be displayed
---           .textureFile       texture file of spell icon
---           .startTime         time when castin/channeling began
---           .endTime           time when casting/channeling will end
---           .isTradeSkill      true if cast is a trade skill
---           .castID            guid of spell cast
---           .notInterruptible  true if cast cannot be interrupted with abilities
---           .spellID           id of spell
---           .isEmpowered       true if spell is empower spell
---           .numEmpowerStages  number of stages of empower spell
+--           .isCasting                       true if spell is cast, false otherwise.
+--           .isChanneling                    true if spell is channeled, false otherwise.
+--           .isCharging                      true if spell is charging, false otherwise.
+--           .name                            name of the spell
+--           .displayName                     name to be displayed
+--           .textureFile                     texture file of spell icon
+--           .startTime                       time when castin/channeling began
+--           .endTime                         time when casting/channeling will end
+--           .durationIfSpellIDIsSecretValue  duration if id of spell is a secret value
+--           .isTradeSkill                    true if cast is a trade skill
+--           .castID                          guid of spell cast
+--           .notInterruptible                true if cast cannot be interrupted with abilities
+--           .spellID                         id of spell
+--           .spellIDIsSecretValue            true if id of spell is a secret value, false otherwise.
+--           .isEmpowered                     true if spell is empowered spell
+--           .numEmpowerStages                number of stages of empowered spell
+--           .castBarID                       id of cast bar
 function LibFroznFunctions:GetUnitCastingSpell(unitID)
-	local name, displayName, textureFile, startTimeMs, endTimeMs, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unitID);
+	local name, displayName, textureFile, startTimeMs, endTimeMs, isTradeSkill, castID, notInterruptible, spellID, castBarID = UnitCastingInfo(unitID);
 	local isEmpowered, numEmpowerStages;
 	
 	local isCasting, isChanneling, isCharging = false, false, false;
+	local spellIDIsSecretValue = false;
+	local durationIfSpellIDIsSecretValue;
 	
 	if (name) then
 		isCasting = true;
+		
+		spellIDIsSecretValue = (self:IsSecretValue(spellID));
+		
+		if (spellIDIsSecretValue) then
+			durationIfSpellIDIsSecretValue = UnitCastingDuration(unitID);
+		end
 	else
-		name, displayName, textureFile, startTimeMs, endTimeMs, isTradeSkill, notInterruptible, spellID, isEmpowered, numEmpowerStages = UnitChannelInfo(unitID);
+		name, displayName, textureFile, startTimeMs, endTimeMs, isTradeSkill, notInterruptible, spellID, isEmpowered, numEmpowerStages, castBarID = UnitChannelInfo(unitID);
 		
 		if (name) then
 			if (numEmpowerStages) and (numEmpowerStages > 0) then -- see CastingBarMixin:OnEvent() handling event UNIT_SPELLCAST_EMPOWER_START in "CastingBarFrame.lua"
 				isCharging = true;
+				
+				spellIDIsSecretValue = (self:IsSecretValue(spellID));
+				
+				if (spellIDIsSecretValue) then
+					durationIfSpellIDIsSecretValue = UnitEmpoweredChannelDuration(unitID);
+				else
+					endTimeMs = endTimeMs + GetUnitEmpowerHoldAtMaxTime(unitRecord.id);
+				end
 			else
 				isChanneling = true;
+				
+				spellIDIsSecretValue = (self:IsSecretValue(spellID));
+				
+				if (spellIDIsSecretValue) then
+					durationIfSpellIDIsSecretValue = UnitChannelDuration(unitID);
+				end
 			end
 		end
-		
 	end
 	
 	return {
 		isCasting = isCasting,
 		isChanneling = isChanneling,
 		isCharging = isCharging,
-		name = name,                                                                                         -- secret value for non-the-player units which are in combat
-		displayName = displayName,                                                                           -- secret value for non-the-player units which are in combat
-		textureFile = textureFile,                                                                           -- secret value for non-the-player units which are in combat
-		startTime = (startTimeMs) and (not self:IsSecretValue(startTimeMs)) and (startTimeMs / 1000) or nil, -- secret value for non-the-player units which are in combat
-		endTime = (endTimeMs) and (not self:IsSecretValue(endTimeMs)) and (endTimeMs / 1000) or nil,         -- secret value for non-the-player units which are in combat
+		name = name,                                                     -- secret value for non-the-player units which are in combat
+		displayName = displayName,                                       -- secret value for non-the-player units which are in combat
+		textureFile = textureFile,                                       -- secret value for non-the-player units which are in combat
+		startTime = (startTimeMs) and (not spellIDIsSecretValue) and     -- secret value for non-the-player units which are in combat
+			(startTimeMs / 1000) or nil,
+		endTime = (endTimeMs) and (not spellIDIsSecretValue) and         -- secret value for non-the-player units which are in combat
+			(endTimeMs / 1000) or nil,
+		durationIfSpellIDIsSecretValue = durationIfSpellIDIsSecretValue, -- secret value for non-the-player units which are in combat
 		isTradeSkill = isTradeSkill,
 		castID = castID,
-		notInterruptible = notInterruptible,                                                                 -- secret value for non-the-player units which are in combat
-		spellID = spellID,                                                                                   -- secret value for non-the-player units which are in combat
+		notInterruptible = notInterruptible,                             -- secret value for non-the-player units which are in combat
+		spellID = spellID,                                               -- secret value for non-the-player units which are in combat
+		spellIDIsSecretValue = spellIDIsSecretValue,
 		isEmpowered = isEmpowered,
-		numEmpowerStages = numEmpowerStages
+		numEmpowerStages = numEmpowerStages,
+		castBarID = castBarID
 	};
 end
 
