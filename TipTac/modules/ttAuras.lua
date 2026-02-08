@@ -181,8 +181,8 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			break;
 		end
 		
-		-- setup aura fram if it needs to be shown
-		if (not cfg.selfAurasOnly) or (validSelfCasterUnits[unitAuraData.sourceUnit]) then
+		-- setup aura frame if it needs to be shown
+		if (not cfg.selfAurasOnly) or (LibFroznFunctions:IsSecretValue(unitAuraData.sourceUnit)) or (validSelfCasterUnits[unitAuraData.sourceUnit]) then
 			auraFrameIndex = auraFrameIndex + 1;
 			
 			local aura = self.aurasPool:Acquire();

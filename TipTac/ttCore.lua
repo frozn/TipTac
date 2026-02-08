@@ -2088,7 +2088,7 @@ function tt:AddTipToCache(tip, frameName, tipParams)
 				
 				tip:HookScript("OnSizeChanged", function(...)
 					-- check if insecure interaction with the tip is currently forbidden
-					if (tip:IsForbidden()) then
+					if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
 						return;
 					end
 					
@@ -2368,7 +2368,7 @@ local isSettingScaleToTip = false;
 
 function tt:SetScaleToTip(tip, noFireGroupEvent)
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
 		return;
 	end
 	
@@ -3198,7 +3198,7 @@ local isSettingBackdropLocked = false;
 
 function tt:SetBackdropLocked(tip, backdropInfo)
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
 		return;
 	end
 	
