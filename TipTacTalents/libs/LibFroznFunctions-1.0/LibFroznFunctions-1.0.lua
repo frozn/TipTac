@@ -2685,10 +2685,14 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	
 	local totalWidth = 0;
 	if primaryShown then
-		totalWidth = totalWidth + primaryTooltip:GetWidth() * primaryTooltip:GetEffectiveScale();
+		-- totalWidth = totalWidth + primaryTooltip:GetWidth(); -- removed
+		local primaryTooltipGetWidth = primaryTooltip:GetWidth(); -- added
+		totalWidth = totalWidth + ((not LibFroznFunctions:IsSecretValue(primaryTooltipGetWidth)) and (primaryTooltipGetWidth * primaryTooltip:GetEffectiveScale()) or 0); -- added
 	end
 	if secondaryShown then
-		totalWidth = totalWidth + secondaryTooltip:GetWidth() * primaryTooltip:GetEffectiveScale();
+		-- totalWidth = totalWidth + secondaryTooltip:GetWidth(); -- removed
+		local secondaryTooltipGetWidth = secondaryTooltip:GetWidth(); -- added
+		totalWidth = totalWidth + ((not LibFroznFunctions:IsSecretValue(secondaryTooltipGetWidth)) and (secondaryTooltipGetWidth * secondaryTooltip:GetEffectiveScale()) or 0); -- added
 	end
 	
 	local rightDist = 0;
