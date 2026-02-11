@@ -2851,6 +2851,10 @@ function tt:SetPaddingToTip(tip)
 	oldPaddingLeft = oldPaddingLeft or 0;
 	oldPaddingTop = oldPaddingTop or 0;
 	
+	if (LibFroznFunctions:IsSecretValue(oldPaddingRight)) then
+		return;
+	end
+	
 	local newPaddingRight, newPaddingBottom, newPaddingLeft, newPaddingTop;
 	
 	local itemTooltip = tip.ItemTooltip;

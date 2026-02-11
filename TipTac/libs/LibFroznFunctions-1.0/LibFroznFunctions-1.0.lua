@@ -1119,7 +1119,7 @@ function LibFroznFunctions:FormatNumber(number, abbreviate, numberIsSecretValue)
 							abbreviationIsGlobal = false
 						},
 						[7] = {
-							breakpoint = 0,
+							breakpoint = 0.1,
 							abbreviation = "",
 							significandDivisor = 1,
 							fractionDivisor = 1,

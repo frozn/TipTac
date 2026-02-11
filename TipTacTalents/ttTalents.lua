@@ -190,7 +190,7 @@ function TTT_UpdateTooltip(unitCacheRecord)
 	-- exit if unit from unit cache record doesn't match the current displaying unit
 	local _, unitID = LibFroznFunctions:GetUnitFromTooltip(GameTooltip);
 	
-	if (not unitID) then
+	if (LibFroznFunctions:IsSecretValue(unitID)) or (not unitID) then
 		return;
 	end
 	
