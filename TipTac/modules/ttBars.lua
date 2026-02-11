@@ -400,8 +400,9 @@ end
 
 -- check if active spell cast is available
 function ttBars:IsActiveSpellCast(unitCastingSpell)
-	return (unitCastingSpell and ((unitCastingSpell.isCasting) or (unitCastingSpell.isChanneling) or (unitCastingSpell.isCharging)) and
-		((unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.durationIfSpellIDIsSecretValue) or (unitCastingSpell.spellID) and (unitCastingSpell.startTime) and (unitCastingSpell.endTime)));
+	return ((unitCastingSpell) and ((unitCastingSpell.isCasting) or (unitCastingSpell.isChanneling) or (unitCastingSpell.isCharging)) and
+		((unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.durationIfSpellIDIsSecretValue) or
+		(unitCastingSpell.spellID) and (unitCastingSpell.startTime) and (unitCastingSpell.endTime)));
 end
 
 -- update unit tip's bars
@@ -525,13 +526,28 @@ local TT_ConfigUnitEvents = {
 
 -- create frame for unit events
 ttBars.unitEventsPool = CreateFramePool("Frame", nil, nil, nil, false, function(frameForUnitEvents)
+	-- set active spell cast
+	function frameForUnitEvents:SetActiveSpellCast(unitCastingSpell)
+		self.unitCastingSpell = unitCastingSpell;
+	end
+	
+	-- check if active spell cast is available
+	function frameForUnitEvents:IsActiveSpellCast()
+		return ttBars:IsActiveSpellCast(self.unitCastingSpell);
+	end
+	
+	-- check if fading out is already enabled
+	function frameForUnitEvents:IsFadingOut(unitEventConfig)
+		return (unitEventConfig.fadeOutEnabled) and (self.castBarFadeOutEnabled) and ((unitEventConfig.fadeOutGenericStopEvent == self.castBarFadeOutGenericStopEvent) or (unitEventConfig.fadeOutGenericStopEvent == true) and (self.castBarFadeOutGenericStopEvent == false));
+	end
+	
 	-- try enabling fading out after spell cast
 	function frameForUnitEvents:TryEnablingFadingOut(unitEventConfig, spellID)
 		-- check if fading out is already enabled
 		if (self:IsFadingOut(unitEventConfig)) then
 			return;
 		end
-
+		
 		-- no fading out if there is no active spell cast, different spell or interrupted/failed channeling spell
 		if (unitEventConfig.fadeOutEnabled) and
 				((not self:IsActiveSpellCast()) or
@@ -546,21 +562,6 @@ ttBars.unitEventsPool = CreateFramePool("Frame", nil, nil, nil, false, function(
 		self.castBarFadeOutTimestamp = (unitEventConfig.fadeOutEnabled and GetTime() or nil);
 		self.castBarFadeOutGenericStopEvent = unitEventConfig.fadeOutGenericStopEvent;
 		self.castBarFadeOutCastSuccess = unitEventConfig.fadeOutCastSuccess;
-	end
-	
-	-- check if fading out is already enabled
-	function frameForUnitEvents:IsFadingOut(unitEventConfig)
-		return (unitEventConfig.fadeOutEnabled) and (self.castBarFadeOutEnabled) and ((unitEventConfig.fadeOutGenericStopEvent == self.castBarFadeOutGenericStopEvent) or (unitEventConfig.fadeOutGenericStopEvent == true) and (self.castBarFadeOutGenericStopEvent == false));
-	end
-	
-	-- set active spell cast
-	function frameForUnitEvents:SetActiveSpellCast(unitCastingSpell, unitRecord)
-		self.unitCastingSpell = unitCastingSpell;
-	end
-	
-	-- check if active spell cast is available
-	function frameForUnitEvents:IsActiveSpellCast()
-		return ttBars:IsActiveSpellCast(self.unitCastingSpell);
 	end
 	
 	-- disable fading out
@@ -588,19 +589,40 @@ ttBars.unitEventsPool = CreateFramePool("Frame", nil, nil, nil, false, function(
 			return;
 		end
 		
+		-- get current display parameters
+		local tip = self:GetParent();
+		local frameParams = TT_CacheForFrames[tip];
+		
+		if (not frameParams) then
+			return;
+		end
+		
+		local currentDisplayParams = frameParams.currentDisplayParams;
+		
+		-- no unit record
+		local unitRecord = currentDisplayParams.unitRecord;
+		
+		if (not unitRecord) then
+			return;
+		end
+		
+		-- not the same unit
+		local unitID, _, spellID = ...;
+		local unitGUID = UnitGUID(unitID);
+		
+		if (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and (not LibFroznFunctions:IsSecretValue(unitGUID)) and (unitGUID ~= unitRecord.guid) then
+			return;
+		end
+		
 		-- reset cast bar data if spell cast is started
 		if (unitEventConfig.startCast) then
 			self:ResetCastBarData();
 		end
 		
 		-- try enabling fading out after spell cast
-		local spellID = select(3, ...);
-		
 		self:TryEnablingFadingOut(unitEventConfig, spellID);
 		
 		-- update unit tip's bars
-		local tip = self:GetParent();
-		
 		ttBars:UpdateUnitTipsBars(tip);
 	end);
 end);
@@ -843,42 +865,38 @@ function ttBars.CastBarMixin:GetVisibility(tip, unitRecord)
 	end
 	
 	-- try enabling fading out after spell cast
-	local unitCastingSpell;
+	local newUnitCastingSpell;
 	
 	if (frameForUnitEvents) and (frameForUnitEvents:IsActiveSpellCast()) then
+		-- get information about the new spell currently being cast/channeled/charged
+		local unitCastingSpell = frameForUnitEvents.unitCastingSpell;
+		
+		newUnitCastingSpell = (unitCastingSpell.spellIDIsSecretValue) and (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
+		
 		-- check if end time has been reached without stop event
-		local endTimeHasBeenReached = false;
-		
-		if (frameForUnitEvents.unitCastingSpell.spellIDIsSecretValue) and (frameForUnitEvents.unitCastingSpell.durationIfSpellIDIsSecretValue) then
-			-- get information about the new spell currently being cast/channeled/charged
-			unitCastingSpell = (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
+		if (unitCastingSpell.spellIDIsSecretValue) and (not ttBars:IsActiveSpellCast(newUnitCastingSpell)) or
+				(not unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.endTime) and (unitCastingSpell.endTime <= GetTime()) then
 			
-			if (unitCastingSpell.spellIDIsSecretValue) and (unitCastingSpell.durationIfSpellIDIsSecretValue) and (not ttBars:IsActiveSpellCast(unitCastingSpell)) then
-				endTimeHasBeenReached = true;
-			end
-		end
-		
-		if (endTimeHasBeenReached) or (frameForUnitEvents.unitCastingSpell.endTime) and (frameForUnitEvents.unitCastingSpell.endTime <= GetTime()) then
 			-- try enabling fading out after spell cast
 			frameForUnitEvents:TryEnablingFadingOut({
 				fadeOutEnabled = true,
 				fadeOutGenericStopEvent = true,
 				fadeOutCastSuccess = true
-			}, frameForUnitEvents.unitCastingSpell.spellID);
+			}, unitCastingSpell.spellID);
 		end
 		
 		return true;
 	end
 	
 	-- get information about the new spell currently being cast/channeled/charged
-	unitCastingSpell = (unitCastingSpell) or (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
+	newUnitCastingSpell = (newUnitCastingSpell) or (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and LibFroznFunctions:GetUnitCastingSpell(unitRecord.id);
 	
-	if (not ttBars:IsActiveSpellCast(unitCastingSpell)) then
+	if (not ttBars:IsActiveSpellCast(newUnitCastingSpell)) then
 		return cfg.castBarAlwaysShow;
 	end
 	
 	if (frameForUnitEvents) then
-		frameForUnitEvents:SetActiveSpellCast(unitCastingSpell, unitRecord);
+		frameForUnitEvents:SetActiveSpellCast(newUnitCastingSpell);
 	end
 	
 	return true;
@@ -903,6 +921,8 @@ function ttBars.CastBarMixin:GetColor(tip, unitRecord)
 end
 
 -- update value
+local curveScaleToCastBarWidth;
+
 function ttBars.CastBarMixin:UpdateValue(tip, unitRecord)
 	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
 	
@@ -978,11 +998,15 @@ function ttBars.CastBarMixin:UpdateValue(tip, unitRecord)
 		self.spark:ClearAllPoints();
 		
 		if (unitCastingSpell.spellIDIsSecretValue) then
-			local curveScaleToCastBarWidth = C_CurveUtil.CreateCurve();
+			if (not curveScaleToCastBarWidth) then
+				curveScaleToCastBarWidth = C_CurveUtil.CreateCurve();
+				
+				curveScaleToCastBarWidth:SetType(Enum.LuaCurveType.Linear);
+			end
 			
-			curveScaleToCastBarWidth:SetType(Enum.LuaCurveType.Linear);
-			curveScaleToCastBarWidth:AddPoint(0.0, 0);
-			curveScaleToCastBarWidth:AddPoint(1.0, self:GetWidth());
+			curveScaleToCastBarWidth:ClearPoints();
+			curveScaleToCastBarWidth:AddPoint(0, 0);
+			curveScaleToCastBarWidth:AddPoint(1, self:GetWidth());
 			
 			-- #todo: temporarily hiding the spark, even though the correct value is being delivered.
 			-- self.spark:SetPoint("CENTER", self, "LEFT", duration:EvaluateElapsedPercent(curveScaleToCastBarWidth), 0);

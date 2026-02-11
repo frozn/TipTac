@@ -222,24 +222,56 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			end
 			
 			-- show cooldown model if enabled and aura duration is available
-			if (cfg.showAuraCooldown) and (not LibFroznFunctions:IsSecretValue(unitAuraData.duration)) and (unitAuraData.duration and (unitAuraData.duration > 0) and unitAuraData.expirationTime and (unitAuraData.expirationTime > 0)) then
-				aura.cooldown:SetCooldown(unitAuraData.expirationTime - unitAuraData.duration, unitAuraData.duration);
-			else
+			local hideAuraCooldown = true;
+			
+			if (cfg.showAuraCooldown) then
+				if (LibFroznFunctions:IsSecretValue(unitAuraData.duration)) then
+					-- #todo: temporarily hiding the cooldown because Cooldown:SetCooldownFromDurationObject() currently doesn't accept secret values during tainted execution.
+					-- aura.cooldown:SetCooldownFromDurationObject(unitAuraData.duration);
+					-- hideAuraCooldown = false;
+				elseif (unitAuraData.duration) and (unitAuraData.duration > 0) and (unitAuraData.expirationTime) and (unitAuraData.expirationTime > 0) then
+					aura.cooldown:SetCooldown(unitAuraData.expirationTime - unitAuraData.duration, unitAuraData.duration);
+					hideAuraCooldown = false;
+				end
+			end
+			
+			if (hideAuraCooldown) then
 				aura.cooldown:Hide();
 			end
 			
 			-- set texture and count
 			aura.icon:SetTexture(unitAuraData.icon);
-			aura.count:SetText((cfg.auraStackCount) and (not LibFroznFunctions:IsSecretValue(unitAuraData.applications)) and unitAuraData.applications and (unitAuraData.applications > 1) and unitAuraData.applications or "")
+			
+			local hideAuraCount = true;
+			
+			if (cfg.auraStackCount) then
+				if (LibFroznFunctions:IsSecretValue(unitAuraData.applications)) then
+					aura.count:SetText(C_UnitAuras.GetAuraApplicationDisplayCount(unitRecord.id, unitAuraData.auraInstanceID));
+					hideAuraCount = false;
+				elseif (unitAuraData.applications) and (unitAuraData.applications > 1) then
+					aura.count:SetText(unitAuraData.applications);
+					hideAuraCount = false;
+				end
+			end
+			
+			if (hideAuraCount) then
+				aura.count:SetText("");
+			end
 			
 			-- show border, only for debuffs
+			local hideAuraBorder = true;
+			
 			if (auraType == "HARMFUL") then
-				local debuffDisplayInfoTable = LibFroznFunctions:GetDebuffDisplayInfoTable();
-				local debuffDisplayInfo = ((not LibFroznFunctions:IsSecretValue(unitAuraData.dispelName)) and debuffDisplayInfoTable[unitAuraData.dispelName] or debuffDisplayInfoTable["None"]); -- see RefreshDebuffs() in "AuraUtil.lua"
+				local dispelTypeColor = LibFroznFunctions:GetDispelTypeColor(unitAuraData.dispelName, unitRecord.id, unitAuraData.auraInstanceID);
 				
-				aura.border:SetVertexColor(debuffDisplayInfo.color:GetRGBA());
-				aura.border:Show();
-			else
+				if (dispelTypeColor) then
+					aura.border:SetVertexColor(dispelTypeColor:GetRGBA());
+					aura.border:Show();
+					hideAuraBorder = false;
+				end
+			end
+			
+			if (hideAuraBorder) then
 				aura.border:Hide();
 			end
 			

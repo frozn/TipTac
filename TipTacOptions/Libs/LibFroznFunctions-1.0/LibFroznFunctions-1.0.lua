@@ -977,6 +977,41 @@ function LibFroznFunctions:GetDebuffDisplayInfoTable()
 	return preMnDebuffDisplayInfo;
 end
 
+-- get dispel type color
+-- @param  dispelName                               locale-independent magic type of the aura, e.g. "Curse", "Disease", "Magic" or "Poison"
+-- @param  unitIDIfDispelNameIsSecretValue          id of unit if dispelName is a secret value
+-- @param  auraInstanceIDIfDispelNameIsSecretValue  instance id of aura if dispelName is a secret value
+-- @return dispelTypeColor
+local dispelTypeColorCurve;
+
+function LibFroznFunctions:GetDispelTypeColor(dispelName, unitIDIfDispelNameIsSecretValue, auraInstanceIDIfDispelNameIsSecretValue)
+	-- since mn 12.0.0 if dispelName is a secret value
+	local debuffDisplayInfoTable;
+	
+	if (self:IsSecretValue(dispelName)) then
+		if (not dispelTypeColorCurve) then -- see DB SpellDispelType
+			debuffDisplayInfoTable = self:GetDebuffDisplayInfoTable();
+			
+			dispelTypeColorCurve = C_CurveUtil.CreateColorCurve();
+			
+			dispelColorCurve:SetType(Enum.LuaCurveType.Step);
+			dispelColorCurve:AddPoint(0, debuffDisplayInfoTable["None"].color);    -- None
+			dispelColorCurve:AddPoint(1, debuffDisplayInfoTable["Magic"].color);   -- Magic
+			dispelColorCurve:AddPoint(2, debuffDisplayInfoTable["Curse"].color);   -- Curse
+			dispelColorCurve:AddPoint(3, debuffDisplayInfoTable["Disease"].color); -- Disease
+			dispelColorCurve:AddPoint(4, debuffDisplayInfoTable["Poison"].color);  -- Poison
+			dispelColorCurve:AddPoint(11, debuffDisplayInfoTable["Bleed"].color);  -- Bleed
+		end
+		
+		return C_UnitAuras.GetAuraDispelTypeColor(unitIDIfDispelNameIsSecretValue, auraInstanceIDIfDispelNameIsSecretValue, dispelTypeColorCurve);
+	end
+	
+	-- before mn 12.0.0
+	debuffDisplayInfoTable = self:GetDebuffDisplayInfoTable(); -- see RefreshDebuffs() in "AuraUtil.lua"
+	
+	return (debuffDisplayInfoTable[dispelName]) and (debuffDisplayInfoTable[dispelName].color) or (debuffDisplayInfoTable["None"].color);
+end
+
 ----------------------------------------------------------------------------------------------------
 --                                        Helper Functions                                        --
 ----------------------------------------------------------------------------------------------------
