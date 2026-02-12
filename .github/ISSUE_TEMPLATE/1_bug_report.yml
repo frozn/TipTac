@@ -33,7 +33,7 @@ body:
     id: version-tiptac
     attributes:
       label: Version of TipTac Reborn
-      placeholder: e.g. 26.01.16, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
+      placeholder: e.g. 26.02.12, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)
     validations:
       required: true
   - type: textarea
@@ -41,8 +41,8 @@ body:
     attributes:
       label: Flavor/Version of WoW
       placeholder: |
-        Flavor [e.g. retail/TWW, classic/MoPC, anniversary/TBC, classic era/Vanilla]
+        Flavor [e.g. retail/MN, classic/MoPC, anniversary/TBC, classic era/Vanilla]
         - or -
-        Version [e.g. 11.2.7, 5.5.3, 2.5.5, 1.15.8, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
+        Version [e.g. 12.0.1, 5.5.3, 2.5.5, 1.15.8, visible on top right in TipTac Reborn's config options (accessible with `/tiptac`)]
     validations:
       required: true
