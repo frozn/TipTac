@@ -3596,6 +3596,8 @@ function tt:SetAnchorToTip(tip)
 	local anchorFrameName, anchorType, anchorPoint = currentDisplayParams.anchorFrameName, currentDisplayParams.anchorType or TT_ExtendedConfig.defaultAnchorType, currentDisplayParams.anchorPoint or TT_ExtendedConfig.defaultAnchorPoint;
 	
 	-- set anchor to tip
+	local offsetX, offsetY
+	
 	if (tip:GetObjectType() == "GameTooltip") then
 		local tipAnchorType = tip:GetAnchorType();
 		
@@ -3614,31 +3616,36 @@ function tt:SetAnchorToTip(tip)
 	
 	if (anchorType == "normal") then
 		-- "normal" anchor
-		tip:ClearAllPoints();
+		offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
 		
-		local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
-		
-		tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
+		if (offsetX) and (offsetY) then
+			tip:ClearAllPoints();
+			tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
+		end
 	elseif (anchorType == "mouse") then
 		-- although we anchor the tip continuously in OnUpdate, we must anchor it initially here to avoid flicker on the first frame its being shown.
 		self:AnchorTipToMouse(tip);
 		
 		return;
 	elseif (anchorType == "parent") then
-		tip:ClearAllPoints();
-		
 		local parentFrame = currentDisplayParams.defaultAnchoredParentFrame;
 		
-		if (parentFrame) and (parentFrame ~= UIParent) then
+		if (parentFrame) and (not parentFrame:IsForbidden()) and (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
-			local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
+			offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
 			
-			tip:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), UIParent, anchorPoint, offsetX, offsetY);
+			if (offsetX) and (offsetY) then
+				tip:ClearAllPoints();
+				tip:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), UIParent, anchorPoint, offsetX, offsetY);
+			end
 		else
 			-- fallback to "normal" anchor in case parent frame isn't available or is UIParent
-			local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
+			offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
 			
-			tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
+			if (offsetX) and (offsetY) then
+				tip:ClearAllPoints();
+				tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
+			end
 		end
 	end
 	
