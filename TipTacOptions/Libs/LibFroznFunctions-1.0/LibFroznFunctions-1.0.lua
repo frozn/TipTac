@@ -994,13 +994,13 @@ function LibFroznFunctions:GetDispelTypeColor(dispelName, unitIDIfDispelNameIsSe
 			
 			dispelTypeColorCurve = C_CurveUtil.CreateColorCurve();
 			
-			dispelColorCurve:SetType(Enum.LuaCurveType.Step);
-			dispelColorCurve:AddPoint(0, debuffDisplayInfoTable["None"].color);    -- None
-			dispelColorCurve:AddPoint(1, debuffDisplayInfoTable["Magic"].color);   -- Magic
-			dispelColorCurve:AddPoint(2, debuffDisplayInfoTable["Curse"].color);   -- Curse
-			dispelColorCurve:AddPoint(3, debuffDisplayInfoTable["Disease"].color); -- Disease
-			dispelColorCurve:AddPoint(4, debuffDisplayInfoTable["Poison"].color);  -- Poison
-			dispelColorCurve:AddPoint(11, debuffDisplayInfoTable["Bleed"].color);  -- Bleed
+			dispelTypeColorCurve:SetType(Enum.LuaCurveType.Step);
+			dispelTypeColorCurve:AddPoint(0, debuffDisplayInfoTable["None"].color);    -- None
+			dispelTypeColorCurve:AddPoint(1, debuffDisplayInfoTable["Magic"].color);   -- Magic
+			dispelTypeColorCurve:AddPoint(2, debuffDisplayInfoTable["Curse"].color);   -- Curse
+			dispelTypeColorCurve:AddPoint(3, debuffDisplayInfoTable["Disease"].color); -- Disease
+			dispelTypeColorCurve:AddPoint(4, debuffDisplayInfoTable["Poison"].color);  -- Poison
+			dispelTypeColorCurve:AddPoint(11, debuffDisplayInfoTable["Bleed"].color);  -- Bleed
 		end
 		
 		return C_UnitAuras.GetAuraDispelTypeColor(unitIDIfDispelNameIsSecretValue, auraInstanceIDIfDispelNameIsSecretValue, dispelTypeColorCurve);
