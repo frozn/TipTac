@@ -4360,12 +4360,14 @@ function LibFroznFunctions:GetPlayerGuildClubMemberInfo(unitGUID)
 			if (playerGuildClubIDCache) then
 				local playerGuildClubMemberIDs = C_Club.GetClubMembers(playerGuildClubIDCache);
 				
-				for _, playerGuildClubMemberID in ipairs(playerGuildClubMemberIDs) do
-					local playerGuildClubMemberInfo = C_Club.GetMemberInfo(playerGuildClubIDCache, playerGuildClubMemberID);
-					
-					if (playerGuildClubMemberInfo) and (playerGuildClubMemberInfo.guid) then
-						playerGuildClubMemberInfosCache[playerGuildClubMemberInfo.guid] = playerGuildClubMemberInfo;
-					end
+				if (not LibFroznFunctions:IsSecretValue(playerGuildClubMemberIDs)) then
+    				for _, playerGuildClubMemberID in ipairs(playerGuildClubMemberIDs) do
+    					local playerGuildClubMemberInfo = C_Club.GetMemberInfo(playerGuildClubIDCache, playerGuildClubMemberID);
+
+    					if (playerGuildClubMemberInfo) and (playerGuildClubMemberInfo.guid) then
+    						playerGuildClubMemberInfosCache[playerGuildClubMemberInfo.guid] = playerGuildClubMemberInfo;
+    					end
+    				end
 				end
 			end
 		end
