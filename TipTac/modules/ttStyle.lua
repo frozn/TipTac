@@ -174,7 +174,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 		local gttLine = _G["GameTooltipTextLeft" .. i];
 		local gttLineText = gttLine:GetText();
 		
-		if (type(gttLineText) == "string") then
+		if (not LibFroznFunctions:IsSecretValue(gttLineText)) and (type(gttLineText) == "string") then
 			local isGttLineTextUnitPopupRightClick = (hideRightClickForFrameSettingsTextInUnitTip) and (gttLineText == UNIT_POPUP_RIGHT_CLICK);
 			
 			if (isGttLineTextUnitPopupRightClick) or
