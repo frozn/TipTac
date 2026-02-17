@@ -4004,7 +4004,7 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	local unitID = (newUnitID) or (unitRecord.id);
 	local unitGUID = UnitGUID(unitID);
 	
-	if (not unitGUID) or (unitGUID ~= unitRecord.guid) then
+	if (self:IsSecretValue(unitGUID)) or (not unitGUID) or (unitGUID ~= unitRecord.guid) then
 		return;
 	end
 	
