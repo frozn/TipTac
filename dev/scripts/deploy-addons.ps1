@@ -1,4 +1,4 @@
-# TipTac Addon Deployment Script
+﻿# TipTac Addon Deployment Script
 # This script copies TipTac addons to your World of Warcraft addons folder
 
 # Get the source directory (repository root)
@@ -17,7 +17,7 @@ $Addons = @(
 )
 
 Write-Host "TipTac Addon Deployment" -ForegroundColor Cyan
-Write-Host "======================" -ForegroundColor Cyan
+Write-Host "=======================" -ForegroundColor Cyan
 Write-Host ""
 
 # Function to find WoW AddOns folder
@@ -35,9 +35,11 @@ function Find-WoWAddonsPath {
     $CommonPaths = @(
         "${env:ProgramFiles(x86)}\World of Warcraft\_retail_\Interface\AddOns",
         "${env:ProgramFiles(x86)}\World of Warcraft\_classic_\Interface\AddOns",
+        "${env:ProgramFiles(x86)}\World of Warcraft\_anniversary_\Interface\AddOns",
         "${env:ProgramFiles(x86)}\World of Warcraft\_classic_era_\Interface\AddOns",
         "$env:USERPROFILE\_World_of_Warcraft\_retail_\Interface\AddOns",
         "$env:USERPROFILE\_World_of_Warcraft\_classic_\Interface\AddOns",
+        "$env:USERPROFILE\_World_of_Warcraft\_anniversary_\Interface\AddOns",
         "$env:USERPROFILE\_World_of_Warcraft\_classic_era_\Interface\AddOns"
     )
     
