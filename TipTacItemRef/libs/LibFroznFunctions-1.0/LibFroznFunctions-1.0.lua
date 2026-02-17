@@ -4000,7 +4000,7 @@ end
 -- @param  newUnitID   optional. new unit id, e.g. "player", "target" or "mouseover".
 -- @return unitRecord, see LibFroznFunctions:CreateUnitRecord()
 function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
-	-- no valid unit any more (e.g. during fading out) or not the same unit
+	-- no valid unit any more (e.g. during fading out), not the same unit or unit guid is a secret value
 	local unitID = (newUnitID) or (unitRecord.id);
 	local unitGUID = UnitGUID(unitID);
 	
@@ -4517,8 +4517,8 @@ end
 
 -- get record in unit cache
 function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
-	-- no unit guid
-	if (not unitGUID) then
+	-- no unit guid or unit guid is a secret value
+	if (self:IsSecretValue(unitGUID)) or (not unitGUID) then
 		return;
 	end
 	
