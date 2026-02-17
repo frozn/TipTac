@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 57; -- bump on changes
+local LIB_MINOR = 58; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -4360,7 +4360,7 @@ function LibFroznFunctions:GetPlayerGuildClubMemberInfo(unitGUID)
 			if (playerGuildClubIDCache) then
 				local playerGuildClubMemberIDs = C_Club.GetClubMembers(playerGuildClubIDCache);
 				
-				if (not LibFroznFunctions:IsSecretValue(playerGuildClubMemberIDs)) then
+				if (not self:IsSecretValue(playerGuildClubMemberIDs)) then
     				for _, playerGuildClubMemberID in ipairs(playerGuildClubMemberIDs) do
     					local playerGuildClubMemberInfo = C_Club.GetMemberInfo(playerGuildClubIDCache, playerGuildClubMemberID);
 
