@@ -148,7 +148,7 @@ local function setExtraPaddingRightForMinimumWidth(self, TT_CacheForFrames, tip,
 			if (bar:GetParent() == tip) and (bar:IsShown()) then
 				local barWidth = bar:GetWidth();
 				
-				if (barWidth > 0) then -- bar width of health bar is 0 after fading out the cast bar
+				if (not LibFroznFunctions:IsSecretValue(barWidth)) and (barWidth > 0) then -- bar width of health bar is 0 after fading out the cast bar
 					local newExtraPaddingRightForMinimumWidth = cfg.barTipMinimumWidth - barWidth + (currentDisplayParams.extraPaddingRightForMinimumWidth or 0);
 					
 					if (newExtraPaddingRightForMinimumWidth <= 0) then
