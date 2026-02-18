@@ -2864,6 +2864,13 @@ function tt:SetPaddingToTip(tip)
 	isSettingPaddingToTip = true;
 	
 	if (isItemTooltipShown) then
+		local itemWidth, itemHeight = itemTooltip:GetSize();
+		
+		if (LibFroznFunctions:IsSecretValue(itemWidth)) then
+			isSettingPaddingToTip = false;
+			return;
+		end
+		
 		tip:SetPadding(0, 0, 0, 0);
 		
 		GameTooltip_CalculatePadding(tip);
