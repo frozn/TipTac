@@ -306,6 +306,12 @@ local function barInitFunc(bar, tblMixin)
 		statusBarTexture:SetVertTile(false);  -- Az: 3.3.3 fix
 		self:SetHeight(cfg.barHeight);
 		
+		-- set default font if font of bar in config is not valid
+		if (not LibFroznFunctions:FontExists(cfg.barFontFace)) then
+			cfg.barFontFace = nil;
+			tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font set in option tab {highlight:Bars}. Switching to default Font.}");
+		end
+		
 		-- set font of bar
 		self.text:SetFont(cfg.barFontFace, cfg.barFontSize, cfg.barFontFlags);
 	end
