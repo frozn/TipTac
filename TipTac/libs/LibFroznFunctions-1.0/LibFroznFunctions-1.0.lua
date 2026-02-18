@@ -4096,6 +4096,14 @@ function LibFroznFunctions:GetAuraDataByIndex(unitID, index, filter)
 	
 	-- since df 10.2.5
 	if (C_UnitAuras) and (C_UnitAuras.GetAuraDataByIndex) then
+		-- check if unit id is restricted for addons
+		local success = pcall(C_UnitAuras.GetAuraDataByIndex, unitID, index, filter);
+		
+		if (not success) then
+			return nil;
+		end
+		
+		-- returns the buffs/debuffs for the unit
 		return C_UnitAuras.GetAuraDataByIndex(unitID, index, filter);
 	end
 	
@@ -4150,6 +4158,14 @@ function LibFroznFunctions:ForEachAura(unitID, filter, maxCount, func, usePacked
 	
 	-- since df 10.0.0
 	if (AuraUtil) and (AuraUtil.ForEachAura) then
+		-- check if unit id is restricted for addons
+		local success = pcall(C_UnitAuras.GetAuraSlots, unitID, filter, maxCount);
+		
+		if (not success) then
+			return;
+		end
+		
+		-- iterate through unit's auras
 		local function callbackFunc(nameOrAuraData, ...)
 			if (usePackedAura) then
 				if (not nameOrAuraData) or (not nameOrAuraData.name) then
