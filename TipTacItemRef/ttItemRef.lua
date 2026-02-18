@@ -2909,7 +2909,7 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 	if (showAuraCaster) then
 		local sourceName = UnitName(source);
 		
-		if (sourceName) and (sourceName ~= TTIF_UnknownObject and sourceName ~= "") then
+		if (sourceName) and (LibFroznFunctions:IsSecretValue(sourceName) or sourceName ~= TTIF_UnknownObject and sourceName ~= "") then
 			local colorAuraCaster;
 			
 			if (UnitIsPlayer(source)) and (cfg.if_colorAuraCasterByClass) then
