@@ -4518,7 +4518,7 @@ end
 -- get record in unit cache
 function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
 	-- no unit guid or unit guid is a secret value
-	if (issecretvalue(unitGUID)) or (not unitGUID) then
+	if (LibFroznFunctions:IsSecretValue(unitGUID)) or (not unitGUID) then
 		return;
 	end
 	
