@@ -21,7 +21,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttIcons, MOD_NAME .. " - Icon
 ----------------------------------------------------------------------------------------------------
 
 -- config
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -30,18 +30,19 @@ local TT_CacheForFrames;
 ----------------------------------------------------------------------------------------------------
 
 -- config has been loaded
-function ttIcons:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttIcons:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	-- set config
 	TT_CacheForFrames = _TT_CacheForFrames;
+	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
 -- config settings need to be applied
-function ttIcons:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+function ttIcons:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 	-- set size of icons
 	for icon, _ in self.iconPool:EnumerateActive() do
-		icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	end
 	
 	-- setup active tip's icons
@@ -145,7 +146,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
@@ -161,7 +162,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
@@ -177,7 +178,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 				icon = self.iconPool:Acquire();
 				
 				icon:SetParent(tip);
-				icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+				icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 				
 				-- set icon
 				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
@@ -194,7 +195,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			icon.icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
@@ -210,7 +211,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon = self.iconPool:Acquire();
 			
 			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- set icon
 			local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
@@ -252,12 +253,12 @@ ttIcons.iconPool = CreateFramePool("Frame", nil, nil, nil, false, function(icon)
 	icon.icon:SetAllPoints();
 	
 	-- config settings need to be applied
-	function icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	function icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- set size of icons
 		self:SetSize(cfg.iconSize, cfg.iconSize);
 	end
 	
-	icon:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 end);
 
 -- hide tip's icon

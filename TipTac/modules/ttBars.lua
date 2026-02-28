@@ -21,7 +21,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttBars, MOD_NAME .. " - Bars 
 ----------------------------------------------------------------------------------------------------
 
 -- config
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -44,25 +44,30 @@ local TT_COLOR = {
 ----------------------------------------------------------------------------------------------------
 
 -- config has been loaded
-function ttBars:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttBars:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	-- set config
 	TT_CacheForFrames = _TT_CacheForFrames;
+	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
 -- config settings need to be applied
-function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+function ttBars:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 	-- set default font if font in config is not valid
 	if (not LibFroznFunctions:FontExists(cfg.barFontFace)) then
 		cfg.barFontFace = nil;
-		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font set in option tab {highlight:Bars}. Switching to default Font.}");
+		configDb:RegisterDefaults(configDb.defaults);
+		
+		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font Face set in option tab {highlight:Bars}. Switching to default font face.}");
 	end
 	
 	-- set default texture if texture in config is not valid
 	if (not LibFroznFunctions:TextureExists(cfg.barTexture)) then
 		cfg.barTexture = nil;
-		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid texture set in option tab {highlight:Bars}. Switching to default texture.}");
+		configDb:RegisterDefaults(configDb.defaults);
+		
+		tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Bar Texture set in option tab {highlight:Bars}. Switching to default bar texture.}");
 	end
 	
 	-- set texture and height of GameTooltip's standard status bar
@@ -82,7 +87,7 @@ function ttBars:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
 	-- set texture, height and font of bars
 	for _, barsPool in pairs(self.barPools) do
 		for bar, _ in barsPool:EnumerateActive() do
-			bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			bar:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		end
 	end
 	
@@ -249,7 +254,7 @@ function ttBars:DisplayUnitTipsBar(barsPool, frameParams, tip, unitRecord, offse
 	local bar = barsPool:Acquire();
 	
 	bar:SetParent(tip);
-	bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	bar:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	
 	local newOffsetY = offsetY;
 	
@@ -291,7 +296,7 @@ local function barInitFunc(bar, tblMixin)
 	bar.text:SetWordWrap(false);
 	
 	-- config settings need to be applied
-	function bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	function bar:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- set texture and height of bar
 		local statusBarTexture = self:GetStatusBarTexture();
 		
@@ -306,17 +311,11 @@ local function barInitFunc(bar, tblMixin)
 		statusBarTexture:SetVertTile(false);  -- Az: 3.3.3 fix
 		self:SetHeight(cfg.barHeight);
 		
-		-- set default font if font of bar in config is not valid
-		if (not LibFroznFunctions:FontExists(cfg.barFontFace)) then
-			cfg.barFontFace = nil;
-			tt:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font set in option tab {highlight:Bars}. Switching to default Font.}");
-		end
-		
 		-- set font of bar
 		self.text:SetFont(cfg.barFontFace, cfg.barFontSize, cfg.barFontFlags);
 	end
 	
-	bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	bar:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	
 	Mixin(bar, tblMixin);
 end
@@ -378,15 +377,15 @@ ttBars.barPools = {
 		-- config settings needs to be applied
 		local oldBarOnApplyConfig = bar.OnApplyConfig;
 		
-		function bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
-			oldBarOnApplyConfig(self, TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		function bar:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
+			oldBarOnApplyConfig(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- set color and height of spark
 			self.spark:SetVertexColor(unpack(cfg.castBarSparkColor));
 			self.spark:SetHeight(cfg.barHeight * 2);
 		end
 		
-		bar:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		bar:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		
 		-- update bar value
 		bar:HookScript("OnUpdate", barUpdateValueFunc);

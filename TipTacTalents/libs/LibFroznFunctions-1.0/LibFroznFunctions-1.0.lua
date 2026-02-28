@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 58; -- bump on changes
+local LIB_MINOR = 59; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3598,7 +3598,9 @@ function LibFroznFunctions:TextureExists(textureFile)
 	textureExistsTexture:SetTexture("?");
 	textureExistsTexture:SetTexture(textureFile);
 	
-	return (textureExistsTexture:GetTexture() ~= "?");
+	local currentTextureFile = textureExistsTexture:GetTexture();
+	
+	return (currentTextureFile) and (currentTextureFile ~= "?");
 end
 
 -- create texture markup with aspect ratio

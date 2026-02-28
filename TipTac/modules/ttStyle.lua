@@ -6,7 +6,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
 -- TipTac refs
 local tt = _G[MOD_NAME];
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -1015,8 +1015,9 @@ end
 --                                           Element Events                                           --
 --------------------------------------------------------------------------------------------------------
 
-function ttStyle:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttStyle:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
+	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end

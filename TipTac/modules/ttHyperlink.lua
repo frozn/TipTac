@@ -21,7 +21,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttHyperlink, MOD_NAME .. " - 
 ----------------------------------------------------------------------------------------------------
 
 -- config
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -55,9 +55,10 @@ local supportedHyperLinkTypes = {
 ----------------------------------------------------------------------------------------------------
 
 -- config has been loaded
-function ttHyperlink:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttHyperlink:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	-- set config
 	TT_CacheForFrames = _TT_CacheForFrames;
+	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
@@ -77,7 +78,7 @@ local function hookChatFrameFn(chatFrame)
 	end);
 end
 
-function ttHyperlink:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+function ttHyperlink:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 	-- hook chat frames for hovering over hyperlinks
 	
 	--  default chat frame

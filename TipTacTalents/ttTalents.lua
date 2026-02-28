@@ -25,7 +25,7 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- config
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -108,14 +108,14 @@ ttt:RegisterEvent("ADDON_LOADED");
 -- setup config
 function ttt:SetupConfig()
 	-- Use TipTac config if installed
-	cfg = select(2, LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TTT_DefaultConfig));
+	configDb, cfg = LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TTT_DefaultConfig);
 end
 
 ----------------------------------------------------------------------------------------------------
 --                                         Element Events                                         --
 ----------------------------------------------------------------------------------------------------
 
-function ttt:OnApplyConfig(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttt:OnApplyConfig(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end

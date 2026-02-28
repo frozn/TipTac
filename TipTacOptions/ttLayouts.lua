@@ -396,7 +396,7 @@ function TipTacLayouts.ImportSettings_SelectValue(self, option)
 			LibFroznFunctions:MixinWholeObjects(cfg, newCfg);
 			
 			-- inform group that the config has been loaded
-			-- LibFroznFunctions:FireGroupEvent(PARENT_MOD_NAME, "OnConfigLoaded", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			-- LibFroznFunctions:FireGroupEvent(PARENT_MOD_NAME, "OnConfigLoaded", TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- apply config
 			TipTac:ApplyConfig();

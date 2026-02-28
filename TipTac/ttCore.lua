@@ -19,7 +19,7 @@ local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 ----------------------------------------------------------------------------------------------------
 
 -- config
-local cfg;
+local configDb, cfg;
 
 -- default config
 local TT_DefaultConfig = {
@@ -1421,7 +1421,7 @@ end
 
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
-	OnConfigLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnConfigLoaded = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- show TipTac anchor on default position if no position for it is set
 		if (not cfg.left) or (not cfg.top) then
 			showTipTacAnchorOnDefaultPosition()
@@ -1433,7 +1433,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		end
 	end,
-	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnApplyConfig = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- show TipTac anchor on default position if no position for it is set
 		if (not cfg.left) or (not cfg.top) then
 			showTipTacAnchorOnDefaultPosition()
@@ -1464,12 +1464,12 @@ function tt:ADDON_LOADED(event, addOnName, containsBindings)
 	self:SetupConfig();
 	
 	-- inform group that the config is about to be loaded
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnConfigPreLoaded", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnConfigPreLoaded", TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	
 	-- inform group that the config has been loaded
 	TT_IsConfigLoaded = true;
 	
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnConfigLoaded", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnConfigLoaded", TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 end
 
 -- EVENT: player login (one-time-event)
@@ -1480,7 +1480,7 @@ function tt:PLAYER_LOGIN(event)
 	self:ApplyConfig();
 	
 	-- inform group that the tooltip's appearance and hooking needs to be applied
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnApplyTipAppearanceAndHooking", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnApplyTipAppearanceAndHooking", TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	
 	-- cleanup
 	self:UnregisterEvent(event);
@@ -1503,10 +1503,10 @@ tt:RegisterEvent("PLAYER_LOGIN");
 --
 -- eventName                           description                                                                             additional payload
 -- ----------------------------------  --------------------------------------------------------------------------------------  ------------------------------------------------------------
--- OnConfigPreLoaded                   before config has been loaded                                                           TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnConfigLoaded                      config has been loaded                                                                  TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyConfig                       config settings need to be applied                                                      TT_CacheForFrames, cfg, TT_ExtendedConfig
--- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied                              TT_CacheForFrames, cfg, TT_ExtendedConfig
+-- OnConfigPreLoaded                   before config has been loaded                                                           TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig
+-- OnConfigLoaded                      config has been loaded                                                                  TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig
+-- OnApplyConfig                       config settings need to be applied                                                      TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig
+-- OnApplyTipAppearanceAndHooking      every tooltip's appearance and hooking needs to be applied                              TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig
 --                                                                                                                             
 -- OnTipAddedToCache                   tooltip has been added to cache for frames                                              TT_CacheForFrames, tooltip
 --                                                                                                                             
@@ -1697,7 +1697,7 @@ TT_LDB_DataObject = LibDataBroker:NewDataObject(MOD_NAME, {
 local minimapIconRegistered = false;
 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
-	OnConfigLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnConfigLoaded = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- minimap icon already registered to LibDBIcon-1.0
 		if (minimapIconRegistered) then
 			return;
@@ -1708,7 +1708,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		
 		minimapIconRegistered = true;
 	end,
-	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnApplyConfig = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- show/hide minimap icon
 		if (cfg.showMinimapIcon) then
 			local minimapButton = LibDBIcon:GetMinimapButton(MOD_NAME);
@@ -1822,7 +1822,7 @@ function tt:SetupConfig()
 	TT_DefaultConfig.barFontFlags = TT_DefaultConfig.barFontFlags:match("^[^,]*");
 	
 	-- set config
-	cfg = select(2, LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TT_DefaultConfig));
+	configDb, cfg = LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TT_DefaultConfig);
 	
 	-- set custom class colors config
 	self:SetCustomClassColorsConfig();
@@ -1854,11 +1854,27 @@ function tt:SetTipBackdropConfig()
 	if (currentConfig.tipBackdropBG == "nil") then
 		TT_ExtendedConfig.tipBackdrop.bgFile = nil;
 	else
+		-- set default texture if texture in config is not valid
+		if (TT_IsConfigLoaded) and (not LibFroznFunctions:TextureExists(currentConfig.tipBackdropBG)) then
+			currentConfig.tipBackdropBG = nil;
+			configDb:RegisterDefaults(configDb.defaults);
+			
+			self:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Background Texture set in option tab {highlight:Backdrop}. Switching to default background texture.}");
+		end
+		
 		TT_ExtendedConfig.tipBackdrop.bgFile = currentConfig.tipBackdropBG;
 	end
 	if (currentConfig.tipBackdropEdge == "nil") then
 		TT_ExtendedConfig.tipBackdrop.edgeFile = nil;
 	else
+		-- set default texture if texture in config is not valid
+		if (TT_IsConfigLoaded) and (not LibFroznFunctions:TextureExists(currentConfig.tipBackdropEdge)) then
+			currentConfig.tipBackdropEdge = nil;
+			configDb:RegisterDefaults(configDb.defaults);
+			
+			self:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Border Texture set in option tab {highlight:Backdrop}. Switching to default border texture.}");
+		end
+		
 		TT_ExtendedConfig.tipBackdrop.edgeFile = currentConfig.tipBackdropEdge;
 	end
 	
@@ -1933,7 +1949,7 @@ function tt:ApplyConfig()
 	end
 	
 	-- inform group that the config has been applied
-	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnApplyConfig", TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnApplyConfig", TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 end
 
 -- set font to GameTooltip
@@ -1952,7 +1968,9 @@ function tt:SetFontToGameTooltip()
 		-- set default font if font in config is not valid
 		if (not LibFroznFunctions:FontExists(cfg.fontFace)) then
 			cfg.fontFace = nil;
-			self:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font set in option tab {highlight:Font}. Switching to default Font.}");
+			configDb:RegisterDefaults(configDb.defaults);
+			
+			self:AddMessageToChatFrame("{caption:" .. MOD_NAME .. "}: {error:No valid Font Face set in option tab {highlight:Font}. Switching to default font face.}");
 		end
 		
 		-- set font to GameTooltip
@@ -2976,7 +2994,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 			end);
 		end);
 	end,
-	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- HOOK: SharedTooltip_SetBackdropStyle() to reapply backdrop and padding if necessary (e.g. needed for OnTooltipSetItem() or AreaPOIPinMixin:OnMouseEnter() on world map (e.g. Torghast) or VignettePin on world map (e.g. weekly event in Maw))
 		hooksecurefunc("SharedTooltip_SetBackdropStyle", function(tip, style, embedded)
 			-- set backdrop to tip
@@ -3971,7 +3989,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
 		LibFroznFunctions:RefreshAnchorShoppingTooltips(tip);
 	end,
-	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- HOOK: GameTooltip_SetDefaultAnchor() for re-anchoring
 		hooksecurefunc("GameTooltip_SetDefaultAnchor", function(tip, parent)
 			tt:SetDefaultAnchorHook(tip, parent);
@@ -4380,7 +4398,7 @@ end
 local eventsForHideWorldTipsHooked = false;
 
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
-	OnApplyConfig = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnApplyConfig = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- register/unregister cursor changed event
 		if (cfg.hideWorldTips) then
 			if (not eventsForHideWorldTipsHooked) then
@@ -4451,7 +4469,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
-	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnApplyTipAppearanceAndHooking = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- HOOK: GameTooltip_ShowCompareItem() to hide shopping tooltips
 		hooksecurefunc("GameTooltip_ShowCompareItem", function(self, anchorFrame)
 			local tip = (self or GameTooltip);
@@ -4588,7 +4606,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 
 -- register for group events
 LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
-	OnConfigPreLoaded = function(self, TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	OnConfigPreLoaded = function(self, TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- consider upgrading TipTac_Config on version change (necessary if e.g. options are renamed or reused differently)
 		local configChanges = {
 			-- changes in config with 24.08.05:

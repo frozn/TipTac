@@ -126,7 +126,7 @@ local TTIF_DefaultConfig = {
 	
 	if_hideClickForSettingsTextInCurrencyTip = true
 };
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -446,11 +446,11 @@ function ttif:VARIABLES_LOADED(event)
 	end
 
 	-- Use TipTac config if installed
-	cfg = select(2, LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TTIF_DefaultConfig));
+	configDb, cfg = LibFroznFunctions:CreateDbWithLibAceDB("TipTac_Config", TTIF_DefaultConfig);
 	
 	-- Hook Tips & Apply Settings
 	self:HookTips();
-	self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	self:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	
 	-- Re-Trigger event ADDON_LOADED for TipTacItemRef if config wasn't ready
 	self:ADDON_LOADED("ADDON_LOADED", MOD_NAME);
@@ -465,7 +465,7 @@ end
 --------------------------------------------------------------------------------------------------------
 
 -- Apply Settings -- It seems this may be called from TipTac:OnApplyConfig() before we have received our VARIABLES_LOADED, so ensure we have created the tip objects
-function ttif:OnApplyConfig(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttif:OnApplyConfig(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	TT_CacheForFrames = _TT_CacheForFrames;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 	
@@ -2181,7 +2181,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PetJournalSecondaryAbilityTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		self:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		
 		-- Function to apply necessary hooks to WardrobeCollectionFrame
 		if (WardrobeCollectionFrame) then
@@ -2257,7 +2257,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			-- "EncounterJournalTooltip"
 		-- }, true, true);
 
-		-- self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		-- self:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_EncounterJournal"] = true;
@@ -2285,7 +2285,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PerksProgramTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		self:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PerksProgram"] = true;
@@ -2302,7 +2302,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"PetBattlePrimaryAbilityTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		self:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["Blizzard_PetBattleUI"] = true;
@@ -2344,7 +2344,7 @@ function ttif:ADDON_LOADED(event, addOnName, containsBindings)
 			"ElvUI_SpellBookTooltip"
 		}, true, true);
 		
-		self:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		self:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 		
 		if (addOnName == MOD_NAME) then
 			addOnsLoaded["ElvUI"] = true;

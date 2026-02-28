@@ -21,7 +21,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, ttAuras, MOD_NAME .. " - Aura
 ----------------------------------------------------------------------------------------------------
 
 -- config
-local cfg;
+local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
@@ -37,18 +37,19 @@ local validSelfCasterUnits = {
 ----------------------------------------------------------------------------------------------------
 
 -- config has been loaded
-function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _cfg, _TT_ExtendedConfig)
+function ttAuras:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_ExtendedConfig)
 	-- set config
 	TT_CacheForFrames = _TT_CacheForFrames;
+	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
 end
 
 -- config settings need to be applied
-function ttAuras:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+function ttAuras:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 	-- set size of auras
 	for aura, _ in self.aurasPool:EnumerateActive() do
-		aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+		aura:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 	end
 	
 	-- setup active unit tip's auras
@@ -188,7 +189,7 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			local aura = self.aurasPool:Acquire();
 			
 			aura:SetParent(tip);
-			aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+			aura:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- anchor aura frame
 			aura:ClearAllPoints();
@@ -310,14 +311,14 @@ ttAuras.aurasPool = CreateFramePool("Frame", nil, nil, nil, false, function(aura
 	aura.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625);
 	
 	-- config settings need to be applied
-	function aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig)
+	function aura:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig)
 		-- set size of auras
 		self:SetSize(cfg.auraSize, cfg.auraSize);
 		self.count:SetFont(GameFontNormal:GetFont(), cfg.auraSize / 2, "OUTLINE");
 		self.cooldown.noCooldownCount = cfg.noCooldownCount;
 	end
 	
-	aura:OnApplyConfig(TT_CacheForFrames, cfg, TT_ExtendedConfig);
+	aura:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 end);
 
 -- hide unit tip's auras
