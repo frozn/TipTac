@@ -154,7 +154,7 @@ function ttStyle:RemoveUnwantedLinesFromTip(tip, unitRecord)
 	local creatureFamily = UnitCreatureFamily(unitRecord.id);
 	local creatureType = UnitCreatureType(unitRecord.id);
 	
-	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (creatureType);
+	local hideCreatureTypeIfNoCreatureFamily = ((not unitRecord.isPlayer) or (unitRecord.isWildBattlePet)) and (not creatureFamily) and (not LibFroznFunctions:IsSecretValue(creatureType)) and (creatureType);
 	local hideSpecializationAndClassText = (cfg.hideSpecializationAndClassText) and (unitRecord.isPlayer) and (LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip) and (unitRecord.className);
 	local hideRightClickForFrameSettingsTextInUnitTip = (cfg.hideRightClickForFrameSettingsTextInUnitTip) and (LibFroznFunctions.hasWoWFlavor.rightClickForFrameSettingsTextInUnitTip) and (UNIT_POPUP_RIGHT_CLICK);
 	
