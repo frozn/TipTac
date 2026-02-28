@@ -2631,7 +2631,19 @@ end
 -- modded copy of TooltipComparisonManager:AnchorShoppingTooltips() in "TooltipComparisonManager.lua" (since df 10.0.2) aka GameTooltip_AnchorComparisonTooltips in "GameTooltip.lua" (before df 10.0.2) for:
 -- 1. consider scaling to choose left or right side
 -- 2. calling ClearAllPoints() to refresh anchoring of shopping tooltips after re-anchoring of tip
+--
+-- use isRefreshingAnchorShoppingTooltips to prevent endless loop when calling LibFroznFunctions:RefreshAnchorShoppingTooltips()
+local isRefreshingAnchorShoppingTooltips = {};
+
 function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
+	-- check if we're already refreshing anchor of shopping tooltips
+	if (isRefreshingAnchorShoppingTooltips[tip]) then
+		return;
+	end
+	
+	isRefreshingAnchorShoppingTooltips[tip] = false;
+	
+	-- refresh anchor shopping tooltips
 	local primaryTooltip = ShoppingTooltip1;
 	local secondaryTooltip = ShoppingTooltip2;
 	
@@ -2663,6 +2675,8 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	if (self.tooltip ~= tip) or (not self.comparisonItem) then
 		return;
 	end
+	
+	isRefreshingAnchorShoppingTooltips[tip] = true;
 	
 	-- start of original TooltipComparisonManager:AnchorShoppingTooltips()
 	local tooltip = self.tooltip;
@@ -2810,6 +2824,8 @@ function LibFroznFunctions:RefreshAnchorShoppingTooltips(tip)
 	
 	-- primaryTooltip:SetShown(primaryShown); -- removed
 	-- secondaryTooltip:SetShown(secondaryShown); -- removed
+	
+	isRefreshingAnchorShoppingTooltips[tip] = false; -- added
 end
 
 -- get cursor position
