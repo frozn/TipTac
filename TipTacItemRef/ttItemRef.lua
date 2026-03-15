@@ -2060,7 +2060,7 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetAzeriteEssenceSlot", SetAzeriteEssenceSlot_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetCurrencyByID", SetCurrencyByID_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
-				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook);
+				-- LibFroznFunctions:HookSecureFuncIfExists(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook); -- #todo: temporary disabled, see https://github.com/frozn/TipTac/issues/478
 				-- since df
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitBuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitDebuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
