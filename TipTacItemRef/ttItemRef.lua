@@ -501,9 +501,7 @@ end
 -- 1   = waiting for GameTooltip:OnTooltipCleared (armed, 1st stage)
 -- 2   = waiting for GameTooltip:OnUpdate (armed, 2nd stage)
 -- 3   = tooltip modification reapplied (triggered)
-function ttif:ApplyWorkaroundForFirstMouseover(self, isAura, source, link, linkType, id, rank)
-	local tooltip = self;
-	
+function ttif:ApplyWorkaroundForFirstMouseover(tooltip, isAura, source, link, linkType, id, rank)
 	-- check if insecure interaction with the tip is currently forbidden
 	if (tooltip:IsForbidden()) then
 		return;
@@ -758,7 +756,7 @@ local function SetAction_Hook(self, slot)
 		if (actionType == "spell" and subType == "pet") then
 			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
 			local name = line and (line:GetText() or "");
-			if (name ~= "" and PetHasSpellbook()) then
+			if (not LibFroznFunctions:IsSecretValue(name)) and (name ~= "") and (PetHasSpellbook()) then
 				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
 				if (numPetSpells) then

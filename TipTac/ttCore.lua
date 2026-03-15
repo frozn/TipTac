@@ -2385,17 +2385,17 @@ end
 local isSettingScaleToTip = false;
 
 function tt:SetScaleToTip(tip, noFireGroupEvent)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
-		return;
-	end
-	
 	-- check if we're already setting scale to tip
 	if (isSettingScaleToTip) then
 		return;
 	end
 	
 	isSettingScaleToTip = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
+		return;
+	end
 	
 	-- get current display and tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -2692,17 +2692,17 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 local isSettingBackdropToTip = false;
 
 function tt:SetBackdropToTip(tip)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
-		return;
-	end
-	
 	-- check if we're already setting backdrop to tip
 	if (isSettingBackdropToTip) then
 		return;
 	end
 	
 	isSettingBackdropToTip = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+		return;
+	end
 	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -2838,17 +2838,17 @@ end
 local isSettingPaddingToTip = false;
  
 function tt:SetPaddingToTip(tip)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
-		return;
-	end
-	
 	-- check if we're already setting padding to tip
 	if (isSettingPaddingToTip) then
 		return;
 	end
 	
 	isSettingPaddingToTip = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+		return;
+	end
 	
 	-- SetPadding() isn't available for e.g. BattlePetTooltip, FloatingBattlePetTooltip, PetJournalPrimaryAbilityTooltip, PetJournalSecondaryAbilityTooltip, PetBattlePrimaryUnitTooltip, PetBattlePrimaryAbilityTooltip, FloatingPetBattleAbilityTooltip, EncounterJournalTooltip and DropDownList
 	if (tip:GetObjectType() ~= "GameTooltip") then
@@ -3226,17 +3226,17 @@ end
 local isSettingBackdropLocked = false;
 
 function tt:SetBackdropLocked(tip, backdropInfo)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
-		return;
-	end
-	
 	-- check if we're already setting backdrop color locked
 	if (isSettingBackdropLocked) then
 		return;
 	end
 	
 	isSettingBackdropLocked = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
+		return;
+	end
 	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -3281,17 +3281,17 @@ end
 local isSettingBackdropColorLocked = false;
 
 function tt:SetBackdropColorLocked(tip, r, g, b, a)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
-		return;
-	end
-	
 	-- check if we're already setting backdrop color locked
 	if (isSettingBackdropColorLocked) then
 		return;
 	end
 	
 	isSettingBackdropColorLocked = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
 	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -3329,17 +3329,17 @@ end
 local isSettingBackdropBorderColorLocked = false;
 
 function tt:SetBackdropBorderColorLocked(tip, r, g, b, a)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
-		return;
-	end
-	
 	-- check if we're already setting backdrop border color locked
 	if (isSettingBackdropBorderColorLocked) then
 		return;
 	end
 	
 	isSettingBackdropBorderColorLocked = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
 	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -3377,17 +3377,17 @@ end
 local isSettingCenterColorLocked = false;
 
 function tt:SetCenterColorLocked(tip, r, g, b, a)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
-		return;
-	end
-	
 	-- check if we're already setting center color locked
 	if (isSettingCenterColorLocked) then
 		return;
 	end
 	
 	isSettingCenterColorLocked = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
 	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -3425,17 +3425,17 @@ end
 local isSettingBorderColorLocked = false;
 
 function tt:SetBorderColorLocked(tip, r, g, b, a)
-	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) then
-		return;
-	end
-	
 	-- check if we're already setting border color locked
 	if (isSettingBorderColorLocked) then
 		return;
 	end
 	
 	isSettingBorderColorLocked = false;
+	
+	-- check if insecure interaction with the tip is currently forbidden
+	if (tip:IsForbidden()) then
+		return;
+	end
 	
 	-- get tip parameters
 	local frameParams = TT_CacheForFrames[tip];
@@ -4078,15 +4078,27 @@ function tt:SetUnitRecordFromTip(tip)
 	end
 	
 	-- sometimes when you move your mouse quickly over units in the worldframe, we can get here without a unit id.
-	if (LibFroznFunctions:IsSecretValue(unitID)) or (not unitID) then
+	if (LibFroznFunctions:IsSecretValue(unitID)) then
+		currentDisplayParams.unitRecord = LFF_UNIT_RECORD.SecretValue;
+		return;
+	end
+	
+	if (not unitID) then
 		currentDisplayParams.unitRecord = nil;
 		return;
 	end
 	
 	-- a "mouseover" unitID is better to have as we can then safely say the tip should no longer show when it becomes invalid. Harder to say with a "party2" unit.
 	-- this also helps fix the problem that "mouseover" units aren't valid for group members out of range, a bug that has been in WoW since about 3.0.2.
-	if (UnitIsUnit(unitID, "mouseover")) then
+	local mouseOverUnit = UnitIsUnit(unitID, "mouseover");
+	
+	if (mouseOverUnit) then
 		unitID = "mouseover";
+	end
+
+	if (LibFroznFunctions:IsSecretValue(mouseOverUnit)) then
+		currentDisplayParams.unitRecord = LFF_UNIT_RECORD.SecretValue;
+		return;
 	end
 	
 	-- set unit record

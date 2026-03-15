@@ -253,6 +253,25 @@ function LibFroznFunctions:IsSecretValue(value)
 	return false;
 end
 
+-- check if GameTooltip has any child frame with tainted widget container's property shownWidgetCount
+--
+-- workaround for blizzard bug in mn 12.0.0:
+-- WorldQuestsList (tainting the AreaPOI hover chain) can taint property shownWidgetCount on widget container frames of the GameTooltip.
+-- calling SetPadding() or SetBackdrop() when this is tainted infects the tooltip's layout state with secret values and
+-- can trigger a comparison error in "LayoutFrame.lua" via the widget layout update mechanism.
+--
+-- @param  tip  tooltip
+-- @return true if any child frame has tainted property shownWidgetCount, false otherwise.
+function LibFroznFunctions:HasTipTaintedWidgetContainer(tip)
+	for _, child in next, { tip:GetChildren() } do
+		if (self:IsSecretValue(child.shownWidgetCount)) then
+			return true;
+		end
+	end
+	
+	return false;
+end
+
 -- is unit a battle pet
 --
 -- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
@@ -3248,7 +3267,7 @@ function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
 	
 	local paddingRight, paddingBottom, paddingLeft, paddingTop = tip:GetPadding();
 	
-	if (self:IsSecretValue(paddingRight)) then
+	if (self:IsSecretValue(paddingRight)) or (self:HasTipTaintedWidgetContainer(tip)) then
 		return;
 	end
 	

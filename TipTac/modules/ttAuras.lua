@@ -25,6 +25,9 @@ local configDb, cfg;
 local TT_ExtendedConfig;
 local TT_CacheForFrames;
 
+-- constants
+local TT_DEFAULT_AURAS_PER_ROW = 8;
+
 -- valid units to filter the auras in DisplayUnitTipsAuras() with the "cfg.selfAurasOnly" setting on
 local validSelfCasterUnits = {
 	player = true,
@@ -152,7 +155,8 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 	end
 	
 	-- queries auras of the specific auraType, sets up the aura frame and anchors it in the desired place.
-	local aurasPerRow = floor((tip:GetWidth() - 4) / (cfg.auraSize + 2)); -- auras we can fit into one row based on the current size of the tooltip
+	local tipWidth = tip:GetWidth();
+	local aurasPerRow = (not LibFroznFunctions:IsSecretValue(tipWidth)) and (floor((tipWidth - 4) / (cfg.auraSize + 2))) or TT_DEFAULT_AURAS_PER_ROW; -- auras we can fit into one row based on the current size of the tooltip
 	
 	if (aurasPerRow <= 0) then
 		aurasPerRow = 1;
