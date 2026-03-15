@@ -3656,7 +3656,7 @@ function tt:SetAnchorToTip(tip)
 	elseif (anchorType == "parent") then
 		local parentFrame = currentDisplayParams.defaultAnchoredParentFrame;
 		
-		if (parentFrame) and (not parentFrame:IsForbidden()) and (parentFrame ~= UIParent) then
+		if (parentFrame) and (not parentFrame:IsForbidden()) and (not LibFroznFunctions:IsSecretValue(parentFrame:GetWidth())) and (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
 			offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
 			
