@@ -131,6 +131,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .optionsSliderTemplate                                                              = options slider template ("OptionsSliderTemplate". since df 10.0.0, catac 4.4.0 and 1.15.4 "UISliderTemplateWithLabels")
 --         .skyriding                                                                          = true/false if skyriding is available (since df 10.0.2)
 --         .challengeMode                                                                      = true/false if challenge mode is available (since Legion 7.0.3)
+--         .unitCanBeSecretValue                                                               = true/false if unit can be a secret value (since mn 12.0.0)
 --         .GetMountFromSpellNotPossibleInCombat                                               = true/false if calling C_MountJournal.GetMountFromSpell() isn't possible in combat because spellID is a secret value in this case (since mn 12.0.0)
 --         .aurasCooldownCountAndDebuffTypeNotAvailableInCombat                                = true/false if the cooldown, count and debuff type of the auras are not available in combat because of secret values (since mn 12.0.0)
 LibFroznFunctions.hasWoWFlavor = {
@@ -157,6 +158,7 @@ LibFroznFunctions.hasWoWFlavor = {
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
 	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
 	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
+	unitCanBeSecretValue = true,
 	GetMountFromSpellNotPossibleInCombat = true,
 	aurasCooldownCountAndDebuffTypeNotAvailableInCombat = true
 };
@@ -196,6 +198,7 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.
 	LibFroznFunctions.hasWoWFlavor.ShoppingTooltipHasCompareHeader = false;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) or (LibFroznFunctions.isWoWFlavor.TWW) then
+	LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue = false;
 	LibFroznFunctions.hasWoWFlavor.GetMountFromSpellNotPossibleInCombat = false;
 	LibFroznFunctions.hasWoWFlavor.aurasCooldownCountAndDebuffTypeNotAvailableInCombat = false;
 end

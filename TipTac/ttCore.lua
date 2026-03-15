@@ -227,6 +227,7 @@ local TT_DefaultConfig = {
 	
 	-- icons
 	enableIcons = true,
+	iconUnitIsSecretValue = true,
 	iconRaid = true,
 	iconFaction = false,
 	iconCombat = false,

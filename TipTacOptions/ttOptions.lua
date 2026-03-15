@@ -368,6 +368,29 @@ tinsert(ttOptionsAnchors, { type = "Header", label = "Mouse Settings", enabled =
 tinsert(ttOptionsAnchors, { type = "Slider", var = "mouseOffsetX", label = "Mouse Anchor X Offset", min = -200, max = 200, step = 1, enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
 tinsert(ttOptionsAnchors, { type = "Slider", var = "mouseOffsetY", label = "Mouse Anchor Y Offset", min = -200, max = 200, step = 1, enabled = function(factory) return factory:GetConfigValue("enableAnchor") end });
 
+-- Icons
+local ttOptionsIcons = {
+	{ type = "Header", label = "Unit Tip Icons", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
+};
+
+if (LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue) then
+	tinsert(ttOptionsIcons, { type = "Check", var = "iconUnitIsSecretValue", label = "Show \"Unit is a Secret Value\" Icon", tip = "Shows a lock icon next to the tip, if the unit is a secret value", enabled = function(factory) return factory:GetConfigValue("enableIcons") end });
+end
+
+tinsert(ttOptionsIcons, { type = "Check", var = "iconRaid", label = "Show Raid Icon", tip = "Shows the raid icon next to the tip", enabled = function(factory) return factory:GetConfigValue("enableIcons") end });
+tinsert(ttOptionsIcons, { type = "Check", var = "iconFaction", label = "Show Faction Icon", tip = "Shows the faction icon next to the tip, if the unit is flagged for PvP", enabled = function(factory) return factory:GetConfigValue("enableIcons") end });
+tinsert(ttOptionsIcons, { type = "Check", var = "iconCombat", label = "Show Combat Icon", tip = "Shows a combat icon next to the tip, if the unit is in combat", enabled = function(factory) return factory:GetConfigValue("enableIcons") end });
+tinsert(ttOptionsIcons, { type = "Check", var = "iconClass", label = "Show Class Icon", tip = "For players, this will display the class icon next to the tooltip", enabled = function(factory) return factory:GetConfigValue("enableIcons") end });
+
+tinsert(ttOptionsIcons, { type = "Slider", var = "iconSize", label = "Icon Size", min = 8, max = 100, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end });
+tinsert(ttOptionsIcons, { type = "Slider", var = "iconMaxIcons", label = "Max Icons", min = 1, max = 4, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end });
+tinsert(ttOptionsIcons, { type = "DropDown", var = "iconAnchor", label = "Icon Anchor", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end, y = 10 });
+tinsert(ttOptionsIcons, { type = "DropDown", var = "iconAnchorHorizontalAlign", label = "Horizontal Alignment", list = DROPDOWN_ANCHORHALIGN, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) and (factory:GetConfigValue("iconAnchor") == "TOP" or factory:GetConfigValue("iconAnchor") == "BOTTOM") end });
+tinsert(ttOptionsIcons, { type = "DropDown", var = "iconAnchorVerticalAlign", label = "Vertical Alignment", list = DROPDOWN_ANCHORVALIGN, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) and (factory:GetConfigValue("iconAnchor") == "LEFT" or factory:GetConfigValue("iconAnchor") == "RIGHT") end });
+tinsert(ttOptionsIcons, { type = "DropDown", var = "iconAnchorGrowDirection", label = "Grow Direction", list = DROPDOWN_ANCHORGROWDIRECTION, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end });
+tinsert(ttOptionsIcons, { type = "Slider", var = "iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end });
+tinsert(ttOptionsIcons, { type = "Slider", var = "iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end });
+
 -- Hiding
 local ttOptionsHiding = {};
 priority = 0;
@@ -663,23 +686,7 @@ local options = {
 	{
 		category = "Icons",
 		enabled = { type = "Check", var = "enableIcons", tip = "Turns on or off all additional icons next to the tooltip" },
-		options = {
-			{ type = "Header", label = "Unit Tip Icons", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
-			
-			{ type = "Check", var = "iconRaid", label = "Show Raid Icon", tip = "Shows the raid icon next to the tip", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
-			{ type = "Check", var = "iconFaction", label = "Show Faction Icon", tip = "Shows the faction icon next to the tip, if the unit is flagged for PvP", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
-			{ type = "Check", var = "iconCombat", label = "Show Combat Icon", tip = "Shows a combat icon next to the tip, if the unit is in combat", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
-			{ type = "Check", var = "iconClass", label = "Show Class Icon", tip = "For players, this will display the class icon next to the tooltip", enabled = function(factory) return factory:GetConfigValue("enableIcons") end },
-			
-			{ type = "Slider", var = "iconSize", label = "Icon Size", min = 8, max = 100, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
-			{ type = "Slider", var = "iconMaxIcons", label = "Max Icons", min = 1, max = 4, step = 1, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
-			{ type = "DropDown", var = "iconAnchor", label = "Icon Anchor", list = DROPDOWN_ANCHORPOS, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end, y = 10 },
-			{ type = "DropDown", var = "iconAnchorHorizontalAlign", label = "Horizontal Alignment", list = DROPDOWN_ANCHORHALIGN, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) and (factory:GetConfigValue("iconAnchor") == "TOP" or factory:GetConfigValue("iconAnchor") == "BOTTOM") end },
-			{ type = "DropDown", var = "iconAnchorVerticalAlign", label = "Vertical Alignment", list = DROPDOWN_ANCHORVALIGN, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) and (factory:GetConfigValue("iconAnchor") == "LEFT" or factory:GetConfigValue("iconAnchor") == "RIGHT") end },
-			{ type = "DropDown", var = "iconAnchorGrowDirection", label = "Grow Direction", list = DROPDOWN_ANCHORGROWDIRECTION, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
-			{ type = "Slider", var = "iconOffsetX", label = "Icon X Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
-			{ type = "Slider", var = "iconOffsetY", label = "Icon Y Offset", min = -200, max = 200, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableIcons") and (factory:GetConfigValue("iconRaid") or factory:GetConfigValue("iconFaction") or factory:GetConfigValue("iconCombat") or factory:GetConfigValue("iconClass")) end },
-		}
+		options = ttOptionsIcons
 	},
 	-- Anchors
 	{

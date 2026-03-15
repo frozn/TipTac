@@ -105,6 +105,10 @@ function ttIcons:SetupTipsIcon(tip)
 	local currentIconCount = 0;
 	local iconCount;
 	
+	if (cfg.iconUnitIsSecretValue) then
+		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "UNIT_IS_SECRET_VALUE", currentIconCount + 1);
+		currentIconCount = currentIconCount + iconCount;
+	end
 	if (cfg.iconRaid) then
 		iconCount = self:DisplayTipsIcon(tip, currentDisplayParams, "RAID", currentIconCount + 1);
 		currentIconCount = currentIconCount + iconCount;
@@ -127,19 +131,17 @@ end
 function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIconFrameIndex)
 	local unitRecord = currentDisplayParams.unitRecord;
 	
-	-- unit record is a secret value or unit doesn't exist
-	if (unitRecord == LFF_UNIT_RECORD.SecretValue) or (not UnitExists(unitRecord.id)) then
+	-- unit doesn't exist
+	if (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and (not UnitExists(unitRecord.id)) then
 		return 0;
 	end
 	
-	-- display tip's raid icon
+	-- display tip's "unit is a secret value" icon
 	local iconFrameIndex = startingIconFrameIndex - 1;
 	local icon;
 	
-	if (iconType == "RAID") then
-		local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
-		
-		if (raidIconIndex) then
+	if (unitRecord == LFF_UNIT_RECORD.SecretValue) then
+		if (iconType == "UNIT_IS_SECRET_VALUE") then
 			-- acquire icon frame
 			iconFrameIndex = iconFrameIndex + 1;
 			
@@ -149,29 +151,15 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 			
 			-- set icon
-			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
-			SetRaidTargetIconTexture(icon.icon, raidIconIndex);
+			icon.icon:SetTexture("Interface\\Garrison\\GarrisonBuildingUI"); -- atlas Garr_LockedBuilding
+			icon.icon:SetTexCoord(0.2353515625, 0.3017578125, 0.59375, 0.755859375);
 		end
-	
-	-- display tip's faction icon
-	elseif (iconType == "FACTION") then
-		if (UnitIsPVPFreeForAll(unitRecord.id)) then
-			-- acquire icon frame
-			iconFrameIndex = iconFrameIndex + 1;
+	else
+		-- display tip's raid icon
+		if (iconType == "RAID") then
+			local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
 			
-			icon = self.iconPool:Acquire();
-			
-			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
-			
-			-- set icon
-			icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
-			icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
-		elseif (UnitIsPVP(unitRecord.id)) then
-			-- set icon if faction isn't neutral
-			local englishFaction = UnitFactionGroup(unitRecord.id);
-			
-			if (englishFaction) and (englishFaction ~= "Neutral") then
+			if (raidIconIndex) then
 				-- acquire icon frame
 				iconFrameIndex = iconFrameIndex + 1;
 				
@@ -181,44 +169,77 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 				icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
 				
 				-- set icon
-				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
-				icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
+				SetRaidTargetIconTexture(icon.icon, raidIconIndex);
 			end
-		end
-	
-	-- display tip's combat icon
-	elseif (iconType == "COMBAT") then
-		if (UnitAffectingCombat(unitRecord.id)) then
-			-- acquire icon frame
-			iconFrameIndex = iconFrameIndex + 1;
-			
-			icon = self.iconPool:Acquire();
-			
-			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
-			
-			-- set icon
-			icon.icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
-			icon.icon:SetTexCoord(0.5, 1, 0, 0.5);
-		end
-	
-	-- display tip's class icon
-	elseif (iconType == "CLASS") then
-		if (unitRecord.isPlayer) then
-			-- acquire icon frame
-			iconFrameIndex = iconFrameIndex + 1;
-			
-			icon = self.iconPool:Acquire();
-			
-			icon:SetParent(tip);
-			icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
-			
-			-- set icon
-			local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
-			
-			if (texCoord) then
-				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
-				icon.icon:SetTexCoord(unpack(texCoord));
+		
+		-- display tip's faction icon
+		elseif (iconType == "FACTION") then
+			if (UnitIsPVPFreeForAll(unitRecord.id)) then
+				-- acquire icon frame
+				iconFrameIndex = iconFrameIndex + 1;
+				
+				icon = self.iconPool:Acquire();
+				
+				icon:SetParent(tip);
+				icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
+				
+				-- set icon
+				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
+				icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+			elseif (UnitIsPVP(unitRecord.id)) then
+				-- set icon if faction isn't neutral
+				local englishFaction = UnitFactionGroup(unitRecord.id);
+				
+				if (englishFaction) and (englishFaction ~= "Neutral") then
+					-- acquire icon frame
+					iconFrameIndex = iconFrameIndex + 1;
+					
+					icon = self.iconPool:Acquire();
+					
+					icon:SetParent(tip);
+					icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
+					
+					-- set icon
+					icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
+					icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+				end
+			end
+		
+		-- display tip's combat icon
+		elseif (iconType == "COMBAT") then
+			if (UnitAffectingCombat(unitRecord.id)) then
+				-- acquire icon frame
+				iconFrameIndex = iconFrameIndex + 1;
+				
+				icon = self.iconPool:Acquire();
+				
+				icon:SetParent(tip);
+				icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
+				
+				-- set icon
+				icon.icon:SetTexture("Interface\\CharacterFrame\\UI-StateIcon");
+				icon.icon:SetTexCoord(0.5, 1, 0, 0.5);
+			end
+		
+		-- display tip's class icon
+		elseif (iconType == "CLASS") then
+			if (unitRecord.isPlayer) then
+				-- acquire icon frame
+				iconFrameIndex = iconFrameIndex + 1;
+				
+				icon = self.iconPool:Acquire();
+				
+				icon:SetParent(tip);
+				icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
+				
+				-- set icon
+				local texCoord = CLASS_ICON_TCOORDS[unitRecord.classFile];
+				
+				if (texCoord) then
+					icon.icon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
+					icon.icon:SetTexCoord(unpack(texCoord));
+				end
 			end
 		end
 	end
