@@ -2213,7 +2213,7 @@ local function getClassColor(classFile, customClassColors)
 end
 
 function LibFroznFunctions:GetClassColor(classID, alternateClassIDIfNotFound, customClassColors)
-	local classInfo = (classID and C_CreatureInfo.GetClassInfo(classID)) or (alternateClassIDIfNotFound and C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound));
+	local classInfo = ((not self:IsSecretValue(classID)) and classID and C_CreatureInfo.GetClassInfo(classID)) or (alternateClassIDIfNotFound and C_CreatureInfo.GetClassInfo(alternateClassIDIfNotFound));
 	
 	return classInfo and getClassColor(classInfo.classFile, customClassColors);
 end
@@ -2225,7 +2225,7 @@ end
 -- @param  customClassColors             optional. custom class colors
 -- @return ColorMixin  returns nil if class file for param "classFile" and "alternateClassFileIfNotFound" doesn't exist.
 function LibFroznFunctions:GetClassColorByClassFile(classFile, alternateClassFileIfNotFound)
-	return getClassColor(classFile, customClassColors) or getClassColor(alternateClassFileIfNotFound, customClassColors);
+	return ((not self:IsSecretValue(classFile)) and getClassColor(classFile, customClassColors)) or (alternateClassFileIfNotFound and getClassColor(alternateClassFileIfNotFound, customClassColors));
 end
 
 -- get power color
