@@ -100,6 +100,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 - added option "ItemRef->Consider Shopping Tooltip Compare Header" to consider the shopping tooltip compare header introduced with patch tww 11.2.7
 - added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
 - added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
+- added option "Icons->Show 'Unit is a Secret Value' Icon" to show a lock icon next to the tip, if the unit is a secret value (since mn 12.0.0).
 - added option "Talents/AIL->Don't show Talents and Average Item Level for players out of range" to suppress the "out of range" message
 - added "enabled"-feature for options. depending options are now grayed out if disabled.
 - added button in options to help reporting bugs or requesting features
