@@ -667,6 +667,9 @@ function ttif:SetHyperlink_Hook(self, hyperlink)
 						ttif:ApplyWorkaroundForFirstMouseover(self, false, nil, link, linkType, _essenceID, _essenceRank);
 					end
 				end
+			elseif (linkType == "unit") then
+				local unitGUID = select(2, (":"):split(refString));
+				LinkTypeFuncs.unit(self, refString, "unit", nil, unitGUID);
 			else
 				LinkTypeFuncs[linkType](self, refString, (":"):split(refString));
 			end
@@ -1369,7 +1372,7 @@ local function OnTooltipSetUnit(self, ...)
 		local _, unitID = LibFroznFunctions:GetUnitFromTooltip(self);
 		if (unitID) then
 			tipDataAdded[self] = "unit";
-			LinkTypeFuncs.unit(self, nil, "unit", unitID);
+			LinkTypeFuncs.unit(self, nil, "unit", unitID, nil);
 		end
 	end
 end
@@ -3245,14 +3248,26 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 end
 
 -- unit
-function LinkTypeFuncs:unit(link, linkType, unitID)
-	local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
+function LinkTypeFuncs:unit(link, linkType, unitID, unitGUID)
+	local npcID;
+	
+	if (unitID) then
+		local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
+		
+		npcID = unitRecord.npcID;
+	elseif (unitGUID) then
+		local unitType, _, serverID, instanceID, zoneUID, ID, spawnUID = ("-"):split(unitGUID);
+		
+		if (LibFroznFunctions:ExistsInTable(unitType, { "Creature", "Pet", "GameObject", "Vehicle" })) then
+			npcID = ID;
+		end
+	end
 	
 	-- NpcID -- Only alter the tip if we got a valid "npcID"
-	local showId = (unitRecord and unitRecord.npcID and cfg.if_showNpcId);
+	local showId = (npcID and cfg.if_showNpcId);
 	
 	if (showId) then
-		self:AddLine(format("NpcID: %d", tonumber(unitRecord.npcID)), unpack(cfg.if_infoColor));
+		self:AddLine(format("NpcID: %d", tonumber(npcID)), unpack(cfg.if_infoColor));
 	end
 end
 
