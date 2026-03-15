@@ -3419,7 +3419,7 @@ function LFF_GetAuraDescriptionFromSpellData(unitID, index, filter, callbackForA
 	if (type(callbackForAuraData) == "function") and (unitGUID) then
 		local _unitGUID = UnitGUID(unitID);
 		
-		if (_unitGUID ~= unitGUID) then
+		if (LibFroznFunctions:IsSecretValue(_unitGUID)) or (_unitGUID ~= unitGUID) then
 			return;
 		end
 	end
