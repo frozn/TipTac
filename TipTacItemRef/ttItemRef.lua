@@ -3252,19 +3252,19 @@ function LinkTypeFuncs:unit(link, linkType, unitID, unitGUID)
 	local npcID;
 	
 	if (unitID) then
-		local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID)
+		local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
 		
 		if (unitRecord) then
-			npcID = unitRecord.npcID
+			npcID = unitRecord.npcID;
 		end
 	end
 	
 	-- If unitRecord wasn't found (npcID is still nil) and we have a GUID, try the fallback
 	if (not npcID and unitGUID) then
-		local unitType, _, serverID, instanceID, zoneUID, ID, spawnUID = ("-"):split(unitGUID)
+		local unitType, _, serverID, instanceID, zoneUID, ID, spawnUID = ("-"):split(unitGUID);
 		
 		if (LibFroznFunctions:ExistsInTable(unitType, { "Creature", "Pet", "GameObject", "Vehicle" })) then
-			npcID = ID
+			npcID = ID;
 		end
 	end
 	
