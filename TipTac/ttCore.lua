@@ -2394,7 +2394,7 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	isSettingScaleToTip = false;
 	
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
 		return;
 	end
 	
