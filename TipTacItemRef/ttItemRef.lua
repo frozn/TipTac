@@ -3254,7 +3254,9 @@ function LinkTypeFuncs:unit(link, linkType, unitID, unitGUID)
 	if (unitID) then
 		local unitRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
 		
-		npcID = unitRecord.npcID;
+		if (unitRecord) then
+			npcID = unitRecord.npcID;
+		end
 	elseif (unitGUID) then
 		local unitType, _, serverID, instanceID, zoneUID, ID, spawnUID = ("-"):split(unitGUID);
 		
