@@ -259,6 +259,12 @@ function ttBars:DisplayUnitTipsBar(barsPool, frameParams, tip, unitRecord, offse
 	local newOffsetY = offsetY;
 	
 	if (bar:GetVisibility(tip, unitRecord)) then
+		-- The first visible bar needs to reserve the initial bottom anchor margin as well,
+		-- otherwise the tooltip's last text line can overlap the top of the bar stack.
+		if (frameParams.currentDisplayParams.extraPaddingBottomForBars == 0) then
+			frameParams.currentDisplayParams.extraPaddingBottomForBars = TT_GTT_BARS_MARGIN_Y - TT_GTT_BARS_SPACING;
+		end
+		
 		-- initialize anchoring position and color
 		bar:ClearAllPoints();
 		

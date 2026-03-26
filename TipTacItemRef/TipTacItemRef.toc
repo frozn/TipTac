@@ -1,9 +1,9 @@
 ## Interface: 120001
-## Version: 26.03.16
+## Version: 26.03.16.1
 ## IconTexture: Interface\AddOns\TipTacItemRef\media\tiptac_logo
-## Title: TipTacItemRef
+## Title: TipTacItemRef (Local Fix)
 ## Author: Frozn45, Aezay (Earthen Ring EU)
-## Notes: Improved ItemRefTooltip
+## Notes: Improved ItemRefTooltip - local fix for Midnight secret tooltip errors
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
 ## Category-esES: Interfaz de usuario
