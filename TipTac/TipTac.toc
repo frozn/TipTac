@@ -1,9 +1,9 @@
 ## Interface: 120001
-## Version: 26.03.16.1
+## Version: 26.03.16.2
 ## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
-## Title: TipTac (Secret Fix)
+## Title: TipTac (Temp fix)
 ## Author: Frozn45, Aezay (Earthen Ring EU)
-## Notes: Highly Customizable Tooltip Enhancement Addon - hotfix for Midnight secret tooltip errors
+## Notes: Highly Customizable Tooltip Enhancement Addon - Temporary fix for Midnight secret tooltip errors
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
 ## Category-esES: Interfaz de usuario

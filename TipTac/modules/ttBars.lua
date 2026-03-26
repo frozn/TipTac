@@ -50,6 +50,23 @@ function ttBars:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_Extended
 	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
+	
+	-- hook GameTooltipStatusBar to keep it hidden when configured. this is
+	-- needed because Blizzard's internal (untainted) code can re-show the
+	-- status bar after TipTac has hidden it, e.g. during tooltip refreshes in
+	-- instance combat with secret values, or during the Show() call that
+	-- follows SetUnit() in the tooltip lifecycle.
+	if (not self.defaultStatusBarHooked) then
+		local statusBar = GameTooltipStatusBar;
+		if (statusBar) then
+			statusBar:HookScript("OnShow", function(self)
+				if (cfg) and (cfg.hideDefaultBar) and (not self:IsForbidden()) then
+					self:Hide();
+				end
+			end);
+			self.defaultStatusBarHooked = true;
+		end
+	end
 end
 
 -- config settings need to be applied
@@ -259,12 +276,6 @@ function ttBars:DisplayUnitTipsBar(barsPool, frameParams, tip, unitRecord, offse
 	local newOffsetY = offsetY;
 	
 	if (bar:GetVisibility(tip, unitRecord)) then
-		-- The first visible bar needs to reserve the initial bottom anchor margin as well,
-		-- otherwise the tooltip's last text line can overlap the top of the bar stack.
-		if (frameParams.currentDisplayParams.extraPaddingBottomForBars == 0) then
-			frameParams.currentDisplayParams.extraPaddingBottomForBars = TT_GTT_BARS_MARGIN_Y - TT_GTT_BARS_SPACING;
-		end
-		
 		-- initialize anchoring position and color
 		bar:ClearAllPoints();
 		
