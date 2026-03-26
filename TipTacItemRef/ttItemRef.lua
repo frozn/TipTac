@@ -20,6 +20,20 @@ local ejtt = EncounterJournalTooltip;
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
+local function GetNonSecretText(fontString)
+	if (not fontString) then
+		return nil;
+	end
+	
+	local text = fontString:GetText();
+	
+	if (LibFroznFunctions:IsSecretValue(text)) then
+		return nil;
+	end
+	
+	return text;
+end
+
 local function C_CurrencyInfo_GetCurrencyLink(currencyID, currencyAmount)
 	local _currencyAmount = (currencyAmount or 0);
 	
@@ -758,8 +772,8 @@ local function SetAction_Hook(self, slot)
 		local actionType, id, subType = GetActionInfo(slot);
 		if (actionType == "spell" and subType == "pet") then
 			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
-			local name = line and (line:GetText() or "");
-			if (not LibFroznFunctions:IsSecretValue(name)) and (name ~= "") and (PetHasSpellbook()) then
+			local name = GetNonSecretText(line) or "";
+			if (name ~= "") and (PetHasSpellbook()) then
 				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
 				if (numPetSpells) then
@@ -845,7 +859,7 @@ local function SetAction_Hook(self, slot)
 				end
 			elseif (subType == "item") then
 				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find item in macro by name.
-				local name = line and (line:GetText() or "");
+				local name = GetNonSecretText(line) or "";
 				if (name ~= "") then
 					local _, link = GetItemInfo(name);
 					if (link) then
@@ -867,7 +881,7 @@ local function SetAction_Hook(self, slot)
 				end
 			elseif (subType == "MOUNT") then
 				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find spell in macro by name.
-				local name = line and (line:GetText() or "");
+				local name = GetNonSecretText(line) or "";
 				if (name ~= "") then
 					local link = LibFroznFunctions:GetSpellLink(name);
 					if (link) then
@@ -1667,7 +1681,7 @@ local function TEM_ShowCurrencyTooltip_Hook(self)
 		if (hideClickForSettingsTextInCurrencyTip) then
 			for i = 2, gtt:NumLines() do
 				local gttLine = _G["GameTooltipTextLeft" .. i];
-				local gttLineText = gttLine:GetText();
+				local gttLineText = GetNonSecretText(gttLine);
 				
 				if (type(gttLineText) == "string") then
 					local isGttLineTextCurrencyButtonTooltipClickInstruction = (hideClickForSettingsTextInCurrencyTip) and (gttLineText == CURRENCY_BUTTON_TOOLTIP_CLICK_INSTRUCTION);
@@ -2647,7 +2661,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 					-- remove level from embedded tip
 					for i = 2, min(targetTooltip:NumLines(), LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 						local line = _G[targetTooltip:GetName().."TextLeft"..i];
-						if (line and (line:GetText() or ""):match(ITEM_LEVEL_PLUS)) then
+						local lineText = GetNonSecretText(line);
+						if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
 							line:SetText(nil);
 							break;
 						end
@@ -2655,7 +2670,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 				else 
 					-- remove level from tip's line pool
 					for line in self.linePool:EnumerateActive() do
-						if (line and (line:GetText() or ""):match(ITEM_LEVEL_PLUS)) then
+						local lineText = GetNonSecretText(line);
+						if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
 							local linePredecessorPoint, linePredecessorRelativeTo, linePredecessorRelativePoint, linePredecessorXOfs, linePredecessorYOfs = line:GetPoint(1);
 							
 							if (line == self.textLineAnchor) then
@@ -2698,7 +2714,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 			else
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 					local line = _G[self:GetName().."TextLeft"..i];
-					if (line and (line:GetText() or ""):match(ITEM_LEVEL_PLUS)) then
+					local lineText = GetNonSecretText(line);
+					if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
 						line:SetText(nil);
 						break;
 					end
@@ -3158,8 +3175,8 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 		for i = 6, self:NumLines() do
 			local left = _G[tipName.."TextLeft"..i];
 			local right = _G[tipName.."TextRight"..i];
-			local leftText = left:GetText();
-			local rightText = right:GetText();
+			local leftText = GetNonSecretText(left);
+			local rightText = GetNonSecretText(right);
 			if (leftText and leftText ~= " ") then
 				tinsert(criteriaList, { label = leftText, done = left:GetTextColor() < 0.5 });
 				if (criteriaList[#criteriaList].done) then
@@ -3174,7 +3191,7 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 			end
 		end
 		-- Cache Info
-		local progressText = _G[tipName.."TextLeft3"]:GetText() or "";
+		local progressText = GetNonSecretText(_G[tipName.."TextLeft3"]) or "";
 		-- Rebuild Tip
 		self:ClearLines();
 		local stat = isPlayer and GetStatistic(achievementID);
@@ -3317,7 +3334,8 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 				
 				-- remove level from tip's line pool
 				for line in self.linePool:EnumerateActive() do
-					if (line and (line:GetText() or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
+					local lineText = GetNonSecretText(line);
+					if (lineText) and (lineText:match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						local linePredecessorPoint, linePredecessorRelativeTo, linePredecessorRelativePoint, linePredecessorXOfs, linePredecessorYOfs = line:GetPoint(1);
 						
 						if (line == self.textLineAnchor) then
@@ -3359,7 +3377,8 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 			elseif (self ~= pbputt) then
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 					local line = _G[self:GetName().."TextLeft"..i];
-					if (line and (line:GetText() or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
+					local lineText = GetNonSecretText(line);
+					if (lineText) and (lineText:match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						line:SetText(nil);
 						break;
 					end
@@ -3462,7 +3481,8 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 		if (showLevel) then
 			for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 				local line = _G[self:GetName().."TextLeft"..i];
-				if (line and (line:GetText() or ""):match(ITEM_LEVEL_PLUS)) then
+				local lineText = GetNonSecretText(line);
+				if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
 					line:SetText(nil);
 					break;
 				end

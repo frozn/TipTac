@@ -50,6 +50,23 @@ function ttBars:OnConfigLoaded(_TT_CacheForFrames, _configDb, _cfg, _TT_Extended
 	configDb = _configDb;
 	cfg = _cfg;
 	TT_ExtendedConfig = _TT_ExtendedConfig;
+	
+	-- hook GameTooltipStatusBar to keep it hidden when configured. this is
+	-- needed because Blizzard's internal (untainted) code can re-show the
+	-- status bar after TipTac has hidden it, e.g. during tooltip refreshes in
+	-- instance combat with secret values, or during the Show() call that
+	-- follows SetUnit() in the tooltip lifecycle.
+	if (not self.defaultStatusBarHooked) then
+		local statusBar = GameTooltipStatusBar;
+		if (statusBar) then
+			statusBar:HookScript("OnShow", function(self)
+				if (cfg) and (cfg.hideDefaultBar) and (not self:IsForbidden()) then
+					self:Hide();
+				end
+			end);
+			self.defaultStatusBarHooked = true;
+		end
+	end
 end
 
 -- config settings need to be applied
@@ -230,6 +247,14 @@ function ttBars:SetupUnitTipsBars(tip)
 		return;
 	end
 	
+	-- don't show bars when tooltip padding can't be applied — bars would
+	-- overlap text because SetPaddingToTip bails out under the same guards.
+	-- this also covers the case where HasTipTaintedWidgetContainer() persists
+	-- after leaving an instance (tainted shownWidgetCount on widget children).
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+		return;
+	end
+	
 	-- display tip's bars (in opposite vertical direction)
 	currentDisplayParams.extraPaddingBottomForBars = 0;
 	
@@ -245,6 +270,15 @@ function ttBars:SetupUnitTipsBars(tip)
 	
 	if (cfg.healthBar) then
 		offsetY = self:DisplayUnitTipsBar(self.barPools.healthBarsPool, frameParams, tip, unitRecord, offsetY);
+	end
+	
+	-- account for the initial bottom anchor margin. bars start at
+	-- TT_GTT_BARS_MARGIN_Y from the bottom edge, but each bar only adds
+	-- barHeight + TT_GTT_BARS_SPACING to extraPaddingBottomForBars. the
+	-- difference between the margin and the spacing must be included so the
+	-- first bar's top edge doesn't extend into the text content area.
+	if (currentDisplayParams.extraPaddingBottomForBars > 0) then
+		currentDisplayParams.extraPaddingBottomForBars = currentDisplayParams.extraPaddingBottomForBars + (TT_GTT_BARS_MARGIN_Y - TT_GTT_BARS_SPACING);
 	end
 end
 

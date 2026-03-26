@@ -940,7 +940,11 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 		if (currentDisplayParams.mergeLevelLineWithGuildName) then
 			local gttLineText = gttLine:GetText();
 			
-			gttLine:SetText((gttLineText) and (gttLineText ~= " ") and (gttLineText .. "\n" .. tipLineLevelText) or tipLineLevelText);
+			if (LibFroznFunctions:IsSecretValue(gttLineText)) then
+				gttLine:SetText(tipLineLevelText);
+			else
+				gttLine:SetText((gttLineText) and (gttLineText ~= " ") and (gttLineText .. "\n" .. tipLineLevelText) or tipLineLevelText);
+			end
 		else
 			gttLine:SetText(tipLineLevelText);
 		end

@@ -131,15 +131,17 @@ function ttAuras:SetupUnitTipsAuras(tip)
 	if (offsetForClampRectInsets > 0) then
 		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
 		
-		if (cfg.aurasAtBottom) then
-			if (bottomOffset > -offsetForClampRectInsets) then
-				-- set clamp rect insets to tip for preventing additional elements from moving off-screen
-				LibFroznFunctions:FireGroupEvent(MOD_NAME, "SetClampRectInsetsToTip", tip, leftOffset, rightOffset, topOffset, -offsetForClampRectInsets);
-			end
-		else
-			if (topOffset < offsetForClampRectInsets) then
-				-- set clamp rect insets to tip for preventing additional elements from moving off-screen
-				LibFroznFunctions:FireGroupEvent(MOD_NAME, "SetClampRectInsetsToTip", tip, leftOffset, rightOffset, offsetForClampRectInsets, bottomOffset);
+		if (not LibFroznFunctions:IsSecretValue(leftOffset)) and (not LibFroznFunctions:IsSecretValue(rightOffset)) and (not LibFroznFunctions:IsSecretValue(topOffset)) and (not LibFroznFunctions:IsSecretValue(bottomOffset)) then
+			if (cfg.aurasAtBottom) then
+				if (bottomOffset > -offsetForClampRectInsets) then
+					-- set clamp rect insets to tip for preventing additional elements from moving off-screen
+					LibFroznFunctions:FireGroupEvent(MOD_NAME, "SetClampRectInsetsToTip", tip, leftOffset, rightOffset, topOffset, -offsetForClampRectInsets);
+				end
+			else
+				if (topOffset < offsetForClampRectInsets) then
+					-- set clamp rect insets to tip for preventing additional elements from moving off-screen
+					LibFroznFunctions:FireGroupEvent(MOD_NAME, "SetClampRectInsetsToTip", tip, leftOffset, rightOffset, offsetForClampRectInsets, bottomOffset);
+				end
 			end
 		end
 	end
