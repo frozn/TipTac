@@ -247,6 +247,14 @@ function ttBars:SetupUnitTipsBars(tip)
 		return;
 	end
 	
+	-- don't show bars when tooltip padding can't be applied — bars would
+	-- overlap text because SetPaddingToTip bails out under the same guards.
+	-- this also covers the case where HasTipTaintedWidgetContainer() persists
+	-- after leaving an instance (tainted shownWidgetCount on widget children).
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+		return;
+	end
+	
 	-- display tip's bars (in opposite vertical direction)
 	currentDisplayParams.extraPaddingBottomForBars = 0;
 	
@@ -262,6 +270,15 @@ function ttBars:SetupUnitTipsBars(tip)
 	
 	if (cfg.healthBar) then
 		offsetY = self:DisplayUnitTipsBar(self.barPools.healthBarsPool, frameParams, tip, unitRecord, offsetY);
+	end
+	
+	-- account for the initial bottom anchor margin. bars start at
+	-- TT_GTT_BARS_MARGIN_Y from the bottom edge, but each bar only adds
+	-- barHeight + TT_GTT_BARS_SPACING to extraPaddingBottomForBars. the
+	-- difference between the margin and the spacing must be included so the
+	-- first bar's top edge doesn't extend into the text content area.
+	if (currentDisplayParams.extraPaddingBottomForBars > 0) then
+		currentDisplayParams.extraPaddingBottomForBars = currentDisplayParams.extraPaddingBottomForBars + (TT_GTT_BARS_MARGIN_Y - TT_GTT_BARS_SPACING);
 	end
 end
 
