@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 59; -- bump on changes
+local LIB_MINOR = 60; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3231,33 +3231,58 @@ function LibFroznFunctions:GetDoubleLineFromGameTooltip(tip, lineIndex)
 	return _G[tipName .. "TextLeft" .. lineIndex], _G[tipName .. "TextRight" .. lineIndex];
 end
 
--- get line text from GameTooltip (TextLeft)
+-- get line text from GameTooltip (TextLeft) by line
 --
--- @param  tip        GameTooltip
--- @param  lineIndex  line index
+-- @param  tipLine           line of GameTooltip
+-- @param  nilIfSecretValue  optional. true if secret value should by returned as nil.
 -- @return line text from GameTooltip
-function LibFroznFunctions:GetLineTextFromGameTooltip(tip, lineIndex)
-	local tipLine = self:GetLineFromGameTooltip(tip, lineIndex);
-	
+function LibFroznFunctions:GetLineTextFromGameTooltipByLine(tipLine, nilIfSecretValue)
 	-- line from GameTooltip not available
 	if (not tipLine) then
 		return nil;
 	end
 	
-	-- get line text from GameTooltip
-	return tipLine:GetText();
+	-- get line text from GameTooltip by line
+	local tipLineText = tipLine:GetText();
+	
+	return (nilIfSecretValue and self:IsSecretValue(tipLineText) and nil or tipLineText);
+end
+
+-- get double line text from GameTooltip (TextLeft, TextRight) by double line
+--
+-- @param  tipLineLeft       left line of GameTooltip
+-- @param  tipLineRight      right line of GameTooltip
+-- @param  nilIfSecretValue  optional. true if secret value should by returned as nil.
+-- @return double line text from GameTooltip
+function LibFroznFunctions:GetDoubleLineTextFromGameTooltipByDoubleLine(tipLineLeft, tipLineRight, nilIfSecretValue)
+	local tipLineLeftText = (tipLineLeft or nil) and tipLineLeft:GetText();
+	local tipLineRightText = (tipLineRight or nil) and tipLineRight:GetText();
+	
+	return (nilIfSecretValue and self:IsSecretValue(tipLineLeftText) and nil or tipLineLeftText), (nilIfSecretValue and self:IsSecretValue(tipLineRightText) and nil or tipLineRightText);
+end
+
+-- get line text from GameTooltip (TextLeft)
+--
+-- @param  tip               GameTooltip
+-- @param  lineIndex         line index
+-- @param  nilIfSecretValue  optional. true if secret value should by returned as nil.
+-- @return line text from GameTooltip
+function LibFroznFunctions:GetLineTextFromGameTooltip(tip, lineIndex, nilIfSecretValue)
+	local tipLine = self:GetLineFromGameTooltip(tip, lineIndex);
+	
+	return self:GetLineTextFromGameTooltipByLine(tipLine, nilIfSecretValue);
 end
 
 -- get double line text from GameTooltip (TextLeft, TextRight)
 --
--- @param  tip        GameTooltip
--- @param  lineIndex  line index
+-- @param  tip               GameTooltip
+-- @param  lineIndex         line index
+-- @param  nilIfSecretValue  optional. true if secret value should by returned as nil.
 -- @return double line text from GameTooltip
-function LibFroznFunctions:GetDoubleLineTextFromGameTooltip(tip, lineIndex)
+function LibFroznFunctions:GetDoubleLineTextFromGameTooltip(tip, lineIndex, nilIfSecretValue)
 	local tipLineLeft, tipLineRight = self:GetDoubleLineFromGameTooltip(tip, lineIndex);
 	
-	-- get double line text from GameTooltip
-	return (tipLineLeft and tipLineLeft:GetText() or nil), (tipLineRight and tipLineRight:GetText() or nil);
+	return self:GetDoubleLineTextFromGameTooltipByDoubleLine(tipLineLeft, tipLineRight, nilIfSecretValue);
 end
 
 -- recalculate size of GameTooltip
@@ -3269,10 +3294,6 @@ function LibFroznFunctions:RecalculateSizeOfGameTooltip(tip)
 	end
 	
 	local paddingRight, paddingBottom, paddingLeft, paddingTop = tip:GetPadding();
-	
-	if (self:IsSecretValue(paddingRight)) or (self:HasTipTaintedWidgetContainer(tip)) then
-		return;
-	end
 	
 	tip:SetPadding(paddingRight, paddingBottom, paddingLeft, paddingTop);
 	tip:GetWidth(); -- possible blizzard bug (tested under df 10.2.7): tooltip is sometimes invisible after SetPadding() is called in OnShow. Calling e.g. GetWidth() after SetPadding() fixes this. reproduced with addon "Total RP 3" where the player's unit tooltip isn't shown any more.

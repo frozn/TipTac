@@ -227,7 +227,7 @@ local TT_DefaultConfig = {
 	
 	-- icons
 	enableIcons = true,
-	iconUnitIsSecretValue = false,
+	iconUnitIsSecretValue = true,
 	iconRaid = true,
 	iconFaction = false,
 	iconCombat = false,
@@ -2394,7 +2394,7 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	isSettingScaleToTip = false;
 	
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
 		return;
 	end
 	
@@ -2444,16 +2444,16 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 		
 		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
 		
-		if (leftOffset) and (not LibFroznFunctions:IsSecretValue(leftOffset)) then
+		if (leftOffset) then
 			tipWidthWithNewScaling = tipWidthWithNewScaling + leftOffset * newTipEffectiveScale;
 		end
-		if (rightOffset) and (not LibFroznFunctions:IsSecretValue(rightOffset)) then
+		if (rightOffset) then
 			tipWidthWithNewScaling = tipWidthWithNewScaling + rightOffset * newTipEffectiveScale;
 		end
-		if (topOffset) and (not LibFroznFunctions:IsSecretValue(topOffset)) then
+		if (topOffset) then
 			tipHeightWithNewScaling = tipHeightWithNewScaling + topOffset * newTipEffectiveScale;
 		end
-		if (bottomOffset) and (not LibFroznFunctions:IsSecretValue(bottomOffset)) then
+		if (bottomOffset) then
 			tipHeightWithNewScaling = tipHeightWithNewScaling + bottomOffset * newTipEffectiveScale;
 		end
 		
@@ -2847,7 +2847,7 @@ function tt:SetPaddingToTip(tip)
 	isSettingPaddingToTip = false;
 	
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+	if (tip:IsForbidden()) then
 		return;
 	end
 	
@@ -3567,9 +3567,7 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- set original left/right/top/bottom offset for preventing additional elements from moving off-screen
 		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
 		
-		if (leftOffset) and (rightOffset) and (topOffset) and (bottomOffset) and
-				(not LibFroznFunctions:IsSecretValue(leftOffset)) and (not LibFroznFunctions:IsSecretValue(rightOffset)) and
-				(not LibFroznFunctions:IsSecretValue(topOffset)) and (not LibFroznFunctions:IsSecretValue(bottomOffset)) then
+		if (leftOffset) and (rightOffset) and (topOffset) and (bottomOffset) then
 			frameParams.originalOffsetsForPreventingOffScreenAvailable = true;
 			frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen = leftOffset, rightOffset, topOffset, bottomOffset;
 		end

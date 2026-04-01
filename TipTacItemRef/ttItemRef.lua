@@ -20,20 +20,6 @@ local ejtt = EncounterJournalTooltip;
 -- get libs
 local LibFroznFunctions = LibStub:GetLibrary("LibFroznFunctions-1.0");
 
-local function GetNonSecretText(fontString)
-	if (not fontString) then
-		return nil;
-	end
-	
-	local text = fontString:GetText();
-	
-	if (LibFroznFunctions:IsSecretValue(text)) then
-		return nil;
-	end
-	
-	return text;
-end
-
 local function C_CurrencyInfo_GetCurrencyLink(currencyID, currencyAmount)
 	local _currencyAmount = (currencyAmount or 0);
 	
@@ -772,7 +758,7 @@ local function SetAction_Hook(self, slot)
 		local actionType, id, subType = GetActionInfo(slot);
 		if (actionType == "spell" and subType == "pet") then
 			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
-			local name = GetNonSecretText(line) or "";
+			local name = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true) or "");
 			if (name ~= "") and (PetHasSpellbook()) then
 				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
@@ -859,7 +845,7 @@ local function SetAction_Hook(self, slot)
 				end
 			elseif (subType == "item") then
 				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find item in macro by name.
-				local name = GetNonSecretText(line) or "";
+				local name = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true) or "");
 				if (name ~= "") then
 					local _, link = GetItemInfo(name);
 					if (link) then
@@ -881,7 +867,7 @@ local function SetAction_Hook(self, slot)
 				end
 			elseif (subType == "MOUNT") then
 				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find spell in macro by name.
-				local name = GetNonSecretText(line) or "";
+				local name = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true) or "");
 				if (name ~= "") then
 					local link = LibFroznFunctions:GetSpellLink(name);
 					if (link) then
@@ -937,7 +923,7 @@ local function SetPetAction_Hook(self, slot)
 				icon = texture;
 			end
 			
-			if (_name ~= "" and PetHasSpellbook()) then -- id is missing. as a workaround find pet action in pet spell book by name.
+			if (not LibFroznFunctions:IsSecretValue(_name)) and (_name ~= "") and (PetHasSpellbook()) then -- id is missing. as a workaround find pet action in pet spell book by name.
 				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
 				if (numPetSpells) then
@@ -1681,7 +1667,7 @@ local function TEM_ShowCurrencyTooltip_Hook(self)
 		if (hideClickForSettingsTextInCurrencyTip) then
 			for i = 2, gtt:NumLines() do
 				local gttLine = _G["GameTooltipTextLeft" .. i];
-				local gttLineText = GetNonSecretText(gttLine);
+				local gttLineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(gttLine, true);
 				
 				if (type(gttLineText) == "string") then
 					local isGttLineTextCurrencyButtonTooltipClickInstruction = (hideClickForSettingsTextInCurrencyTip) and (gttLineText == CURRENCY_BUTTON_TOOLTIP_CLICK_INSTRUCTION);
@@ -2656,13 +2642,14 @@ function LinkTypeFuncs:item(link, linkType, id)
 
 	if (showLevel or showId) then
 		if (showLevel) then
+			local line, lineText;
 			if (self == ejtt) then
 				if (targetTooltip:IsShown()) then
 					-- remove level from embedded tip
 					for i = 2, min(targetTooltip:NumLines(), LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-						local line = _G[targetTooltip:GetName().."TextLeft"..i];
-						local lineText = GetNonSecretText(line);
-						if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
+						line = _G[targetTooltip:GetName().."TextLeft"..i];
+						lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+						if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 							line:SetText(nil);
 							break;
 						end
@@ -2670,8 +2657,8 @@ function LinkTypeFuncs:item(link, linkType, id)
 				else 
 					-- remove level from tip's line pool
 					for line in self.linePool:EnumerateActive() do
-						local lineText = GetNonSecretText(line);
-						if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
+						lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+						if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 							local linePredecessorPoint, linePredecessorRelativeTo, linePredecessorRelativePoint, linePredecessorXOfs, linePredecessorYOfs = line:GetPoint(1);
 							
 							if (line == self.textLineAnchor) then
@@ -2713,9 +2700,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 				end
 			else
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-					local line = _G[self:GetName().."TextLeft"..i];
-					local lineText = GetNonSecretText(line);
-					if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
+					line = _G[self:GetName().."TextLeft"..i];
+					lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+					if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 						line:SetText(nil);
 						break;
 					end
@@ -3175,26 +3162,33 @@ function LinkTypeFuncs:achievement(link, linkType, achievementID, guid, complete
 		for i = 6, self:NumLines() do
 			local left = _G[tipName.."TextLeft"..i];
 			local right = _G[tipName.."TextRight"..i];
-			local leftText = GetNonSecretText(left);
-			local rightText = GetNonSecretText(right);
-			if (leftText and leftText ~= " ") then
-				tinsert(criteriaList, { label = leftText, done = left:GetTextColor() < 0.5 });
+			local leftText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(left, true);
+			local rightText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(right, true);
+			if (leftText) and (leftText ~= " ") then
+				local leftTextColor = left:GetTextColor();
+				local leftDone = (not LibFroznFunctions:IsSecretValue(leftTextColor)) and (leftTextColor < 0.5) or false;
+				tinsert(criteriaList, { label = leftText, done = leftDone });
 				if (criteriaList[#criteriaList].done) then
 					criteriaComplete = (criteriaComplete + 1);
 				end
 			end
-			if (rightText and rightText ~= " ") then
-				tinsert(criteriaList, { label = rightText, done = right:GetTextColor() < 0.5 });
+			if (rightText) and (rightText ~= " ") then
+				local rightTextColor = right:GetTextColor();
+				local rightDone = (not LibFroznFunctions:IsSecretValue(rightTextColor)) and (rightTextColor < 0.5) or false;
+				tinsert(criteriaList, { label = rightText, done = rightDone });
 				if (criteriaList[#criteriaList].done) then
 					criteriaComplete = (criteriaComplete + 1);
 				end
 			end
 		end
 		-- Cache Info
-		local progressText = GetNonSecretText(_G[tipName.."TextLeft3"]) or "";
+		local progressText = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(_G[tipName.."TextLeft3"], true) or "");
 		-- Rebuild Tip
 		self:ClearLines();
 		local stat = isPlayer and GetStatistic(achievementID);
+		if (LibFroznFunctions:IsSecretValue(stat)) then
+			stat = nil;
+		end
 		self:AddDoubleLine(name,(stat ~= "0" and stat ~= "--" and stat),nil,nil,nil,1,1,1);
 		self:AddLine("<"..category..">");
 		if (rewardText) then
@@ -3319,6 +3313,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 
 	if (showLevel or showId) then
 		if (showLevel) then
+			local line, lineText;
 			if (self == bptt or self == fbptt) then
 				-- remove level from tip
 				self:SetHeight(self:GetHeight() - self.Level:GetHeight() - linePadding);
@@ -3334,8 +3329,8 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 				
 				-- remove level from tip's line pool
 				for line in self.linePool:EnumerateActive() do
-					local lineText = GetNonSecretText(line);
-					if (lineText) and (lineText:match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
+					lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+					if ((lineText or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						local linePredecessorPoint, linePredecessorRelativeTo, linePredecessorRelativePoint, linePredecessorXOfs, linePredecessorYOfs = line:GetPoint(1);
 						
 						if (line == self.textLineAnchor) then
@@ -3376,9 +3371,9 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 				end
 			elseif (self ~= pbputt) then
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-					local line = _G[self:GetName().."TextLeft"..i];
-					local lineText = GetNonSecretText(line);
-					if (lineText) and (lineText:match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
+					line = _G[self:GetName().."TextLeft"..i];
+					lineText = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+					if ((lineText or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						line:SetText(nil);
 						break;
 					end
@@ -3481,8 +3476,8 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 		if (showLevel) then
 			for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 				local line = _G[self:GetName().."TextLeft"..i];
-				local lineText = GetNonSecretText(line);
-				if (lineText) and (lineText:match(ITEM_LEVEL_PLUS)) then
+				local lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+				if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 					line:SetText(nil);
 					break;
 				end
