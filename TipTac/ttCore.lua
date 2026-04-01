@@ -227,7 +227,7 @@ local TT_DefaultConfig = {
 	
 	-- icons
 	enableIcons = true,
-	iconUnitIsSecretValue = true,
+	iconUnitIsSecretValue = false,
 	iconRaid = true,
 	iconFaction = false,
 	iconCombat = false,
@@ -2444,16 +2444,16 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 		
 		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
 		
-		if (leftOffset) then
+		if (leftOffset) and (not LibFroznFunctions:IsSecretValue(leftOffset)) then
 			tipWidthWithNewScaling = tipWidthWithNewScaling + leftOffset * newTipEffectiveScale;
 		end
-		if (rightOffset) then
+		if (rightOffset) and (not LibFroznFunctions:IsSecretValue(rightOffset)) then
 			tipWidthWithNewScaling = tipWidthWithNewScaling + rightOffset * newTipEffectiveScale;
 		end
-		if (topOffset) then
+		if (topOffset) and (not LibFroznFunctions:IsSecretValue(topOffset)) then
 			tipHeightWithNewScaling = tipHeightWithNewScaling + topOffset * newTipEffectiveScale;
 		end
-		if (bottomOffset) then
+		if (bottomOffset) and (not LibFroznFunctions:IsSecretValue(bottomOffset)) then
 			tipHeightWithNewScaling = tipHeightWithNewScaling + bottomOffset * newTipEffectiveScale;
 		end
 		
@@ -3567,7 +3567,9 @@ LibFroznFunctions:RegisterForGroupEvents(MOD_NAME, {
 		-- set original left/right/top/bottom offset for preventing additional elements from moving off-screen
 		local leftOffset, rightOffset, topOffset, bottomOffset = tip:GetClampRectInsets();
 		
-		if (leftOffset) and (rightOffset) and (topOffset) and (bottomOffset) then
+		if (leftOffset) and (rightOffset) and (topOffset) and (bottomOffset) and
+				(not LibFroznFunctions:IsSecretValue(leftOffset)) and (not LibFroznFunctions:IsSecretValue(rightOffset)) and
+				(not LibFroznFunctions:IsSecretValue(topOffset)) and (not LibFroznFunctions:IsSecretValue(bottomOffset)) then
 			frameParams.originalOffsetsForPreventingOffScreenAvailable = true;
 			frameParams.originalLeftOffsetForPreventingOffScreen, frameParams.originalRightOffsetForPreventingOffScreen, frameParams.originalTopOffsetForPreventingOffScreen, frameParams.originalBottomOffsetForPreventingOffScreen = leftOffset, rightOffset, topOffset, bottomOffset;
 		end
