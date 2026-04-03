@@ -3372,7 +3372,7 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 			elseif (self ~= pbputt) then
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
 					line = _G[self:GetName().."TextLeft"..i];
-					lineText = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
+					lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
 					if ((lineText or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						line:SetText(nil);
 						break;
