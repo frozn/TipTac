@@ -757,8 +757,7 @@ local function SetAction_Hook(self, slot)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local actionType, id, subType = GetActionInfo(slot);
 		if (actionType == "spell" and subType == "pet") then
-			local line = _G[self:GetName().."TextLeft1"]; -- id is always 0. as a workaround find pet action in pet spell book by name.
-			local name = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true) or "");
+			local name = (LibFroznFunctions:GetLineTextFromGameTooltip(self, 1, true) or ""); -- id is always 0. as a workaround find pet action in pet spell book by name.
 			if (name ~= "") and (PetHasSpellbook()) then
 				local numPetSpells, petToken = LibFroznFunctions:HasPetSpells(); -- returns numPetSpells = nil for feral spirit (shaman wolves) in wotlkc
 				
@@ -831,6 +830,7 @@ local function SetAction_Hook(self, slot)
 			tipDataAdded[self] = "flyout";
 			CustomTypeFuncs.flyout(self, nil, "flyout", id, icon);
 		elseif (actionType == "macro") then
+			local name;
 			if (subType == "spell") then
 				local spellID = id;
 				if (spellID) then
@@ -844,8 +844,7 @@ local function SetAction_Hook(self, slot)
 					end
 				end
 			elseif (subType == "item") then
-				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find item in macro by name.
-				local name = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true) or "");
+				name = (LibFroznFunctions:GetLineTextFromGameTooltip(self, 1, true) or ""); -- id is wrong. as a workaround find item in macro by name.
 				if (name ~= "") then
 					local _, link = GetItemInfo(name);
 					if (link) then
@@ -866,8 +865,7 @@ local function SetAction_Hook(self, slot)
 					end
 				end
 			elseif (subType == "MOUNT") then
-				local line = _G[self:GetName().."TextLeft1"]; -- id is wrong. as a workaround find spell in macro by name.
-				local name = (LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true) or "");
+				name = (LibFroznFunctions:GetLineTextFromGameTooltip(self, 1, true) or ""); -- id is wrong. as a workaround find spell in macro by name.
 				if (name ~= "") then
 					local link = LibFroznFunctions:GetSpellLink(name);
 					if (link) then
@@ -2642,12 +2640,13 @@ function LinkTypeFuncs:item(link, linkType, id)
 
 	if (showLevel or showId) then
 		if (showLevel) then
-			local line, lineText;
+			local tipName, line, lineText;
 			if (self == ejtt) then
 				if (targetTooltip:IsShown()) then
 					-- remove level from embedded tip
+					tipName = targetTooltip:GetName();
 					for i = 2, min(targetTooltip:NumLines(), LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-						line = _G[targetTooltip:GetName().."TextLeft"..i];
+						line = _G[tipName.."TextLeft"..i];
 						lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
 						if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 							line:SetText(nil);
@@ -2699,8 +2698,9 @@ function LinkTypeFuncs:item(link, linkType, id)
 					end
 				end
 			else
+				tipName = self:GetName();
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-					line = _G[self:GetName().."TextLeft"..i];
+					line = _G[tipName.."TextLeft"..i];
 					lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
 					if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 						line:SetText(nil);
@@ -3370,8 +3370,9 @@ function LinkTypeFuncs:battlepet(link, linkType, speciesID, level, breedQuality,
 					end
 				end
 			elseif (self ~= pbputt) then
+				local tipName = self:GetName();
 				for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-					line = _G[self:GetName().."TextLeft"..i];
+					line = _G[tipName.."TextLeft"..i];
 					lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
 					if ((lineText or ""):match(BATTLE_PET_CAGE_TOOLTIP_LEVEL)) then
 						line:SetText(nil);
@@ -3474,8 +3475,9 @@ function LinkTypeFuncs:conduit(link, linkType, conduitID, conduitRank)
 
 	if (showLevel or showId) then
 		if (showLevel) then
+			local tipName = self:GetName();
 			for i = 2, min(self:NumLines(),LibItemString.TOOLTIP_MAXLINE_LEVEL) do
-				local line = _G[self:GetName().."TextLeft"..i];
+				local line = _G[tipName.."TextLeft"..i];
 				local lineText = LibFroznFunctions:GetLineTextFromGameTooltipByLine(line, true);
 				if ((lineText or ""):match(ITEM_LEVEL_PLUS)) then
 					line:SetText(nil);
