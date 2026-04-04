@@ -2701,7 +2701,7 @@ function tt:SetBackdropToTip(tip)
 	isSettingBackdropToTip = false;
 	
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) then
+	if (tip:IsForbidden()) or (LibFroznFunctions:HasTipTaintedWidgetContainer(tip)) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
 		return;
 	end
 	
@@ -4093,13 +4093,8 @@ function tt:SetUnitRecordFromTip(tip)
 	-- this also helps fix the problem that "mouseover" units aren't valid for group members out of range, a bug that has been in WoW since about 3.0.2.
 	local mouseOverUnit = UnitIsUnit(unitID, "mouseover");
 	
-	if (mouseOverUnit) then
+	if (not LibFroznFunctions:IsSecretValue(mouseOverUnit)) and (mouseOverUnit) then
 		unitID = "mouseover";
-	end
-
-	if (LibFroznFunctions:IsSecretValue(mouseOverUnit)) then
-		currentDisplayParams.unitRecord = LFF_UNIT_RECORD.SecretValue;
-		return;
 	end
 	
 	-- set unit record
