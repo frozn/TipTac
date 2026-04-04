@@ -128,8 +128,19 @@ end
 
 -- before unit tooltip is being styled
 function ttBars:OnUnitTipPreStyle(TT_CacheForFrames, tip, currentDisplayParams, first)
+	-- get current display parameters
+	local frameParams = TT_CacheForFrames[tip];
+	
+	if (not frameParams) then
+		return;
+	end
+	
+	local currentDisplayParams = frameParams.currentDisplayParams;
+	
 	-- hide GameTooltip's standard status bar if needed
-	if (cfg.hideDefaultBar) and (first) then
+	local unitRecord = currentDisplayParams.unitRecord;
+	
+	if (cfg.hideDefaultBar) and (first) and (not ((unitRecord == LFF_UNIT_RECORD.SecretValue) and (cfg.healthBar))) then
 		GameTooltipStatusBar:Hide();
 	end
 	
