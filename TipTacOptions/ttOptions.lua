@@ -633,11 +633,11 @@ local options = {
 		options = {
 			{ type = "Header", label = "Unit Tip Bars: Health Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
-			{ type = "Check", var = "healthBar", label = "Show Health Bar", tip = "Will show a health bar of the unit.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
+			{ type = "Check", var = "healthBar", label = "Show Health Bar", tip = "Will show a health bar of the unit." .. (LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue and ".\nNOTE: Fallback to the default health bar, if the unit is a secret value." or ""), enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 			{ type = "Color", var = "healthBarColor", label = "Health Bar Color", tip = "The color of the health bar. Has no effect for players with the option above enabled", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 			{ type = "Check", var = "healthBarClassColor", label = "Class Colored Health Bar", tip = "This options colors the health bar in the same color as the player class", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end, y = 2, x = 130 },
-			{ type = "Check", var = "hideDefaultBar", label = "Hide the Default Health Bar", tip = "Check this to hide the default health bar" .. (LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue and ".\nNOTE: The default health bar will be shown, if the unit is a secret value and showing a health bar is enabled." or ""), enabled = function(factory) return factory:GetConfigValue("enableBars") end },
+			{ type = "Check", var = "hideDefaultBar", label = "Hide the Default Health Bar", tip = "Check this to hide the default health bar" .. (LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue and ".\nNOTE: Fallback to the default health bar, if the unit is a secret value and showing a health bar is enabled." or ""), enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Header", label = "Unit Tip Bars: Mana Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
