@@ -5325,10 +5325,10 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	return returnAverageItemLevel;
 end
 
--- get TacoTip's GearScore from item data (from "gearscore.lua" of TacoTip v0.4.3)
+-- get TacoTip's GearScore from item data (from "gearscore.lua" of TacoTip v0.4.7)
 function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 	local BRACKET_SIZE = 1000
-
+	
 	-- if (CI:IsWotlk()) then
 	if (LibFroznFunctions.isWoWFlavor.WotLKC) then -- added
 		BRACKET_SIZE = 1000
@@ -5339,9 +5339,9 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 	elseif (LibFroznFunctions.isWoWFlavor.ClassicEra) then -- added
 		BRACKET_SIZE = 200
 	end
-
+	
 	local MAX_SCORE = BRACKET_SIZE*6-1
-
+	
 	local GS_ItemTypes = {
 		["INVTYPE_RELIC"] = { ["SlotMOD"] = 0.3164, ["ItemSlot"] = 18, ["Enchantable"] = false},
 		["INVTYPE_TRINKET"] = { ["SlotMOD"] = 0.5625, ["ItemSlot"] = 33, ["Enchantable"] = false },
@@ -5368,7 +5368,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 		["INVTYPE_CLOAK"] = { ["SlotMOD"] = 0.5625, ["ItemSlot"] = 15, ["Enchantable"] = true },
 		["INVTYPE_BODY"] = { ["SlotMOD"] = 0, ["ItemSlot"] = 4, ["Enchantable"] = false },
 	}
-
+	
 	local GS_Rarity = {
 		[0] = {Red = 0.55, Green = 0.55, Blue = 0.55 },
 		[1] = {Red = 1.00, Green = 1.00, Blue = 1.00 },
@@ -5379,7 +5379,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 		[6] = {Red = 1.00, Green = 0.00, Blue = 0.00 },
 		[7] = {Red = 0.90, Green = 0.80, Blue = 0.50 },
 	}
-
+	
 	local GS_Formula = {
 		["A"] = {
 			[4] = { ["A"] = 91.4500, ["B"] = 0.6500 },
@@ -5391,9 +5391,12 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 			[3] = { ["A"] = 0.7500, ["B"] = 1.8000 },
 			[2] = { ["A"] = 8.0000, ["B"] = 2.0000 },
 			[1] = { ["A"] = 0.0000, ["B"] = 2.2500 }
-		}
+		},
+		["C"] = {
+			[4] = { ["A"] = 0.2500, ["B"] = 1.6275 }
+		},
 	}
-
+	
 	local GS_Quality = {
 		[BRACKET_SIZE*6] = {
 			["Red"] = { ["A"] = 0.94, ["B"] = BRACKET_SIZE*5, ["C"] = 0.00006, ["D"] = 1 },
@@ -5433,6 +5436,17 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 		},
 	}
 	
+	local function getPlayerGUID(arg)
+		if (arg) then
+			if (GUIDIsPlayer(arg)) then
+				return arg
+			elseif (UnitIsPlayer(arg)) then
+				return UnitGUID(arg)
+			end
+		end
+		return nil
+	end
+	
 	local function GetQuality(ItemScore)
 		ItemScore = tonumber(ItemScore)
 		if (not ItemScore) then
@@ -5458,7 +5472,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 		end
 		return 0.1, 0.1, 0.1, "Trash"
 	end
-
+	
 	local function GetItemScore(ItemLink)
 		if not (ItemLink) then
 			return 0, 0, 0.1, 0.1, 0.1
@@ -5482,10 +5496,18 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 				ItemRarity = 3
 				ItemLevel = 187.05
 			end
-			if (ItemLevel > 120) then
-				Table = GS_Formula["A"]
-			else
+			if (ItemLevel < 100 and ItemRarity == 4) then
+				Table = GS_Formula["C"]
+			elseif (ItemLevel < 168 and ItemRarity == 4) then
 				Table = GS_Formula["B"]
+			elseif (ItemLevel < 148 and ItemRarity == 3) then
+				Table = GS_Formula["B"]
+			elseif (ItemLevel < 138 and ItemRarity == 2) then
+				Table = GS_Formula["B"]
+			elseif (ItemLevel <= 120) then
+				Table = GS_Formula["B"]
+			else
+				Table = GS_Formula["A"]
 			end
 			if ((ItemRarity >= 2) and (ItemRarity <= 4)) then
 				local Red, Green, Blue = GetQuality((floor(((ItemLevel - Table[ItemRarity].A) / Table[ItemRarity].B) * 1 * Scale)) * 11.25)
@@ -5503,6 +5525,27 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 		return 0, 0, 0.1, 0.1, 0.1, 0
 	end
 	
+	local function GetItemHunterScore(ItemLink)
+		local GearScore, ItemLevel, Red, Green, Blue, ItemEquipLoc = TT_GS:GetItemScore(ItemLink)
+		if ((ItemEquipLoc == "INVTYPE_2HWEAPON") or (ItemEquipLoc == "INVTYPE_WEAPONMAINHAND") or (ItemEquipLoc == "INVTYPE_WEAPONOFFHAND") or (ItemEquipLoc == "INVTYPE_WEAPON") or (ItemEquipLoc == "INVTYPE_HOLDABLE")) then
+			GearScore = floor(GearScore * 0.3164)
+		elseif ((ItemEquipLoc == "INVTYPE_RANGEDRIGHT") or (ItemEquipLoc == "INVTYPE_RANGED")) then
+			GearScore = floor(GearScore * 5.3224)
+		end
+		return GearScore, ItemLevel, Red, Green, Blue, ItemEquipLoc
+	end
+	
+	local function itemcacheCB(tbl, id)
+		for i=1,#tbl.items do
+			if (id == tbl.items[i]) then
+				table.remove(tbl.items, i)
+			end
+		end
+		if (#tbl.items == 0) then
+			-- TacoTip_GSCallback(tbl.guid)
+		end
+	end
+	
 	local function GetScore(unitorguid, useCallback)
 		-- local guid = getPlayerGUID(unitorguid)
 		local guid = unitorguid -- added
@@ -5513,14 +5556,14 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 					-- return 0,0
 				-- end
 			-- end
-
+			
 			local PlayerClass, PlayerEnglishClass = GetPlayerInfoByGUID(guid)
 			local GearScore = 0
 			local ItemCount = 0
 			local LevelTotal = 0
 			local TitanGrip = 1
 			local IsReady = true
-
+			
 			-- local mainHandItem = CI:GetInventoryItemMixin(guid, 16)
 			-- local offHandItem = CI:GetInventoryItemMixin(guid, 17)
 			local mainHandItem = items[16] and items[16].item -- added
@@ -5533,7 +5576,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 			if (useCallback) then
 				cb_table = {["guid"] = guid, ["items"] = {}}
 			end
-
+			
 			if (mainHandItem) then
 				if (mainHandItem:IsItemDataCached()) then
 					mainHandLink = mainHandItem:GetItemLink()
@@ -5570,14 +5613,14 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 					end
 				end
 			end
-
+			
 			if (mainHandLink and offHandLink) then
 				local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = C_Item.GetItemInfo(mainHandLink)
 				if (ItemEquipLoc == "INVTYPE_2HWEAPON") then
 					TitanGrip = 0.5
 				end
 			end
-
+			
 			if (offHandLink) then
 				local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = C_Item.GetItemInfo(offHandLink)
 				if (ItemEquipLoc == "INVTYPE_2HWEAPON") then
@@ -5591,7 +5634,7 @@ function LFF_GetTacoTipGearScoreFromItemData(unitID, unitGUID, items)
 				ItemCount = ItemCount + 1
 				LevelTotal = LevelTotal + ItemLevel
 			end
-
+			
 			for i = 1, 18 do
 				if ( i ~= 4 ) and ( i ~= 17 ) then
 					-- local item = CI:GetInventoryItemMixin(guid, i)
