@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 61; -- bump on changes
+local LIB_MINOR = 62; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3245,7 +3245,11 @@ function LibFroznFunctions:GetLineTextFromGameTooltipByLine(tipLine, nilIfSecret
 	-- get line text from GameTooltip by line
 	local tipLineText = tipLine:GetText();
 	
-	return (nilIfSecretValue and self:IsSecretValue(tipLineText) and nil or tipLineText);
+	if (nilIfSecretValue) and (self:IsSecretValue(tipLineText)) then
+		tipLineText = nil;
+	end
+	
+	return tipLineText;
 end
 
 -- get double line text from GameTooltip (TextLeft, TextRight) by double line
@@ -3258,7 +3262,16 @@ function LibFroznFunctions:GetDoubleLineTextFromGameTooltipByDoubleLine(tipLineL
 	local tipLineLeftText = (tipLineLeft or nil) and tipLineLeft:GetText();
 	local tipLineRightText = (tipLineRight or nil) and tipLineRight:GetText();
 	
-	return (nilIfSecretValue and self:IsSecretValue(tipLineLeftText) and nil or tipLineLeftText), (nilIfSecretValue and self:IsSecretValue(tipLineRightText) and nil or tipLineRightText);
+	if (nilIfSecretValue) then
+		if (self:IsSecretValue(tipLineLeftText)) then
+			tipLineLeftText = nil;
+		end
+		if (self:IsSecretValue(tipLineRightText)) then
+			tipLineRightText = nil;
+		end
+	end
+	
+	return tipLineLeftText, tipLineRightText;
 end
 
 -- get line text from GameTooltip (TextLeft)
