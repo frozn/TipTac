@@ -198,11 +198,7 @@ end
 -- Add target
 local function AddTarget(lineList,target,targetName)
 	local isPlayerTarget = UnitIsUnit("player", target);
-	if (LibFroznFunctions:IsSecretValue(isPlayerTarget)) then
-		isPlayerTarget = false;
-	end
-	
-	if (isPlayerTarget) then
+	if (not LibFroznFunctions:IsSecretValue(isPlayerTarget)) and (isPlayerTarget) then
 		lineList:Push(HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(cfg.targetYouText));
 	else
 		local targetReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(target)]));
@@ -262,20 +258,21 @@ function ttStyle:GenerateTargetedByLines(unitRecord)
 	for i = 1, numUnits do
 		local unit = inGroup and (inRaid and "raid"..i or "party"..i) or (nameplates[i].namePlateUnitToken or "nameplate"..i);
 		local unitTargettingUnit = UnitIsUnit(unit.."target", unitRecord.id);
-		local isPlayerUnit = UnitIsUnit(unit, "player");
-		if (LibFroznFunctions:IsSecretValue(isPlayerUnit)) then
-			isPlayerUnit = false;
-		end
-		if (not LibFroznFunctions:IsSecretValue(unitTargettingUnit)) and (unitTargettingUnit) and (not isPlayerUnit) then
-			local unitName = UnitName(unit);
+		
+		if (not LibFroznFunctions:IsSecretValue(unitTargettingUnit)) and (unitTargettingUnit) then
+			local isPlayerUnit = UnitIsUnit(unit, "player");
 			
-			if (UnitIsPlayer(unit)) then
-				local unitClassID = select(3, UnitClass(unit));
-				local unitClassColor = LibFroznFunctions:GetClassColor(unitClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targetedBy;
-				lineTargetedBy:Push(unitClassColor:WrapTextInColorCode(unitName));
-			else
-				local unitReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(unit)]));
-				lineTargetedBy:Push(unitReactionColor:WrapTextInColorCode(unitName));
+			if (not LibFroznFunctions:IsSecretValue(isPlayerUnit)) and (not isPlayerUnit) then
+				local unitName = UnitName(unit);
+				
+				if (UnitIsPlayer(unit)) then
+					local unitClassID = select(3, UnitClass(unit));
+					local unitClassColor = LibFroznFunctions:GetClassColor(unitClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targetedBy;
+					lineTargetedBy:Push(unitClassColor:WrapTextInColorCode(unitName));
+				else
+					local unitReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(unit)]));
+					lineTargetedBy:Push(unitReactionColor:WrapTextInColorCode(unitName));
+				end
 			end
 		end
 	end
