@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 62; -- bump on changes
+local LIB_MINOR = 63; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -403,7 +403,16 @@ end
 function LibFroznFunctions:GetUnitFromTooltip(tooltip)
 	-- since df 10.0.2
 	if (TooltipUtil) then
-		return TooltipUtil.GetDisplayedUnit(tooltip);
+		if tooltip:IsTooltipType(Enum.TooltipDataType.Unit) then -- see TooltipUtil.GetDisplayedUnit() in "TooltipUtil.lua"
+			local tooltipData = tooltip:GetPrimaryTooltipData();
+			local guid = tooltipData.guid;
+			local unit = guid and UnitTokenFromGUID(guid);
+			-- local name = unit and UnitName(unit); -- removed
+			local name = (not self:IsSecretValue(unit)) and unit and UnitName(unit); -- added
+			return name, unit, guid;
+		end
+		
+		return;
 	end
 	
 	-- before df 10.0.2
