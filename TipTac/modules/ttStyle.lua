@@ -620,7 +620,7 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	-- Current Unit Speed
 	if (cfg.showCurrentUnitSpeed) then
 		local currentUnitSpeed = GetUnitSpeed(unitRecord.id);
-		if (currentUnitSpeed > 0) then
+		if (not LibFroznFunctions:IsSecretValue(currentUnitSpeed)) and (currentUnitSpeed > 0) then
 			lineLevel:Push(" " .. CreateAtlasMarkup("glueannouncementpopup-arrow"));
 			lineLevel:Push(TT_COLOR.text.unitSpeed:WrapTextInColorCode(format("%.0f%%", currentUnitSpeed / BASE_MOVEMENT_SPEED * 100)));
 		end
