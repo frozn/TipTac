@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 63; -- bump on changes
+local LIB_MINOR = 64; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -4611,7 +4611,7 @@ function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
 	
 	-- get record in unit cache
 	local unitCacheRecord = unitCache[unitGUID];
-	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
 	
 	if (unitCacheRecord) then
 		-- update record in unit cache if a valid unit id is available
