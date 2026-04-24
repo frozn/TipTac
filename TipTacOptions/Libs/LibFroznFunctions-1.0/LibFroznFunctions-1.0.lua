@@ -5131,7 +5131,7 @@ function LFF_GetAverageItemLevelFromItemData(unitID, callbackForItemData, unitGU
 	if (callbackForItemData) and (unitGUID) then
 		local _unitGUID = UnitGUID(unitID);
 		
-		if (_unitGUID ~= unitGUID) then
+		if (LibFroznFunctions:IsSecretValue(_unitGUID)) or (_unitGUID ~= unitGUID) then
 			return;
 		end
 	end
