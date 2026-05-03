@@ -168,7 +168,7 @@ local ttOptionsColors = {
 	{ type = "Color", var = "colorFactionHorde", label = "Horde Faction Text Color", tip = "Color of the Horde faction text", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("factionText") and factory:GetConfigValue("enableColorFaction") end },
 	{ type = "Color", var = "colorFactionNeutral", label = "Neutral Faction Text Color", tip = "Color of the Neutral faction text", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("factionText") and factory:GetConfigValue("enableColorFaction") end },
 	
-	{ type = "Check", var = "classColoredBorder", label = "Color Tip Border by Class Color", tip = "For players, the border color will be colored to match the color of their class\nNOTE: This option overrides reaction colored border", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, y = 10 },
+	{ type = "Check", var = "classColoredBorder", label = "Color Border by Class Color", tip = "For players, the border color will be colored to match the color of their class\nNOTE: This option overrides reaction colored border", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, y = 10 },
 	
 	{ type = "Header", label = "Custom Class Colors" },
 	
@@ -525,7 +525,7 @@ local options = {
 	{
 		category = "Reactions",
 		options = {
-			{ type = "Check", var = "reactColoredBorder", label = "Color border based on the unit's reaction", tip = "Same as the above option, just for the border\nNOTE: This option is overridden by class colored border", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
+			{ type = "Check", var = "reactColoredBorder", label = "Color border based on the unit's reaction", tip = "For players, the border color will be colored based on the unit's reaction\nNOTE: This option is overridden by class colored border", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
 			{ type = "Check", var = "reactIcon", label = "Show the unit's reaction as icon", tip = "This option makes the tip show the unit's reaction as an icon right behind the level", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end },
 			
 			{ type = "Check", var = "reactText", label = "Show the unit's reaction as text", tip = "With this option on, the reaction of the unit will be shown as text below the level line", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 },
