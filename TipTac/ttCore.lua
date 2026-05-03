@@ -2394,7 +2394,12 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	isSettingScaleToTip = false;
 	
 	-- check if insecure interaction with the tip is currently forbidden
-	if (tip:IsForbidden()) or (LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
+	if (tip:IsForbidden()) or
+			(tip.isEmbedded) and (tip.Tooltip) and -- see EmbeddedItemTooltip_UpdateSize() in "GameTooltip.lua"
+				((tip.Tooltip:IsForbidden()) or
+				(tip.Tooltip:IsShown()) and
+					((LibFroznFunctions:IsSecretValue(tip.Tooltip:GetWidth())) or (LibFroznFunctions:IsSecretValue(tip.Icon:GetWidth())))) or
+			(LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
 		return;
 	end
 	
