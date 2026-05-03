@@ -2400,6 +2400,7 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 				(tip.Tooltip:IsShown()) and
 					((LibFroznFunctions:IsSecretValue(tip.Tooltip:GetWidth())) or (LibFroznFunctions:IsSecretValue(tip.Icon:GetWidth())))) or
 			(LibFroznFunctions:IsSecretValue(tip:GetWidth())) then
+		
 		return;
 	end
 	
@@ -3661,7 +3662,11 @@ function tt:SetAnchorToTip(tip)
 	elseif (anchorType == "parent") then
 		local parentFrame = currentDisplayParams.defaultAnchoredParentFrame;
 		
-		if (parentFrame) and (not parentFrame:IsForbidden()) and (not LibFroznFunctions:IsSecretValue(parentFrame:GetWidth())) and (parentFrame ~= UIParent) then
+		if (parentFrame) and
+				(not parentFrame:IsForbidden()) and (not LibFroznFunctions:IsSecretValue(parentFrame:GetWidth())) and
+				(not UIParent:IsForbidden()) and (not LibFroznFunctions:IsSecretValue(UIParent:GetWidth())) and
+				(parentFrame ~= UIParent) then
+			
 			-- anchor to the opposite edge of the parent frame
 			offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
 			
