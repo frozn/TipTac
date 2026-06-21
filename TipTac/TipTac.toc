@@ -1,4 +1,4 @@
-## Interface: 120005
+## Interface: 120007
 ## Version: 26.05.03
 ## IconTexture: Interface\AddOns\TipTac\media\tiptac_logo
 ## Title: TipTac
