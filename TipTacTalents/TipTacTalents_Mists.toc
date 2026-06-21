@@ -1,4 +1,4 @@
-## Interface: 50503
+## Interface: 50504
 ## Version: 26.05.03
 ## IconTexture: Interface\AddOns\TipTacTalents\media\tiptac_logo
 ## Title: TipTacTalents
