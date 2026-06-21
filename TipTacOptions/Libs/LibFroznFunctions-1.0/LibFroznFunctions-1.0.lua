@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 64; -- bump on changes
+local LIB_MINOR = 65; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -4566,6 +4566,13 @@ function LibFroznFunctions:InspectUnit(unitID, callbackForInspectData, removeCal
 	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
+		return;
+	end
+	
+	-- unknown if it's the or a player unit
+	local isSelf = UnitIsUnit(unitID, "player");
+	
+	if (self:IsSecretValue(isSelf)) then
 		return;
 	end
 	
