@@ -2966,17 +2966,10 @@ function LinkTypeFuncs:spell(isAura, source, link, linkType, spellID)
 		local spellColor = nil;
 		
 		if (mawPowerID and spellID) then
-			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
-			if (rarityAtlas) then
-				local rarityAtlasColors = { -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
-					["jailerstower-animapowerlist-powerborder-white"] = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Common),
-					["jailerstower-animapowerlist-powerborder-green"] = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Uncommon),
-					["jailerstower-animapowerlist-powerborder-blue"] = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Rare),
-					["jailerstower-animapowerlist-powerborder-purple"] = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Epic)
-				};
-				if (rarityAtlasColors[rarityAtlas]) then
-					spellColor = rarityAtlasColors[rarityAtlas].color;
-				end
+			local rarityID, rarityAtlas = C_Spell.GetMawPowerRarityInfoBySpellID(spellID);
+			
+			if (rarityID) then
+				spellColor = LibFroznFunctions:GetItemQualityColor(rarityID);
 			end
 		end
 		
@@ -3037,17 +3030,10 @@ function LinkTypeFuncs:mawpower(link, linkType, mawPowerID)
 		local spellColor = nil;
 		
 		if (mawPowerID and spellID) then
-			local rarityAtlas = C_Spell.GetMawPowerBorderAtlasBySpellID(spellID);
-			if (rarityAtlas) then
-				if (rarityAtlas == "jailerstower-animapowerlist-powerborder-white") then -- see table UiTextureAtlasElement name "jailerstower-animapowerlist-powerborder*"
-					spellColor = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Common);
-				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-green") then
-					spellColor = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Uncommon);
-				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-blue") then
-					spellColor = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Rare);
-				elseif (rarityAtlas == "jailerstower-animapowerlist-powerborder-purple") then
-					spellColor = LibFroznFunctions:GetItemQualityColor(LFF_ITEM_QUALITY.Epic);
-				end
+			local rarityID, rarityAtlas = C_Spell.GetMawPowerRarityInfoBySpellID(spellID);
+			
+			if (rarityID) then
+				spellColor = LibFroznFunctions:GetItemQualityColor(rarityID);
 			end
 		end
 		

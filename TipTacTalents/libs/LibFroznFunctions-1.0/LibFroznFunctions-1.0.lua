@@ -3617,6 +3617,11 @@ function LibFroznFunctions:FontExists(fontFile)
 		return false;
 	end
 	
+	-- use blizzard function, since mn 12.0.7
+	if (C_UIFileAsset) and (C_UIFileAsset.GetFileID) then
+		return (C_UIFileAsset.GetFileID(fontFile) ~= nil);
+	end
+	
 	-- check if font file equals original test font file
 	local originalTestFontFile = "Fonts\\ARIALN.TTF";
 	
@@ -3651,6 +3656,11 @@ function LibFroznFunctions:TextureExists(textureFile)
 	-- invalid texture file
 	if (type(textureFile) ~= "string") and (type(textureFile) ~= "number") then
 		return false;
+	end
+	
+	-- use blizzard function, since mn 12.0.7
+	if (C_UIFileAsset) and (C_UIFileAsset.GetFileID) then
+		return (C_UIFileAsset.GetFileID(textureFile) ~= nil);
 	end
 	
 	-- create frame
@@ -3784,7 +3794,7 @@ function LibFroznFunctions:GetUnitIDFromGUID(unitGUID)
 	
 	if (numMembers > 0) then
 		for i = 1, numMembers do
-			checkUnitID = (inRaid and "raid" .. i or "party" .. i);
+			checkUnitID = (isInRaid and "raid" .. i or "party" .. i);
 			
 			if (UnitGUID(checkUnitID) == unitGUID) then
 				return checkUnitID, unitName;
