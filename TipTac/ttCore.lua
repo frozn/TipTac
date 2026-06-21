@@ -1212,9 +1212,10 @@ TT_ExtendedConfig.tipsToModify = {
 						
 						BMI_isAdjustingTipsSizeAndPosition = true;
 						self:AdjustSizeAndPosition(tooltip);
-						BMI_isAdjustingTipsSizeAndPosition = false;
 						
 						self.db.profile.scale = BMI_oldScale;
+						
+						BMI_isAdjustingTipsSizeAndPosition = false;
 					end);
 				end
 			end
@@ -2498,7 +2499,6 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	-- set scale to tip
 	isSettingScaleToTip = true;
 	tip:SetScale(newTipScale);
-	isSettingScaleToTip = false;
 	
 	currentDisplayParams.lastTipScale = newTipScale;
 	
@@ -2506,6 +2506,8 @@ function tt:SetScaleToTip(tip, noFireGroupEvent)
 	if (not noFireGroupEvent) then
 		LibFroznFunctions:FireGroupEvent(MOD_NAME, "OnTipRescaled", TT_CacheForFrames, tip, currentDisplayParams);
 	end
+	
+	isSettingScaleToTip = false;
 end
 
 -- set gradient to tip
@@ -2793,13 +2795,14 @@ function tt:SetBackdropToTip(tip)
 	-- set backdrop to tip
 	isSettingBackdropToTip = true;
 	self:SetBackdropLocked(tip, TT_ExtendedConfig.tipBackdrop);
-	isSettingBackdropToTip = false;
 	
 	-- set backdrop and backdrop border color to tip
 	self:SetBackdropAndBackdropBorderColorToTip(tip)
 	
 	-- set padding to tip
 	self:SetPaddingToTip(tip);
+	
+	isSettingBackdropToTip = false;
 end
 
 -- set backdrop and backdrop border color to tip
