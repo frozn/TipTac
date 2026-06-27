@@ -4686,8 +4686,8 @@ function LibFroznFunctions:InspectUnit(unitID, callbackForInspectData, removeCal
 		self:RemoveCallbackFromQueuedInspectCallbacks(callbackForInspectData);
 	end
 	
-	-- no unit id or not a player
-	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
+	-- no valid unit id, no unit id or not a player
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
 		return;
@@ -4742,16 +4742,16 @@ function frameForDelayedInspection:GetUnitCacheRecord(unitID, unitGUID)
 	
 	-- get record in unit cache
 	local unitCacheRecord = unitCache[unitGUID];
+	
+	-- create/update record in unit cache if a valid unit id is available
 	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
 	
-	if (unitCacheRecord) then
-		-- update record in unit cache if a valid unit id is available
-		if (isValidUnitID) then
+	if (isValidUnitID) then
+		if (unitCacheRecord) then
+			-- update record in unit cache
 			unitCacheRecord = LibFroznFunctions:GetUnitRecordFromCache(unitID);
-		end
-	else
-		-- create record in unit cache if a valid unit id is available
-		if (isValidUnitID) then
+		else
+			-- create record in unit cache
 			unitCacheRecord = frameForDelayedInspection:CreateUnitCacheRecord(unitID, unitGUID);
 		end
 	end
@@ -4789,8 +4789,8 @@ end
 -- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
 -- @return true if inspection is possible, false otherwise.
 function LibFroznFunctions:CanInspect(unitID)
-	-- no unit id or not a player
-	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
+	-- no valid unit id, no unit id or not a player
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
 		return false;
@@ -5028,8 +5028,8 @@ LFF_TALENTS = {
 };
 
 function LibFroznFunctions:AreTalentsAvailable(unitID, isSelf)
-	-- no unit id or not a player
-	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
+	-- no valid unit id, no unit id or not a player
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
 		return;
@@ -5184,8 +5184,8 @@ LFF_AVERAGE_ITEM_LEVEL = {
 };
 
 function LibFroznFunctions:IsAverageItemLevelAvailable(unitID)
-	-- no unit id or not a player
-	local isValidUnitID = (unitID) and (UnitIsPlayer(unitID));
+	-- no valid unit id, no unit id or not a player
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
 	
 	if (not isValidUnitID) then
 		return;
