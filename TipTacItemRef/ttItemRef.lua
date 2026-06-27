@@ -697,8 +697,8 @@ local function SetUnitAura_Hook(self, alternateFilterIfNotDefined, unit, index, 
 	end
 end
 
--- HOOK: SetUnitBuffByAuraInstanceID + SetUnitDebuffByAuraInstanceID
-local function SetUnitBuffByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
+-- HOOK: SetUnitAuraByAuraInstanceID + SetUnitBuffByAuraInstanceID + SetUnitDebuffByAuraInstanceID
+local function SetUnitAuraByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) then
 		local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, auraInstanceID);
 		if (aura) then
@@ -2061,8 +2061,10 @@ function ttif:ApplyHooksToTips(tips, resolveGlobalNamedObjects, addToTipsToModif
 				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetQuestPartyProgress", SetQuestPartyProgress_Hook);
 				-- LibFroznFunctions:HookSecureFuncIfExists(tip, "SetRecipeReagentItem", SetRecipeReagentItem_Hook); -- #todo: temporary disabled, see https://github.com/frozn/TipTac/issues/478
 				-- since df
-				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitBuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
-				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitDebuffByAuraInstanceID", SetUnitBuffByAuraInstanceID_Hook);
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitBuffByAuraInstanceID", SetUnitAuraByAuraInstanceID_Hook);
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitDebuffByAuraInstanceID", SetUnitAuraByAuraInstanceID_Hook);
+				-- since mn
+				LibFroznFunctions:HookSecureFuncIfExists(tip, "SetUnitAuraByAuraInstanceID", SetUnitAuraByAuraInstanceID_Hook);
 				
 				LibFroznFunctions:HookScriptOnTooltipSetUnit(tip, OnTooltipSetUnit);
 				LibFroznFunctions:HookScriptOnTooltipSetItem(tip, OnTooltipSetItem);
