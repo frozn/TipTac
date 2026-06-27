@@ -3656,14 +3656,27 @@ function tt:SetAnchorToTip(tip)
 		end
 	end
 	
+	local function anchorFn(anchorPoint, mirrorAnchorPoint, anchorFrame, targetFrame, referenceFrame)
+		local offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, anchorFrame, targetFrame, referenceFrame);
+		
+		if (not offsetX) or (not offsetY) then
+			return false;
+		end
+		
+		targetFrame:ClearAllPoints();
+		
+		if (mirrorAnchorPoint) then
+			targetFrame:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), referenceFrame, anchorPoint, offsetX, offsetY);
+		else
+			targetFrame:SetPoint(anchorPoint, referenceFrame, offsetX, offsetY);
+		end
+		
+		return true;
+	end
+	
 	if (anchorType == "normal") then
 		-- "normal" anchor
-		offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
-		
-		if (offsetX) and (offsetY) then
-			tip:ClearAllPoints();
-			tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
-		end
+		anchorFn(anchorPoint, false, tt, tip, UIParent);
 	elseif (anchorType == "mouse") then
 		-- although we anchor the tip continuously in OnUpdate, we must anchor it initially here to avoid flicker on the first frame its being shown.
 		self:AnchorTipToMouse(tip);
@@ -3672,26 +3685,17 @@ function tt:SetAnchorToTip(tip)
 	elseif (anchorType == "parent") then
 		local parentFrame = currentDisplayParams.defaultAnchoredParentFrame;
 		
-		if (parentFrame) and
-				(not parentFrame:IsForbidden()) and (not LibFroznFunctions:IsSecretValue(parentFrame:GetWidth())) and
-				(not UIParent:IsForbidden()) and (not LibFroznFunctions:IsSecretValue(UIParent:GetWidth())) and
-				(parentFrame ~= UIParent) then
-			
+		if (parentFrame) and (parentFrame ~= UIParent) then
 			-- anchor to the opposite edge of the parent frame
-			offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, parentFrame, tip, UIParent);
+			local anchored = anchorFn(anchorPoint, true, parentFrame, tip, UIParent);
 			
-			if (offsetX) and (offsetY) then
-				tip:ClearAllPoints();
-				tip:SetPoint(LibFroznFunctions:MirrorAnchorPointCentered(anchorPoint), UIParent, anchorPoint, offsetX, offsetY);
+			-- fallback to "normal" anchor in case insecure interaction with the frames is currently forbidden or parent frame is currently protected
+			if (not anchored) then
+				anchorFn(anchorPoint, false, tt, tip, UIParent);
 			end
 		else
 			-- fallback to "normal" anchor in case parent frame isn't available or is UIParent
-			offsetX, offsetY = LibFroznFunctions:GetOffsetsForAnchorPoint(anchorPoint, tt, tip, UIParent);
-			
-			if (offsetX) and (offsetY) then
-				tip:ClearAllPoints();
-				tip:SetPoint(anchorPoint, UIParent, offsetX, offsetY);
-			end
+			anchorFn(anchorPoint, false, tt, tip, UIParent);
 		end
 	end
 	
