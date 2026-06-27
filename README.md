@@ -20,110 +20,11 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 
 * based on latest version v20.11.04 from Nov 4, 2020 of the original [TipTac by Aezay](https://www.curseforge.com/wow/addons/tip-tac)
 * added fixes for WoW patch ...
-  * 12.0.5 - The War Within [retail/MN]
-  * 5.5.3 - Mists of Pandaria Classic [classic/MoPC]
+  * 12.0.7 - The War Within [retail/MN]
+  * 5.5.4 - Mists of Pandaria Classic [classic/MoPC]
   * 2.5.5 - Burning Crusade Classic [anniversary/TBC]
   * 1.15.8 - Vanilla [classic era/Vanilla]
 * added many enhancements
-
-### The following problems are fixed respectively enhancements were added
-
-- added minimap icon
-- support for LibDataBroker
-- lua errors regarding SetBackdropColor(), SetBackdropBorderColor(), GetRaidTargetIndex() (if icons are enabled), SetPoint()
-- background colors
-- border colors, also based on unit class or item quality. Additionally the border colors are now "non sticky" if you move your mouse e.g. over items and then over spells.
-- backdrop of compare item tooltips, item links and other addons using tiptac to modify tooltips or frames.
-- considered new nineslice layout. default tooltip backdrop will be changed with configured backdrop. further styling (background/border texture and backdrop edge size) and 100% solid background is now possible again.
-- change between normal and mouse anchors works now while moving your mouse over the corresponding elements.
-- prevented flickering of tooltips over buffs if "Anchors->Frame Tip Type" = "Mouse Anchor"
-- fixed flickering of tooltip when selecting an item or illusion at transmogrifier if "Anchors->Frame Tip Type" = "Mouse Anchor"
-- fixed wrong placement for item comparison tooltips if "Anchors->Frame Tip Type" = "Mouse Anchor".
-- added refresh anchoring of shopping tooltips after re-anchoring of tip to prevent overlapping tooltips
-- changed default position of tooltip's normal anchor to blizzards default tooltip anchor instead of center of screen
-- added restoring to default font settings when disabling "Font->Modify the GameTooltip Font Templates" without the need to reload the ui for the setting to take effect.
-- added styling of tooltips for battle pet, battle pet ability, pet battle, auras from standard nameplate, DropDownList1/2, FriendsTooltip, embedded tooltip, contribution buff (e.g. for contribution reward at legionfall construction table), queue status frame (e.g. for lfg/lfr), trading post (introduced with df 10.0.5), wow settings, barbershop, AceConfigDialog-3.0, LibDBIcon, LibUIDropDownMenu-4.0, LibDropDownMenu, LibDropdown, LibDropdownMC, LibQTip, LibExtraTip, auras from addon Plater, tooltips from addon ElvUI, OPie and RaiderIO
-- changes regarding config option "Hyperlink->Enable (Guild & Community) ChatFrame Hover Hyperlinks":
-  - fixed hooking/unhooking of chatframe if toggling option
-  - added mouseover for guild/community->chat, battle pets, battle pet abilities, illusions (from Wardrobe)
-  - added mouseover for chatlinks: torghast anima power, transmog item/set, azerite essences, dungeon score and instance lock
-- added class border color for member list in guild/community->chat and guild/community->guild roster, dungeon score tooltip and attendees in LFG list if config option "Colors->Color Border by Class Color" is checked
-- changes regarding (added) config options under "ItemRef":
-  - added border color for spells, unit auras, tradeskills, currencies (in chatframe), achievements, guild challenges (in guild/community->info) and pvp enlistment bonus (in pvp->quick match)
-  - added border color and infos for battle pet, battle pet abilities, (world/party) quests in worldmap/questlog/questtracker, questtracker of addon WorldQuestTracker, trade skill reagents (in TradeSkillUI), toys (in ToyBox), items, illusions and sets (in Wardrobe), sets (at Transmogrifier), currencies, achievements in guild/community->info->news, rewards in quest(log)/LFG-browser, azerite essences, runeforge power (in adventure journal), (enhanced) conduits, spells in macros on action bar, torghast anima powers, mini achievement shields in achievement buttons, items/illusions in dress up frame, flyouts (e.g. mage portals), pet actions, keystones (including RewardLevel, WeeklyRewardLevel, ItemID, TimeLimit and AffixDescriptions), instance locks
-  - fixed "Smart Icon Appearance" for mounts and mount equipment (in mount journal), items (in adventure journal), spells and items (in guild/community->perks)
-- added scroll frame to config options. the scroll bar appears automatically, if content doesn't fit completely on the page.
-- applied transparency from standard backdrop and backdrop border to special backdrop and backdrop border
-- fixed timewalking enemy tooltip level color
-- added option for pixel perfect tooltip backdrop (edge size and insets) to fix 1-pixel borders which are sometimes 2 pixels wide
-- added icons to item comparison tooltips (ShoppingTooltip1/ShoppingTooltip2 and ItemRefShoppingTooltip1/ItemRefShoppingTooltip2)
-- fixed fading issues with tooltip
-- fixed hooking tips if event VARIABLES_LOADED from TipTacItemRef fired before the one from TipTac
-- fixed sometimes flickering tooltip if moving with flying mount and "Anchors->Frame Tip Type" = "Mouse Anchor"
-- added anchors and offsets for ItemRef icon (thx to NoBetaBoredom for PR)
-- added showing of role and talent/specialization icon, coloring talents by class color, average item level, the de facto standard GearScore algorithm from addon TacoTip and TipTac's own implementation of GearScore to TipTacTalents. scanning/inspecting of units completely rewritten.
-- completely rewritten ttCore, ttBars, ttAuras, ttHyperlink and ttIcons. also applied necessary changes to ttStyle.
-- scanning/inspecting of talents and average item level completely rewritten
-- added option in "Anchors" to override anchor for world/frame units/tips during challenge mode (in/out of combat), during an instance (in/out of combat), during skyriding or in combat and (Guild & Community, addon WIM) ChatFrame
-- added option "Backdrop->Enable Backdrop Modifications" to enable/disable all backdrop modifications
-- added option "Backdrop->BG Texture Layout" to set if the background texture should be repeated or stretched to fit the tip
-- added option "Hiding->Hide Tips Out Of Combat" and "Hiding->Hide Tips In Combat" to hide frame/world unit tips or unit/spell/item/action-bar/experience-bar tips during challenge mode (in/out of combat), during an instance (in/out of combat), during skyriding or in/out of combat
-- added option "Hiding->Hide Shopping Tips of Dungeon/Raid/Set Items in Adventure Guide"
-- added option "General->Show Player Guild Realm" to show player guild realm if the guild is from a foreign realm
-- added option "General->Show Player Guild Rank" to show/hide guild name/rank
-- added option "General->Show Player Guild Rank->Format Guild Rank" to also show player guild rank level in addition to guild rank title
-- added option "General->Show Player Guild Member/Officer note"
-- added option "General->Show Player Location" to show the map, zone and subzone of player units
-- added option "General->Only show map for party members on a foreign map" 
-- added option "General->Show Mythic+ Dungeon Score" to show mythic+ dungeon score and best run
-- added option "General->Show Mythic+ Forces from Addon Mythic Dungeon Tools (MDT) for NPCs"
-- added option "General->Show Current Unit Speed" to show current unit speed after race & class
-- added option "General->Show Mount" to show the player's mount icon/name/speed/source/lore and an icon indicating if you already have collected the mount
-- added option "Colors->Enable Coloring of Name" to enable/disable coloring of names
-- added option "Colors->Enable Coloring of Faction Text" to change the color of the unit's faction text
-- added option "ItemRef->Show Mount ID" to show the mount id
-- added option "ItemRef->Show Icon ID" to show the icon id
-- added option "ItemRef->Always Show Icon If Stack Count Is Available"
-- added option in "ItemRef" to show stack count of items in tooltip
-- added options "ItemRef->Show Expansion Icon/Name" to show the expansion icon/name of the item. This feature is only available in retail and not in WotLKC or classic era.
-- added option "ItemRef->Show Item Enchant ID/Description"
-- considered debuff border for aura positions
-- splitted options for auras from spells
-- prevented auras from moving off-screen
-- automatically reduce tip's scale if its size exceeds UIParent width/height
-- option "General->Show Who Targets the Unit" now evaluates the visible nameplates when ungrouped
-- added option "Reactions->Show the unit's reaction as icon"
-- added unit reaction for honored, revered and exalted NPCs
-- added option "General->Hide Specialization & Class Text" to strip the specialization & class text from the tooltip introduced with df 10.1.5
-- added option "General->Hide 'Right Click for Frame Settings' Text From Unit Tip" to strip the "right click for frame settings" text from the unit tooltip introduced with tww 11.0.7
-- added option "ItemRef->Hide 'Click for Settings' Text From Currency Tip" to strip the "click for settings" text from the currency tooltip introduced with tww 11.0.0
-- added option "ItemRef->Consider Shopping Tooltip Compare Header" to consider the shopping tooltip compare header introduced with patch tww 11.2.7
-- added option "Bars->Show Cast Bar" to show the cast bar including additional customizing options
-- added option "Bars->Enable Minimum Width for Tooltip If Showing Bars" to set a minimum width for the tooltip if showing bars, so that numbers are not cut off.
-- added option "Icons->Show 'Unit is a Secret Value' Icon" to show a lock icon next to the tip, if the unit is a secret value (since mn 12.0.0).
-- added option "Talents/AIL->Don't show Talents and Average Item Level for players out of range" to suppress the "out of range" message
-- added "enabled"-feature for options. depending options are now grayed out if disabled.
-- added button in options to help reporting bugs or requesting features
-- added button in options to import/export config
-- added showing/hiding of options to WoW's interface options
-- improved stripping the specialization & class text from the tooltip introduced with df 10.1.5
-- improved using custom class colors from other addons if ColorMixin methods are not available
-- stripped creature type text from tooltip for npcs or wild battle pets if creature family isn't available to prevent displaying the creature type twice
-- added feature to enable/disable/set custom class colors in options under "Colors"
-- moved TipTac's config to lib AceDB-3.0 to support different profiles
-- classic: added option "ItemRef->Show Glyph ID"
-- classic: added displaying of spell/icon id for glyph tooltips
-- classic era: fixed lua errors in talents module regarding GetSpecialization() and GetInspectSpecialization()
-- classic era: added missing styling of auras
-- classic era: reactivated talent format option
-- classic era: suppressed error speech/message when calling CanInspect(unit) within TipTacTalents
-- classic era: fixed sometimes missing displaying of level, race, class and talents for unit tooltips
-
-### The following problems aren't fixed
-
-- Padding for embedded tooltips and battle pet (ability) tooltips doesn't work. However, this only becomes a problem if a particularly thick border is set.
-
-If there are additional fixes in the future, I update this note accordingly.
 
 ## Install with CurseForge app
 
