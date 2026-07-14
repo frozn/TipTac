@@ -110,13 +110,13 @@ if (LibFroznFunctions.hasWoWFlavor.GetMountFromSpellNotPossibleInCombat) then
 end
 tinsert(ttOptionsGeneral, option);
 
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountCollected", label = "Collected", tip = "This option makes the tip show an icon indicating if you already have collected the mount.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountText", label = "Name", tip = "This option makes the tip show the mount name.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSourceIfNotCollected", label = "Source If Not Collected", tip = "This option makes the tip show the source of the mount if collected and available.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") and (not factory:GetConfigValue("showMountSource")) end, x = 122 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSource", label = "Source", tip = "This option makes the tip show the source of the mount if available.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122 });
-tinsert(ttOptionsGeneral, { type = "Check", var = "showMountLore", label = "Lore", tip = "This option makes the tip show the lore of the mount if available.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210 });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountCollected", label = "Collected", tip = "This option makes the tip show an icon indicating if you already have collected the mount.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122, belongsTo = "showMount" });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountIcon", label = "Icon", tip = "This option makes the tip show the mount icon.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210, belongsTo = "showMountCollected" });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountText", label = "Name", tip = "This option makes the tip show the mount name.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122, belongsTo = "showMount" });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSpeed", label = "Speed", tip = "This option makes the tip show the mount speed.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210, belongsTo = "showMountText" });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSourceIfNotCollected", label = "Source If Not Collected", tip = "This option makes the tip show the source of the mount if collected and available.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") and (not factory:GetConfigValue("showMountSource")) end, x = 122, belongsTo = "showMount" });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountSource", label = "Source", tip = "This option makes the tip show the source of the mount if available.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 122, belongsTo = "showMount" });
+tinsert(ttOptionsGeneral, { type = "Check", var = "showMountLore", label = "Lore", tip = "This option makes the tip show the lore of the mount if available.", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showMount") end, x = 210, belongsTo = "showMountSource" });
 
 tinsert(ttOptionsGeneral, { type = "DropDown", var = "nameType", label = "Name & Title", list = { ["Name only"] = "normal", ["Name + title"] = "title", ["Copy from original tip"] = "original", ["Mary Sue Protocol"] = "marysueprot" }, enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 });
 tinsert(ttOptionsGeneral, { type = "DropDown", var = "showRealm", label = "Show Unit Realm", tip = "Unit realm will only be shown if the unit is from a foreign realm.", list = { ["|cffffa0a0Do not show realm"] = "none", ["Show realm"] = "show", ["Show realm in new line"] = "showInNewLine", ["Show (*) instead"] = "asterisk" }, enabled = function(factory) return factory:GetConfigValue("showUnitTip") end });
@@ -156,7 +156,7 @@ local ttOptionsColors = {
 	{ type = "Check", var = "colorNameByClass", label = "Color Player Names by Class Color", tip = "With this option on, player names are colored by their class color\nNOTE: This option overrides reaction colored name for players", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end },
 	
 	{ type = "Color", var = "colorGuild", label = "Guild Color", tip = "Color of the guild name, when not using the option to make it the same as reaction color", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") end, y = 10 },
-	{ type = "Color", var = "colorSameGuild", label = "Your Guild Color", tip = "To better recognise players from your guild, you can configure the color of your guild name individually", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") end, x = 120 },
+	{ type = "Color", var = "colorSameGuild", label = "Your Guild Color", tip = "To better recognise players from your guild, you can configure the color of your guild name individually", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") end, x = 120, belongsTo = "colorGuild" },
 	{ type = "Check", var = "colorGuildByReaction", label = "Color Guild by Reaction", tip = "Guild color will have the same color as the reacion", enabled = function(factory) return factory:GetConfigValue("showUnitTip") and factory:GetConfigValue("showGuild") end },
 	
 	{ type = "Color", var = "colorRace", label = "Race & Creature Type Color", tip = "The color of the race and creature type text", enabled = function(factory) return factory:GetConfigValue("showUnitTip") end, y = 10 },
@@ -397,106 +397,106 @@ priority = 0;
 
 if (LibFroznFunctions.hasWoWFlavor.challengeMode) then
 	priority = priority + 1;
-	tinsert(ttOptionsHiding, { type = "Header", label = "Prio #" .. priority .. ": Hide Tips During Challenge Mode" });
+	tinsert(ttOptionsHiding, { type = "Header", var = "hideTipsDuringChallengeModeHeader", label = "Prio #" .. priority .. ": Hide Tips During Challenge Mode" });
 	
-	tinsert(ttOptionsHiding, { type = "TextOnly", label = "In Combat" });
+	tinsert(ttOptionsHiding, { type = "TextOnly", var = "hideTipsDuringChallengeModeInCombat", label = "In Combat", belongsTo = "hideTipsDuringChallengeModeHeader" });
 	
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during challenge mode (Mythic+) in combat.", y = 10 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during challenge mode (Mythic+) in combat.", x = 160 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during challenge mode (Mythic+) in combat." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during challenge mode (Mythic+) in combat.", x = 160 });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during challenge mode (Mythic+) in combat.", y = 10, belongsTo = "hideTipsDuringChallengeModeInCombat" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during challenge mode (Mythic+) in combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeInCombatWorldUnits" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during challenge mode (Mythic+) in combat.", belongsTo = "hideTipsDuringChallengeModeInCombat" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during challenge mode (Mythic+) in combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeInCombatWorldTips" });
 	
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during challenge mode (Mythic+) in combat.", y = 10 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during challenge mode (Mythic+) in combat.", x = 160 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during challenge mode (Mythic+) in combat." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during challenge mode (Mythic+) in combat." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during challenge mode (Mythic+) in combat.", x = 160 });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during challenge mode (Mythic+) in combat.", y = 10, belongsTo = "hideTipsDuringChallengeModeInCombat" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during challenge mode (Mythic+) in combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeInCombatUnitTips" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during challenge mode (Mythic+) in combat.", belongsTo = "hideTipsDuringChallengeModeInCombat" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during challenge mode (Mythic+) in combat.", belongsTo = "hideTipsDuringChallengeModeInCombat" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during challenge mode (Mythic+) in combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeInCombatActionTips" });
 	
-	tinsert(ttOptionsHiding, { type = "TextOnly", label = "Out Of Combat", y = 10 });
+	tinsert(ttOptionsHiding, { type = "TextOnly", var = "hideTipsDuringChallengeMode", label = "Out Of Combat", y = 10, belongsTo = "hideTipsDuringChallengeModeHeader" });
 	
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during challenge mode (Mythic+) out of combat.", y = 10 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during challenge mode (Mythic+) out of combat.", x = 160 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during challenge mode (Mythic+) out of combat." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during challenge mode (Mythic+) out of combat.", x = 160 });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during challenge mode (Mythic+) out of combat.", y = 10, belongsTo = "hideTipsDuringChallengeMode" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during challenge mode (Mythic+) out of combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeWorldUnits" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during challenge mode (Mythic+) out of combat.", belongsTo = "hideTipsDuringChallengeMode" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during challenge mode (Mythic+) out of combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeWorldTips" });
 	
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during challenge mode (Mythic+) out of combat.", y = 10 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during challenge mode (Mythic+) out of combat.", x = 160 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during challenge mode (Mythic+) out of combat." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during challenge mode (Mythic+) out of combat." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during challenge mode (Mythic+) out of combat.", x = 160 });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during challenge mode (Mythic+) out of combat.", y = 10, belongsTo = "hideTipsDuringChallengeMode" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during challenge mode (Mythic+) out of combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeUnitTips" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during challenge mode (Mythic+) out of combat.", belongsTo = "hideTipsDuringChallengeMode" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during challenge mode (Mythic+) out of combat.", belongsTo = "hideTipsDuringChallengeMode" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringChallengeModeExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during challenge mode (Mythic+) out of combat.", x = 160, belongsTo = "hideTipsDuringChallengeModeActionTips" });
 end
 
 priority = priority + 1;
-tinsert(ttOptionsHiding, { type = "Header", label = "Prio #" .. priority .. ": Hide Tips During An Instance" });
+tinsert(ttOptionsHiding, { type = "Header", var = "hideTipsDuringInstanceHeader", label = "Prio #" .. priority .. ": Hide Tips During An Instance" });
 
-tinsert(ttOptionsHiding, { type = "TextOnly", label = "In Combat" });
+tinsert(ttOptionsHiding, { type = "TextOnly", var = "hideTipsDuringInstanceInCombat", label = "In Combat", belongsTo = "hideTipsDuringInstanceHeader" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", y = 10 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", y = 10, belongsTo = "hideTipsDuringInstanceInCombat" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160, belongsTo = "hideTipsDuringInstanceInCombatWorldUnits" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", belongsTo = "hideTipsDuringInstanceInCombat" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160, belongsTo = "hideTipsDuringInstanceInCombatWorldTips" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", y = 10 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", y = 10, belongsTo = "hideTipsDuringInstanceInCombat" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160, belongsTo = "hideTipsDuringInstanceInCombatUnitTips" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", belongsTo = "hideTipsDuringInstanceInCombat" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", belongsTo = "hideTipsDuringInstanceInCombat" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) in combat.", x = 160, belongsTo = "hideTipsDuringInstanceInCombatActionTips" });
 
-tinsert(ttOptionsHiding, { type = "TextOnly", label = "Out Of Combat", y = 10 });
+tinsert(ttOptionsHiding, { type = "TextOnly", var = "hideTipsDuringInstance", label = "Out Of Combat", y = 10, belongsTo = "hideTipsDuringInstanceHeader" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", y = 10 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", y = 10, belongsTo = "hideTipsDuringInstance" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160, belongsTo = "hideTipsDuringInstanceWorldUnits" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", belongsTo = "hideTipsDuringInstance" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160, belongsTo = "hideTipsDuringInstanceWorldTips" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", y = 10 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", y = 10, belongsTo = "hideTipsDuringInstance" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160, belongsTo = "hideTipsDuringInstanceUnitTips" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", belongsTo = "hideTipsDuringInstance" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", belongsTo = "hideTipsDuringInstance" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringInstanceExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during an instance (Dungeon, Raid, PvP, Arena, Scenario) out of combat.", x = 160, belongsTo = "hideTipsDuringInstanceActionTips" });
 
 if (LibFroznFunctions.hasWoWFlavor.skyriding) then
 	priority = priority + 1;
-	tinsert(ttOptionsHiding, { type = "Header", label = "Prio #" .. priority .. ": Hide Tips During Skyriding" });
+	tinsert(ttOptionsHiding, { type = "Header", var = "hideTipsDuringSkyridingHeader", label = "Prio #" .. priority .. ": Hide Tips During Skyriding" });
 	
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during skyriding." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during skyriding.", x = 160 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during skyriding." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during skyriding.", x = 160 });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden during skyriding.", belongsTo = "hideTipsDuringSkyridingHeader" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden during skyriding.", x = 160, belongsTo = "hideTipsDuringSkyridingWorldUnits" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden during skyriding.", belongsTo = "hideTipsDuringSkyridingHeader" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden during skyriding.", x = 160, belongsTo = "hideTipsDuringSkyridingWorldTips" });
 	
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during skyriding.", y = 10 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during skyriding.", x = 160 });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during skyriding." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during skyriding." });
-	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during skyriding.", x = 160 });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden during skyriding.", y = 10, belongsTo = "hideTipsDuringSkyridingHeader" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden during skyriding.", x = 160, belongsTo = "hideTipsDuringSkyridingUnitTips" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden during skyriding.", belongsTo = "hideTipsDuringSkyridingHeader" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden during skyriding.", belongsTo = "hideTipsDuringSkyridingHeader" });
+	tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsDuringSkyridingExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden during skyriding.", x = 160, belongsTo = "hideTipsDuringSkyridingActionTips" });
 end
 
 priority = priority + 1;
-tinsert(ttOptionsHiding, { type = "Header", label = "Prio #" .. priority .. ": Hide Tips In Combat" });
+tinsert(ttOptionsHiding, { type = "Header", var = "hideTipsInCombatHeader", label = "Prio #" .. priority .. ": Hide Tips In Combat" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden in combat.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden in combat.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden in combat.", belongsTo = "hideTipsInCombatHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden in combat.", x = 160, belongsTo = "hideTipsInCombatWorldUnits" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden in combat.", belongsTo = "hideTipsInCombatHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden in combat.", x = 160, belongsTo = "hideTipsInCombatWorldTips" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden in combat.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden in combat.", y = 10, belongsTo = "hideTipsInCombatHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden in combat.", x = 160, belongsTo = "hideTipsInCombatUnitTips" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden in combat.", belongsTo = "hideTipsInCombatHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden in combat.", belongsTo = "hideTipsInCombatHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsInCombatExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden in combat.", x = 160, belongsTo = "hideTipsInCombatActionTips" });
 
-tinsert(ttOptionsHiding, { type = "Header", label = "Prio #" .. priority .. ": Hide Tips Out Of Combat" });
+tinsert(ttOptionsHiding, { type = "Header", var = "hideTipsHeader", label = "Prio #" .. priority .. ": Hide Tips Out Of Combat" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsWorldUnits", label = "Hide World Units", tip = "When you have this option checked, World Units will be hidden.", belongsTo = "hideTipsHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsFrameUnits", label = "Hide Frame Units", tip = "When you have this option checked, Frame Units will be hidden.", x = 160, belongsTo = "hideTipsWorldUnits" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsWorldTips", label = "Hide World Tips", tip = "When you have this option checked, World Tips will be hidden.", belongsTo = "hideTipsHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsFrameTips", label = "Hide Frame Tips", tip = "When you have this option checked, Frame Tips will be hidden.", x = 160, belongsTo = "hideTipsWorldTips" });
 
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden.", y = 10 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160 });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden." });
-tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden.", x = 160 });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsUnitTips", label = "Hide Unit Tips", tip = "When you have this option checked, Unit Tips will be hidden.", y = 10, belongsTo = "hideTipsHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsSpellTips", label = "Hide Spell Tips", tip = "When you have this option checked, Spell Tips will be hidden.", x = 160, belongsTo = "hideTipsUnitTips" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsItemTips", label = "Hide Item Tips", tip = "When you have this option checked, Item Tips will be hidden.", belongsTo = "hideTipsHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsActionTips", label = "Hide Action Bar Tips", tip = "When you have this option checked, Action Bar Tips will be hidden.", belongsTo = "hideTipsHeader" });
+tinsert(ttOptionsHiding, { type = "Check", var = "hideTipsExpBarTips", label = "Hide Exp Bar Tips", tip = "When you have this option checked, Experience Bar Tips will be hidden.", x = 160, belongsTo = "hideTipsActionTips" });
 
 if (LibFroznFunctions:IsAddOnEnabled("Blizzard_EncounterJournal")) then
 	tinsert(ttOptionsHiding, { type = "Header", label = "Hide Other Tips" });
@@ -578,9 +578,9 @@ local options = {
 			{ type = "Check", var = "pixelPerfectBackdrop", label = "Pixel Perfect Backdrop Edge Size and Insets", tip = "Backdrop Edge Size and Insets corresponds to real pixels", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
 			
 			{ type = "Color", var = "tipColor", label = "Tip Background Color", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, y = 10 },
-			{ type = "Color", var = "tipBorderColor", label = "Tip Border Color", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, x = 160 },
+			{ type = "Color", var = "tipBorderColor", label = "Tip Border Color", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end, x = 160, belongsTo = "tipColor" },
 			{ type = "Check", var = "gradientTip", label = "Show Gradient Tooltips", tip = "Display a small gradient area at the top of the tip to add a minor 3D effect to it. If you have an addon like Skinner, you may wish to disable this to avoid conflicts", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") end },
-			{ type = "Color", var = "gradientColor", label = "Gradient Color", tip = "Select the base color for the gradient", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") and factory:GetConfigValue("gradientTip") end, x = 160 },
+			{ type = "Color", var = "gradientColor", label = "Gradient Color", tip = "Select the base color for the gradient", enabled = function(factory) return factory:GetConfigValue("enableBackdrop") and factory:GetConfigValue("gradientTip") end, x = 160, belongsTo = "gradientTip" },
 			{ type = "Slider", var = "gradientHeight", label = "Gradient Height", min = 0, max = 64, step = 0.5, enabled = function(factory) return factory:GetConfigValue("enableBackdrop") and factory:GetConfigValue("gradientTip") end },
 		}
 	},
@@ -636,7 +636,7 @@ local options = {
 			{ type = "Check", var = "healthBar", label = "Show Health Bar", tip = "Will show a health bar of the unit." .. (LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue and ".\nNOTE: Fallback to the default health bar, if the unit is a secret value." or ""), enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			{ type = "DropDown", var = "healthBarText", label = "Health Bar Text", list = DROPDOWN_BARTEXTFORMAT, enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
 			{ type = "Color", var = "healthBarColor", label = "Health Bar Color", tip = "The color of the health bar. Has no effect for players with the option above enabled", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end },
-			{ type = "Check", var = "healthBarClassColor", label = "Class Colored Health Bar", tip = "This options colors the health bar in the same color as the player class", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end, y = 2, x = 130 },
+			{ type = "Check", var = "healthBarClassColor", label = "Class Colored Health Bar", tip = "This options colors the health bar in the same color as the player class", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("healthBar") end, y = 2, x = 130, belongsTo = "healthBarColor" },
 			{ type = "Check", var = "hideDefaultBar", label = "Hide the Default Health Bar", tip = "Check this to hide the default health bar" .. (LibFroznFunctions.hasWoWFlavor.unitCanBeSecretValue and ".\nNOTE: Fallback to the default health bar, if the unit is a secret value and showing a health bar is enabled." or ""), enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Header", label = "Unit Tip Bars: Mana Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
@@ -653,7 +653,7 @@ local options = {
 			{ type = "Header", label = "Unit Tip Bars: Cast Bar", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
 			
 			{ type = "Check", var = "castBar", label = "Show Cast Bar", tip = "Will show a cast bar of the unit.", enabled = function(factory) return factory:GetConfigValue("enableBars") end },
-			{ type = "Check", var = "castBarAlwaysShow", label = "Always Show Cast Bar", tip = "Check this to always show the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end, x = 130 },
+			{ type = "Check", var = "castBarAlwaysShow", label = "Always Show Cast Bar", tip = "Check this to always show the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end, x = 130, belongsTo = "castBar" },
 			{ type = "Color", var = "castBarCastingColor", label = "Cast Bar Casting Color", tip = "The casting color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end, y = 10 },
 			{ type = "Color", var = "castBarChannelingColor", label = "Cast Bar Channeling Color", tip = "The channeling color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end },
 			{ type = "Color", var = "castBarChargingColor", label = "Cast Bar Charging Color", tip = "The charging color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end },
@@ -661,7 +661,7 @@ local options = {
 			{ type = "Color", var = "castBarFailColor", label = "Cast Bar Fail Color", tip = "The fail color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end },
 			{ type = "Color", var = "castBarSparkColor", label = "Cast Bar Spark Color", tip = "The spark color of the cast bar", enabled = function(factory) return factory:GetConfigValue("enableBars") and factory:GetConfigValue("castBar") end },
 
-			{ type = "Header", label = "Unit Tip Bars: Others", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end },
+			{ type = "Header", var = "unitTipBarsOthersHeader", label = "Unit Tip Bars: Others", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar") or factory:GetConfigValue("castBar")) end },
 
 			{ type = "Check", var = "barsCondenseValues", label = "Show Condensed Bar Values", tip = "You can enable this option to condense values shown on the bars. It does this by showing 57254 as 57.3k as an example", enabled = function(factory) return factory:GetConfigValue("enableBars") and (factory:GetConfigValue("healthBar") or factory:GetConfigValue("manaBar") or factory:GetConfigValue("powerBar")) end },
 
@@ -768,12 +768,12 @@ if (TipTacItemRef) then
 
 		{ type = "Check", var = "if_itemQualityBorder", label = "Show Item Tips with Quality Colored Border", tip = "When enabled and the tip is showing an item, the tip border will have the color of the item's quality", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 },
 		{ type = "Check", var = "if_showItemLevel", label = "Show Item Level", tip = "For item tooltips, show their itemLevel (Combines with itemID).\nNOTE: This will remove the default itemLevel text shown in tooltips", enabled = function(factory) return factory:GetConfigValue("if_enable") end },
-		{ type = "Check", var = "if_showItemId", label = "Show Item ID", tip = "For item tooltips, show their itemID (Combines with itemLevel)", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160 }
+		{ type = "Check", var = "if_showItemId", label = "Show Item ID", tip = "For item tooltips, show their itemID (Combines with itemLevel)", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160, belongsTo = "if_showItemLevel" }
 	};
 	
 	if (LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable) then
 		tinsert(ttifOptions, { type = "Check", var = "if_showExpansionIcon", label = "Show Expansion Icon", tip = "For item tooltips, show their expansion icon", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
-		tinsert(ttifOptions, { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160 });
+		tinsert(ttifOptions, { type = "Check", var = "if_showExpansionName", label = "Show Expansion Name", tip = "For item tooltips, show their expansion name", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160, belongsTo = "if_showExpansionIcon" });
 	end
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_showItemEnchantId", label = "Show Item Enchant ID", tip = "For item tooltips, show their enchantID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
@@ -803,7 +803,7 @@ if (TipTacItemRef) then
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_questDifficultyBorder", label = "Show Quest Tips with Difficulty Colored Border", tip = "When enabled and the tip is showing a quest, the tip border will have the color of the quest's difficulty", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showQuestLevel", label = "Show Quest Level", tip = "For quest tooltips, show their questLevel (Combines with questID)", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
-	tinsert(ttifOptions, { type = "Check", var = "if_showQuestId", label = "Show Quest ID", tip = "For quest tooltips, show their questID (Combines with questLevel)", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showQuestId", label = "Show Quest ID", tip = "For quest tooltips, show their questID (Combines with questLevel)", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160, belongsTo = "if_showQuestLevel" });
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_currencyQualityBorder", label = "Show Currency Tips with Quality Colored Border", tip = "When enabled and the tip is showing a currency, the tip border will have the color of the currency's quality", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showCurrencyId", label = "Show Currency ID", tip = "Currency items will now show their ID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
@@ -829,7 +829,7 @@ if (TipTacItemRef) then
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_conduitQualityBorder", label = "Show Conduit Tips with Quality Colored Border", tip = "When enabled and the tip is showing a conduit, the tip border will have the color of the conduit's quality", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showConduitItemLevel", label = "Show Conduit Item Level", tip = "For conduit tooltips, show their itemLevel (Combines with conduitID)", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
-	tinsert(ttifOptions, { type = "Check", var = "if_showConduitId", label = "Show Conduit ID", tip = "For conduit tooltips, show their conduitID (Combines with conduit itemLevel)", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160 });
+	tinsert(ttifOptions, { type = "Check", var = "if_showConduitId", label = "Show Conduit ID", tip = "For conduit tooltips, show their conduitID (Combines with conduit itemLevel)", enabled = function(factory) return factory:GetConfigValue("if_enable") end, x = 160, belongsTo = "if_showConduitItemLevel" });
 	
 	tinsert(ttifOptions, { type = "Check", var = "if_azeriteEssenceQualityBorder", label = "Show Azerite Essence Tips with Quality Colored Border", tip = "When enabled and the tip is showing an azerite essence, the tip border will have the color of the azerite essence's quality", enabled = function(factory) return factory:GetConfigValue("if_enable") end, y = 10 });
 	tinsert(ttifOptions, { type = "Check", var = "if_showAzeriteEssenceId", label = "Show Azerite Essence ID", tip = "For azerite essence tooltips, show their essenceID", enabled = function(factory) return factory:GetConfigValue("if_enable") end });
@@ -901,8 +901,8 @@ tinsert(options, {
 --		{ type = "Text", label = "Save Layout", func = nil },
 --		{ type = "DropDown", label = "Delete Layout", init = TipTacLayouts.DeleteLayout_Init },
 		
-		{ type = "Button", label = "Export Settings", width = 140, click = TipTacLayouts.ExportSettings_SelectValue, y = 10 },
-		{ type = "Button", label = "Import Settings", width = 140, click = TipTacLayouts.ImportSettings_SelectValue, x = 163 },
+		{ type = "Button", var = "func_ExportSettings", label = "Export Settings", width = 140, click = TipTacLayouts.ExportSettings_SelectValue, y = 10 },
+		{ type = "Button", label = "Import Settings", width = 140, click = TipTacLayouts.ImportSettings_SelectValue, x = 163, belongsTo = "func_ExportSettings" },
 		
 		{ type = "Button", label = "Reset Current Profile to Default Settings", width = 303, click = TipTacLayouts.ResetProfile_SelectValue, y = 10 },
 		
@@ -921,7 +921,7 @@ tinsert(UISpecialFrames, f:GetName()); -- hopefully no taint
 
 f.options = options;
 
-f:SetSize(360 + TT_OPTIONS_CATEGORY_LIST_WIDTH,378);
+f:SetSize(360 + TT_OPTIONS_CATEGORY_LIST_WIDTH,398);
 f:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 16, edgeSize = 16, insets = { left = 3, right = 3, top = 3, bottom = 3 } });
 f:SetBackdropColor(0.1,0.22,0.35,1);
 f:SetBackdropBorderColor(0.1,0.1,0.1,1);
@@ -930,7 +930,13 @@ f:SetMovable(true);
 f:SetFrameStrata("DIALOG");
 f:SetToplevel(true);
 f:SetClampedToScreen(true);
-f:SetScript("OnShow",function(self) self:BuildCategoryList(); self:BuildCategoryPage(); end);
+f:SetScript("OnShow", function(self)
+	f.searchBox:SetText("");
+	f.searchBox:ClearFocus();
+	
+	self:BuildCategoryList();
+	self:BuildCategoryPage();
+end);
 f:Hide();
 
 f.outline = CreateFrame("Frame",nil,f,BackdropTemplateMixin and "BackdropTemplate");	-- 9.0.1: Using BackdropTemplate
@@ -962,6 +968,43 @@ local versionWoW, build = GetBuildInfo();
 f.vers:SetText(PARENT_MOD_NAME .. ": " .. versionTipTac .. "\nWoW: " .. versionWoW);
 f.vers:SetTextColor(1,1,0.5);
 
+local function SearchBox_OnEnter(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:AddLine("Search all Categories", 1, 1, 1);
+	GameTooltip:AddLine("Label and tooltip of options will be searched", nil, nil, nil, 1);
+	GameTooltip:Show();
+end
+
+local function SearchBox_OnLeave(self)
+	GameTooltip:Hide();
+end
+
+local function SearchBox_OnTextChanged(self)
+	f:BuildCategoryPage();
+end
+
+f.searchBox = CreateFrame("EditBox", nil, f, "SearchBoxTemplate");
+f.searchBox:SetSize(160, 20);
+f.searchBox:SetPoint("TOPRIGHT", f, "TOPRIGHT", -12, -42);
+f.searchBox:SetAutoFocus(false);
+f.searchBox.Instructions:SetText("Search all Categories");
+f.searchBox:SetScript("OnEnter", SearchBox_OnEnter);
+f.searchBox:SetScript("OnLeave", SearchBox_OnLeave);
+f.searchBox:HookScript("OnTextChanged", function(self, userInput)
+	if (userInput) then
+		SearchBox_OnTextChanged(self);
+	end
+end);
+f.searchBox.clearButton:HookScript("OnClick", function(self)
+	SearchBox_OnTextChanged(self:GetParent());
+end);
+f.searchBox:HookScript("OnEscapePressed", function(self)
+	self:SetText("");
+	self:ClearFocus();
+	
+	f:BuildCategoryPage();
+end);
+
 local function Anchor_OnEnter(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	GameTooltip:AddLine("Anchor", 1, 1, 1);
@@ -990,8 +1033,9 @@ local function Reset_OnClick(self)
 	end
 	configDb:RegisterDefaults(configDb.defaults);
 	TipTac:ApplyConfig();
-	f:BuildCategoryPage();
+	
 	f:BuildCategoryList();
+	f:BuildCategoryPage();
 end
 
 local function Reset_OnEnter(self)
@@ -1277,7 +1321,7 @@ end
 
 f.scrollFrame = CreateFrame("ScrollFrame", nil, f);
 f.scrollFrame.status = {};
-f.scrollFrame:SetPoint("TOP", f.header, "BOTTOM", 0, -12);
+f.scrollFrame:SetPoint("TOP", f.searchBox, "BOTTOM", 0, -8);
 f.scrollFrame:SetPoint("LEFT", f.outline, "RIGHT", 0, 9);
 f.scrollFrame:SetPoint("BOTTOM", f.btnClose, "TOP", 0, 9);
 f.scrollFrame:SetPoint("RIGHT", f, "RIGHT", -13, 0);
@@ -1336,6 +1380,90 @@ local function SetConfigValue(self,var,value,noBuildCategoryPage)
 	end
 end
 
+-- determine options to display (search box or current category)
+local function addOptionToCategoryOptionMatchesFn(category, categoryOptionMatches, option)
+	-- check if option has already been added
+	for _, categoryOptionMatch in ipairs(categoryOptionMatches) do
+		if (categoryOptionMatch == option) then
+			return;
+		end
+	end
+	
+	-- add belongsTo option before if available
+	local belongsTo = option.belongsTo;
+	
+	if (belongsTo) then
+		for _, _option in ipairs(category.options or {}) do
+			if (_option.var == belongsTo) then
+				addOptionToCategoryOptionMatchesFn(category, categoryOptionMatches, _option);
+				break;
+			end
+		end
+	end
+	
+	-- add option
+	tinsert(categoryOptionMatches, option);
+end
+
+local function GetOptionsToShow()
+	local optionsToShow;
+	
+	local searchText = f.searchBox:GetText();
+	local searchWords = {};
+	for word in strlower(searchText):gmatch("%S+") do
+		tinsert(searchWords, word);
+	end
+	
+	local searchActive = (#searchWords > 0);
+	
+	if (searchActive) then
+		optionsToShow = {};
+		
+		for _, category in ipairs(f.options) do
+			local categoryOptionMatches = {};
+			
+			for _, option in ipairs(category.options or {}) do
+				if (option.type) and (option.type ~= "Header") and (option.type ~= "TextOnly") then
+					-- use label if present. otherwise call get() for dynamic label.
+					local labelText = (option.label) or (option.get and LibFroznFunctions:RemoveColorsFromText(option.get(f.factory, option.var)));
+					
+					if (labelText) and (labelText ~= "") then
+						local haystack = strlower(labelText .. " " .. (option.tip or ""));
+						local matched = true;
+						
+						for _, word in ipairs(searchWords) do
+							if (not haystack:find(word, 1, true)) then
+								matched = false;
+								break;
+							end
+						end
+						
+						if (matched) then
+							addOptionToCategoryOptionMatchesFn(category, categoryOptionMatches, option);
+						end
+					end
+				end
+			end
+			
+			if (#categoryOptionMatches > 0) then
+				tinsert(optionsToShow, { type = "Header", label = "Category: " .. category.category });
+				
+				for _, _option in ipairs(categoryOptionMatches) do
+					tinsert(optionsToShow, _option);
+				end
+			end
+		end
+		
+		if (#optionsToShow == 0) then
+			optionsToShow = { { type = "TextOnly", label = "No options found." } };
+		end
+	else
+		optionsToShow = f.options[activePage].options;
+	end
+	
+	return optionsToShow, searchActive;
+end
+
 -- create new factory instance
 local factory = AzOptionsFactory:New(f.content,GetConfigValue,SetConfigValue);
 f.factory = factory; 
@@ -1346,9 +1474,12 @@ function f:BuildCategoryPage(noUpdateScrollFrame)
 	if (not noUpdateScrollFrame) then
 		f.scrollBar:SetValue(0);
 	end
+
+	-- determine options to display (search box or current category)
+	local optionsToShow, searchActive = GetOptionsToShow();
 	
 	-- build page
-	factory:BuildOptionsPage(f.options[activePage].options, f.content, 0, 0);
+	factory:BuildOptionsPage(optionsToShow, f.content, 0, 0);
 	
 	-- set new content height
 	local contentChildren = { f.content:GetChildren() };
@@ -1367,8 +1498,8 @@ function f:BuildCategoryPage(noUpdateScrollFrame)
 	
 	f.content:SetHeight(finalContentHeight > 0 and finalContentHeight or 1);
 	
-	-- disable btnReset if necessary
-	f.btnReset:SetEnabled(not f.options[activePage].btnResetDisabled);
+	-- disable btnReset if search active or page has it disabled
+	f.btnReset:SetEnabled((not searchActive) and (not f.options[activePage].btnResetDisabled));
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -1378,6 +1509,8 @@ end
 local listButtons = {};
 
 local function CategoryButton_OnClick(self,button)
+	f.searchBox:SetText("");
+	f.searchBox:ClearFocus();
 	if (not listButtons[activePage].check.option) or (GetConfigValue(f.factory, listButtons[activePage].check.option.var)) then
 		listButtons[activePage].text:SetTextColor(1, 0.82, 0);
 	else
