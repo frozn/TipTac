@@ -1098,7 +1098,7 @@ local function Misc_ReportDropDownOnClick(dropDownMenuButton, arg1, arg2)
 	
 	-- open popup with url
 	if (url) then
-		LibFroznFunctions:ShowPopupWithText({
+		LibFroznFunctions:ShowPopupWithTextAndEditBox({
 			prompt = "Open this link in your web browser:",
 			lockedText = url,
 			iconFile = iconFile,

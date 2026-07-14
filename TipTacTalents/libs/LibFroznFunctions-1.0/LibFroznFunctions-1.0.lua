@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 65; -- bump on changes
+local LIB_MINOR = 66; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3066,7 +3066,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 	return false;
 end
 
--- show popup with text
+-- show popup with text and edit box
 --
 -- @param params               parameters
 --          .prompt              prompt to show
@@ -3083,14 +3083,14 @@ end
 --          .onAcceptHandler     optional. handler for OnAccept event (button pressed) of popup. parameters: self, data
 local SPWT_GameDialogResizeHooked = {};
 
-function LibFroznFunctions:ShowPopupWithText(params)
+function LibFroznFunctions:ShowPopupWithTextAndEditBox(params)
 	-- no params
 	if (not params) then
 		return;
 	end
 	
 	-- create initial popup config
-	local popupName = LIB_NAME .. "-" .. LIB_MINOR .. "_ShowPopupWithText";
+	local popupName = LIB_NAME .. "-" .. LIB_MINOR .. "_ShowPopupWithTextAndEditBox";
 	
 	if (not StaticPopupDialogs[popupName]) then
 		local editBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed or function(self, data)
@@ -3219,7 +3219,8 @@ function LibFroznFunctions:ShowPopupWithText(params)
 				
 				editBoxOnEscapePressed(editBox, data);
 			end,
-			hideOnEscape = 1
+			hideOnEscape = 1,
+			whileDead = 1
 		};
 		
 		if (StaticPopup_AddDefinition) then -- since tww 11.2.0

@@ -313,7 +313,7 @@ function TipTacLayouts.ExportSettings_SelectValue(self, option)
 	
 	-- open popup with export string with current config
 	if (encodedConfig) then
-		LibFroznFunctions:ShowPopupWithText({
+		LibFroznFunctions:ShowPopupWithTextAndEditBox({
 			prompt = "Copy this export string with current config:",
 			lockedText = encodedConfig,
 			iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
@@ -341,7 +341,7 @@ end
 
 function TipTacLayouts.ImportSettings_SelectValue(self, option)
 	-- open popup to get import string with new config
-	LibFroznFunctions:ShowPopupWithText({
+	LibFroznFunctions:ShowPopupWithTextAndEditBox({
 		prompt = "Paste export string with new config:",
 		iconFile = "Interface\\AddOns\\" .. PARENT_MOD_NAME .. "\\media\\Talents",
 		iconTexCoord = { 0.924316, 0.944824, 0.0380859, 0.0771484 },
