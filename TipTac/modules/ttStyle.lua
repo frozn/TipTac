@@ -1068,18 +1068,14 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 			unitRecord.petOrBattlePetOrNPCTitle = nil;
 			
 			if (unitTooltipData) then
-				if (unitRecord.isColorBlind) then
-					if (unitTooltipData.lines[3]) then
-						unitRecord.petOrBattlePetOrNPCTitle = unitTooltipData.lines[3].leftText;
-					end
-				else
-					if (unitTooltipData.lines[2]) then
-						unitRecord.petOrBattlePetOrNPCTitle = unitTooltipData.lines[2].leftText;
-					end
+				local unitTooltipDataLine = (unitRecord.isColorBlind and unitTooltipData.lines[3] or unitTooltipData.lines[2]);
+				
+				if (unitTooltipDataLine) and ((not unitTooltipDataLine.type) or (unitTooltipDataLine.type ~= 0)) then
+					unitRecord.petOrBattlePetOrNPCTitle = unitTooltipDataLine.leftText;
 				end
 			end
 			
-			if (type(unitRecord.petOrBattlePetOrNPCTitle) == "string") and (unitRecord.petOrBattlePetOrNPCTitle:find(TT_LevelMatch)) then
+			if (not LibFroznFunctions:IsSecretValue(unitRecord.petOrBattlePetOrNPCTitle)) and (type(unitRecord.petOrBattlePetOrNPCTitle) == "string") and (unitRecord.petOrBattlePetOrNPCTitle:find(TT_LevelMatch)) then
 				unitRecord.petOrBattlePetOrNPCTitle = nil;
 			end
 		end
@@ -1088,6 +1084,7 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 		if (unitRecord.isBattlePetCompanion) then
 			for i = 2, min(#unitTooltipData.lines, 4) do
 				local gttLineText = unitTooltipData.lines[i].leftText;
+				
 				if (type(gttLineText) == "string") and (gttLineText:find(TT_LevelMatchPet)) then
 					currentDisplayParams.petLineLevelIndex = i;
 					break;

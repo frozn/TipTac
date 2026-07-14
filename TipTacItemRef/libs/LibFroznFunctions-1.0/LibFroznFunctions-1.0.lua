@@ -3254,11 +3254,9 @@ end
 
 -- check if the mouse cursor is hovering over the WorldFrame
 --
--- hint: temporary workaround for blizzard bug in classic era 1.15.7, see https://github.com/frozn/TipTac/issues/386: GetMouseFoci() doesn't return the WorldFrame any more since patch 1.15.7
---
 -- @return true if the mouse cursor is hovering over the WorldFrame, false otherwise.
 
--- make shure that the WorldFrame can receive mouse hover events on player login
+-- make shure that the WorldFrame can receive mouse hover events on player login. needed because <Frame>:IsMouseMotionFocus() doesn't work directly after first enabling of mouse motion events.
 local function WorldFrameEnableMouseMotionFn()
 	if (not WorldFrame:IsForbidden()) and ((not WorldFrame:IsProtected()) or (not InCombatLockdown())) and (not WorldFrame:IsMouseMotionEnabled()) then
 		WorldFrame:EnableMouseMotion(true);
