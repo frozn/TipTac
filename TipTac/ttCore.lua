@@ -4102,23 +4102,8 @@ function tt:SetUnitRecordFromTip(tip)
 		unitID = "mouseover";
 	end
 	
-	-- a "mouseover" unitID is better to have as we can then safely say the tip should no longer show when it becomes invalid. Harder to say with a "party2" unit.
-	-- this also helps fix the problem that "mouseover" units aren't valid for group members out of range, a bug that has been in WoW since about 3.0.2.
-	local mouseOverUnit = UnitIsUnit(unitID, "mouseover");
-	
-	if (not LibFroznFunctions:IsSecretValue(mouseOverUnit)) and (mouseOverUnit) then
-		unitID = "mouseover";
-	end
-	
-	-- check if unit id or text in first line is secret (e.g. needed for hovering over party pet unit frames)
+	-- check if unit id is secret
 	if (LibFroznFunctions:IsSecretValue(unitID)) then
-		currentDisplayParams.unitRecord = LFF_UNIT_RECORD.SecretValue;
-		return;
-	end
-	
-	local tipLine = LibFroznFunctions:GetLineFromGameTooltip(tip, 1);
-	
-	if (tipLine) and (LibFroznFunctions:IsSecretValue(tipLine:GetText())) then
 		currentDisplayParams.unitRecord = LFF_UNIT_RECORD.SecretValue;
 		return;
 	end
@@ -4127,6 +4112,22 @@ function tt:SetUnitRecordFromTip(tip)
 	if (not unitID) then
 		currentDisplayParams.unitRecord = nil;
 		return;
+	end
+	
+	-- check if text in first line is secret, e.g. needed when hovering over party pet unit frames.
+	local tipLine = LibFroznFunctions:GetLineFromGameTooltip(tip, 1);
+	
+	if (tipLine) and (LibFroznFunctions:IsSecretValue(tipLine:GetText())) then
+		currentDisplayParams.unitRecord = LFF_UNIT_RECORD.SecretValue;
+		return;
+	end
+	
+	-- a "mouseover" unitID is better to have as we can then safely say the tip should no longer show when it becomes invalid. Harder to say with a "party2" unit.
+	-- this also helps fix the problem that "mouseover" units aren't valid for group members out of range, a bug that has been in WoW since about 3.0.2.
+	local mouseOverUnit = UnitIsUnit(unitID, "mouseover");
+	
+	if (not LibFroznFunctions:IsSecretValue(mouseOverUnit)) and (mouseOverUnit) then
+		unitID = "mouseover";
 	end
 	
 	-- set unit record
