@@ -65,10 +65,12 @@
 	- added a Button element
 	25.12.13 Rev 34 11.1.7/The War Within #frozn45
 	- added an optional "disabled" key for dropdown menu list entry
+	26.07.15 Rev 35 12.0.7/Midnight #frozn45
+	- fixed positioning of Header and TextOnly element
 --]]
 
 -- create new library
-local REVISION = 34; -- bump on changes
+local REVISION = 35; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -425,11 +427,11 @@ local function Header_OnLeave(self)
 	GameTooltip:Hide();
 end
 
--- New Header (dimensions: 301x18, visible dimension: 301x7, visible padding: 6/3/5/3)
+-- New Header (dimensions: 301x18, visible dimension: 301x10, visible padding: 5/3/3/3)
 azof.objects.Header = {
 	xOffset = 10, -- 10px final visible xOffset - 0px visible padding left = 10px
-	yOffset = 12, -- 5px final visible yOffset + 10px extra padding top - 3px visible padding top = 12px
-	height = 18, -- 7px visible dimension height + 6px visible padding top + 5px extra padding bottom = 18px
+	yOffset = 12, -- 5px final visible yOffset + 10px extra padding top - 5px visible padding top + 2px safety buffer for font scaling issues = 12px
+	height = 20, -- 10px visible dimension height + 5px visible padding top + 5px extra padding bottom = 20px
 	extraPaddingTop = 15, -- 5px final visible yOffset + 10px extra padding top = 15px
 	Init = function(self, option, cfgValue)
 		local enabled = (not option.enabled) or (not not option.enabled(self.factory, self, option, cfgValue));
@@ -1055,11 +1057,11 @@ local function TextOnly_OnLeave(self)
 	GameTooltip:Hide();
 end
 
--- New TextOnly (dimensions: 301x18, visible dimension: 301x7, visible padding: 6/0/5/0)
+-- New TextOnly (dimensions: 301x18, visible dimension: 301x10, visible padding: 5/0/3/0)
 azof.objects.TextOnly = {
 	xOffset = 10, -- 10px final visible xOffset - 0px visible padding left = 10px
-	yOffset = -1, -- 5px final visible yOffset + 0px extra padding top - 6px visible padding top = -1px
-	height = 13, -- 7px visible dimension height + 6px visible padding top + 0px extra padding bottom = 13px
+	yOffset = 2, -- 5px final visible yOffset + 0px extra padding top - 5px visible padding top + 2px safety buffer for font scaling issues = 2px
+	height = 15, -- 10px visible dimension height + 5px visible padding top + 0px extra padding bottom = 15px
 	extraPaddingTop = 5, -- 5px final visible yOffset + 0px extra padding top = 5px
 	Init = function(self, option, cfgValue)
 		if (cfgValue) then
