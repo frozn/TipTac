@@ -22,7 +22,7 @@ It's also available on [CurseForge](https://www.curseforge.com/wow/addons/tiptac
 * added fixes for WoW patch ...
   * 12.0.7 - The War Within [retail/MN]
   * 5.5.4 - Mists of Pandaria Classic [classic/MoPC]
-  * 2.5.5 - Burning Crusade Classic [anniversary/TBC]
+  * 2.5.6 - Burning Crusade Classic [anniversary/TBC]
   * 1.15.8 - Vanilla [classic era/Vanilla]
 * added many enhancements
 
