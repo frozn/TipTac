@@ -1,4 +1,4 @@
-## Interface: 120007
+## Interface: 120100
 ## Version: 26.07.16
 ## IconTexture: Interface\AddOns\TipTacOptions\media\tiptac_logo
 ## Title: TipTacOptions
