@@ -700,8 +700,9 @@ end
 -- HOOK: SetUnitAuraByAuraInstanceID + SetUnitBuffByAuraInstanceID + SetUnitDebuffByAuraInstanceID
 local function SetUnitAuraByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
 	if (cfg.if_enable) and (not tipDataAdded[self]) and (not LibFroznFunctions:IsSecretValue(auraInstanceID)) then
-		local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, auraInstanceID);
-		if (aura) then
+		-- guard against "Auras cannot be accessed when secret" errors, e.g. when execution is tainted
+		local success, aura = pcall(C_UnitAuras.GetAuraDataByAuraInstanceID, unit, auraInstanceID);
+		if (success) and (aura) then
 			local spellID = aura.spellId;
 			local source = aura.sourceUnit;
 			if (spellID) then
