@@ -1775,11 +1775,18 @@ local function WCFICF_RefreshAppearanceTooltip_Hook(self)
 		local wardrobeCollectionFrame = itemsCollectionFrame:GetParent();
 		if (wardrobeCollectionFrame.tooltipSourceIndex) then
 			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory(), itemsCollectionFrame.transmogLocation);
-			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
-			local sourceID = sources[index].sourceID;
 			
-			tipDataAdded[gtt] = "transmogappearance";
-			LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
+			-- since mn 12.1.0: the sources list can be empty when swapping classes in the collections panel, which makes GetValidIndexForNumSources() return an invalid index (see the same guard in WardrobeItemsCollectionMixin:RefreshAppearanceTooltip() in "Blizzard_Wardrobe.lua").
+			if (#sources > 0) then
+				local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
+				local source = sources[index];
+				if (source) then
+					local sourceID = source.sourceID;
+
+					tipDataAdded[gtt] = "transmogappearance";
+					LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
+				end
+			end
 		end
 	end
 end
