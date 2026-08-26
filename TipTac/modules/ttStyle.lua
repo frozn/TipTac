@@ -203,7 +203,8 @@ local function AddTarget(lineList,target,targetName)
 	else
 		local targetReactionColor = CreateColor(unpack(cfg["colorReactText"..LibFroznFunctions:GetUnitReactionIndex(target)]));
 		lineList:Push(targetReactionColor:WrapTextInColorCode("["));
-		if (UnitIsPlayer(target)) then
+		local isTargetPlayer = UnitIsPlayer(target);
+		if (not LibFroznFunctions:IsSecretValue(isTargetPlayer)) and (isTargetPlayer) then
 			local targetClassID = select(3, UnitClass(target));
 			local targetClassColor = LibFroznFunctions:GetClassColor(targetClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targeting;
 			lineList:Push(targetClassColor:WrapTextInColorCode(targetName));
@@ -265,7 +266,8 @@ function ttStyle:GenerateTargetedByLines(unitRecord)
 			if (not LibFroznFunctions:IsSecretValue(isPlayerUnit)) and (not isPlayerUnit) then
 				local unitName = UnitName(unit);
 				
-				if (UnitIsPlayer(unit)) then
+				local isUnitPlayer = UnitIsPlayer(unit);
+				if (not LibFroznFunctions:IsSecretValue(isUnitPlayer)) and (isUnitPlayer) then
 					local unitClassID = select(3, UnitClass(unit));
 					local unitClassColor = LibFroznFunctions:GetClassColor(unitClassID, nil, cfg.enableCustomClassColors and TT_ExtendedConfig.customClassColors or nil) or TT_COLOR.text.targetedBy;
 					lineTargetedBy:Push(unitClassColor:WrapTextInColorCode(unitName));
@@ -590,7 +592,8 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	unitRecord.nameColor = ((not cfg.enableColorName) and CreateColor(GameTooltipTextLeft1:GetTextColor())) or (cfg.colorNameByReaction and unitRecord.reactionColor) or CreateColor(unpack(cfg.colorName));
 
 	-- this is the line index where the level and unit type info is
-	lineLevel.Index = 2 + (unitRecord.isColorBlind and UnitIsVisible(unitRecord.id) and 1 or 0);
+	local unitIsVisible = UnitIsVisible(unitRecord.id);
+	lineLevel.Index = 2 + (unitRecord.isColorBlind and (not LibFroznFunctions:IsSecretValue(unitIsVisible)) and (unitIsVisible) and 1 or 0);
 	
 	-- remove unwanted lines from tip
 	self:RemoveUnwantedLinesFromTip(tip, unitRecord);
@@ -601,7 +604,10 @@ function ttStyle:ModifyUnitTooltip(tip, currentDisplayParams, unitRecord, first)
 	end
 	
 	-- Level + Classification
-	lineLevel:Push(((UnitCanAttack(unitRecord.id, "player") or UnitCanAttack("player", unitRecord.id)) and LibFroznFunctions:GetDifficultyColorForUnit(unitRecord.id) or CreateColor(unpack(cfg.colorLevel))):WrapTextInColorCode((cfg["classification_".. (unitRecord.classification or "")] or "%s? "):format(unitRecord.level == -1 and "??" or unitRecord.level)));
+	local unitCanAttackUnit = UnitCanAttack(unitRecord.id, "player");
+	local unitCanBeAttacked = UnitCanAttack("player", unitRecord.id);
+	local canAttack = ((not LibFroznFunctions:IsSecretValue(unitCanAttackUnit)) and (unitCanAttackUnit)) or ((not LibFroznFunctions:IsSecretValue(unitCanBeAttacked)) and (unitCanBeAttacked));
+	lineLevel:Push((canAttack and LibFroznFunctions:GetDifficultyColorForUnit(unitRecord.id) or CreateColor(unpack(cfg.colorLevel))):WrapTextInColorCode((cfg["classification_".. (unitRecord.classification or "")] or "%s? "):format(unitRecord.level == -1 and "??" or unitRecord.level)));
 	
 	-- Reaction Icon
 	if (cfg.reactIcon) and (TT_ReactionIcon[unitRecord.reactionIndex]) then
