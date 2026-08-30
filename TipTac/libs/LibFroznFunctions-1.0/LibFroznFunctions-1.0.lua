@@ -5061,6 +5061,13 @@ end
 --         returns "LFF_TALENTS.none" if no talents have been found.
 --         returns nil if unit id is missing or not a player
 function LibFroznFunctions:GetTalents(unitID)
+	-- no valid unit id, no unit id or not a player
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID) and (UnitIsPlayer(unitID));
+	
+	if (not isValidUnitID) then
+		return;
+	end
+	
 	-- check if talents are available
 	local isSelf = UnitIsUnit(unitID, "player");
 	local areTalentsAvailable = self:AreTalentsAvailable(unitID, isSelf);
