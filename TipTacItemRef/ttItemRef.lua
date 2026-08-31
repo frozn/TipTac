@@ -2589,9 +2589,11 @@ function LinkTypeFuncs:item(link, linkType, id)
 		LinkTypeFuncs.keystone(self, link, linkType, id, mapID, keystoneLevel, select(21, unpack(splits))); -- modifierID1, modifierID2, modifierID3, modifierID4
 		return;
 	end
-	local trueItemLevel = LibItemString:GetTrueItemLevel(link);
-	if (trueItemLevel) then
-		itemLevel = trueItemLevel;
+	if (not itemLevel) then
+		local trueItemLevel = LibItemString:GetTrueItemLevel(link);
+		if (trueItemLevel) then
+			itemLevel = trueItemLevel;
+		end
 	end
 	
 	local mountID = LibFroznFunctions:GetMountFromItem(id);
