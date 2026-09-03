@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 66; -- bump on changes
+local LIB_MINOR = 67; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -3055,7 +3055,7 @@ function LibFroznFunctions:IsFrameBackInFrameChain(referenceFrame, framesAndName
 			return false;
 		end
 		
-		if (type(currentFrame.GetParent) ~= "function") then
+		if (type(currentFrame.GetParent) ~= "function") or (currentFrame:IsForbidden()) then
 			return false;
 		end
 		
