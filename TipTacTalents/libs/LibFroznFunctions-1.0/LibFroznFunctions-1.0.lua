@@ -3975,7 +3975,9 @@ function LibFroznFunctions:GetUnitReactionIndex(unitID)
 			return LFF_UNIT_REACTION_INDEX.neutral; -- 4 = Neutral
 		end
 		
-		if (UnitIsPVP(unitID)) and (not UnitIsPVPSanctuary(unitID)) and (not UnitIsPVPSanctuary("player")) then
+		local unitIsPVP = UnitIsPVP(unitID);
+		
+		if (not self:IsSecretValue(unitIsPVP)) and (unitIsPVP) and (not UnitIsPVPSanctuary(unitID)) and (not UnitIsPVPSanctuary("player")) then
 			return LFF_UNIT_REACTION_INDEX.friendlyPvPPlayer; -- 6 = Friendly PvP Player
 		end
 		
@@ -4281,7 +4283,7 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	end
 end
 
--- returns the buffs/debuffs for the unit
+-- returns the buffs/debuffs for the unit by index
 --
 -- @param  unitID  unit id, e.g. "player", "target" or "mouseover"
 -- @param  index   index of an aura to query
@@ -4299,7 +4301,7 @@ function LibFroznFunctions:GetAuraDataByIndex(unitID, index, filter)
 			return nil;
 		end
 		
-		-- returns the buffs/debuffs for the unit
+		-- returns the buffs/debuffs for the unit by index
 		return C_UnitAuras.GetAuraDataByIndex(unitID, index, filter);
 	end
 	
@@ -4340,6 +4342,40 @@ function LibFroznFunctions:GetAuraDataByIndex(unitID, index, filter)
 		charges = nil,
 		maxCharges = nil
 	};
+end
+
+-- returns the buffs/debuffs for the unit by auraInstanceID
+--
+-- @param  unitID          unit id, e.g. "player", "target" or "mouseover"
+-- @param  auraInstanceID  aurainstanceID of an aura to query
+-- @return aura infos as a table of type AuraData
+function LibFroznFunctions:GetAuraDataByAuraInstanceID(unitID, auraInstanceID)
+	-- check if unit id is restricted for addons
+	local success = pcall(C_UnitAuras.GetAuraDataByAuraInstanceID, unitID, auraInstanceID);
+	
+	if (not success) then
+		return nil;
+	end
+	
+	-- returns the buffs/debuffs for the unit by auraInstanceID
+	return C_UnitAuras.GetAuraDataByAuraInstanceID(unitID, auraInstanceID);
+end
+
+-- returns the formatted number of applications of an aura for the unit by auraInstanceID
+--
+-- @param  unitID          unit id, e.g. "player", "target" or "mouseover"
+-- @param  auraInstanceID  aurainstanceID of an aura to query
+-- @return formatted number of applications of an aura
+function LibFroznFunctions:GetAuraApplicationDisplayCount(unitID, auraInstanceID)
+	-- check if unit id is restricted for addons
+	local success = pcall(C_UnitAuras.GetAuraApplicationDisplayCount, unitID, auraInstanceID);
+	
+	if (not success) then
+		return nil;
+	end
+	
+	-- returns the formatted number of applications of an aura for the unit by auraInstanceID
+	return C_UnitAuras.GetAuraApplicationDisplayCount(unitID, auraInstanceID);
 end
 
 -- iterate through unit's auras

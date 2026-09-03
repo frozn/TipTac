@@ -132,11 +132,8 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 	local unitRecord = currentDisplayParams.unitRecord;
 	
 	-- unit doesn't exist
-	if (unitRecord ~= LFF_UNIT_RECORD.SecretValue) then
-		local unitExists = UnitExists(unitRecord.id);
-		if (not LibFroznFunctions:IsSecretValue(unitExists)) and (not unitExists) then
-			return 0;
-		end
+	if (unitRecord ~= LFF_UNIT_RECORD.SecretValue) and (not UnitExists(unitRecord.id)) then
+		return 0;
 	end
 	
 	-- display tip's "unit is a secret value" icon
@@ -162,8 +159,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 		if (iconType == "RAID") then
 			local raidIconIndex = GetRaidTargetIndex(unitRecord.id);
 			
-			-- soft-interact units can return secret values from unit queries (e.g. "softinteract" in the 12.x soft target system)
-			if (not LibFroznFunctions:IsSecretValue(raidIconIndex)) and (raidIconIndex) then
+			if (raidIconIndex) then
 				-- acquire icon frame
 				iconFrameIndex = iconFrameIndex + 1;
 				
@@ -179,10 +175,7 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 		
 		-- display tip's faction icon
 		elseif (iconType == "FACTION") then
-			-- soft-interact units can return secret booleans from unit queries (e.g. "softinteract" in the 12.x soft target system)
-			local isPVPFFA = UnitIsPVPFreeForAll(unitRecord.id);
-			local isPVP = UnitIsPVP(unitRecord.id);
-			if (not LibFroznFunctions:IsSecretValue(isPVPFFA)) and (isPVPFFA) then
+			if (UnitIsPVPFreeForAll(unitRecord.id)) then
 				-- acquire icon frame
 				iconFrameIndex = iconFrameIndex + 1;
 				
@@ -194,29 +187,32 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 				-- set icon
 				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
 				icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
-			elseif (not LibFroznFunctions:IsSecretValue(isPVP)) and (isPVP) then
-				-- set icon if faction isn't neutral
-				local englishFaction = UnitFactionGroup(unitRecord.id);
+			else
+				local unitIsPVP = UnitIsPVP(unitRecord.id);
 				
-				if (not LibFroznFunctions:IsSecretValue(englishFaction)) and (englishFaction) and (englishFaction ~= "Neutral") then
-					-- acquire icon frame
-					iconFrameIndex = iconFrameIndex + 1;
+				if (not LibFroznFunctions:IsSecretValue(unitIsPVP)) and (unitIsPVP) then
+					-- set icon if faction isn't neutral
+					local englishFaction = UnitFactionGroup(unitRecord.id);
 					
-					icon = self.iconPool:Acquire();
-					
-					icon:SetParent(tip);
-					icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
-					
-					-- set icon
-					icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
-					icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+					if (englishFaction) and (englishFaction ~= "Neutral") then
+						-- acquire icon frame
+						iconFrameIndex = iconFrameIndex + 1;
+						
+						icon = self.iconPool:Acquire();
+						
+						icon:SetParent(tip);
+						icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
+						
+						-- set icon
+						icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
+						icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+					end
 				end
 			end
 		
 		-- display tip's combat icon
 		elseif (iconType == "COMBAT") then
-			local isAffectingCombat = UnitAffectingCombat(unitRecord.id);
-			if (not LibFroznFunctions:IsSecretValue(isAffectingCombat)) and (isAffectingCombat) then
+			if (UnitAffectingCombat(unitRecord.id)) then
 				-- acquire icon frame
 				iconFrameIndex = iconFrameIndex + 1;
 				

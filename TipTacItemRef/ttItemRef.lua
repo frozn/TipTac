@@ -699,12 +699,9 @@ end
 
 -- HOOK: SetUnitAuraByAuraInstanceID + SetUnitBuffByAuraInstanceID + SetUnitDebuffByAuraInstanceID
 local function SetUnitAuraByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
-	-- since mn 12.1.0: CooldownViewer passes nameplate-only aura instance IDs on "player" whose aura access is restricted.
-	-- GetAuraDataByAuraInstanceID() errors with "Auras cannot be accessed when secret while tainted" if called from tainted code,
-	-- even with a non-secret instance ID (see "GetAuraDataByIndex" in LibFroznFunctions for the same workaround).
-	if (cfg.if_enable) and (not tipDataAdded[self]) and (not LibFroznFunctions:IsSecretValue(auraInstanceID)) then
-		local success, aura = pcall(C_UnitAuras.GetAuraDataByAuraInstanceID, unit, auraInstanceID);
-		if (success) and (aura) then
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local aura = LibFroznFunctions:GetAuraDataByAuraInstanceID(unit, auraInstanceID);
+		if (aura) then
 			local spellID = aura.spellId;
 			local source = aura.sourceUnit;
 			if (spellID) then
@@ -1776,13 +1773,13 @@ local function WCFICF_RefreshAppearanceTooltip_Hook(self)
 		if (wardrobeCollectionFrame.tooltipSourceIndex) then
 			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory(), itemsCollectionFrame.transmogLocation);
 			
-			-- since mn 12.1.0: the sources list can be empty when swapping classes in the collections panel, which makes GetValidIndexForNumSources() return an invalid index (see the same guard in WardrobeItemsCollectionMixin:RefreshAppearanceTooltip() in "Blizzard_Wardrobe.lua").
 			if (#sources > 0) then
 				local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
 				local source = sources[index];
+				
 				if (source) then
 					local sourceID = source.sourceID;
-
+					
 					tipDataAdded[gtt] = "transmogappearance";
 					LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
 				end

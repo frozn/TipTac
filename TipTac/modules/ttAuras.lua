@@ -251,15 +251,10 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			
 			if (cfg.auraStackCount) then
 				if (LibFroznFunctions:IsSecretValue(unitAuraData.applications)) then
-					-- since 12.1.x (retail): GetAuraApplicationDisplayCount() takes only the aura instance, the unit argument has been removed.
-					-- classic flavors (and the documented API) still expect (auraInstanceUnit, auraInstanceID). try the new signature first, fall back to the old one.
-					-- pcall also guards against secret aura instance IDs (see LibFroznFunctions:GetAuraDataByIndex for the same workaround).
-					local success, count = pcall(C_UnitAuras.GetAuraApplicationDisplayCount, unitAuraData.auraInstanceID);
-					if (not success) then
-						success, count = pcall(C_UnitAuras.GetAuraApplicationDisplayCount, unitRecord.id, unitAuraData.auraInstanceID);
-					end
-					if (success) and (count) then
-						aura.count:SetText(count);
+					local auraApplicationDisplayCount = LibFroznFunctions:GetAuraApplicationDisplayCount(unitRecord.id, unitAuraData.auraInstanceID);
+					
+					if (auraApplicationDisplayCount) then
+						aura.count:SetText(auraApplicationDisplayCount);
 						hideAuraCount = false;
 					end
 				elseif (unitAuraData.applications) and (unitAuraData.applications > 1) then
