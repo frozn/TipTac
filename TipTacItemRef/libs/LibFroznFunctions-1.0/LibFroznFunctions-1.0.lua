@@ -4176,7 +4176,7 @@ function LibFroznFunctions:CreateUnitRecord(unitID)
 	unitRecord.nameWithNormalizedForeignRealmName = GetUnitName(unitID, true);
 	unitRecord.normalizedForeignRealmName = (normalizedForeignRealmName) and (normalizedForeignRealmName ~= "") and (normalizedForeignRealmName);
 	unitRecord.normalizedRealmName = (unitRecord.normalizedForeignRealmName) or (GetNormalizedRealmName());
-	unitRecord.fullPlayerName = FULL_PLAYER_NAME:format(unitRecord.name, unitRecord.normalizedRealmName);
+	unitRecord.fullPlayerName = (unitRecord.normalizedRealmName) and (FULL_PLAYER_NAME:format(unitRecord.name, unitRecord.normalizedRealmName)) or (unitRecord.name);
 	
 	unitRecord.sex = UnitSex(unitID);
 	unitRecord.className, unitRecord.classFile, unitRecord.classID = UnitClass(unitID);
