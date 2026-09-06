@@ -251,11 +251,10 @@ function ttAuras:DisplayUnitTipsAuras(tip, currentDisplayParams, auraType, start
 			
 			if (cfg.auraStackCount) then
 				if (LibFroznFunctions:IsSecretValue(unitAuraData.applications)) then
-					-- guard against "bad argument"/"cannot be accessed when secret" errors, e.g. when execution is tainted
-					local success, displayCount = pcall(C_UnitAuras.GetAuraApplicationDisplayCount, unitRecord.id, unitAuraData.auraInstanceID);
+					local auraApplicationDisplayCount = LibFroznFunctions:GetAuraApplicationDisplayCount(unitRecord.id, unitAuraData.auraInstanceID);
 
-					if (success) and (displayCount) then
-						aura.count:SetText(displayCount);
+					if (auraApplicationDisplayCount) then
+						aura.count:SetText(auraApplicationDisplayCount);
 						hideAuraCount = false;
 					end
 				elseif (unitAuraData.applications) and (unitAuraData.applications > 1) then

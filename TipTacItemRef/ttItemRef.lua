@@ -699,10 +699,9 @@ end
 
 -- HOOK: SetUnitAuraByAuraInstanceID + SetUnitBuffByAuraInstanceID + SetUnitDebuffByAuraInstanceID
 local function SetUnitAuraByAuraInstanceID_Hook(self, unit, auraInstanceID, filter)
-	if (cfg.if_enable) and (not tipDataAdded[self]) and (not LibFroznFunctions:IsSecretValue(auraInstanceID)) then
-		-- guard against "Auras cannot be accessed when secret" errors, e.g. when execution is tainted
-		local success, aura = pcall(C_UnitAuras.GetAuraDataByAuraInstanceID, unit, auraInstanceID);
-		if (success) and (aura) then
+	if (cfg.if_enable) and (not tipDataAdded[self]) then
+		local aura = LibFroznFunctions:GetAuraDataByAuraInstanceID(unit, auraInstanceID);
+		if (aura) then
 			local spellID = aura.spellId;
 			local source = aura.sourceUnit;
 			if (spellID) then
@@ -1773,11 +1772,18 @@ local function WCFICF_RefreshAppearanceTooltip_Hook(self)
 		local wardrobeCollectionFrame = itemsCollectionFrame:GetParent();
 		if (wardrobeCollectionFrame.tooltipSourceIndex) then
 			local sources = CollectionWardrobeUtil.GetSortedAppearanceSources(self.tooltipVisualID, itemsCollectionFrame:GetActiveCategory(), itemsCollectionFrame.transmogLocation);
-			local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
-			local sourceID = sources[index].sourceID;
 			
-			tipDataAdded[gtt] = "transmogappearance";
-			LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
+			if (#sources > 0) then
+				local index = CollectionWardrobeUtil.GetValidIndexForNumSources(wardrobeCollectionFrame.tooltipSourceIndex, #sources);
+				local source = sources[index];
+				
+				if (source) then
+					local sourceID = source.sourceID;
+					
+					tipDataAdded[gtt] = "transmogappearance";
+					LinkTypeFuncs.transmogappearance(gtt, nil, "transmogappearance", sourceID);
+				end
+			end
 		end
 	end
 end
@@ -2590,9 +2596,11 @@ function LinkTypeFuncs:item(link, linkType, id)
 		LinkTypeFuncs.keystone(self, link, linkType, id, mapID, keystoneLevel, select(21, unpack(splits))); -- modifierID1, modifierID2, modifierID3, modifierID4
 		return;
 	end
-	local trueItemLevel = LibItemString:GetTrueItemLevel(link);
-	if (trueItemLevel) then
-		itemLevel = trueItemLevel;
+	if (not itemLevel) then
+		local trueItemLevel = LibItemString:GetTrueItemLevel(link);
+		if (trueItemLevel) then
+			itemLevel = trueItemLevel;
+		end
 	end
 	
 	local mountID = LibFroznFunctions:GetMountFromItem(id);

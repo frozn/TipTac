@@ -1070,7 +1070,7 @@ function ttStyle:OnUnitTipStyle(TT_CacheForFrames, tip, currentDisplayParams, fi
 			if (unitTooltipData) then
 				local unitTooltipDataLine = (unitRecord.isColorBlind and unitTooltipData.lines[3] or unitTooltipData.lines[2]);
 				
-				if (unitTooltipDataLine) and ((not unitTooltipDataLine.type) or (unitTooltipDataLine.type ~= 0)) then
+				if (unitTooltipDataLine) then
 					unitRecord.petOrBattlePetOrNPCTitle = unitTooltipDataLine.leftText;
 				end
 			end

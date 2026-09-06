@@ -34,10 +34,12 @@
 	- replaced deprecated function GetItemInfo() with new function C_Item.GetItemInfo()
 	## REV-05 (24.08.18) - 11.0.2/TWW ## #frozn45
 	- removed calling TooltipUtil.SurfaceArgs() because it's not necessary any longer (since df 10.1.0)
+	## REV-06 (26.08.31) - 12.1.0/MN ## #frozn45
+	- increased LIS.TOOLTIP_MAXLINE_LEVEL from 5 to 12
 --]]----------------------------------------------------
 
 -- Abort if library has already loaded with the same or newer revision
-local REVISION = 5;
+local REVISION = 6; -- bump on changes
 if (type(LibItemString) == "table") and (REVISION <= LibItemString.REVISION) then
 	return;
 end
@@ -56,7 +58,7 @@ GET_UPGRADED_ITEM_LEVEL_REV = 12;
 --------------------------------------------------------------------------------------------------------
 
 -- The number of tooltip lines to scan for the level text
-LIS.TOOLTIP_MAXLINE_LEVEL = 5;
+LIS.TOOLTIP_MAXLINE_LEVEL = 12;
 
 -- Pattern to extract the actual itemLevel from the tooltip text line
 LIS.ITEM_LEVEL_PATTERN = ITEM_LEVEL:gsub("%%d","(%%d+)");

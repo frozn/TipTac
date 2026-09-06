@@ -187,22 +187,26 @@ function ttIcons:DisplayTipsIcon(tip, currentDisplayParams, iconType, startingIc
 				-- set icon
 				icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
 				icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
-			elseif (UnitIsPVP(unitRecord.id)) then
-				-- set icon if faction isn't neutral
-				local englishFaction = UnitFactionGroup(unitRecord.id);
+			else
+				local unitIsPVP = UnitIsPVP(unitRecord.id);
 				
-				if (englishFaction) and (englishFaction ~= "Neutral") then
-					-- acquire icon frame
-					iconFrameIndex = iconFrameIndex + 1;
+				if (not LibFroznFunctions:IsSecretValue(unitIsPVP)) and (unitIsPVP) then
+					-- set icon if faction isn't neutral
+					local englishFaction = UnitFactionGroup(unitRecord.id);
 					
-					icon = self.iconPool:Acquire();
-					
-					icon:SetParent(tip);
-					icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
-					
-					-- set icon
-					icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
-					icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+					if (englishFaction) and (englishFaction ~= "Neutral") then
+						-- acquire icon frame
+						iconFrameIndex = iconFrameIndex + 1;
+						
+						icon = self.iconPool:Acquire();
+						
+						icon:SetParent(tip);
+						icon:OnApplyConfig(TT_CacheForFrames, configDb, cfg, TT_ExtendedConfig);
+						
+						-- set icon
+						icon.icon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. englishFaction);
+						icon.icon:SetTexCoord(0, 0.62, 0, 0.62);
+					end
 				end
 			end
 		
