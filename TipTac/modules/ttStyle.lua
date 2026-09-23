@@ -542,13 +542,19 @@ function ttStyle:GeneratePetLines(tip, currentDisplayParams, unitRecord, first)
 		lineLevel:Push(" ");
 		lineLevel:Push(CreateColor(unpack(cfg.colorRace)):WrapTextInColorCode(race));
 	else -- unitRecord.isBattlePetCompanion
-		if (not LibFroznFunctions:IsSecretValue(unitRecord.petOrBattlePetOrNPCTitle)) and (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then -- since WoD, npc title can be a single space character
-			lineLevel.Index = currentDisplayParams.petLineLevelIndex or 3;
-			local expectedLine = 2 + (unitRecord.isColorBlind and 1 or 0);
-			if (lineLevel.Index > expectedLine) then
-				local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
-				gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
-			end
+		if (not LibFroznFunctions:IsSecretValue(unitRecord.petOrBattlePetOrNPCTitle)) then
+			-- guard against "secret string value" comparison errors when only the *execution context* is tainted,
+			-- which IsSecretValue() alone doesn't always catch (see GetAuraApplicationDisplayCount/GetAuraDataByAuraInstanceID fixes)
+			pcall(function()
+				if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then -- since WoD, npc title can be a single space character
+					lineLevel.Index = currentDisplayParams.petLineLevelIndex or 3;
+					local expectedLine = 2 + (unitRecord.isColorBlind and 1 or 0);
+					if (lineLevel.Index > expectedLine) then
+						local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
+						gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
+					end
+				end
+			end);
 		end
 	end
 end
@@ -559,11 +565,17 @@ function ttStyle:GenerateNpcLines(tip, currentDisplayParams, unitRecord, first)
 	lineName:Push(unitRecord.nameColor:WrapTextInColorCode(unitRecord.name));
 
 	-- guild/title
-	if (not LibFroznFunctions:IsSecretValue(unitRecord.petOrBattlePetOrNPCTitle)) and (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then -- since WoD, npc title can be a single space character
-		-- Az: this doesn't work with "Mini Diablo" or "Mini Thor", which has the format: 1) Mini Diablo 2) Lord of Terror 3) Player's Pet 4) Level 1 Non-combat Pet
-		local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
-		gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
-		lineLevel.Index = (lineLevel.Index + 1);
+	if (not LibFroznFunctions:IsSecretValue(unitRecord.petOrBattlePetOrNPCTitle)) then
+		-- guard against "secret string value" comparison errors when only the *execution context* is tainted,
+		-- which IsSecretValue() alone doesn't always catch (see GetAuraApplicationDisplayCount/GetAuraDataByAuraInstanceID fixes)
+		pcall(function()
+			if (unitRecord.petOrBattlePetOrNPCTitle) and (unitRecord.petOrBattlePetOrNPCTitle ~= " ") then -- since WoD, npc title can be a single space character
+				-- Az: this doesn't work with "Mini Diablo" or "Mini Thor", which has the format: 1) Mini Diablo 2) Lord of Terror 3) Player's Pet 4) Level 1 Non-combat Pet
+				local gttLine = unitRecord.isColorBlind and GameTooltipTextLeft3 or GameTooltipTextLeft2;
+				gttLine:SetText(unitRecord.nameColor:WrapTextInColorCode(format("<%s>",unitRecord.petOrBattlePetOrNPCTitle)));
+				lineLevel.Index = (lineLevel.Index + 1);
+			end
+		end);
 	end
 
 	-- race
