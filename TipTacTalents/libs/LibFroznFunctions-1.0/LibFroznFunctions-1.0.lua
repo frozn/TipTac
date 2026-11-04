@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 67; -- bump on changes
+local LIB_MINOR = 68; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -65,6 +65,7 @@ end
 --         .DF         = true/false for DF
 --         .TWW        = true/false for TWW
 --         .MN         = true/false for MN
+--         .Forever    = true/false for Forever (WoW Forever runs on the mn client, so .MN is also true)
 LibFroznFunctions.isWoWFlavor = {
 	ClassicEra = false,
 	TBC = false,
@@ -74,7 +75,8 @@ LibFroznFunctions.isWoWFlavor = {
 	SL = false,
 	DF = false,
 	TWW = false,
-	MN = false
+	MN = false,
+	Forever = false
 };
 
 if (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CLASSIC"]) then
@@ -87,6 +89,9 @@ elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.CataC = true;
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MISTS_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.MoPC = true;
+elseif (_G["WOW_PROJECT_CAMELOT"]) and (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CAMELOT"]) then -- WoW Forever, mainline game type "camelot" on the mn client
+	LibFroznFunctions.isWoWFlavor.Forever = true;
+	LibFroznFunctions.isWoWFlavor.MN = true;
 else -- WOW_PROJECT_MAINLINE (retail)
 	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
 		LibFroznFunctions.isWoWFlavor.SL = true;
@@ -220,6 +225,9 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.DF         and 395 or -- Lost Landcaller's Robes (Druid, Tier 29)
 	LibFroznFunctions.isWoWFlavor.TWW        and 571 or -- Hide of the Greatlynx (Druid, Tier 32)
 	LibFroznFunctions.isWoWFlavor.MN         and 219;   -- Trunk of the Luminous Bloom (Druid, Tier 35)
+if (LibFroznFunctions.isWoWFlavor.Forever) then
+	LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet = false; -- not defined (yet). vanilla-era item levels, so the mn value doesn't apply.
+end
 
 -- aura filters, see "AuraUtil.lua"
 LFF_AURA_FILTERS = (AuraUtil) and (AuraUtil.AuraFilters) or {
