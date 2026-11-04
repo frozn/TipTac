@@ -815,9 +815,6 @@ if (LSM) then
 	for name, path in next, azof.LibSharedMediaSubstitute.statusbar do
 		LSM:Register("statusbar",name,path);
 	end
-	for name, path in next, azof.LibSharedMediaSubstitute.sound do
-		LSM:Register("sound",name,path);
-	end
 end
 
 local function SharedMediaLib_SelectValue(dropDown,entry,index)
