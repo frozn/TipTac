@@ -60,6 +60,7 @@ These fixes are on top of upstream v26.09.03. Most of them guard calls that star
 | Bail out of `GetTalents` on a secret or invalid unit id | `*/libs/LibFroznFunctions-1.0/LibFroznFunctions-1.0.lua` (all 4 copies) | "Secret values are only allowed during untainted execution" from `UnitIsUnit` |
 | Use `C_Item.GetItemInfo` for the macro item lookup | `TipTacItemRef/ttItemRef.lua` | Calls to the deprecated global `GetItemInfo` |
 | Add 12.1.5 (`120105`) to the base TOCs | `*/<Addon>.toc` | "Out of date" on 12.1.5 |
+| Hook pet-battle / journal tooltip functions only if the global exists (`hookGlobalFuncIfExists`, marked `Local fix`) | `TipTacItemRef/ttItemRef.lua` | "hooksecurefunc(): FloatingPetBattleAbility_Show is not a function" on Forever, where `FloatingPetBattleTooltip.lua` doesn't load |
 | WoW Forever support: `16001` in the base TOCs, Forever detection in LibFroznFunctions (library minor bumped to 68) | `*/<Addon>.toc`, all 4 LibFroznFunctions copies | "Out of date" on Forever; Forever being classified by expansion level |
 
 Run `git log upstream/main..main` for the full reasoning behind each fix. Each commit message records the error it fixes.

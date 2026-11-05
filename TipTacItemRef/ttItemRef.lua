@@ -1943,16 +1943,25 @@ local function EJTT_OnHide_Hook(self)
 	end
 end
 
+-- Local fix: hook a Blizzard global only if it exists. Some FrameXML files are gated by game type
+-- (e.g. FloatingPetBattleTooltip.lua is "mists, mainline" only), so on WoW Forever ("camelot") the
+-- tooltip frame can exist while its show function doesn't, and hooksecurefunc() throws.
+local function hookGlobalFuncIfExists(funcName, hookFunc)
+	if (type(_G[funcName]) == "function") then
+		hooksecurefunc(funcName, hookFunc);
+	end
+end
+
 -- Function to apply necessary hooks to tips
 local function applyHooksToTipsForFrames(tip, tipName)
 	local tipHooked = false;
-	
+
 	if (tipName == "BattlePetTooltip") then
-		hooksecurefunc("BattlePetToolTip_Show", BPTT_Show_Hook);
+		hookGlobalFuncIfExists("BattlePetToolTip_Show", BPTT_Show_Hook);
 		tip:HookScript("OnHide", BPTT_OnHide_Hook);
 		tipHooked = true;
 	elseif (tipName == "PetBattlePrimaryUnitTooltip") then
-		hooksecurefunc("PetBattleUnitTooltip_UpdateForUnit", PBUTT_UpdateForUnit_Hook);
+		hookGlobalFuncIfExists("PetBattleUnitTooltip_UpdateForUnit", PBUTT_UpdateForUnit_Hook);
 		tip:HookScript("OnHide", PBPUTT_OnHide_Hook);
 		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
 		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
@@ -1962,13 +1971,13 @@ local function applyHooksToTipsForFrames(tip, tipName)
 		end
 		tipHooked = true;
 	elseif (tipName == "FloatingBattlePetTooltip") then
-		hooksecurefunc("FloatingBattlePet_Show", FBP_Show_Hook);
+		hookGlobalFuncIfExists("FloatingBattlePet_Show", FBP_Show_Hook);
 		tip:HookScript("OnHide", FBPTT_OnHide_Hook);
 		tipHooked = true;
 	elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_Collections")) and ((tipName == "PetJournalPrimaryAbilityTooltip") or (tipName == "PetJournalSecondaryAbilityTooltip")) then
 		if (tipName == "PetJournalPrimaryAbilityTooltip") then
-			hooksecurefunc("PetJournal_ShowAbilityTooltip", PJ_ShowAbilityTooltip_Hook);
-			hooksecurefunc("PetJournal_ShowAbilityCompareTooltip", PJ_ShowAbilityCompareTooltip_Hook);
+			hookGlobalFuncIfExists("PetJournal_ShowAbilityTooltip", PJ_ShowAbilityTooltip_Hook);
+			hookGlobalFuncIfExists("PetJournal_ShowAbilityCompareTooltip", PJ_ShowAbilityCompareTooltip_Hook);
 		end
 		tip:HookScript("OnHide", PATT_OnHide_Hook);
 		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
@@ -1979,7 +1988,7 @@ local function applyHooksToTipsForFrames(tip, tipName)
 		end
 		tipHooked = true;
 	elseif (tipName == "PetBattlePrimaryAbilityTooltip") then
-		hooksecurefunc("SharedPetBattleAbilityTooltip_SetAbility", SPBATT_SetAbility_Hook);
+		hookGlobalFuncIfExists("SharedPetBattleAbilityTooltip_SetAbility", SPBATT_SetAbility_Hook);
 		tip:HookScript("OnHide", PATT_OnHide_Hook);
 		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
 		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
@@ -1989,7 +1998,7 @@ local function applyHooksToTipsForFrames(tip, tipName)
 		end
 		tipHooked = true;
 	elseif (tipName == "FloatingPetBattleAbilityTooltip") then
-		hooksecurefunc("FloatingPetBattleAbility_Show", FPBA_Show_Hook);
+		hookGlobalFuncIfExists("FloatingPetBattleAbility_Show", FPBA_Show_Hook);
 		tip:HookScript("OnHide", FPBATT_OnHide_Hook);
 		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
 		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
@@ -1999,7 +2008,7 @@ local function applyHooksToTipsForFrames(tip, tipName)
 		end
 		tipHooked = true;
 	elseif (LibFroznFunctions:IsAddOnFinishedLoading("Blizzard_EncounterJournal")) and (tipName == "EncounterJournalTooltip") then
-		hooksecurefunc("AdventureJournal_Reward_OnEnter", AJR_OnEnter_Hook);
+		hookGlobalFuncIfExists("AdventureJournal_Reward_OnEnter", AJR_OnEnter_Hook);
 		tip:HookScript("OnHide", EJTT_OnHide_Hook);
 		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
 		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
