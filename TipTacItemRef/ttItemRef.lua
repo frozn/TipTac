@@ -846,7 +846,7 @@ local function SetAction_Hook(self, slot)
 			elseif (subType == "item") then
 				name = (LibFroznFunctions:GetLineTextFromGameTooltip(self, 1, true) or ""); -- id is wrong. as a workaround find item in macro by name.
 				if (name ~= "") then
-					local _, link = GetItemInfo(name);
+					local _, link = C_Item.GetItemInfo(name);
 					if (link) then
 						local linkType, itemID = link:match("H?(%a+):(%d+)");
 						if (itemID) then
