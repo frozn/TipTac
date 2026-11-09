@@ -818,7 +818,7 @@ if (LSM) then
 		LSM:Register("statusbar",name,path);
 	end
 	for name, path in next, azof.LibSharedMediaSubstitute.sound do
-		LSM:Register("sound",name,tonumber(fileDataID));
+		LSM:Register("sound",name,path);
 	end
 end
 
