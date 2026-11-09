@@ -9,7 +9,7 @@
 
 -- create new library
 local LIB_NAME = "LibFroznFunctions-1.0";
-local LIB_MINOR = 67; -- bump on changes
+local LIB_MINOR = 68; -- bump on changes
 
 if (not LibStub) then
 	error(LIB_NAME .. " requires LibStub.");
@@ -61,6 +61,7 @@ end
 --         .WotLKC     = true/false for WotLKC
 --         .CataC      = true/false for CataC
 --         .MoPC       = true/false for MoPC
+--         .Forever    = true/false for Forever
 --         .SL         = true/false for SL
 --         .DF         = true/false for DF
 --         .TWW        = true/false for TWW
@@ -71,6 +72,7 @@ LibFroznFunctions.isWoWFlavor = {
 	WotLKC = false,
 	CataC = false,
 	MoPC = false,
+	Forever = false,
 	SL = false,
 	DF = false,
 	TWW = false,
@@ -88,7 +90,9 @@ elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_CATACLYSM_CLASSIC"]) then
 elseif (_G["WOW_PROJECT_ID"] == _G["WOW_PROJECT_MISTS_CLASSIC"]) then
 	LibFroznFunctions.isWoWFlavor.MoPC = true;
 else -- WOW_PROJECT_MAINLINE (retail)
-	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
+	if (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_CLASSIC"]) then
+		LibFroznFunctions.isWoWFlavor.Forever = true;
+	elseif (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_SHADOWLANDS"]) then
 		LibFroznFunctions.isWoWFlavor.SL = true;
 	elseif (_G["LE_EXPANSION_LEVEL_CURRENT"] == _G["LE_EXPANSION_DRAGONFLIGHT"]) then
 		LibFroznFunctions.isWoWFlavor.DF = true;
@@ -117,6 +121,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .talentIconAvailable                                                                = true/false if talent icon is available (since bc)
 --         .roleIconAvailable                                                                  = true/false if role icon is available (since MoP 5.0.4)
 --         .specializationAvailable                                                            = true/false if specialization is available (since MoP 5.0.4)
+--         .specializationGroupsAvailable                                                      = true/false if specialization groupbs are available (since 4ever 1.60.1)
 --         .itemLevelOfFirstRaidTierSet                                                        = item level of first raid tier set. false if not defined (yet).
 --         .GameTooltipSetPaddingWithLeftAndTop                                                = true/false if GameTooltip:SetPadding() has the optional left and top parameters (since BfA 8.2.0)
 --         .GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips                                 = true/false if GameTooltip:FadeOut() will not be called for worldframe unit tips (till mopc)
@@ -145,6 +150,7 @@ LibFroznFunctions.hasWoWFlavor = {
 	talentIconAvailable = true,
 	roleIconAvailable = true,
 	specializationAvailable = true,
+	specializationGroupsAvailable = false,
 	itemLevelOfFirstRaidTierSet = false,
 	GameTooltipSetPaddingWithLeftAndTop = true,
 	GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = false,
@@ -156,8 +162,9 @@ LibFroznFunctions.hasWoWFlavor = {
 	relatedExpansionForItemAvailable = true,
 	defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TipTac,
 	optionsSliderTemplate = "UISliderTemplateWithLabels",
-	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and true or false), -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
-	challengeMode = (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
+	skyriding = (C_MountJournal and C_MountJournal.SwapDynamicFlightMode and -- see MountJournalDynamicFlightModeButtonMixin:OnClick() in "Blizzard_MountCollection.lua"
+		C_MountJournal.GetDynamicFlightModeSpellID and C_MountJournal.GetDynamicFlightModeSpellID and C_Spell.DoesSpellExist(C_MountJournal.GetDynamicFlightModeSpellID()) and true or false),
+	challengeMode = (ChallengeMode_LoadUI and C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and true or false),
 	unitCanBeSecretValue = true,
 	GetMountFromSpellNotPossibleInCombat = true,
 	aurasCooldownCountAndDebuffTypeNotAvailableInCombat = true
@@ -169,18 +176,22 @@ if (LibFroznFunctions.isWoWFlavor.ClassicEra) then
 	LibFroznFunctions.hasWoWFlavor.talentIconAvailable = false;
 	LibFroznFunctions.hasWoWFlavor.realGetSpellLinkAvailable = false;
 end
-if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) then
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) and (LibFroznFunctions.isWoWFlavor.Forever) then
 	LibFroznFunctions.hasWoWFlavor.defaultGearScoreAlgorithm = LFF_GEAR_SCORE_ALGORITHM.TacoTip;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) then
+	LibFroznFunctions.hasWoWFlavor.specializationAvailable = false;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) and (LibFroznFunctions.isWoWFlavor.Forever) then
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 3;
 	LibFroznFunctions.hasWoWFlavor.roleIconAvailable = false;
-	LibFroznFunctions.hasWoWFlavor.specializationAvailable = false;
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) then
 	LibFroznFunctions.hasWoWFlavor.needsSuppressingErrorMessageAndSpeechWhenCallingCanInspect = true;
 	LibFroznFunctions.hasWoWFlavor.GameTooltipSetPaddingWithLeftAndTop = false;
 	LibFroznFunctions.hasWoWFlavor.GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips = true;
+end
+if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) and (LibFroznFunctions.isWoWFlavor.Forever) then
 	LibFroznFunctions.hasWoWFlavor.relatedExpansionForItemAvailable = false;
 end
 if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) then
@@ -188,8 +199,8 @@ if (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.SL) 
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.specializationAndClassTextInPlayerUnitTip = false;
-	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
 	LibFroznFunctions.hasWoWFlavor.experienceBarFrame = (MainMenuExpBar or MainStatusTrackingBarContainer);
+	LibFroznFunctions.hasWoWFlavor.experienceBarDockedToInterfaceBar = true;
 	LibFroznFunctions.hasWoWFlavor.experienceBarMaxLevelBack = (MainMenuExpBar and 1 or MainStatusTrackingBarContainer and 3);
 end
 if (LibFroznFunctions.isWoWFlavor.ClassicEra) or (LibFroznFunctions.isWoWFlavor.TBC) or (LibFroznFunctions.isWoWFlavor.WotLKC) or (LibFroznFunctions.isWoWFlavor.CataC) or (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) or (LibFroznFunctions.isWoWFlavor.DF) then
@@ -208,6 +219,9 @@ end
 if (LibFroznFunctions.isWoWFlavor.MoPC) or (LibFroznFunctions.isWoWFlavor.SL) then
 	LibFroznFunctions.hasWoWFlavor.numTalentTrees = 0;
 end
+if (LibFroznFunctions.isWoWFlavor.Forever) then
+	LibFroznFunctions.hasWoWFlavor.specializationGroupsAvailable = true;
+end
 if (LibFroznFunctions.isWoWFlavor.DF) then
 	LibFroznFunctions.hasWoWFlavor.skyriding = (GetAchievementInfo(15794) and true or false) -- see DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID in "Blizzard_DragonflightLandingPage.lua"
 end
@@ -217,6 +231,7 @@ LibFroznFunctions.hasWoWFlavor.itemLevelOfFirstRaidTierSet =
 	LibFroznFunctions.isWoWFlavor.WotLKC     and 213 or -- Valorous Dreamwalker Robe (Druid, Tier 7)
 	LibFroznFunctions.isWoWFlavor.CataC      and 359 or -- Stormrider's Robes (Druid, Tier 11)
 	LibFroznFunctions.isWoWFlavor.MoPC       and 397 or -- Deep Earth Robes (Druid, Tier 13)
+	LibFroznFunctions.isWoWFlavor.Forever    and  65 or -- Grovekeeper Chestguard (Druid, Tier 1)
 	LibFroznFunctions.isWoWFlavor.DF         and 395 or -- Lost Landcaller's Robes (Druid, Tier 29)
 	LibFroznFunctions.isWoWFlavor.TWW        and 571 or -- Hide of the Greatlynx (Druid, Tier 32)
 	LibFroznFunctions.isWoWFlavor.MN         and 219;   -- Trunk of the Luminous Bloom (Druid, Tier 35)
@@ -5108,54 +5123,121 @@ function LibFroznFunctions:GetTalents(unitID)
 	-- get talents
 	local talents = {};
 	
-	if (self.hasWoWFlavor.specializationAvailable) then -- retail, since MoP 5.0.4
-		local specializationName, specializationIcon, role, _;
-		
-		if (isSelf) then -- player
-			local specIndex = self:GetSpecialization();
-			
-			if (not specIndex) then
-				return LFF_TALENTS.none;
-			end
-			
-			_, specializationName, _, specializationIcon, role = self:GetSpecializationInfo(specIndex);
-		else -- inspecting
-			local specializationID = GetInspectSpecialization(unitID);
-			
-			if (specializationID == 0) then
-				return LFF_TALENTS.none;
-			end
-			
-			_, specializationName, _, specializationIcon, role = GetSpecializationInfoByID(specializationID);
-		end
-		
-		if (specializationName ~= "") then
-			talents.name = specializationName;
-		end
-		
-		talents.role = role;
-		talents.iconFileID = specializationIcon;
-		
+	if (self.hasWoWFlavor.specializationAvailable) then -- retail (since MoP 5.0.4), 4ever (since 1.60.1)
 		local pointsSpent = {};
 		
-		if (isSelf) and (C_SpecializationInfo.CanPlayerUseTalentSpecUI()) or (not isSelf) and (C_Traits.HasValidInspectData()) then
-			local configID = (isSelf) and (C_ClassTalents) and (C_ClassTalents.GetActiveConfigID) and (C_ClassTalents.GetActiveConfigID()) or (not isSelf) and (Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID);
+		if (LibFroznFunctions.hasWoWFlavor.specializationGroupsAvailable) then -- specialization groups, since 4ever 1.60.1
+			local talentTabName, talentTabIcon;
+			local talentsFound = false;
 			
-			if (configID) then
-				local configInfo = C_Traits.GetConfigInfo(configID);
+			if (isSelf) and (C_SpecializationInfo.CanPlayerUseTalentSpecUI()) or (not isSelf) and (C_Traits.HasValidInspectData()) then
+				local configID = (isSelf) and (C_ClassTalents) and (C_ClassTalents.GetActiveConfigID) and (C_ClassTalents.GetActiveConfigID()) or (not isSelf) and (Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID);
 				
-				if (configInfo) and (configInfo.treeIDs) then
-					local treeID = configInfo.treeIDs[1];
-					if (treeID) then
-						local treeCurrencyInfo = C_Traits.GetTreeCurrencyInfo(configID, treeID, false);
+				if (configID) then
+					local configInfo = C_Traits.GetConfigInfo(configID);
+					
+					if (configInfo) and (configInfo.treeIDs) then
+						local primaryTreeID = configInfo.treeIDs[1];
 						
-						if (treeCurrencyInfo) then
-							for _, treeCurrencyInfoItem in ipairs(treeCurrencyInfo) do
-								if (treeCurrencyInfoItem.spent) then
-									local traitCurrencyFlags, traitCurrencyType, currencyTypesID, traitCurrencyIcon = C_Traits.GetTraitCurrencyInfo(treeCurrencyInfoItem.traitCurrencyID);
+						if (primaryTreeID) then
+							local groupDisplayInfos = C_Traits.GetGroupDisplayInfoByTreeID(primaryTreeID);
+							
+							if (groupDisplayInfos) then
+								local maxPointsSpent;
+								
+								for _, groupDisplayInfo in ipairs(groupDisplayInfos) do
+									local groupCurrencyInfos = C_Traits.GetGroupCurrencyInfo(configID, { groupDisplayInfo.groupID });
 									
-									if (self:ExistsInTable(traitCurrencyFlags, { Enum.TraitCurrencyFlag.UseClassIcon, Enum.TraitCurrencyFlag.UseSpecIcon })) and (treeCurrencyInfoItem.spent) then
-										tinsert(pointsSpent, treeCurrencyInfoItem.spent);
+									talentsFound = true;
+									
+									if (groupCurrencyInfos) and (#groupCurrencyInfos > 0) then
+										local groupCurrencyInfo = groupCurrencyInfos[1];
+										
+										if (groupCurrencyInfo) then
+											groupCurrencyInfo = groupCurrencyInfo.currencyInfos[1];
+											
+											if (groupCurrencyInfo) and (groupCurrencyInfo.spent) then
+												local traitCurrencyFlags, traitCurrencyType, currencyTypesID, traitCurrencyIcon = C_Traits.GetTraitCurrencyInfo(groupCurrencyInfo.traitCurrencyID);
+												
+												if (self:ExistsInTable(traitCurrencyFlags, { Enum.TraitCurrencyFlag.UseClassIcon, Enum.TraitCurrencyFlag.UseSpecIcon })) then
+													local _pointsSpent = groupCurrencyInfo.spent;
+													
+													tinsert(pointsSpent, _pointsSpent);
+													
+													if (not maxPointsSpent) or (_pointsSpent > maxPointsSpent) then
+														maxPointsSpent = _pointsSpent;
+														talentTabName, talentTabIcon = groupDisplayInfo.displayName, groupDisplayInfo.icon;
+													end
+												end
+											end
+										end
+									else
+										tinsert(pointsSpent, 0);
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+			
+			if (not talentsFound) then
+				return LFF_TALENTS.none;
+			end
+			
+			if (talentTabName) and (talentTabName ~= "") then
+				talents.name = talentTabName;
+			end
+			
+			talents.iconFileID = talentTabIcon;
+		else --  retail, since MoP 5.0.4
+			local specializationName, specializationIcon, role, _;
+			
+			if (isSelf) then -- player
+				local specIndex = self:GetSpecialization();
+				
+				if (not specIndex) then
+					return LFF_TALENTS.none;
+				end
+				
+				_, specializationName, _, specializationIcon, role = self:GetSpecializationInfo(specIndex);
+			else -- inspecting
+				local specializationID = GetInspectSpecialization(unitID);
+				
+				if (specializationID == 0) then
+					return LFF_TALENTS.none;
+				end
+				
+				_, specializationName, _, specializationIcon, role = GetSpecializationInfoByID(specializationID);
+			end
+			
+			if (specializationName ~= "") then
+				talents.name = specializationName;
+			end
+			
+			talents.role = role;
+			talents.iconFileID = specializationIcon;
+			
+			if (isSelf) and (C_SpecializationInfo.CanPlayerUseTalentSpecUI()) or (not isSelf) and (C_Traits.HasValidInspectData()) then
+				local configID = (isSelf) and (C_ClassTalents) and (C_ClassTalents.GetActiveConfigID) and (C_ClassTalents.GetActiveConfigID()) or (not isSelf) and (Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID);
+				
+				if (configID) then
+					local configInfo = C_Traits.GetConfigInfo(configID);
+					
+					if (configInfo) and (configInfo.treeIDs) then
+						local treeID = configInfo.treeIDs[1];
+						
+						if (treeID) then
+							local treeCurrencyInfo = C_Traits.GetTreeCurrencyInfo(configID, treeID, false);
+							
+							if (treeCurrencyInfo) then
+								for _, treeCurrencyInfoItem in ipairs(treeCurrencyInfo) do
+									if (treeCurrencyInfoItem.spent) then
+										local traitCurrencyFlags, traitCurrencyType, currencyTypesID, traitCurrencyIcon = C_Traits.GetTraitCurrencyInfo(treeCurrencyInfoItem.traitCurrencyID);
+										
+										if (self:ExistsInTable(traitCurrencyFlags, { Enum.TraitCurrencyFlag.UseClassIcon, Enum.TraitCurrencyFlag.UseSpecIcon })) and (treeCurrencyInfoItem.spent) then
+											tinsert(pointsSpent, treeCurrencyInfoItem.spent);
+										end
 									end
 								end
 							end

@@ -67,10 +67,12 @@
 	- added an optional "disabled" key for dropdown menu list entry
 	26.07.15 Rev 35 12.0.7/Midnight #frozn45
 	- fixed positioning of Header and TextOnly element
+	26.11.xx Rev 36 12.0.7/Midnight #frozn45
+	- moved sound assets from path to FileDataID
 --]]
 
 -- create new library
-local REVISION = 35; -- bump on changes
+local REVISION = 36; -- bump on changes
 if (type(AzOptionsFactory) == "table") and (AzOptionsFactory.vers >= REVISION) then
 	return;
 end
@@ -786,27 +788,27 @@ azof.LibSharedMediaSubstitute = {
 		["Blizzard Character Skills Bar"] = "Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar",
 	},
 	sound = {
-		["Bell"] = "Sound\\Doodad\\BellTollHorde.ogg",
-		["Murmur"] = "Sound\\Creature\\Murmur\\MurmurWoundA.ogg",
-		["Alarm Warning 1"] = "Sound\\Interface\\AlarmClockWarning1.ogg",
-		["Alarm Warning 2"] = "Sound\\Interface\\AlarmClockWarning2.ogg",
-		["Alarm Warning 3"] = "Sound\\Interface\\AlarmClockWarning3.ogg",
-		["Raid Warning"] = "Sound\\Interface\\RaidWarning.ogg",
-		["Ready Check 1"] = "Sound\\Interface\\levelup2.ogg",
-		["Ready Check 2"] = "Sound\\Interface\\ReadyCheck.ogg",
-		["Takeoff"] = "Sound\\Universal\\FM_Takeoff.ogg",
-		["Map Ping"] = "Sound\\Interface\\MapPing.ogg",
-		["Auction Close"] = "Sound\\Interface\\AuctionWindowClose.ogg",
-		["Auction Open"] = "Sound\\Interface\\AuctionWindowOpen.ogg",
-		["Gnome Exploration"] = "Sound\\Interface\\GnomeExploration.ogg",
-		["Flag Capture Horde"] = "Sound\\Interface\\PVPFlagCapturedHordeMono.ogg",
-		["Flag Capture Alliance"] = "Sound\\Interface\\PVPFlagCapturedmono.ogg",
-		["Flag Taken Alliance"] = "Sound\\Interface\\PVPFlagTakenHordeMono.ogg",
-		["Flag Taken Horde"] = "Sound\\Interface\\PVPFlagTakenMono.ogg",
-		["PvP Warning"] = "Sound\\Interface\\PVPWARNING.ogg",
-		["PvP Warning Alliance"] = "Sound\\Interface\\PVPWarningAllianceMono.ogg",
-		["PvP Warning Horde"] = "Sound\\Interface\\PVPWarningHordeMono.ogg",
-		["LFG Denied"] = SOUNDKIT.LFG_DENIED,
+		["Bell"] = 565853,                   -- "Sound\\Doodad\\BellTollHorde.ogg",               FileDataID 565853
+		["Murmur"] = 595130,                 -- "Sound\\Creature\\Murmur\\MurmurWoundA.ogg",      FileDataID 595130
+		["Alarm Warning 1"] = 567436,        -- "Sound\\Interface\\AlarmClockWarning1.ogg",       FileDataID 567436
+		["Alarm Warning 2"] = 567399,        -- "Sound\\Interface\\AlarmClockWarning2.ogg",       FileDataID 567399
+		["Alarm Warning 3"] = 567458,        -- "Sound\\Interface\\AlarmClockWarning3.ogg",       FileDataID 567458
+		["Raid Warning"] = 567397,           -- "Sound\\Interface\\RaidWarning.ogg",              FileDataID 567397
+		["Ready Check 1"] = 567478,          -- "Sound\\Interface\\levelup2.ogg",                 FileDataID 567478
+		["Ready Check 2"] = 567409,          -- "Sound\\Interface\\ReadyCheck.ogg",               FileDataID 567409
+		["Takeoff"] = 569838,                -- "Sound\\Universal\\FM_Takeoff.ogg",               FileDataID 569838
+		["Map Ping"] = 567416,               -- "Sound\\Interface\\MapPing.ogg",                  FileDataID 567416
+		["Auction Close"] = 567499,          -- "Sound\\Interface\\AuctionWindowClose.ogg",       FileDataID 567499
+		["Auction Open"] = 567482,           -- "Sound\\Interface\\AuctionWindowOpen.ogg",        FileDataID 567482
+		["Gnome Exploration"] = 567449,      -- "Sound\\Interface\\GnomeExploration.ogg",         FileDataID 567449
+		["Flag Capture Horde"] = 567423,     -- "Sound\\Interface\\PVPFlagCapturedHordeMono.ogg", FileDataID 567423
+		["Flag Capture Alliance"] = 567434,  -- "Sound\\Interface\\PVPFlagCapturedmono.ogg",      FileDataID 567434
+		["Flag Taken Alliance"] = 567427,    -- "Sound\\Interface\\PVPFlagTakenHordeMono.ogg",    FileDataID 567427
+		["Flag Taken Horde"] = 567466,       -- "Sound\\Interface\\PVPFlagTakenMono.ogg",         FileDataID 567466
+		["PvP Warning"] = 567488,            -- "Sound\\Interface\\PVPWARNING.ogg",               FileDataID 567488
+		["PvP Warning Alliance"] = 567505,   -- "Sound\\Interface\\PVPWarningAllianceMono.ogg",   FileDataID 567505
+		["PvP Warning Horde"] = 567446,      -- "Sound\\Interface\\PVPWarningHordeMono.ogg",      FileDataID 567446
+		["LFG Denied"] = 567420,             -- "Sound\\Interface\\LFG_Denied",                   FileDataID 567420
 	},
 };
 
@@ -815,11 +817,14 @@ if (LSM) then
 	for name, path in next, azof.LibSharedMediaSubstitute.statusbar do
 		LSM:Register("statusbar",name,path);
 	end
+	for name, path in next, azof.LibSharedMediaSubstitute.sound do
+		LSM:Register("sound",name,tonumber(fileDataID));
+	end
 end
 
 local function SharedMediaLib_SelectValue(dropDown,entry,index)
 	if (dropDown.option.media == "sound") then
-		(type(entry.value) == "string" and PlaySoundFile or PlaySound)(entry.value);
+		(C_UIFileAsset.IsKnownFile(entry.value) and PlaySoundFile or PlaySound)(entry.value);
 	end
 	Default_SelectValue(dropDown,entry,index);
 end

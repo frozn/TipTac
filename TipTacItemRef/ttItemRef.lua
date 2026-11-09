@@ -204,16 +204,26 @@ local BoolCol = { [false] = "|cffff8080", [true] = "|cff80ff80" };
 -- String constants
 local TTIF_UnknownObject = UNKNOWNOBJECT; -- "Unknown"
 local TTIF_ExpansionIcon = {
-	[0] = {  -- Classic Era
-		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\wow_logo",
-		textureWidth = 32,
-		textureHeight = 16,
-		aspectRatio = 31 / 16,
-		leftTexel = 0.03125,
-		rightTexel = 1,
-		topTexel = 0,
-		bottomTexel = 1
-	},
+	[0] = (LibFroznFunctions.isWoWFlavor.Forever and {  -- Forever
+			textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\forever_logo",
+			textureWidth = 64,
+			textureHeight = 64,
+			aspectRatio = 35 / 40,
+			leftTexel = 0.234375,
+			rightTexel = 0.21875,
+			topTexel = 0.1875,
+			bottomTexel = 0.1875
+		} or {  -- Classic Era
+			textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\wow_logo",
+			textureWidth = 32,
+			textureHeight = 16,
+			aspectRatio = 31 / 16,
+			leftTexel = 0.03125,
+			rightTexel = 1,
+			topTexel = 0,
+			bottomTexel = 1
+		}
+	),
 	[1] = {  -- Burning Crusade
 		textureFile = "Interface\\AddOns\\" .. MOD_NAME .. "\\media\\wow_flavor\\bc_logo",
 		textureWidth = 32,
@@ -1510,7 +1520,7 @@ end
 -- HOOK: EmbeddedItemTooltip_SetItemByID
 local function EITT_SetItemByID_Hook(self, id, count)
 	local targetTooltip = self.Tooltip;
-	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (not targetTooltip:IsForbidden()) and (targetTooltip:IsShown()) then
 		local itemID = id;
 		if (itemID) then
 			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, classID, subClassID, bindType, expansionID, setID, isCraftingReagent = C_Item.GetItemInfo(itemID);
@@ -1528,7 +1538,7 @@ end
 -- HOOK: EmbeddedItemTooltip_SetItemByQuestReward
 local function EITT_SetItemByQuestReward_Hook(self, questLogIndex, questID, rewardType, showCollectionText)
 	local targetTooltip = self.Tooltip;
-	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (not targetTooltip:IsForbidden()) and (targetTooltip:IsShown()) then
 		if (not questLogIndex) then
 			return
 		end
@@ -1559,7 +1569,7 @@ end
 -- HOOK: EmbeddedItemTooltip_SetSpellByQuestReward
 local function EITT_SetSpellByQuestReward_Hook(self, rewardIndex, questID)
 	local targetTooltip = self.Tooltip;
-	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (not targetTooltip:IsForbidden()) and (targetTooltip:IsShown()) then
 		local texture, name, isTradeskillSpell, isSpellLearned, hideSpellLearnText, isBoostSpell, garrFollowerID, genericUnlock, spellID = GetQuestLogRewardSpell(rewardIndex, questID);
 		
 		if (name) and (texture) then
@@ -1578,7 +1588,7 @@ end
 -- HOOK: EmbeddedItemTooltip_SetSpellWithTextureByID
 local function EITT_SetSpellWithTextureByID_Hook(self, spellID, texture)
 	local targetTooltip = self.Tooltip;
-	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (not targetTooltip:IsForbidden()) and (targetTooltip:IsShown()) then
 		if (texture) then
 			local link = LibFroznFunctions:GetSpellLink(spellID);
 			if (link) then
@@ -1595,7 +1605,7 @@ end
 -- HOOK: EmbeddedItemTooltip_SetCurrencyByID
 local function EITT_SetCurrencyByID_Hook(self, currencyID, quantity)
 	local targetTooltip = self.Tooltip;
-	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (targetTooltip:IsShown()) then
+	if (cfg.if_enable) and (not tipDataAdded[targetTooltip]) and (not targetTooltip:IsForbidden()) and (targetTooltip:IsShown()) then
 		local link = C_CurrencyInfo_GetCurrencyLink(currencyID, quantity);
 		if (link) then
 			local linkType, _currencyID, _quantity = link:match("H?(%a+):(%d+):(%d+)");
@@ -1989,7 +1999,7 @@ local function applyHooksToTipsForFrames(tip, tipName)
 		end
 		tipHooked = true;
 	elseif (tipName == "FloatingPetBattleAbilityTooltip") then
-		hooksecurefunc("FloatingPetBattleAbility_Show", FPBA_Show_Hook);
+		LibFroznFunctions:HookSecureFuncIfExists("FloatingPetBattleAbility_Show", FPBA_Show_Hook);
 		tip:HookScript("OnHide", FPBATT_OnHide_Hook);
 		-- add function Addline() (see BattlePetTooltipTemplate_AddTextLine() in "FloatingPetBattleTooltip.lua")
 		tip:HookScript("OnLoad", PATT_EJTT_OnLoad_Hook);
