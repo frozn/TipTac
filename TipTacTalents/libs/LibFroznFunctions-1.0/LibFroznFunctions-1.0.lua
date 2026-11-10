@@ -121,7 +121,7 @@ LFF_GEAR_SCORE_ALGORITHM = {
 --         .talentIconAvailable                                                                = true/false if talent icon is available (since bc)
 --         .roleIconAvailable                                                                  = true/false if role icon is available (since MoP 5.0.4)
 --         .specializationAvailable                                                            = true/false if specialization is available (since MoP 5.0.4)
---         .specializationGroupsAvailable                                                      = true/false if specialization groupbs are available (since 4ever 1.60.1)
+--         .specializationGroupsAvailable                                                      = true/false if specialization groups are available (since 4ever 1.60.1)
 --         .itemLevelOfFirstRaidTierSet                                                        = item level of first raid tier set. false if not defined (yet).
 --         .GameTooltipSetPaddingWithLeftAndTop                                                = true/false if GameTooltip:SetPadding() has the optional left and top parameters (since BfA 8.2.0)
 --         .GameTooltipFadeOutNotBeCalledForWorldFrameUnitTips                                 = true/false if GameTooltip:FadeOut() will not be called for worldframe unit tips (till mopc)
@@ -4259,8 +4259,8 @@ function LibFroznFunctions:UpdateUnitRecord(unitRecord, newUnitID)
 	unitRecord.health = (health) or 0;
 	unitRecord.healthMax = (healthMax) or 0;
 	unitRecord.healthIsSecretValue = (self:IsSecretValue(unitRecord.health));
-	unitRecord.healthPercentIfHealthIsSecretValue = (unitRecord.healthIsSecretValue) and (UnitHealthPercent) and UnitHealthPercent(unitID, nil, CurveConstants.ScaleTo100) or 0;
-	unitRecord.healthMissingIfHealthIsSecretValue = (unitRecord.healthIsSecretValue) and (UnitHealthMissing) and UnitHealthMissing(unitID) or 0;
+	unitRecord.healthPercentIfHealthIsSecretValue = (unitRecord.healthIsSecretValue) and UnitHealthPercent(unitID, true, CurveConstants.ScaleTo100) or 0;
+	unitRecord.healthMissingIfHealthIsSecretValue = (unitRecord.healthIsSecretValue) and UnitHealthMissing(unitID) or 0;
 	
 	-- add location (map, zone and subzone) to unit record
 	unitRecord.map = nil;
@@ -5004,11 +5004,15 @@ end
 
 -- inspect data available
 function frameForDelayedInspection:InspectDataAvailable(unitID, unitCacheRecord)
-	if (not unitID) then
+	-- no valid unit id or no unit id
+	local isValidUnitID = (not LibFroznFunctions:IsSecretValue(unitID)) and (unitID);
+	
+	if (not isValidUnitID) then
 		frameForDelayedInspection:FinishInspect(unitCacheRecord, true);
 		return;
 	end
 	
+	-- inspect data available
 	unitCacheRecord.talents = LibFroznFunctions:GetTalents(unitID);
 	unitCacheRecord.averageItemLevel = LibFroznFunctions:GetAverageItemLevel(unitID, function(averageItemLevel)
 		unitCacheRecord.averageItemLevel = averageItemLevel;

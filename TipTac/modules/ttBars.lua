@@ -780,10 +780,20 @@ function ttBars.HealthBarMixin:GetColor(tip, unitRecord)
 end
 
 -- update value
+local healthBarColorCurve;
+
 function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
-	self:SetStatusBarColor(self:GetColor(tip, unitRecord));
+	local r, g, b, a = self:GetColor(tip, unitRecord);
+	
+	local function setStatusBarColorFn(r, g, b, a)
+		self:SetStatusBarColor(r, g, b, a);
+		
+		GameTooltipStatusBar:SetStatusBarColor(r, g, b, a);
+		GameTooltipStatusBar.lockColor = true;
+	end
 	
 	if (unitRecord == LFF_UNIT_RECORD.SecretValue) then
+		setStatusBarColorFn(r, g, b, a);
 		return;
 	end
 	
@@ -795,6 +805,22 @@ function ttBars.HealthBarMixin:UpdateValue(tip, unitRecord)
 		valuePercentIfValueIsSecretValue = unitRecord.healthPercentIfHealthIsSecretValue,
 		valueMissingIfValueIsSecretValue = unitRecord.healthMissingIfHealthIsSecretValue
 	};
+	
+	if (cfg.enableHealthBarColorLowHP) then
+		if (not healthBarColorCurve) then
+			healthBarColorCurve = C_CurveUtil.CreateColorCurve();
+			
+			healthBarColorCurve:SetType(Enum.LuaCurveType.Linear);
+		end
+		
+		healthBarColorCurve:ClearPoints();
+		healthBarColorCurve:AddPoint(0, CreateColor(unpack(cfg.healthBarColorLowHP)));
+		healthBarColorCurve:AddPoint(1, CreateColor(r, g, b, a));
+		
+		setStatusBarColorFn(UnitHealthPercent(unitRecord.id, true, healthBarColorCurve):GetRGBA());
+	else
+		setStatusBarColorFn(r, g, b, a);
+	end
 	
 	if (valueParams.value) then
 		self:SetMinMaxValues(0, valueParams.maxValue);
