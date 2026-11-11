@@ -67,7 +67,7 @@
 	- added an optional "disabled" key for dropdown menu list entry
 	26.07.15 Rev 35 12.0.7/Midnight #frozn45
 	- fixed positioning of Header and TextOnly element
-	26.11.xx Rev 36 12.0.7/Midnight #frozn45
+	26.11.11 Rev 36 12.1.5/Midnight #frozn45
 	- moved sound assets from path to FileDataID
 --]]
 
