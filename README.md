@@ -39,10 +39,10 @@ In [WowUp](https://wowup.io/), go to `Get Addons->Install From URL` and enter `h
 
 Get [latest release](https://github.com/frozn/TipTac/releases) and replace the folders `TipTac`, `TipTacItemRef`, `TipTacOptions` and `TipTacTalents` with those from the zip file.
 
-Midnight: `\World of Warcraft\_retail_\Interface\AddOns`
-Forever: `\World of Warcraft\_forever_\Interface\AddOns`
-Mists of Pandaria Classic: `\World of Warcraft\_classic_\Interface\AddOns`
-Burning Crusade Classic: `\World of Warcraft\_anniversary_\Interface\AddOns`
+Midnight: `\World of Warcraft\_retail_\Interface\AddOns`  
+Forever: `\World of Warcraft\_forever_\Interface\AddOns`  
+Mists of Pandaria Classic: `\World of Warcraft\_classic_\Interface\AddOns`  
+Burning Crusade Classic: `\World of Warcraft\_anniversary_\Interface\AddOns`  
 Classic Era: `\World of Warcraft\_classic_era_\Interface\AddOns`
 
 ## Buy me a coffee
